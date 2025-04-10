@@ -233,12 +233,10 @@
 
         .error-message {
             color: #ef4444;
-            display: block;
         }
 
         .success-message {
             color: #10b981;
-            display: block;
         }
 
         /* Responsive Design */
@@ -279,7 +277,7 @@
                 <p>Get started with your 14-day free trial</p>
             </div>
 
-            <form id="signupForm">
+            <form id="signupForm" action="login.html" method="GET">
                 <div class="form-group">
                     <label for="fullName">Full Name</label>
                     <input type="text" id="fullName" class="form-control" placeholder="John Smith" required>
@@ -288,7 +286,7 @@
 
                 <div class="form-group">
                     <label for="email">Work Email</label>
-                    <input type="email" id="email" class="form-control" placeholder="your@company.com" required pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$">
+                    <input type="email" id="email" class="form-control" placeholder="your@company.com" required>
                     <div id="emailError" class="validation-message error-message">Please enter a valid email address</div>
                 </div>
 
@@ -316,53 +314,116 @@
                     </div>
                 </div>
 
-                <button type="submit" class="auth-btn" id="submitBtn" disabled>Sign Up</button>
+                <button type="submit" class="auth-btn" id="submitBtn">Sign Up</button>
             </form>
 
             <div class="auth-footer">
-                <p>Already have an account? <a href="#">Log In</a></p>
+                <p>Already have an account? <a href="login.html">Log In</a></p>
             </div>
         </div>
     </main>
 
     <script>
-        // Handle form validation and interactivity
-        const passwordInput = document.getElementById("password");
-        const strengthMeter = document.getElementById("strengthMeter");
-        const submitBtn = document.getElementById("submitBtn");
-        const termsCheckbox = document.getElementById("termsCheckbox");
-        const fullName = document.getElementById("fullName");
-        const email = document.getElementById("email");
-        const confirmPassword = document.getElementById("confirmPassword");
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('signupForm');
+            const fullName = document.getElementById('fullName');
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirmPassword');
+            const termsCheckbox = document.getElementById('termsCheckbox');
+            const submitBtn = document.getElementById('submitBtn');
+            const strengthMeter = document.getElementById('strengthMeter');
 
-        function checkPasswordStrength() {
-            const password = passwordInput.value;
-            let strength = 0;
-
-            if (password.length >= 8) strength++;
-            if (/[A-Z]/.test(password)) strength++;
-            if (/[0-9]/.test(password)) strength++;
-            if (/[^A-Za-z0-9]/.test(password)) strength++;
-
-            strengthMeter.className = `strength-meter strength-${strength}`;
-        }
-
-        function toggleSubmitButton() {
-            const isFormValid = fullName.value && email.value && passwordInput.value && passwordInput.value === confirmPassword.value && termsCheckbox.checked;
-            submitBtn.disabled = !isFormValid;
-            if (passwordInput.value !== confirmPassword.value) {
-                document.getElementById("confirmPasswordError").style.display = "block";
-            } else {
-                document.getElementById("confirmPasswordError").style.display = "none";
+            // Real-time validation functions
+            function validateFullName() {
+                const nameError = document.getElementById('nameError');
+                if (fullName.value.trim() === '') {
+                    nameError.style.display = 'block';
+                    return false;
+                } else {
+                    nameError.style.display = 'none';
+                    return true;
+                }
             }
-        }
 
-        // Attach event listeners
-        passwordInput.addEventListener("input", checkPasswordStrength);
-        fullName.addEventListener("input", toggleSubmitButton);
-        email.addEventListener("input", toggleSubmitButton);
-        confirmPassword.addEventListener("input", toggleSubmitButton);
-        termsCheckbox.addEventListener("change", toggleSubmitButton);
+            function validateEmail() {
+                const emailError = document.getElementById('emailError');
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email.value)) {
+                    emailError.style.display = 'block';
+                    return false;
+                } else {
+                    emailError.style.display = 'none';
+                    return true;
+                }
+            }
+
+            function validatePassword() {
+                const passwordError = document.getElementById('passwordError');
+                if (password.value.length < 8) {
+                    passwordError.style.display = 'block';
+                    return false;
+                } else {
+                    passwordError.style.display = 'none';
+                    return true;
+                }
+            }
+
+            function validateConfirmPassword() {
+                const confirmError = document.getElementById('confirmPasswordError');
+                if (password.value !== confirmPassword.value) {
+                    confirmError.style.display = 'block';
+                    return false;
+                } else {
+                    confirmError.style.display = 'none';
+                    return true;
+                }
+            }
+
+            function checkPasswordStrength() {
+                const pass = password.value;
+                let strength = 0;
+
+                if (pass.length >= 8) strength++;
+                if (/[A-Z]/.test(pass)) strength++;
+                if (/[0-9]/.test(pass)) strength++;
+                if (/[^A-Za-z0-9]/.test(pass)) strength++;
+
+                strengthMeter.className = `strength-meter strength-${strength}`;
+            }
+
+            function validateForm() {
+                const isNameValid = validateFullName();
+                const isEmailValid = validateEmail();
+                const isPasswordValid = validatePassword();
+                const isConfirmValid = validateConfirmPassword();
+                const isTermsChecked = termsCheckbox.checked;
+
+                return isNameValid && isEmailValid && isPasswordValid && isConfirmValid && isTermsChecked;
+            }
+
+            // Event listeners for real-time validation
+            fullName.addEventListener('input', validateFullName);
+            email.addEventListener('input', validateEmail);
+            password.addEventListener('input', function() {
+                validatePassword();
+                checkPasswordStrength();
+                if (confirmPassword.value) validateConfirmPassword();
+            });
+            confirmPassword.addEventListener('input', validateConfirmPassword);
+            termsCheckbox.addEventListener('change', validateForm);
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (validateForm()) {
+                    // In a real app, you would send data to server here
+                    // For demo, we'll just submit the form to login.html
+                    form.submit();
+                }
+            });
+        });
     </script>
 </body>
 </html>
