@@ -288,7 +288,7 @@
 
                 <div class="form-group">
                     <label for="email">Work Email</label>
-                    <input type="email" id="email" class="form-control" placeholder="your@company.com" required>
+                    <input type="email" id="email" class="form-control" placeholder="your@company.com" required pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$">
                     <div id="emailError" class="validation-message error-message">Please enter a valid email address</div>
                 </div>
 
@@ -348,9 +348,16 @@
         }
 
         function toggleSubmitButton() {
-            submitBtn.disabled = !termsCheckbox.checked || !fullName.value || !email.value || !passwordInput.value || passwordInput.value !== confirmPassword.value;
+            const isFormValid = fullName.value && email.value && passwordInput.value && passwordInput.value === confirmPassword.value && termsCheckbox.checked;
+            submitBtn.disabled = !isFormValid;
+            if (passwordInput.value !== confirmPassword.value) {
+                document.getElementById("confirmPasswordError").style.display = "block";
+            } else {
+                document.getElementById("confirmPasswordError").style.display = "none";
+            }
         }
 
+        // Attach event listeners
         passwordInput.addEventListener("input", checkPasswordStrength);
         fullName.addEventListener("input", toggleSubmitButton);
         email.addEventListener("input", toggleSubmitButton);
