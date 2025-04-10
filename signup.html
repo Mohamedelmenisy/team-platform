@@ -298,131 +298,64 @@
                     <div class="password-strength">
                         <div id="strengthMeter" class="strength-meter"></div>
                     </div>
-                    <div class="strength-text" id="strengthText">Password strength</div>
-                    <div id="passwordError" class="validation-message error-message">Minimum 8 characters with numbers and symbols</div>
+                    <div id="passwordError" class="validation-message error-message">Password must be at least 8 characters</div>
                 </div>
 
                 <div class="form-group">
                     <label for="confirmPassword">Confirm Password</label>
                     <input type="password" id="confirmPassword" class="form-control" placeholder="••••••••" required>
-                    <div id="confirmError" class="validation-message error-message">Passwords don't match</div>
+                    <div id="confirmPasswordError" class="validation-message error-message">Passwords do not match</div>
                 </div>
 
                 <div class="terms-container">
                     <div class="terms-checkbox">
-                        <input type="checkbox" id="terms" required>
-                        <div class="terms-text">
+                        <input type="checkbox" id="termsCheckbox" required>
+                        <label for="termsCheckbox" class="terms-text">
                             I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
-                            <div id="termsError" class="validation-message error-message">You must accept the terms</div>
-                        </div>
+                        </label>
                     </div>
                 </div>
 
-                <button type="submit" class="auth-btn" id="submitBtn">Create Account</button>
-                <div id="formSuccess" class="validation-message success-message">Account created successfully!</div>
+                <button type="submit" class="auth-btn" id="submitBtn" disabled>Sign Up</button>
             </form>
 
             <div class="auth-footer">
-                Already have an account? <a href="login.html">Sign in</a>
+                <p>Already have an account? <a href="#">Log In</a></p>
             </div>
         </div>
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('signupForm');
-            const fullName = document.getElementById('fullName');
-            const email = document.getElementById('email');
-            const password = document.getElementById('password');
-            const confirmPassword = document.getElementById('confirmPassword');
-            const terms = document.getElementById('terms');
-            const submitBtn = document.getElementById('submitBtn');
-            const strengthMeter = document.getElementById('strengthMeter');
-            const strengthText = document.getElementById('strengthText');
+        // Handle form validation and interactivity
+        const passwordInput = document.getElementById("password");
+        const strengthMeter = document.getElementById("strengthMeter");
+        const submitBtn = document.getElementById("submitBtn");
+        const termsCheckbox = document.getElementById("termsCheckbox");
+        const fullName = document.getElementById("fullName");
+        const email = document.getElementById("email");
+        const confirmPassword = document.getElementById("confirmPassword");
 
-            // Password strength indicator
-            password.addEventListener('input', function() {
-                const val = password.value;
-                let strength = 0;
+        function checkPasswordStrength() {
+            const password = passwordInput.value;
+            let strength = 0;
 
-                // Length check
-                if (val.length >= 8) strength++;
-                if (val.length >= 12) strength++;
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
 
-                // Character type checks
-                if (/[A-Z]/.test(val)) strength++;
-                if (/[0-9]/.test(val)) strength++;
-                if (/[^A-Za-z0-9]/.test(val)) strength++;
+            strengthMeter.className = `strength-meter strength-${strength}`;
+        }
 
-                // Update meter
-                strengthMeter.className = 'strength-meter strength-' + Math.min(strength, 4);
-                
-                // Update text
-                const strengthLabels = ['Very Weak', 'Weak', 'Medium', 'Strong', 'Very Strong'];
-                strengthText.textContent = strengthLabels[Math.min(strength, 4)];
-                strengthText.style.color = ['#ef4444', '#f59e0b', '#f59e0b', '#10b981', '#10b981'][Math.min(strength, 4)];
-            });
+        function toggleSubmitButton() {
+            submitBtn.disabled = !termsCheckbox.checked || !fullName.value || !email.value || !passwordInput.value || passwordInput.value !== confirmPassword.value;
+        }
 
-            // Form validation
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                let isValid = true;
-
-                // Reset errors
-                document.querySelectorAll('.validation-message').forEach(el => {
-                    el.style.display = 'none';
-                });
-
-                // Name validation
-                if (!fullName.value.trim()) {
-                    document.getElementById('nameError').style.display = 'block';
-                    isValid = false;
-                }
-
-                // Email validation
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-                    document.getElementById('emailError').style.display = 'block';
-                    isValid = false;
-                }
-
-                // Password validation
-                if (password.value.length < 8) {
-                    document.getElementById('passwordError').style.display = 'block';
-                    isValid = false;
-                }
-
-                // Confirm password
-                if (password.value !== confirmPassword.value) {
-                    document.getElementById('confirmError').style.display = 'block';
-                    isValid = false;
-                }
-
-                // Terms check
-                if (!terms.checked) {
-                    document.getElementById('termsError').style.display = 'block';
-                    isValid = false;
-                }
-
-                if (isValid) {
-                    // Disable button during submission
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Creating Account...';
-
-                    // Simulate API call
-                    setTimeout(() => {
-                        document.getElementById('formSuccess').style.display = 'block';
-                        
-                        // In a real app, you would redirect to dashboard
-                        setTimeout(() => {
-                            window.location.href = 'dashboard.html';
-                        }, 1500);
-                    }, 1000);
-                }
-            });
-
-            // Focus first field
-            fullName.focus();
-        });
+        passwordInput.addEventListener("input", checkPasswordStrength);
+        fullName.addEventListener("input", toggleSubmitButton);
+        email.addEventListener("input", toggleSubmitButton);
+        confirmPassword.addEventListener("input", toggleSubmitButton);
+        termsCheckbox.addEventListener("change", toggleSubmitButton);
     </script>
 </body>
 </html>
