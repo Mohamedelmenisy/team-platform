@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Team Management Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e3a8a;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --light-gray: #e2e8f0;
+            --white: #ffffff;
+            --sidebar-width: 280px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--white);
+            border-right: 1px solid var(--light-gray);
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo-icon {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+        
+        .menu-title {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--gray);
+            letter-spacing: 0.5px;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--dark);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover {
+            background-color: var(--light);
+            color: var(--primary);
+        }
+        
+        .menu-item.active {
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            border-left-color: var(--primary);
+        }
+        
+        .menu-item i {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+        }
+        
+        /* Top Navigation */
+        .top-nav {
+            background-color: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--light-gray);
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+        
+        .search-bar {
+            position: relative;
+            width: 400px;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .notification-icon {
+            position: relative;
+            color: var(--gray);
+            cursor: pointer;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 600;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .user-name {
+            font-weight: 500;
+        }
+        
+        /* Content Area */
+        .content-area {
+            padding: 2rem;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .breadcrumb-separator {
+            margin: 0 0.5rem;
+            color: var(--gray);
+        }
+        
+        /* Feature Content */
+        .feature-content {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+        
+        .feature-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .search-bar {
+                width: 250px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .top-nav {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            .user-menu {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .content-area {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-users-cog logo-icon"></i>
+                <span>TeamManage</span>
+            </div>
+        </div>
+        
+        <div class="sidebar-menu">
+            <div class="menu-title">Main Features</div>
+            
+            <a href="#file-sharing" class="menu-item active" data-feature="file-sharing">
+                <i class="fas fa-file-upload"></i>
+                <span>File Sharing</span>
+            </a>
+            
+            <a href="#data-management" class="menu-item" data-feature="data-management">
+                <i class="fas fa-database"></i>
+                <span>Data Management</span>
+            </a>
+            
+            <a href="#project-tracking" class="menu-item" data-feature="project-tracking">
+                <i class="fas fa-project-diagram"></i>
+                <span>Project Tracking</span>
+            </a>
+            
+            <a href="#task-management" class="menu-item" data-feature="task-management">
+                <i class="fas fa-tasks"></i>
+                <span>Task Management</span>
+            </a>
+            
+            <a href="#employee-scheduling" class="menu-item" data-feature="employee-scheduling">
+                <i class="fas fa-users"></i>
+                <span>Employee Scheduling</span>
+            </a>
+            
+            <a href="#team-calendar" class="menu-item" data-feature="team-calendar">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Team Calendar</span>
+            </a>
+            
+            <a href="#deadline-tracking" class="menu-item" data-feature="deadline-tracking">
+                <i class="fas fa-clock"></i>
+                <span>Deadline Tracking</span>
+            </a>
+            
+            <a href="#innovation-hub" class="menu-item" data-feature="innovation-hub">
+                <i class="fas fa-lightbulb"></i>
+                <span>Innovation Hub</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav class="top-nav">
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search...">
+            </div>
+            
+            <div class="user-menu">
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </div>
+                
+                <div class="user-profile">
+                    <div class="user-avatar">AD</div>
+                    <div class="user-name">Admin User</div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">File Sharing</h1>
+                    <div class="breadcrumb">
+                        <a href="#">Dashboard</a>
+                        <span class="breadcrumb-separator">/</span>
+                        <span>File Sharing</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feature Content -->
+            <div class="feature-content" id="feature-content">
+                <div class="feature-header">
+                    <h2 class="feature-title">File Sharing Center</h2>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Upload Files
+                    </button>
+                </div>
+                
+                <!-- File Sharing Content Would Go Here -->
+                <div class="file-sharing-content">
+                    <p>This is where the file sharing content would be displayed. You can implement:</p>
+                    <ul>
+                        <li>File upload functionality</li>
+                        <li>Document previews</li>
+                        <li>Version control</li>
+                        <li>Access permissions</li>
+                        <li>File organization system</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const menuItems = document.querySelectorAll('.menu-item');
+            const featureContent = document.getElementById('feature-content');
+            
+            // Handle menu item clicks
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all items
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    
+                    // Add active class to clicked item
+                    this.classList.add('active');
+                    
+                    // Update feature content based on selection
+                    const feature = this.getAttribute('data-feature');
+                    updateFeatureContent(feature);
+                });
+            });
+            
+            // Update feature content
+            function updateFeatureContent(feature) {
+                const featureTitles = {
+                    'file-sharing': 'File Sharing',
+                    'data-management': 'Data Management',
+                    'project-tracking': 'Project Tracking',
+                    'task-management': 'Task Management',
+                    'employee-scheduling': 'Employee Scheduling',
+                    'team-calendar': 'Team Calendar',
+                    'deadline-tracking': 'Deadline Tracking',
+                    'innovation-hub': 'Innovation Hub'
+                };
+                
+                const featureDescriptions = {
+                    'file-sharing': 'Securely share and manage team documents with version control and access permissions.',
+                    'data-management': 'Centralized data storage with advanced search and reporting capabilities.',
+                    'project-tracking': 'Manage multiple projects with Gantt charts, milestones, and resource allocation.',
+                    'task-management': 'Assign, track, and manage tasks with intuitive workflows and progress tracking.',
+                    'employee-scheduling': 'Create and manage shifts, time-off requests, and availability with visual calendars.',
+                    'team-calendar': 'Integrated calendar for meetings, deadlines, and team events with sync capabilities.',
+                    'deadline-tracking': 'Visual deadline management with automated reminders and priority indicators.',
+                    'innovation-hub': 'Collaborative space for team suggestions, feature requests, and improvement initiatives.'
+                };
+                
+                // Update page title
+                document.querySelector('.page-title').textContent = featureTitles[feature];
+                
+                // Update breadcrumb
+                document.querySelector('.breadcrumb span:last-child').textContent = featureTitles[feature];
+                
+                // Update feature title
+                document.querySelector('.feature-title').textContent = featureTitles[feature] + ' Center';
+                
+                // Update feature content (in a real app, you would load different content for each feature)
+                document.querySelector('.file-sharing-content').innerHTML = `
+                    <h3>${featureTitles[feature]} Features</h3>
+                    <p>${featureDescriptions[feature]}</p>
+                    <ul>
+                        <li>Feature 1 for ${featureTitles[feature]}</li>
+                        <li>Feature 2 for ${featureTitles[feature]}</li>
+                        <li>Feature 3 for ${featureTitles[feature]}</li>
+                        <li>Customizable options</li>
+                        <li>Team collaboration tools</li>
+                    </ul>
+                `;
+            }
+            
+            // In a real application, you would:
+            // 1. Load different content for each feature via AJAX
+            // 2. Implement actual functionality for each feature
+            // 3. Handle user permissions
+            // 4. Connect to backend services
+        });
+    </script>
+</body>
+</html>
