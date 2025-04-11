@@ -281,6 +281,12 @@
             margin-bottom: 0.5rem;
         }
         
+        .welcome-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+        
         .user-info {
             display: flex;
             align-items: center;
@@ -829,6 +835,31 @@
             background-color: #dbeafe;
         }
         
+        /* Preview Theme Classes */
+        body.preview-light-theme {
+            --primary-light: #f8fafc;
+            --light: #ffffff;
+            --white: #ffffff;
+            --dark: #1e293b;
+            background-color: #f8fafc;
+        }
+        
+        body.preview-dark-theme {
+            --primary-light: #1e293b;
+            --light: #334155;
+            --white: #1e293b;
+            --dark: #f8fafc;
+            background-color: #0f172a;
+        }
+        
+        body.preview-blue-theme {
+            --primary-light: #dbeafe;
+            --light: #eff6ff;
+            --white: #ffffff;
+            --dark: #1e293b;
+            background-color: #dbeafe;
+        }
+        
         /* Notifications Modal */
         .notifications-modal {
             position: fixed;
@@ -1264,6 +1295,7 @@
                 <!-- Welcome Section -->
                 <div class="welcome-section">
                     <h2 class="welcome-title">Welcome back, <span id="welcomeName">Mohamed</span>!</h2>
+                    <div class="welcome-subtitle">Logged in as: <span id="loggedInEmail">mohamed@teamflow.com</span></div>
                     
                     <div class="user-info">
                         <div class="user-info-avatar" id="profileAvatar">ME</div>
@@ -1339,7 +1371,7 @@
                         <h3 class="section-title">Recent Activity</h3>
                         <div>
                             <span class="view-all" id="viewAllActivity">Show All</span>
-                            <span class="delete-all" id="deleteAllActivity">Delete All</span>
+                            <span class="delete-all admin-only" id="deleteAllActivity">Delete All</span>
                         </div>
                     </div>
                     
@@ -1588,7 +1620,7 @@
                             <!-- Team members will be added dynamically -->
                         </div>
                         
-                        <div class="add-member-form">
+                        <div class="add-member-form admin-only">
                             <h4>Add New Member</h4>
                             <form id="addMemberForm">
                                 <div class="form-group">
@@ -1630,7 +1662,7 @@
             
             <div class="mark-all-read">
                 <button class="btn btn-outline" id="markAllReadBtn">Mark All as Read</button>
-                <button class="btn btn-danger" id="deleteAllNotificationsBtn" style="margin-left: 10px;">Delete All</button>
+                <button class="btn btn-danger admin-only" id="deleteAllNotificationsBtn" style="margin-left: 10px;">Delete All</button>
             </div>
             
             <div id="notificationsList">
@@ -1644,7 +1676,7 @@
                         </div>
                         <div class="notification-time">10 minutes ago</div>
                     </div>
-                    <div class="notification-actions">
+                    <div class="notification-actions admin-only">
                         <i class="fas fa-trash delete-notification" data-id="1"></i>
                     </div>
                 </div>
@@ -1659,7 +1691,7 @@
                         </div>
                         <div class="notification-time">2 hours ago</div>
                     </div>
-                    <div class="notification-actions">
+                    <div class="notification-actions admin-only">
                         <i class="fas fa-trash delete-notification" data-id="2"></i>
                     </div>
                 </div>
@@ -1674,7 +1706,7 @@
                         </div>
                         <div class="notification-time">Yesterday</div>
                     </div>
-                    <div class="notification-actions">
+                    <div class="notification-actions admin-only">
                         <i class="fas fa-trash delete-notification" data-id="3"></i>
                     </div>
                 </div>
@@ -1689,7 +1721,7 @@
                         </div>
                         <div class="notification-time">2 days ago</div>
                     </div>
-                    <div class="notification-actions">
+                    <div class="notification-actions admin-only">
                         <i class="fas fa-trash delete-notification" data-id="4"></i>
                     </div>
                 </div>
@@ -1731,6 +1763,7 @@
             const userName = document.getElementById('userName');
             const userEmail = document.getElementById('userEmail');
             const welcomeName = document.getElementById('welcomeName');
+            const loggedInEmail = document.getElementById('loggedInEmail');
             const userDropdown = document.getElementById('userDropdown');
             const profileLink = document.getElementById('profileLink');
             const settingsLink = document.getElementById('settingsLink');
@@ -1778,7 +1811,11 @@
                 avatar: '',
                 initials: 'ME',
                 role: 'admin',
-                password: 'password123' // In a real app, this would be hashed and stored securely
+                password: 'password123', // In a real app, this would be hashed and stored securely
+                theme: 'blue',
+                language: 'en',
+                timezone: 'cairo',
+                dateFormat: 'dd/mm/yyyy'
             };
 
             // Check if we have a logged in user from login page
@@ -1788,8 +1825,10 @@
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
             }
             
-            // Get current page from sessionStorage or default to dashboard
-            let currentPage = sessionStorage.getItem('currentPage') || 'dashboard';
+            // Get current page from URL hash or sessionStorage or default to dashboard
+            let currentPage = window.location.hash.substring(1) || 
+                            sessionStorage.getItem('currentPage') || 
+                            'dashboard';
             
             // Sample team members
             let teamMembers = JSON.parse(localStorage.getItem('teamMembers')) || [
@@ -1878,6 +1917,9 @@
             let currentAction = null;
             let currentIndex = null;
             
+            // Variables for theme preview
+            let themePreview = null;
+            
             // Initialize the dashboard
             function initDashboard() {
                 // Set user data
@@ -1895,14 +1937,28 @@
                 // Load notifications
                 loadNotifications();
                 
-                // Set active feature based on sessionStorage
+                // Set active feature based on URL hash or sessionStorage
                 setActiveFeature(currentPage);
+                
+                // Set up hash change listener for direct URL access
+                window.addEventListener('hashchange', function() {
+                    const newPage = window.location.hash.substring(1);
+                    if (newPage) {
+                        setActiveFeature(newPage);
+                    }
+                });
+                
+                // Set up beforeunload listener to handle back button
+                window.addEventListener('beforeunload', function() {
+                    sessionStorage.setItem('currentPage', currentPage);
+                });
             }
             
             // Update user UI elements
             function updateUserUI() {
                 userName.textContent = currentUser.name;
                 userEmail.textContent = currentUser.email;
+                loggedInEmail.textContent = currentUser.email;
                 welcomeName.textContent = currentUser.name.split(' ')[0];
                 document.querySelector('.user-info-name').textContent = currentUser.name;
                 document.querySelector('.user-info-title').textContent = currentUser.title;
@@ -1917,6 +1973,11 @@
                 document.getElementById('department').value = currentUser.department;
                 document.getElementById('email').value = currentUser.email;
                 
+                // Set language, timezone, and date format
+                document.getElementById('language').value = currentUser.language;
+                document.getElementById('timezone').value = currentUser.timezone;
+                document.getElementById('dateFormat').value = currentUser.dateFormat;
+                
                 // Set avatar if exists
                 if (currentUser.avatar) {
                     profileAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
@@ -1930,6 +1991,10 @@
                     profileAvatarLarge.textContent = currentUser.initials;
                     userAvatar.textContent = currentUser.initials;
                 }
+                
+                // Apply current theme
+                document.body.className = `${currentUser.theme}-theme`;
+                document.getElementById('selectedTheme').value = currentUser.theme;
                 
                 // Show/hide admin features based on role
                 const adminFeatures = document.querySelectorAll('.admin-only');
@@ -2127,7 +2192,7 @@
                             <div class="notification-message">${notification.message}</div>
                             <div class="notification-time">${notification.time}</div>
                         </div>
-                        <div class="notification-actions">
+                        <div class="notification-actions ${currentUser.role === 'admin' ? '' : 'd-none'}">
                             <i class="fas fa-trash delete-notification" data-id="${notification.id}"></i>
                         </div>
                     `;
@@ -2214,8 +2279,12 @@
             
             // Set active feature
             function setActiveFeature(feature) {
+                // Update URL hash for direct access
+                window.location.hash = feature;
+                
                 // Store current page in sessionStorage
                 sessionStorage.setItem('currentPage', feature);
+                currentPage = feature;
                 
                 // Hide all content sections
                 dashboardContent.style.display = 'none';
@@ -2240,6 +2309,30 @@
                     document.querySelector(`[data-feature="${feature}"]`).classList.add('active');
                     featureSections.innerHTML = `<h2>${feature.replace('-', ' ')} Feature</h2><p>This is the ${feature.replace('-', ' ')} feature content.</p>`;
                 }
+            }
+            
+            // Preview theme changes
+            function previewTheme(theme) {
+                // Remove any existing preview classes
+                document.body.classList.remove('preview-light-theme', 'preview-dark-theme', 'preview-blue-theme');
+                
+                // Add preview class for selected theme
+                document.body.classList.add(`preview-${theme}-theme`);
+                
+                // Store the preview theme
+                themePreview = theme;
+            }
+            
+            // Reset theme preview
+            function resetThemePreview() {
+                // Remove any preview classes
+                document.body.classList.remove('preview-light-theme', 'preview-dark-theme', 'preview-blue-theme');
+                
+                // Reapply the current theme
+                document.body.className = `${currentUser.theme}-theme`;
+                
+                // Clear the preview theme
+                themePreview = null;
             }
             
             // Handle menu item clicks
@@ -2419,6 +2512,14 @@
                 const timezone = document.getElementById('timezone').value;
                 const dateFormat = document.getElementById('dateFormat').value;
                 
+                // Save settings
+                currentUser.language = language;
+                currentUser.timezone = timezone;
+                currentUser.dateFormat = dateFormat;
+                
+                // Update localStorage
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
                 // Apply language change immediately
                 if (language === 'ar') {
                     document.documentElement.lang = 'ar';
@@ -2500,6 +2601,16 @@
                 e.preventDefault();
                 const layoutDensity = document.getElementById('layoutDensity').value;
                 
+                // Apply theme if preview exists
+                if (themePreview) {
+                    currentUser.theme = themePreview;
+                    document.body.className = `${currentUser.theme}-theme`;
+                    resetThemePreview();
+                }
+                
+                // Save preferences
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
                 // Show toast notification
                 showToast('Preferences saved successfully', 'success');
             });
@@ -2508,19 +2619,7 @@
             themeOptions.forEach(option => {
                 option.addEventListener('click', function() {
                     const theme = this.getAttribute('data-theme');
-                    document.body.className = `${theme}-theme`;
-                    document.getElementById('selectedTheme').value = theme;
-                    
-                    // Add activity
-                    activities.unshift({
-                        icon: 'fa-palette',
-                        message: `${currentUser.name} changed theme to ${theme}`,
-                        timestamp: new Date().toISOString()
-                    });
-                    loadActivities();
-                    
-                    // Show toast notification
-                    showToast(`Theme changed to ${theme}`, 'success');
+                    previewTheme(theme);
                 });
             });
             
@@ -2577,6 +2676,14 @@
                 
                 if (e.target === confirmModal) {
                     hideConfirmModal();
+                }
+            });
+            
+            // Handle back button to prevent going to login page
+            window.addEventListener('popstate', function(event) {
+                if (window.location.pathname.includes('login.html')) {
+                    history.pushState(null, '', window.location.href);
+                    setActiveFeature(currentPage);
                 }
             });
             
