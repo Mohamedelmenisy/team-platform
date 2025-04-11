@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,6 +24,21 @@
             --sidebar-active: rgba(255, 255, 255, 0.2);
         }
 
+        /* Dark theme variables */
+        .dark-theme {
+            --primary: #3b82f6;
+            --primary-dark: #1e40af;
+            --primary-light: #1e293b;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --dark: #f8fafc;
+            --light: #1e293b;
+            --gray: #94a3b8;
+            --light-gray: #334155;
+            --white: #0f172a;
+            --sidebar-bg: #1e293b;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -37,7 +51,6 @@
             color: var(--dark);
             display: flex;
             min-height: 100vh;
-            transition: background-color 0.3s ease;
         }
 
         /* Sidebar Styles */
@@ -154,6 +167,8 @@
             border-radius: 6px;
             font-size: 0.9rem;
             transition: all 0.2s;
+            background-color: var(--white);
+            color: var(--dark);
         }
 
         .search-icon {
@@ -161,6 +176,34 @@
             left: 1rem;
             top: 50%;
             transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 0 0 6px 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .search-result-item:hover {
+            background-color: var(--light);
+        }
+
+        .search-result-item i {
+            margin-right: 0.5rem;
             color: var(--gray);
         }
 
@@ -502,6 +545,12 @@
 
         .activity-message {
             margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .activity-user {
+            font-weight: 600;
+            color: var(--primary-dark);
         }
 
         .activity-time {
@@ -577,6 +626,8 @@
             border: 1px solid var(--light-gray);
             border-radius: 6px;
             font-size: 1rem;
+            background-color: var(--white);
+            color: var(--dark);
         }
 
         .form-control:focus {
@@ -624,6 +675,15 @@
             background-color: var(--primary-light);
         }
 
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
         /* Settings Content */
         .settings-content {
             display: none;
@@ -669,6 +729,24 @@
             display: block;
         }
 
+        .settings-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .settings-option-label {
+            font-weight: 500;
+        }
+
+        .settings-option-value {
+            color: var(--gray);
+        }
+
         /* Team Management */
         .team-management {
             margin-top: 1.5rem;
@@ -710,9 +788,15 @@
             flex: 1;
         }
 
+        .member-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
         .member-email {
             font-size: 0.9rem;
             color: var(--gray);
+            margin-bottom: 0.25rem;
         }
 
         .member-role {
@@ -720,6 +804,7 @@
             border-radius: 4px;
             font-size: 0.8rem;
             font-weight: 500;
+            display: inline-block;
         }
 
         .role-admin {
@@ -742,6 +827,14 @@
             padding: 1.5rem;
             border: 1px dashed var(--light-gray);
             border-radius: 8px;
+        }
+
+        .admin-only {
+            display: none;
+        }
+
+        .user-admin .admin-only {
+            display: block;
         }
 
         /* Notifications Modal */
@@ -786,7 +879,7 @@
             font-weight: 600;
         }
 
-        .mark-all-read {
+        .notifications-actions {
             padding: 1rem;
             display: flex;
             justify-content: space-between;
@@ -798,16 +891,38 @@
             padding: 1rem;
             border-bottom: 1px solid var(--light-gray);
             align-items: center;
+            justify-content: space-between;
+        }
+
+        .notification-content {
+            flex: 1;
         }
 
         .notification-message {
-            flex: 1;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .notification-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 0.5rem;
         }
 
         .delete-notification {
             cursor: pointer;
             color: var(--danger);
             font-size: 1rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .delete-notification:hover {
+            background-color: rgba(239, 68, 68, 0.1);
         }
 
         /* Toast Notification */
@@ -823,11 +938,104 @@
             opacity: 0;
             transition: opacity 0.5s;
             z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
         .toast.show {
-            display: block;
+            display: flex;
             opacity: 1;
+        }
+
+        /* Back button */
+        .back-button {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .back-button:hover {
+            text-decoration: underline;
+        }
+
+        /* Language and theme options */
+        .settings-select {
+            padding: 0.5rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            background-color: var(--white);
+            color: var(--dark);
+        }
+
+        /* Feature Pages */
+        .feature-page {
+            display: none;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .feature-page.active {
+            display: block;
+        }
+
+        /* Preview Modal */
+        .preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .preview-container {
+            background-color: var(--white);
+            width: 80%;
+            max-width: 800px;
+            max-height: 90%;
+            overflow-y: auto;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .preview-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-preview {
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+
+        .preview-content {
+            margin-bottom: 2rem;
+        }
+
+        .preview-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
         }
 
         /* Responsive Design */
@@ -911,12 +1119,12 @@
             </a>
             <div class="menu-divider"></div>
 
-            <a href="file-sharing.html" class="menu-item" data-feature="file-sharing">
+            <a href="#file-sharing" class="menu-item" data-feature="file-sharing">
                 <i class="fas fa-file-upload"></i>
                 <span>File Sharing</span>
             </a>
 
-            <a href="data-management.html" class="menu-item" data-feature="data-management">
+            <a href="#data-management" class="menu-item" data-feature="data-management">
                 <i class="fas fa-database"></i>
                 <span>Data Management</span>
             </a>
@@ -971,12 +1179,15 @@
             <div class="search-bar">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" placeholder="Search employees, projects, tasks..." id="searchInput">
+                <div class="search-results" id="searchResults">
+                    <!-- Search results will be added dynamically -->
+                </div>
             </div>
 
             <div class="user-menu">
                 <div class="notification-icon" id="notificationIcon">
                     <i class="fas fa-bell"></i>
-                    <span class="notification-badge" id="notificationCount">3</span>
+                    <span class="notification-badge">3</span>
                 </div>
 
                 <div class="user-profile">
@@ -1088,6 +1299,7 @@
             <div class="profile-content" id="profileContent">
                 <div class="profile-header">
                     <h2 class="profile-title">Profile Settings</h2>
+                    <span class="back-button" id="backToDashboardFromProfile">← Back to Dashboard</span>
                 </div>
                 <form class="profile-form" id="profileForm">
                     <div class="form-group">
@@ -1132,6 +1344,7 @@
             <div class="settings-content" id="settingsContent">
                 <div class="profile-header">
                     <h2 class="profile-title">System Settings</h2>
+                    <span class="back-button" id="backToDashboardFromSettings">← Back to Dashboard</span>
                 </div>
                 <div class="settings-tabs">
                     <div class="settings-tab active" data-tab="account">Account</div>
@@ -1141,47 +1354,62 @@
                     <div class="settings-tab" data-tab="team">Team Management</div>
                 </div>
                 <div class="settings-panel active" id="accountPanel">
-                    <form class="profile-form" id="accountForm">
-                        <div class="form-group">
-                            <label for="language">Language</label>
-                            <select id="language" class="form-control">
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-language" style="margin-right: 0.5rem;"></i>
+                            Language
+                        </div>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="languageSelect">
                                 <option value="en">English</option>
                                 <option value="ar">Arabic</option>
+                                <option value="fr">French</option>
+                                <option value="es">Spanish</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="timezone">Timezone</label>
-                            <select id="timezone" class="form-control">
-                                <option value="utc">UTC</option>
-                                <option value="cairo" selected>Cairo (UTC+2)</option>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-globe" style="margin-right: 0.5rem;"></i>
+                            Timezone
+                        </div>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="timezoneSelect">
+                                <option value="UTC+2">Cairo (UTC+2)</option>
+                                <option value="UTC+0">London (UTC+0)</option>
+                                <option value="UTC-5">New York (UTC-5)</option>
+                                <option value="UTC+8">Beijing (UTC+8)</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="dateFormat">Date Format</label>
-                            <select id="dateFormat" class="form-control">
-                                <option value="mm/dd/yyyy">MM/DD/YYYY</option>
-                                <option value="dd/mm/yyyy" selected>DD/MM/YYYY</option>
-                                <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-calendar" style="margin-right: 0.5rem;"></i>
+                            Date Format
+                        </div>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="dateFormatSelect">
+                                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
                             </select>
                         </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-outline">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save Settings</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
                 <div class="settings-panel" id="securityPanel">
-                    <form class="profile-form" id="securityForm">
-                        <div class="form-group">
-                            <label>Two-Factor Authentication</label>
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <label class="switch">
-                                    <input type="checkbox" id="twoFactorAuth" checked>
-                                    <span class="slider round"></span>
-                                </label>
-                                <span>Enabled</span>
-                            </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-shield-alt" style="margin-right: 0.5rem;"></i>
+                            Two-Factor Authentication
                         </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="twoFactorAuth" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <form id="passwordForm" style="margin-top: 2rem;">
                         <div class="form-group">
                             <label for="currentPassword">Current Password</label>
                             <input type="password" id="currentPassword" class="form-control">
@@ -1201,93 +1429,96 @@
                     </form>
                 </div>
                 <div class="settings-panel" id="notificationsPanel">
-                    <form class="profile-form" id="notificationsForm">
-                        <div class="form-group">
-                            <label>Email Notifications</label>
-                            <div style="margin-top: 0.5rem;">
-                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-                                    <span>Task Assignments</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="emailTasks" checked>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-                                    <span>Deadline Reminders</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="emailDeadlines" checked>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                                <div style="display: flex; align-items: center; justify-content: space-between;">
-                                    <span>System Updates</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="emailUpdates">
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                            </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-envelope" style="margin-right: 0.5rem;"></i>
+                            Email Notifications
                         </div>
-                        <div class="form-group">
-                            <label>Push Notifications</label>
-                            <div style="margin-top: 0.5rem;">
-                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-                                    <span>New Messages</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="pushMessages" checked>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                                <div style="display: flex; align-items: center; justify-content: space-between;">
-                                    <span>Team Updates</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="pushTeamUpdates">
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                            </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="emailNotifications" checked>
+                                <span class="slider round"></span>
+                            </label>
                         </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-outline">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save Settings</button>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-bell" style="margin-right: 0.5rem;"></i>
+                            Push Notifications
                         </div>
-                    </form>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="pushNotifications" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-tasks" style="margin-right: 0.5rem;"></i>
+                            Task Notifications
+                        </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="taskNotifications" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-calendar-check" style="margin-right: 0.5rem;"></i>
+                            Deadline Reminders
+                        </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="deadlineReminders" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
                 <div class="settings-panel" id="preferencesPanel">
-                    <form class="profile-form" id="preferencesForm">
-                        <div class="form-group">
-                            <label>Theme</label>
-                            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-                                <div class="theme-option" data-theme="light">
-                                    <div style="width: 60px; height: 60px; background-color: #f8fafc; border: 2px solid #e2e8f0; border-radius: 6px; cursor: pointer;"></div>
-                                    <span style="text-align: center; display: block; margin-top: 0.5rem;">Light</span>
-                                </div>
-                                <div class="theme-option" data-theme="dark">
-                                    <div style="width: 60px; height: 60px; background-color: #1e293b; border: 2px solid #334155; border-radius: 6px; cursor: pointer;"></div>
-                                    <span style="text-align: center; display: block; margin-top: 0.5rem;">Dark</span>
-                                </div>
-                                <div class="theme-option" data-theme="blue">
-                                    <div style="width: 60px; height: 60px; background-color: #dbeafe; border: 2px solid #2563eb; border-radius: 6px; cursor: pointer;"></div>
-                                    <span style="text-align: center; display: block; margin-top: 0.5rem;">Blue</span>
-                                </div>
-                            </div>
-                            <input type="hidden" id="selectedTheme" value="blue">
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-palette" style="margin-right: 0.5rem;"></i>
+                            Theme
                         </div>
-                        <div class="form-group">
-                            <label>Layout Density</label>
-                            <div class="form-group">
-                                <select id="layoutDensity" class="form-control">
-                                    <option value="compact">Compact</option>
-                                    <option value="normal" selected>Normal</option>
-                                    <option value="spacious">Spacious</option>
-                                </select>
-                            </div>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="themeSelect">
+                                <option value="blue">Blue</option>
+                                <option value="dark">Dark</option>
+                                <option value="light">Light</option>
+                                <option value="green">Green</option>
+                            </select>
                         </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-outline">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save Preferences</button>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-columns" style="margin-right: 0.5rem;"></i>
+                            Layout Density
                         </div>
-                    </form>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="densitySelect">
+                                <option value="compact">Compact</option>
+                                <option value="normal" selected>Normal</option>
+                                <option value="comfortable">Comfortable</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-font" style="margin-right: 0.5rem;"></i>
+                            Font Size
+                        </div>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="fontSizeSelect">
+                                <option value="small">Small</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="large">Large</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div class="settings-panel" id="teamPanel">
                     <div class="team-management">
@@ -1298,6 +1529,10 @@
                         <div class="add-member-form admin-only">
                             <h4>Add New Member</h4>
                             <form id="addMemberForm">
+                                <div class="form-group">
+                                    <label for="memberName">Full Name</label>
+                                    <input type="text" id="memberName" class="form-control" placeholder="John Doe" required>
+                                </div>
                                 <div class="form-group">
                                     <label for="memberEmail">Email</label>
                                     <input type="email" id="memberEmail" class="form-control" placeholder="user@example.com" required>
@@ -1319,7 +1554,71 @@
             </div>
 
             <!-- Feature Content Sections -->
-            <div id="featureSections" style="display: none;"></div>
+            <div id="featureSections">
+                <div id="file-sharing-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">File Sharing</h2>
+                        <span class="back-button" id="backToDashboardFromFileSharing">← Back to Dashboard</span>
+                    </div>
+                    <p>File sharing feature content will be displayed here.</p>
+                </div>
+                
+                <div id="data-management-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Data Management</h2>
+                        <span class="back-button" id="backToDashboardFromDataManagement">← Back to Dashboard</span>
+                    </div>
+                    <p>Data management feature content will be displayed here.</p>
+                </div>
+                
+                <div id="project-tracking-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Project Tracking</h2>
+                        <span class="back-button" id="backToDashboardFromProjectTracking">← Back to Dashboard</span>
+                    </div>
+                    <p>Project tracking feature content will be displayed here.</p>
+                </div>
+                
+                <div id="task-management-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Task Management</h2>
+                        <span class="back-button" id="backToDashboardFromTaskManagement">← Back to Dashboard</span>
+                    </div>
+                    <p>Task management feature content will be displayed here.</p>
+                </div>
+                
+                <div id="employee-scheduling-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Employee Scheduling</h2>
+                        <span class="back-button" id="backToDashboardFromEmployeeScheduling">← Back to Dashboard</span>
+                    </div>
+                    <p>Employee scheduling feature content will be displayed here.</p>
+                </div>
+                
+                <div id="team-calendar-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Team Calendar</h2>
+                        <span class="back-button" id="backToDashboardFromTeamCalendar">← Back to Dashboard</span>
+                    </div>
+                    <p>Team calendar feature content will be displayed here.</p>
+                </div>
+                
+                <div id="deadline-tracking-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Deadline Tracking</h2>
+                        <span class="back-button" id="backToDashboardFromDeadlineTracking">← Back to Dashboard</span>
+                    </div>
+                    <p>Deadline tracking feature content will be displayed here.</p>
+                </div>
+                
+                <div id="innovation-hub-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Innovation Hub</h2>
+                        <span class="back-button" id="backToDashboardFromInnovationHub">← Back to Dashboard</span>
+                    </div>
+                    <p>Innovation hub feature content will be displayed here.</p>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -1330,12 +1629,29 @@
                 <h3 class="notifications-title">Notifications</h3>
                 <button class="close-notifications" id="closeNotifications">×</button>
             </div>
-            <div class="mark-all-read">
+            <div class="notifications-actions">
                 <button class="btn btn-outline" id="markAllReadBtn">Mark All as Read</button>
-                <button class="btn btn-danger admin-only" id="deleteAllNotificationsBtn" style="margin-left: 10px;">Delete All</button>
+                <button class="btn btn-danger admin-only" id="deleteAllNotificationsBtn">Delete All</button>
             </div>
             <div id="notificationsList">
                 <!-- Notifications will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div class="preview-modal" id="previewModal">
+        <div class="preview-container">
+            <div class="preview-header">
+                <h3 class="preview-title">Preview Changes</h3>
+                <button class="close-preview" id="closePreview">×</button>
+            </div>
+            <div class="preview-content" id="previewContent">
+                <!-- Preview content will be added here -->
+            </div>
+            <div class="preview-actions">
+                <button class="btn btn-outline" id="cancelPreviewBtn">Cancel</button>
+                <button class="btn btn-primary" id="confirmPreviewBtn">Confirm Changes</button>
             </div>
         </div>
     </div>
@@ -1362,56 +1678,336 @@
             const closeNotifications = document.getElementById('closeNotifications');
             const notificationsList = document.getElementById('notificationsList');
             const deleteAllNotificationsBtn = document.getElementById('deleteAllNotificationsBtn');
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
+            const backToDashboardFromSettings = document.getElementById('backToDashboardFromSettings');
             const profileAvatarInput = document.getElementById('profileAvatarInput');
             const profileAvatar = document.getElementById('profileAvatar');
+            const profileAvatarLarge = document.getElementById('profileAvatarLarge');
+            const userAvatar = document.getElementById('userAvatar');
+            const themeSelect = document.getElementById('themeSelect');
+            const previewModal = document.getElementById('previewModal');
+            const closePreview = document.getElementById('closePreview');
+            const cancelPreviewBtn = document.getElementById('cancelPreviewBtn');
+            const confirmPreviewBtn = document.getElementById('confirmPreviewBtn');
+
+            // Load saved data from localStorage
+            function loadSavedData() {
+                // Load profile picture
+                const savedAvatar = localStorage.getItem('profileAvatar');
+                if (savedAvatar) {
+                    profileAvatar.style.backgroundImage = `url(${savedAvatar})`;
+                    profileAvatar.textContent = '';
+                    profileAvatarLarge.style.backgroundImage = `url(${savedAvatar})`;
+                    profileAvatarLarge.textContent = '';
+                    userAvatar.style.backgroundImage = `url(${savedAvatar})`;
+                    userAvatar.textContent = '';
+                }
+
+                // Load activities
+                const savedActivities = localStorage.getItem('activities');
+                if (savedActivities) {
+                    activities = JSON.parse(savedActivities);
+                }
+
+                // Load notifications
+                const savedNotifications = localStorage.getItem('notifications');
+                if (savedNotifications) {
+                    notifications = JSON.parse(savedNotifications);
+                }
+
+                // Load team members
+                const savedTeamMembers = localStorage.getItem('teamMembers');
+                if (savedTeamMembers) {
+                    teamMembers = JSON.parse(savedTeamMembers);
+                }
+
+                // Load theme
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme) {
+                    document.body.className = `${savedTheme}-theme`;
+                    themeSelect.value = savedTheme;
+                }
+
+                // Load current page
+                const currentPage = localStorage.getItem('currentPage');
+                if (currentPage) {
+                    showPage(currentPage);
+                }
+            }
+
+            // Save data to localStorage
+            function saveData() {
+                localStorage.setItem('profileAvatar', profileAvatar.style.backgroundImage);
+                localStorage.setItem('activities', JSON.stringify(activities));
+                localStorage.setItem('notifications', JSON.stringify(notifications));
+                localStorage.setItem('teamMembers', JSON.stringify(teamMembers));
+                localStorage.setItem('theme', themeSelect.value);
+            }
+
+            // Check if current user is admin (m.elsayed@thechefz.co)
+            const isAdmin = document.getElementById('userEmail').textContent === 'm.elsayed@thechefz.co';
+            if (isAdmin) {
+                document.body.classList.add('user-admin');
+            }
 
             // User Data
             let currentUser = {
                 name: 'Mohamed Elmenisy',
                 email: 'm.elsayed@thechefz.co',
+                role: isAdmin ? 'admin' : 'member',
                 tasksCompleted: 0,
-                profileImage: ''
             };
 
-            // Load Data from localStorage
-            function loadFromLocalStorage() {
-                const savedActivities = JSON.parse(localStorage.getItem('activities')) || [];
-                const savedNotifications = JSON.parse(localStorage.getItem('notifications')) || [];
-                activities = savedActivities;
-                notifications = savedNotifications;
-                renderActivities();
-                renderNotifications();
-                loadUserProfile();
+            // Sample team members
+            let teamMembers = [
+                { id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', role: 'admin' },
+                { id: 2, name: 'Ahmed Mohamed', email: 'ahmed@example.com', role: 'member' },
+                { id: 3, name: 'Fatima Ali', email: 'fatima@example.com', role: 'member' },
+                { id: 4, name: 'Omar Hassan', email: 'omar@example.com', role: 'member' },
+                { id: 5, name: 'Layla Ibrahim', email: 'layla@example.com', role: 'member' }
+            ];
+
+            // Sample activities with timestamps
+            let activities = [
+                { 
+                    user: 'Mohamed Elmenisy', 
+                    message: 'completed the project dashboard', 
+                    icon: 'fa-check-circle',
+                    timestamp: Date.now() - 300000 // 5 minutes ago
+                },
+                { 
+                    user: 'Ahmed Mohamed', 
+                    message: 'uploaded new design files', 
+                    icon: 'fa-file-upload',
+                    timestamp: Date.now() - 900000 // 15 minutes ago
+                },
+                { 
+                    user: 'Fatima Ali', 
+                    message: 'commented on the task board', 
+                    icon: 'fa-comment',
+                    timestamp: Date.now() - 1800000 // 30 minutes ago
+                },
+                { 
+                    user: 'Omar Hassan', 
+                    message: 'started working on the API integration', 
+                    icon: 'fa-code',
+                    timestamp: Date.now() - 7200000 // 2 hours ago
+                },
+                { 
+                    user: 'Layla Ibrahim', 
+                    message: 'updated the project timeline', 
+                    icon: 'fa-calendar-alt',
+                    timestamp: Date.now() - 18000000 // 5 hours ago
+                }
+            ];
+
+            // Sample notifications
+            let notifications = [
+                { 
+                    message: 'New task assigned to you: Update dashboard design', 
+                    timestamp: Date.now() - 600000, // 10 mins ago
+                    read: false
+                },
+                { 
+                    message: 'Deadline approaching: Project submission due tomorrow', 
+                    timestamp: Date.now() - 3600000, // 1 hour ago
+                    read: false
+                },
+                { 
+                    message: 'Team meeting scheduled for Friday at 2 PM', 
+                    timestamp: Date.now() - 10800000, // 3 hours ago
+                    read: true
+                }
+            ];
+
+            // Sample search results
+            const searchItems = [
+                { type: 'employee', name: 'Mohamed Elmenisy', icon: 'fa-user', link: '#profile' },
+                { type: 'employee', name: 'Ahmed Mohamed', icon: 'fa-user', link: '#profile' },
+                { type: 'project', name: 'Dashboard Redesign', icon: 'fa-project-diagram', link: '#project-tracking' },
+                { type: 'project', name: 'API Integration', icon: 'fa-project-diagram', link: '#project-tracking' },
+                { type: 'task', name: 'Update user profile', icon: 'fa-tasks', link: '#task-management' },
+                { type: 'task', name: 'Fix login bug', icon: 'fa-tasks', link: '#task-management' },
+                { type: 'file', name: 'Design Specs.pdf', icon: 'fa-file-pdf', link: '#file-sharing' },
+                { type: 'file', name: 'Meeting Notes.docx', icon: 'fa-file-word', link: '#file-sharing' }
+            ];
+
+            // Initialize the dashboard
+            function initDashboard() {
+                loadSavedData();
+                updateDashboardUI();
+                loadTeamMembers();
+                loadActivities();
+                loadNotifications();
+                startActivityTimeUpdates();
             }
 
-            // Save Data to localStorage
-            function saveToLocalStorage() {
-                localStorage.setItem('activities', JSON.stringify(activities));
-                localStorage.setItem('notifications', JSON.stringify(notifications));
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            }
-
-            // User Activities & Notifications
-            let activities = [];
-            let notifications = [];
-
-            // Load User Profile
-            function loadUserProfile() {
-                const savedUser = JSON.parse(localStorage.getItem('currentUser'));
-                if (savedUser) {
-                    currentUser = savedUser;
-                    document.getElementById('userName').innerText = currentUser.name;
-                    document.getElementById('userEmail').innerText = currentUser.email;
-                    if (currentUser.profileImage) {
-                        profileAvatar.style.backgroundImage = `url(${currentUser.profileImage})`;
-                        document.getElementById('profileAvatarLarge').style.backgroundImage = `url(${currentUser.profileImage})`;
-                        document.getElementById('userAvatar').style.backgroundImage = `url(${currentUser.profileImage})`;
+            // Show a specific page
+            function showPage(page) {
+                // Hide all pages
+                document.querySelectorAll('.feature-page, #dashboardContent, #profileContent, #settingsContent').forEach(el => {
+                    el.classList.remove('active');
+                });
+                
+                // Show the requested page
+                if (page === 'dashboard') {
+                    dashboardContent.classList.add('active');
+                } else if (page === 'profile') {
+                    profileContent.classList.add('active');
+                } else if (page === 'settings') {
+                    settingsContent.classList.add('active');
+                } else {
+                    const pageElement = document.getElementById(`${page}-page`);
+                    if (pageElement) {
+                        pageElement.classList.add('active');
+                    } else {
+                        dashboardContent.classList.add('active');
                     }
                 }
+                
+                // Save current page
+                localStorage.setItem('currentPage', page);
             }
 
-            // Render Activities
-            function renderActivities() {
+            // Update Dashboard UI
+            function updateDashboardUI() {
+                document.getElementById('welcomeName').textContent = currentUser.name.split(' ')[0];
+                document.getElementById('userEmail').textContent = currentUser.email;
+                document.getElementById('teamMembersCount').textContent = teamMembers.length;
+                document.getElementById('tasksCompleted').textContent = currentUser.tasksCompleted;
+                document.getElementById('activeProjects').textContent = '0';
+                document.getElementById('upcomingDeadlines').textContent = '0';
+            }
+
+            // Format time difference
+            function formatTimeDifference(timestamp) {
+                const now = Date.now();
+                const diff = now - timestamp;
+                const minutes = Math.floor(diff / 60000);
+                const hours = Math.floor(minutes / 60);
+                const days = Math.floor(hours / 24);
+
+                if (minutes < 1) return 'just now';
+                if (minutes < 60) return `${minutes} min${minutes === 1 ? '' : 's'} ago`;
+                if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+                return `${days} day${days === 1 ? '' : 's'} ago`;
+            }
+
+            // Update activity times
+            function updateActivityTimes() {
+                const timeElements = document.querySelectorAll('.activity-time');
+                activities.forEach((activity, index) => {
+                    if (timeElements[index]) {
+                        timeElements[index].textContent = formatTimeDifference(activity.timestamp);
+                    }
+                });
+            }
+
+            // Start activity time updates
+            function startActivityTimeUpdates() {
+                updateActivityTimes();
+                setInterval(updateActivityTimes, 60000); // Update every minute
+            }
+
+            // Load Team Members
+            function loadTeamMembers() {
+                const teamList = document.getElementById('teamList');
+                teamList.innerHTML = '';
+                
+                teamMembers.forEach(member => {
+                    const div = document.createElement('div');
+                    div.className = 'team-member-card';
+                    div.innerHTML = `
+                        <div class="member-avatar">${member.name.charAt(0)}</div>
+                        <div class="member-details">
+                            <div class="member-name">${member.name}</div>
+                            <div class="member-email">${member.email}</div>
+                            <span class="member-role ${member.role === 'admin' ? 'role-admin' : 'role-member'}">
+                                ${member.role === 'admin' ? 'Admin' : 'Member'}
+                            </span>
+                        </div>
+                        ${isAdmin ? `
+                        <div class="member-actions admin-only">
+                            <button class="btn btn-outline edit-member" data-id="${member.id}" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Edit</button>
+                            <button class="btn btn-danger remove-member" data-id="${member.id}" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Remove</button>
+                        </div>
+                        ` : ''}
+                    `;
+                    teamList.appendChild(div);
+                });
+
+                // Add event listeners for edit and remove buttons
+                document.querySelectorAll('.edit-member').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const memberId = parseInt(this.dataset.id);
+                        const member = teamMembers.find(m => m.id === memberId);
+                        if (member) {
+                            showEditMemberModal(member);
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.remove-member').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const memberId = parseInt(this.dataset.id);
+                        const memberIndex = teamMembers.findIndex(m => m.id === memberId);
+                        if (memberIndex !== -1) {
+                            teamMembers.splice(memberIndex, 1);
+                            loadTeamMembers();
+                            saveData();
+                            showToast('Team member removed');
+                        }
+                    });
+                });
+            }
+
+            // Show edit member modal
+            function showEditMemberModal(member) {
+                const previewContent = document.getElementById('previewContent');
+                previewContent.innerHTML = `
+                    <h4>Edit Team Member</h4>
+                    <form id="editMemberForm">
+                        <div class="form-group">
+                            <label for="editMemberName">Full Name</label>
+                            <input type="text" id="editMemberName" class="form-control" value="${member.name}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editMemberEmail">Email</label>
+                            <input type="email" id="editMemberEmail" class="form-control" value="${member.email}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editMemberRole">Role</label>
+                            <select id="editMemberRole" class="form-control" required>
+                                <option value="member" ${member.role === 'member' ? 'selected' : ''}>Member</option>
+                                <option value="admin" ${member.role === 'admin' ? 'selected' : ''}>Admin</option>
+                            </select>
+                        </div>
+                    </form>
+                `;
+                
+                // Set up confirm button
+                confirmPreviewBtn.onclick = function() {
+                    const name = document.getElementById('editMemberName').value;
+                    const email = document.getElementById('editMemberEmail').value;
+                    const role = document.getElementById('editMemberRole').value;
+                    
+                    member.name = name;
+                    member.email = email;
+                    member.role = role;
+                    
+                    loadTeamMembers();
+                    saveData();
+                    showToast('Team member updated successfully');
+                    previewModal.style.display = 'none';
+                };
+                
+                previewModal.style.display = 'flex';
+            }
+
+            // Load Activities
+            function loadActivities() {
                 activityList.innerHTML = '';
                 activities.forEach((activity, index) => {
                     const li = document.createElement('li');
@@ -1421,8 +2017,10 @@
                             <i class="fas ${activity.icon}"></i>
                         </div>
                         <div class="activity-content">
-                            <div class="activity-message">${activity.message}</div>
-                            <div class="activity-time">${activity.time}</div>
+                            <div class="activity-message">
+                                <span class="activity-user">${activity.user}</span> ${activity.message}
+                            </div>
+                            <div class="activity-time">${formatTimeDifference(activity.timestamp)}</div>
                         </div>
                         <div class="activity-actions">
                             <i class="fas fa-trash delete-activity" data-index="${index}"></i>
@@ -1434,23 +2032,29 @@
                 // Delete Activity
                 document.querySelectorAll('.delete-activity').forEach(button => {
                     button.addEventListener('click', function () {
-                        const index = parseInt(this.dataset.index);
+                        const index = this.dataset.index;
                         activities.splice(index, 1);
-                        saveToLocalStorage();
-                        renderActivities();
+                        loadActivities();
+                        saveData();
+                        showToast('Activity removed');
                     });
                 });
             }
 
-            // Render Notifications
-            function renderNotifications() {
+            // Load Notifications
+            function loadNotifications() {
                 notificationsList.innerHTML = '';
                 notifications.forEach((notification, index) => {
                     const div = document.createElement('div');
                     div.className = 'notification-item';
                     div.innerHTML = `
-                        <div class="notification-message">${notification.message}</div>
-                        <i class="fas fa-trash delete-notification" data-index="${index}"></i>
+                        <div class="notification-content">
+                            <div class="notification-message">${notification.message}</div>
+                            <div class="notification-time">${formatTimeDifference(notification.timestamp)}</div>
+                        </div>
+                        <div class="notification-actions">
+                            <i class="fas fa-trash delete-notification" data-index="${index}"></i>
+                        </div>
                     `;
                     notificationsList.appendChild(div);
                 });
@@ -1458,94 +2062,257 @@
                 // Delete Notification
                 document.querySelectorAll('.delete-notification').forEach(button => {
                     button.addEventListener('click', function () {
-                        const index = parseInt(this.dataset.index);
+                        const index = this.dataset.index;
                         notifications.splice(index, 1);
-                        saveToLocalStorage();
-                        renderNotifications();
+                        loadNotifications();
+                        saveData();
+                        showToast('Notification removed');
                     });
                 });
             }
 
-            // Show Notifications Modal
+            // Show Toast Notification
+            function showToast(message) {
+                const toast = document.getElementById('toastNotification');
+                document.getElementById('toastMessage').textContent = message;
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            // Search Functionality
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                if (query.length > 0) {
+                    const results = searchItems.filter(item => 
+                        item.name.toLowerCase().includes(query) || 
+                        item.type.toLowerCase().includes(query)
+                    );
+                    
+                    searchResults.innerHTML = '';
+                    if (results.length > 0) {
+                        results.forEach(item => {
+                            const div = document.createElement('div');
+                            div.className = 'search-result-item';
+                            div.innerHTML = `
+                                <i class="fas ${item.icon}"></i>
+                                ${item.name} (${item.type})
+                            `;
+                            div.addEventListener('click', function() {
+                                window.location.hash = item.link;
+                                showPage(item.link.substring(1));
+                                searchResults.style.display = 'none';
+                                searchInput.value = '';
+                            });
+                            searchResults.appendChild(div);
+                        });
+                        searchResults.style.display = 'block';
+                    } else {
+                        searchResults.style.display = 'none';
+                    }
+                } else {
+                    searchResults.style.display = 'none';
+                }
+            });
+
+            // Close search results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.style.display = 'none';
+                }
+            });
+
+            // Show/Hide Notifications Modal
             notificationIcon.addEventListener('click', function () {
                 notificationsModal.style.display = 'flex';
-                renderNotifications();
+                loadNotifications();
             });
 
             closeNotifications.addEventListener('click', function () {
                 notificationsModal.style.display = 'none';
             });
 
+            // Delete All Notifications
             deleteAllNotificationsBtn.addEventListener('click', function () {
-                notifications = [];
-                saveToLocalStorage();
-                renderNotifications();
+                notifications.length = 0;
+                loadNotifications();
+                saveData();
+                showToast('All notifications cleared');
+            });
+
+            // Delete All Activities
+            deleteAllActivity.addEventListener('click', function () {
+                activities.length = 0;
+                loadActivities();
+                saveData();
+                showToast('All activities cleared');
+            });
+
+            // Show/Hide User Dropdown
+            document.getElementById('userAvatar').addEventListener('click', function (e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('active');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function() {
+                userDropdown.classList.remove('active');
             });
 
             // Profile link functionality
-            profileLink.addEventListener('click', function () {
-                dashboardContent.style.display = 'none';
-                settingsContent.style.display = 'none';
-                profileContent.classList.add('active');
-                profileContent.style.display = 'block';
+            profileLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                showPage('profile');
+                userDropdown.classList.remove('active');
+            });
+
+            // Back to dashboard from profile
+            backToDashboardFromProfile.addEventListener('click', function() {
+                showPage('dashboard');
+            });
+
+            // Back to dashboard from settings
+            backToDashboardFromSettings.addEventListener('click', function() {
+                showPage('dashboard');
+            });
+
+            // Settings link functionality
+            document.querySelector('[data-feature="settings"]').addEventListener('click', function(e) {
+                e.preventDefault();
+                showPage('settings');
+            });
+
+            // Feature links functionality
+            document.querySelectorAll('[data-feature]').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (this.dataset.feature !== 'dashboard' && 
+                        this.dataset.feature !== 'profile' && 
+                        this.dataset.feature !== 'settings') {
+                        e.preventDefault();
+                        showPage(this.dataset.feature);
+                    }
+                });
+            });
+
+            // Back buttons for feature pages
+            document.querySelectorAll('[id^="backToDashboardFrom"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    showPage('dashboard');
+                });
             });
 
             // Logout Functionality
-            logoutLink.addEventListener('click', function () {
-                alert('You will be redirected to the login page.');
-                // Here you can add a redirect to your login page.
-                // window.location.href = "login.html"; // Uncomment and set your login URL
-            });
-
-            // Saving Profile Changes
-            profileForm.addEventListener('submit', function (e) {
+            logoutLink.addEventListener('click', function (e) {
                 e.preventDefault();
-                currentUser.name = document.getElementById('firstName').value + ' ' + document.getElementById('lastName').value;
-                currentUser.email = document.getElementById('email').value;
-                currentUser.phone = document.getElementById('phone').value;
-                currentUser.department = document.getElementById('department').value;
-
-                const themeSelector = document.getElementById('selectedTheme');
-                currentUser.theme = themeSelector.value;
-
-                saveToLocalStorage();
-                showToast('Profile saved successfully!');
+                // Redirect directly to login page without confirmation
+                window.location.href = "login.html"; // Change to your login page URL
             });
 
-            // Profile Picture Upload
-            profileAvatarInput.addEventListener('change', function (e) {
+            // Settings Tab Functionality
+            const tabs = document.querySelectorAll('.settings-tab');
+            const settingsPanels = document.querySelectorAll('.settings-panel');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function () {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Hide all settings panels
+                    settingsPanels.forEach(p => p.classList.remove('active'));
+                    // Add active class to the clicked tab
+                    this.classList.add('active');
+
+                    // Show the corresponding panel
+                    const tabName = this.getAttribute('data-tab');
+                    document.getElementById(tabName + 'Panel').classList.add('active');
+                });
+            });
+
+            // Profile picture upload
+            profileAvatarInput.addEventListener('change', function(e) {
                 if (e.target.files && e.target.files[0]) {
                     const reader = new FileReader();
-                    reader.onload = function () {
-                        currentUser.profileImage = reader.result;
-                        profileAvatar.style.backgroundImage = `url(${reader.result})`;
-                        document.getElementById('profileAvatarLarge').style.backgroundImage = `url(${reader.result})`;
-                        document.getElementById('userAvatar').style.backgroundImage = `url(${reader.result})`;
-                        saveToLocalStorage();
+                    reader.onload = function(event) {
+                        // Update all avatar images
+                        profileAvatar.style.backgroundImage = `url(${event.target.result})`;
+                        profileAvatar.textContent = '';
+                        profileAvatarLarge.style.backgroundImage = `url(${event.target.result})`;
+                        profileAvatarLarge.textContent = '';
+                        userAvatar.style.backgroundImage = `url(${event.target.result})`;
+                        userAvatar.textContent = '';
+                        saveData();
+                        showToast('Profile picture updated successfully');
                     };
                     reader.readAsDataURL(e.target.files[0]);
                 }
             });
 
-            // Initialize the dashboard
-            loadFromLocalStorage();
-            renderActivities();
-            renderNotifications();
-            document.getElementById('welcomeName').innerText = currentUser.name;
-            document.getElementById('userEmail').innerText = currentUser.email;
-        });
-        
-        function showToast(message) {
-            const toast = document.getElementById('toastNotification');
-            const toastMessage = document.getElementById('toastMessage');
-            toastMessage.innerText = message;
-            toast.classList.add('show');
+            // Theme selection
+            themeSelect.addEventListener('change', function() {
+                // Show preview of theme change
+                const previewContent = document.getElementById('previewContent');
+                previewContent.innerHTML = `
+                    <h4>Theme Preview</h4>
+                    <p>You are about to change the theme to <strong>${this.value}</strong>.</p>
+                    <p>Would you like to proceed with this change?</p>
+                `;
+                
+                // Set up confirm button
+                confirmPreviewBtn.onclick = function() {
+                    document.body.className = `${themeSelect.value}-theme`;
+                    saveData();
+                    showToast('Theme changed successfully');
+                    previewModal.style.display = 'none';
+                };
+                
+                previewModal.style.display = 'flex';
+            });
 
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
+            // Close preview modal
+            closePreview.addEventListener('click', function() {
+                previewModal.style.display = 'none';
+            });
+
+            cancelPreviewBtn.addEventListener('click', function() {
+                previewModal.style.display = 'none';
+            });
+
+            // Add Member Form
+            document.getElementById('addMemberForm')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('memberName').value;
+                const email = document.getElementById('memberEmail').value;
+                const role = document.getElementById('memberRole').value;
+                
+                teamMembers.push({
+                    id: teamMembers.length + 1,
+                    name,
+                    email,
+                    role
+                });
+                
+                loadTeamMembers();
+                this.reset();
+                saveData();
+                showToast('Team member added successfully');
+            });
+
+            // Profile form submission
+            document.getElementById('profileForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Update user data
+                currentUser.name = `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`;
+                document.getElementById('userName').textContent = currentUser.name;
+                document.getElementById('welcomeName').textContent = currentUser.name.split(' ')[0];
+                
+                saveData();
+                showToast('Profile updated successfully');
+            });
+
+            // Initialize the dashboard
+            initDashboard();
+        });
     </script>
 </body>
-
 </html>
