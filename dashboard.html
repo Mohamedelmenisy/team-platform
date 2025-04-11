@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TeamFlow | Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* (The same CSS styles as previously defined) */
-
         :root {
             --primary: #2563eb;
             --primary-dark: #1e3a8a;
@@ -165,14 +162,44 @@
             color: var(--gray);
         }
 
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 0 0 6px 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .search-result-item:hover {
+            background-color: var(--light);
+        }
+
+        .search-result-item i {
+            margin-right: 0.5rem;
+            color: var(--gray);
+        }
+
         .user-menu {
             display: flex;
             align-items: center;
+            gap: 1.5rem;
         }
 
         .notification-icon {
             position: relative;
             color: var(--gray);
+            cursor: pointer;
         }
 
         .notification-badge {
@@ -187,150 +214,781 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 600;
         }
 
         .user-profile {
-            display:flex ;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
         }
 
         .user-avatar {
-          width :40px ;
-          height :40px ;
-          border-radius :50% ;
-          background-color :var(--primary) ;
-          color :white ;
-          display :flex ;
-          align-items :center ;
-          justify-content :center ;
-          font-weight :600 ;
-          cursor :pointer ;
-          background-size :cover ;
-          background-position :center ;
-          margin-right :10px ;
-          
-
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
         }
-        
-         .user-name{
-           text-decoration :none ;
-           cursor:pointer ;
-           color :var(--primary-dark) ;
-           font-weight :700 ;
-           margin-bottom :10px ;
-           }
-        
-         .user-dropdown{
-             position :absolute ;
-             top :100% ;
-             right :0 ;
-             background-color :var(--white) ;
-             border :1px solid var(--light-gray) ;
-             border-radius :6px ;
-             box-shadow :0 4px 6px rgba(0 ,0 ,0 ,0.1) ;
-             width :200px ;
-             z-index :100 ;
-             display :none ;
-         }
-        
-         .user-dropdown.active{
-             display:block
-         }
-        
-         .dropdown-item{
-             padding :0.75rem 1rem ;
-             display:flex ;
-             align-items:center ;
-             gap :0.75rem ;
-             color :var(--dark) ;
-             text-decoration:none ;
-             transition :background-color 0.2s ;
-         }
-        
-         .dropdown-item:hover{
-             background-color :var(--light)
-         }
-        
-         /* Content Area */
-         .content-area{
-             padding :2rem ;
-             min-height :calc(100vh -70px )
-         }
-        
-         .welcome-section{
-             background-color :var(--primary) ;
-             color :var(--white) ;
-             padding :2rem ;
-             border-radius :8px ;
-             margin-bottom :2rem ;
-             box-shadow :0 4px 6px rgba(0 ,0 ,0 ,0.1)
-         }
-        
-         .welcome-title{
-             font-size :1.5rem ;
-             font-weight :700 ;
-             margin-bottom :0.5rem
-         }
-        
-         .welcome-subtitle{
-             font-size :0.9rem ;
-             opacity :0.9 ;
-             margin-bottom :0.5rem
-         }
-        
-         /* Profile Content */
-         .profile-content{
-             display:none
-         }
-        
-         .profile-content.active{
-             display:block
-         }
-        
-         /* Profile Form */
-         .profile-form{
-             display:flex
-         }
-        
-         .form-group{
-             margin-bottom :1rem
-         }
-        
-         .form-group label{
-             display:block ;
-             margin-bottom :0.5rem
-         }
-        
-         .form-control{
-             width :100% ;
-             padding :0.75rem
-         }
-        
-         /* Profile Picture */
-         .user-info-avatar{
-             width :80px ;
-             height :80px ;
-             border-radius :50% ;
-             background-color :var(--primary-light) ;
-             color :var(--primary) ;
-             display:flex ;
-             align-items:center ;
-             justify-content:center
-         }
-        
-         /* Activity Section */
-         .activity-section{
-             background-color :var(--white) ;
-             border-radius :8px
-         }
-        
-         /* Settings Content */
-         .settings-content{
-             display:none 
-         }
-        
-         .settings-content.active{
-             display:block 
-         }
+
+        .user-name {
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 200px;
+            z-index: 100;
+            display: none;
+        }
+
+        .user-dropdown.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--dark);
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light);
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: 2rem;
+            min-height: calc(100vh - 70px);
+        }
+
+        .welcome-section {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .user-info-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.75rem;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .avatar-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background-color: var(--white);
+            color: var(--primary);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+        }
+
+        .user-info-details {
+            flex: 1;
+        }
+
+        .user-info-name {
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-info-title {
+            opacity: 0.9;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-info-email {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-title i {
+            color: var(--primary);
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .trend-up {
+            color: var(--secondary);
+        }
+
+        .trend-down {
+            color: var(--danger);
+        }
+
+        /* Activity Section */
+        .activity-section {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .view-all {
+            color: var(--primary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .view-all:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+            background-color: var(--primary-light);
+        }
+
+        .delete-all {
+            color: var(--danger);
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-left: 1rem;
+        }
+
+        .delete-all:hover {
+            color: #dc2626;
+            text-decoration: underline;
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--light-gray);
+            align-items: center;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-message {
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .activity-user {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .activity-actions {
+            display: flex;
+            margin-left: auto;
+            padding-left: 1rem;
+        }
+
+        .delete-activity {
+            color: var(--danger);
+            cursor: pointer;
+            opacity: 1;
+            transition: opacity 0.2s;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .delete-activity:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Profile Content */
+        .profile-content {
+            display: none;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .profile-content.active {
+            display: block;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .profile-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .profile-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-actions {
+            grid-column: span 2;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        /* Settings Content */
+        .settings-content {
+            display: none;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .settings-content.active {
+            display: block;
+        }
+
+        .settings-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--light-gray);
+            margin-bottom: 2rem;
+        }
+
+        .settings-tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+            color: var(--gray);
+            transition: all 0.2s;
+        }
+
+        .settings-tab:hover {
+            color: var(--primary);
+        }
+
+        .settings-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .settings-panel {
+            display: none;
+        }
+
+        .settings-panel.active {
+            display: block;
+        }
+
+        .settings-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .settings-option-label {
+            font-weight: 500;
+        }
+
+        .settings-option-value {
+            color: var(--gray);
+        }
+
+        /* Team Management */
+        .team-management {
+            margin-top: 1.5rem;
+        }
+
+        .team-list {
+            margin-top: 1rem;
+        }
+
+        .team-member-card {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+
+        .team-member-card:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .member-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--light-gray);
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .member-details {
+            flex: 1;
+        }
+
+        .member-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .member-email {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+
+        .member-role {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .role-admin {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .role-member {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--secondary);
+        }
+
+        .member-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .add-member-form {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border: 1px dashed var(--light-gray);
+            border-radius: 8px;
+        }
+
+        .admin-only {
+            display: none;
+        }
+
+        .user-admin .admin-only {
+            display: block;
+        }
+
+        /* Notifications Modal */
+        .notifications-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            justify-content: flex-end;
+        }
+
+        .notifications-container {
+            background-color: var(--white);
+            width: 400px;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .notifications-header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .close-notifications {
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--dark);
+        }
+
+        .notifications-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .notifications-actions {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .notification-item {
+            display: flex;
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-message {
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .notification-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .delete-notification {
+            cursor: pointer;
+            color: var(--danger);
+            font-size: 1rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .delete-notification:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            border-radius: 6px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toast.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .search-bar {
+                width: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-nav {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .search-bar {
+                width: 100%;
+            }
+
+            .user-menu {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .content-area {
+                padding: 1.5rem;
+            }
+
+            .profile-form {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                grid-column: span 1;
+            }
+
+            .user-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .user-info-avatar {
+                margin-bottom: 1rem;
+            }
+
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -338,217 +996,800 @@
     <!-- Sidebar Navigation -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            
-                <div class="logo">
-                    <i class="fas fa-users-cog logo-icon"></i>
-                    <span>TeamFlow</span>
-                </div>
-            
-                <div class="user-menu">
-                    <div class="user-profile">
-                        <div class="user-avatar" id="userAvatar">M</div>
-                        <div class="user-name" id="userName" onclick="showProfile()">Mohamed Elmenisy</div>
-                        <div class="user-dropdown" id="userDropdown">
-                            <a href="javascript:void(0);" class="dropdown-item" id="profileLink">
-                                <i class="fas fa-user"></i>
-                                <span>Profile</span>
-                            </a>
-                            <a href="javascript:void(0);" class="dropdown-item" id="logoutLink">
-                                <i class="fas fa-sign-out-alt"></i>
-                                <span>Logout</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            
-                <!-- Dashboard Content -->
-                <div class="dashboard-content">
-                    <!-- Welcome Section -->
-                    <div class="welcome-section">
-                        <h2 class="welcome-title">Welcome, Mohamed!</h2>
+            <div class="logo">
+                <i class="fas fa-users-cog logo-icon"></i>
+                <span>TeamFlow</span>
+            </div>
+        </div>
 
-                        <div class="user-info">
-                            <div class="user-info-avatar" id="profileAvatarLarge">M</div>
-                            <div class="user-info-details">
-                                <div class="user-info-name">Mohamed Elmenisy</div>
-                                <div class="user-info-title">Team Manager</div>
-                                <div class="user-info-email">
-                                    <i class="fas fa-envelope"></i>
-                                    <span id="userEmail">m.elsayed@thechefz.co</span>
-                                </div>
-                            </div>
-                        </div>
+        <div class="sidebar-menu">
+            <div class="menu-title">Main Features</div>
+            <a href="#" class="menu-item active" data-feature="dashboard" id="dashboardLink">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <div class="menu-divider"></div>
 
-                        <!-- Stats Section -->
-                        <div class="stats-section">
-                            <!-- Recent Activity Section -->
-                            <div class="recent-activity">
-                                <h2>Recent Activity</h2>
+            <a href="#file-sharing" class="menu-item" data-feature="file-sharing">
+                <i class="fas fa-file-upload"></i>
+                <span>File Sharing</span>
+            </a>
 
-                                <!-- Recent Activity List -->
-                                <ul id="recentActivityList">
-                                    <!-- Activity items will be added dynamically -->
-                                </ul>
+            <a href="#data-management" class="menu-item" data-feature="data-management">
+                <i class="fas fa-database"></i>
+                <span>Data Management</span>
+            </a>
 
-                                <!-- Show All and Delete All Buttons -->
-                                <button id="showAllActivityBtn">Show All</button>
-                                <button id="deleteAllActivityBtn">Delete All</button>
+            <a href="#project-tracking" class="menu-item" data-feature="project-tracking">
+                <i class="fas fa-project-diagram"></i>
+                <span>Project Tracking</span>
+            </a>
 
-                            </div>
+            <div class="menu-divider"></div>
 
-                            <!-- Team Members Section -->
-                            <div class="team-members">
-                                <h2>Team Members</h2>
+            <a href="#task-management" class="menu-item" data-feature="task-management">
+                <i class="fas fa-tasks"></i>
+                <span>Task Management</span>
+            </a>
 
-                                <!-- Team Members List -->
-                                <ul id="teamMembersList">
-                                    <!-- Team members will be added dynamically -->
-                                </ul>
+            <a href="#employee-scheduling" class="menu-item" data-feature="employee-scheduling">
+                <i class="fas fa-users"></i>
+                <span>Employee Scheduling</span>
+            </a>
 
-                            </div>
+            <a href="#team-calendar" class="menu-item" data-feature="team-calendar">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Team Calendar</span>
+            </a>
 
-                        </div>
+            <div class="menu-divider"></div>
 
-                    </div>
+            <a href="#deadline-tracking" class="menu-item" data-feature="deadline-tracking">
+                <i class="fas fa-clock"></i>
+                <span>Deadline Tracking</span>
+            </a>
 
-                    <!-- Profile Content -->
-                    <div class="profile-content" id="profileContent">
-                        <!-- Profile Form -->
-                        <form class="profile-form" id="profileForm">
-                            <!-- Profile Picture -->
-                            <label for="profileAvatarInput">Profile Picture</label>
-                            <input type="file" id="profileAvatarInput" accept="image/*" style="display:none;">
+            <a href="#innovation-hub" class="menu-item" data-feature="innovation-hub">
+                <i class="fas fa-lightbulb"></i>
+                <span>Innovation Hub</span>
+            </a>
 
-                            <!-- First Name and Last Name Fields -->
-                            <label for="firstName">First Name:</label>
-                            <input type="text" id="firstName" value="Mohamed">
+            <div class="menu-divider"></div>
 
-                            <label for="lastName">Last Name:</label>
-                            <input type="text" id="lastName" value="Elmenisy">
-
-                            <!-- Job Title and Email Fields -->
-                            <label for="jobTitle">Job Title:</label>
-                            <input type="text" id="jobTitle" value="Team Manager">
-
-                            <label for="email">Email:</label>
-                            <input type="email" id="email" value="m.elsayed@thechefz.co" readonly>
-
-                            <!-- Save Changes Button -->
-                            <button type="button" id="saveChangesBtn">Save Changes</button>
-
-                        </form>
-                    </div>
-
-                </div>
-
-                <!-- Settings Content -->
-                <div class="settings-content" id="settingsContent">
-                    <!-- Profile Settings Panel -->
-                    <button id="profileSettingsBtn">Profile Settings</button>
-
-                    <!-- Settings Tabs Panel -->
-                    <button id="settingsTabsBtn">Settings Tabs</button>
-
-                </div>
-
-                <!-- Team Management Panel -->
-                <button id="teamManagementBtn">Team Management</button>
-
-                <!-- Notifications Panel -->
-                <button id="notificationsBtn">Notifications</button>
-
-                <!-- Features Content Sections -->
-                <section id="featureSections"></section>
-
-                <!-- Notifications Modal -->
-                <dialog id="notificationsModal"></dialog>
-
-                <!-- Toast Notification -->
-                <toast id="toastNotification"></toast>
-
+            <a href="#settings" class="menu-item" data-feature="settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </div>
     </aside>
 
     <!-- Main Content Area -->
     <main class="main-content">
-        
+        <!-- Top Navigation -->
+        <nav class="top-nav">
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search employees, projects, tasks..." id="searchInput">
+                <div class="search-results" id="searchResults">
+                    <!-- Search results will be added dynamically -->
+                </div>
+            </div>
+
+            <div class="user-menu">
+                <div class="notification-icon" id="notificationIcon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </div>
+
+                <div class="user-profile">
+                    <div class="user-avatar" id="userAvatar">M</div>
+                    <div class="user-name" id="userName">Mohamed Elmenisy</div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="javascript:void(0);" class="dropdown-item" id="profileLink">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                        <a href="javascript:void(0);" class="dropdown-item" id="logoutLink">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Dashboard Content -->
+            <div id="dashboardContent" class="active">
+                <!-- Welcome Section -->
+                <div class="welcome-section">
+                    <h2 class="welcome-title">Welcome, <span id="welcomeName">Mohamed</span>!</h2>
+
+                    <div class="user-info">
+                        <div class="user-info-avatar" id="profileAvatarLarge">M</div>
+                        <div class="user-info-details">
+                            <div class="user-info-name">Mohamed Elmenisy</div>
+                            <div class="user-info-title">Team Manager</div>
+                            <div class="user-info-email">
+                                <i class="fas fa-envelope"></i>
+                                <span id="userEmail">m.elsayed@thechefz.co</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Section -->
+                <div class="stats-section">
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas fa-users"></i>
+                            Team Members
+                        </div>
+                        <div class="stat-value">
+                            <span id="teamMembersCount">12</span>
+                            <span class="stat-trend trend-up">
+                                <i class="fas fa-arrow-up"></i> 20%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas fa-check-circle"></i>
+                            Tasks Completed
+                        </div>
+                        <div class="stat-value">
+                            <span id="tasksCompleted">47</span>
+                            <span class="stat-trend trend-up">
+                                <i class="fas fa-arrow-up"></i> 15%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas fa-project-diagram"></i>
+                            Active Projects
+                        </div>
+                        <div class="stat-value">
+                            <span id="activeProjects">8</span>
+                            <span class="stat-trend trend-down">
+                                <i class="fas fa-arrow-down"></i> 5%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas fa-calendar-times"></i>
+                            Upcoming Deadlines
+                        </div>
+                        <div class="stat-value">
+                            <span id="upcomingDeadlines">5</span>
+                            <span class="stat-trend trend-up">
+                                <i class="fas fa-arrow-up"></i> 25%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Section -->
+                <div class="activity-section">
+                    <div class="section-header">
+                        <h3 class="section-title">Recent Activity</h3>
+                        <div>
+                            <span class="view-all" id="viewAllActivity">Show All</span>
+                            <span class="delete-all" id="deleteAllActivity">Delete All</span>
+                        </div>
+                    </div>
+                    <ul class="activity-list" id="activityList">
+                        <!-- Activity items will be added dynamically -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Profile Content -->
+            <div class="profile-content" id="profileContent">
+                <div class="profile-header">
+                    <h2 class="profile-title">Profile Settings</h2>
+                </div>
+                <form class="profile-form" id="profileForm">
+                    <div class="form-group">
+                        <label for="profileAvatarInput">Profile Picture</label>
+                        <div class="user-info-avatar" id="profileAvatar" onclick="document.getElementById('profileAvatarInput').click();">
+                            <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;">
+                            <div class="avatar-upload" id="avatarUploadBtn"><i class="fas fa-camera"></i></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" class="form-control" value="Mohamed">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" class="form-control" value="Elmenisy">
+                    </div>
+                    <div class="form-group">
+                        <label for="jobTitle">Job Title</label>
+                        <input type="text" id="jobTitle" class="form-control" value="Team Manager">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="form-control" value="m.elsayed@thechefz.co" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" class="form-control" value="+201234567890">
+                    </div>
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <input type="text" id="department" class="form-control" value="Management">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" id="cancelProfileBtn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="settings-content" id="settingsContent">
+                <div class="profile-header">
+                    <h2 class="profile-title">System Settings</h2>
+                </div>
+                <div class="settings-tabs">
+                    <div class="settings-tab active" data-tab="account">Account</div>
+                    <div class="settings-tab" data-tab="security">Security</div>
+                    <div class="settings-tab" data-tab="notifications">Notifications</div>
+                    <div class="settings-tab" data-tab="preferences">Preferences</div>
+                    <div class="settings-tab" data-tab="team">Team Management</div>
+                </div>
+                <div class="settings-panel active" id="accountPanel">
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-language" style="margin-right: 0.5rem;"></i>
+                            Language
+                        </div>
+                        <div class="settings-option-value">
+                            English
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-globe" style="margin-right: 0.5rem;"></i>
+                            Timezone
+                        </div>
+                        <div class="settings-option-value">
+                            Cairo (UTC+2)
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-calendar" style="margin-right: 0.5rem;"></i>
+                            Date Format
+                        </div>
+                        <div class="settings-option-value">
+                            DD/MM/YYYY
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-panel" id="securityPanel">
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-shield-alt" style="margin-right: 0.5rem;"></i>
+                            Two-Factor Authentication
+                        </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="twoFactorAuth" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <form id="passwordForm" style="margin-top: 2rem;">
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" class="form-control">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Update Password</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="settings-panel" id="notificationsPanel">
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-envelope" style="margin-right: 0.5rem;"></i>
+                            Email Notifications
+                        </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="emailNotifications" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-bell" style="margin-right: 0.5rem;"></i>
+                            Push Notifications
+                        </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="pushNotifications" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-tasks" style="margin-right: 0.5rem;"></i>
+                            Task Notifications
+                        </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="taskNotifications" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-calendar-check" style="margin-right: 0.5rem;"></i>
+                            Deadline Reminders
+                        </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="deadlineReminders" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-panel" id="preferencesPanel">
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-palette" style="margin-right: 0.5rem;"></i>
+                            Theme
+                        </div>
+                        <div class="settings-option-value">
+                            Blue
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-columns" style="margin-right: 0.5rem;"></i>
+                            Layout Density
+                        </div>
+                        <div class="settings-option-value">
+                            Normal
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-font" style="margin-right: 0.5rem;"></i>
+                            Font Size
+                        </div>
+                        <div class="settings-option-value">
+                            Medium
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-panel" id="teamPanel">
+                    <div class="team-management">
+                        <h3>Team Members</h3>
+                        <div class="team-list" id="teamList">
+                            <!-- Team members will be added dynamically -->
+                        </div>
+                        <div class="add-member-form admin-only">
+                            <h4>Add New Member</h4>
+                            <form id="addMemberForm">
+                                <div class="form-group">
+                                    <label for="memberName">Full Name</label>
+                                    <input type="text" id="memberName" class="form-control" placeholder="John Doe" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="memberEmail">Email</label>
+                                    <input type="email" id="memberEmail" class="form-control" placeholder="user@example.com" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="memberRole">Role</label>
+                                    <select id="memberRole" class="form-control" required>
+                                        <option value="member">Member</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">Add Member</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Content Sections -->
+            <div id="featureSections" style="display: none;"></div>
+        </div>
     </main>
 
+    <!-- Notifications Modal -->
+    <div class="notifications-modal" id="notificationsModal">
+        <div class="notifications-container">
+            <div class="notifications-header">
+                <h3 class="notifications-title">Notifications</h3>
+                <button class="close-notifications" id="closeNotifications">×</button>
+            </div>
+            <div class="notifications-actions">
+                <button class="btn btn-outline" id="markAllReadBtn">Mark All as Read</button>
+                <button class="btn btn-danger admin-only" id="deleteAllNotificationsBtn">Delete All</button>
+            </div>
+            <div id="notificationsList">
+                <!-- Notifications will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toastNotification">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Settings saved successfully!</span>
+    </div>
+
     <script>
-      // document.addEventListener('DOMContentLoaded', function () {
-      //     const sidebar = document.getElementById('sidebar');
-      //     const userDropdown = document.getElementById('userDropdown');
-      //     const profileLink = document.getElementById('profileLink');
-      //     const logoutLink = document.getElementById('logoutLink');
-      //     const dashboardContent = document.getElementById('dashboardContent');
-      //     const profileContent = document.getElementById('profileContent');
-      //     const settingsContent = document.getElementById('settingsContent');
-      //     const activityList = document.getElementById('activityList');
-      //     const deleteAllActivity = document.getElementById('deleteAllActivity');
-      //     const notificationIcon = document.getElementById('notificationIcon');
-      //     const notificationsModal = document.getElementById('notificationsModal');
-      //     const closeNotifications = document.getElementById('closeNotifications');
-      //     const notificationsList = document.getElementById('notificationsList');
-      //     const deleteAllNotificationsBtn = document.getElementById('deleteAllNotificationsBtn');
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebar = document.getElementById('sidebar');
+            const userDropdown = document.getElementById('userDropdown');
+            const profileLink = document.getElementById('profileLink');
+            const logoutLink = document.getElementById('logoutLink');
+            const dashboardContent = document.getElementById('dashboardContent');
+            const profileContent = document.getElementById('profileContent');
+            const settingsContent = document.getElementById('settingsContent');
+            const activityList = document.getElementById('activityList');
+            const deleteAllActivity = document.getElementById('deleteAllActivity');
+            const notificationIcon = document.getElementById('notificationIcon');
+            const notificationsModal = document.getElementById('notificationsModal');
+            const closeNotifications = document.getElementById('closeNotifications');
+            const notificationsList = document.getElementById('notificationsList');
+            const deleteAllNotificationsBtn = document.getElementById('deleteAllNotificationsBtn');
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
 
-      //     let activities = [];
-      //     let notifications = [];
+            // Check if current user is admin (m.elsayed@thechefz.co)
+            const isAdmin = document.getElementById('userEmail').textContent === 'm.elsayed@thechefz.co';
+            if (isAdmin) {
+                document.body.classList.add('user-admin');
+            }
 
-      //     initDashboard();
+            // User Data
+            let currentUser = {
+                name: 'Mohamed Elmenisy',
+                email: 'm.elsayed@thechefz.co',
+                role: isAdmin ? 'admin' : 'member',
+                tasksCompleted: 47,
+            };
 
-      //     function initDashboard() {
-      //         updateDashboardUI();
-      //         loadNotifications();
-      //         loadActivities();
-      //     }
+            // Sample team members
+            const teamMembers = [
+                { id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', role: 'admin' },
+                { id: 2, name: 'Ahmed Mohamed', email: 'ahmed@example.com', role: 'member' },
+                { id: 3, name: 'Fatima Ali', email: 'fatima@example.com', role: 'member' },
+                { id: 4, name: 'Omar Hassan', email: 'omar@example.com', role: 'member' },
+                { id: 5, name: 'Layla Ibrahim', email: 'layla@example.com', role: 'member' }
+            ];
 
-      //     function updateDashboardUI() {
-      //         document.getElementById('welcomeName').innerText = currentUser.name;
+            // Sample activities with timestamps
+            const activities = [
+                { 
+                    user: 'Mohamed Elmenisy', 
+                    message: 'completed the project dashboard', 
+                    icon: 'fa-check-circle',
+                    time: '5 mins ago'
+                },
+                { 
+                    user: 'Ahmed Mohamed', 
+                    message: 'uploaded new design files', 
+                    icon: 'fa-file-upload',
+                    time: '15 mins ago'
+                },
+                { 
+                    user: 'Fatima Ali', 
+                    message: 'commented on the task board', 
+                    icon: 'fa-comment',
+                    time: '30 mins ago'
+                },
+                { 
+                    user: 'Omar Hassan', 
+                    message: 'started working on the API integration', 
+                    icon: 'fa-code',
+                    time: '2 hours ago'
+                },
+                { 
+                    user: 'Layla Ibrahim', 
+                    message: 'updated the project timeline', 
+                    icon: 'fa-calendar-alt',
+                    time: '5 hours ago'
+                }
+            ];
 
-      //     }
+            // Sample notifications
+            const notifications = [
+                { 
+                    message: 'New task assigned to you: Update dashboard design', 
+                    time: '10 mins ago',
+                    read: false
+                },
+                { 
+                    message: 'Deadline approaching: Project submission due tomorrow', 
+                    time: '1 hour ago',
+                    read: false
+                },
+                { 
+                    message: 'Team meeting scheduled for Friday at 2 PM', 
+                    time: '3 hours ago',
+                    read: true
+                }
+            ];
 
-      //     function loadActivities() {
-      //         activityList.innerHTML = '';
-      //     }
+            // Sample search results
+            const searchItems = [
+                { type: 'employee', name: 'Mohamed Elmenisy', icon: 'fa-user' },
+                { type: 'employee', name: 'Ahmed Mohamed', icon: 'fa-user' },
+                { type: 'project', name: 'Dashboard Redesign', icon: 'fa-project-diagram' },
+                { type: 'project', name: 'API Integration', icon: 'fa-project-diagram' },
+                { type: 'task', name: 'Update user profile', icon: 'fa-tasks' },
+                { type: 'task', name: 'Fix login bug', icon: 'fa-tasks' }
+            ];
 
-      //     function loadNotifications() {
-      //         notificationsList.innerHTML = '';
-      //     }
+            // Initialize the dashboard
+            function initDashboard() {
+                updateDashboardUI();
+                loadTeamMembers();
+                loadActivities();
+                loadNotifications();
+            }
 
-      //     profileAvatarInput.addEventListener('change', handleAvatarUpload);
+            // Update Dashboard UI
+            function updateDashboardUI() {
+                document.getElementById('welcomeName').textContent = currentUser.name.split(' ')[0];
+                document.getElementById('userEmail').textContent = currentUser.email;
+                document.getElementById('teamMembersCount').textContent = teamMembers.length;
+                document.getElementById('tasksCompleted').textContent = currentUser.tasksCompleted;
+            }
 
-      //     function handleAvatarUpload(event) {
-      //         const file = event.target.files[0];
-      //         if (file) {
-      //             const reader = new FileReader();
-      //             reader.onload = function (e) {
-      //                 userAvatar.style.backgroundImage = `url(${e.target.result})`;
-      //                 userAvatar.style.backgroundSize = 'cover';
-      //                 userAvatar.style.backgroundPosition = 'center';
-      //                 profileAvatar.style.backgroundImage = `url(${e.target.result})`;
-      //                 profileAvatar.style.backgroundSize = 'cover';
-      //                 profileAvatar.style.backgroundPosition = 'center';
-      //                 saveChanges();
-      //             };
-      //             reader.readAsDataURL(file);
-      //         }
-      //     }
+            // Load Team Members
+            function loadTeamMembers() {
+                const teamList = document.getElementById('teamList');
+                teamList.innerHTML = '';
+                
+                teamMembers.forEach(member => {
+                    const div = document.createElement('div');
+                    div.className = 'team-member-card';
+                    div.innerHTML = `
+                        <div class="member-avatar">${member.name.charAt(0)}</div>
+                        <div class="member-details">
+                            <div class="member-name">${member.name}</div>
+                            <div class="member-email">${member.email}</div>
+                            <span class="member-role ${member.role === 'admin' ? 'role-admin' : 'role-member'}">
+                                ${member.role === 'admin' ? 'Admin' : 'Member'}
+                            </span>
+                        </div>
+                        ${isAdmin ? `
+                        <div class="member-actions admin-only">
+                            <button class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Edit</button>
+                            <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Remove</button>
+                        </div>
+                        ` : ''}
+                    `;
+                    teamList.appendChild(div);
+                });
+            }
 
-// function showProfile(){
-//   profileContent.classList.add('active');
+            // Load Activities
+            function loadActivities() {
+                activityList.innerHTML = '';
+                activities.forEach((activity, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'activity-item';
+                    li.innerHTML = `
+                        <div class="activity-icon">
+                            <i class="fas ${activity.icon}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-message">
+                                <span class="activity-user">${activity.user}</span> ${activity.message}
+                            </div>
+                            <div class="activity-time">${activity.time}</div>
+                        </div>
+                        <div class="activity-actions">
+                            <i class="fas fa-trash delete-activity" data-index="${index}"></i>
+                        </div>
+                    `;
+                    activityList.appendChild(li);
+                });
 
-//   profileForm.addEventListener('submit', function (event) {
-//       event.preventDefault(); 
-//       alert('Changes saved successfully!');
-//   });
-//   alert ('Changes saved successfully!');
-// }
-function saveChanges() { 
-    alert ('Changes saved successfully!');
-}
+                // Delete Activity
+                document.querySelectorAll('.delete-activity').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const index = this.dataset.index;
+                        activities.splice(index, 1);
+                        loadActivities();
+                        showToast('Activity deleted successfully');
+                    });
+                });
+            }
 
-// }); 
+            // Load Notifications
+            function loadNotifications() {
+                notificationsList.innerHTML = '';
+                notifications.forEach((notification, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'notification-item';
+                    div.innerHTML = `
+                        <div class="notification-content">
+                            <div class="notification-message">${notification.message}</div>
+                            <div class="notification-time">${notification.time}</div>
+                        </div>
+                        <div class="notification-actions">
+                            <i class="fas fa-trash delete-notification" data-index="${index}"></i>
+                        </div>
+                    `;
+                    notificationsList.appendChild(div);
+                });
+
+                // Delete Notification
+                document.querySelectorAll('.delete-notification').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const index = this.dataset.index;
+                        notifications.splice(index, 1);
+                        loadNotifications();
+                        showToast('Notification deleted');
+                    });
+                });
+            }
+
+            // Show Toast Notification
+            function showToast(message) {
+                const toast = document.getElementById('toastNotification');
+                document.getElementById('toastMessage').textContent = message;
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            // Search Functionality
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                if (query.length > 0) {
+                    const results = searchItems.filter(item => 
+                        item.name.toLowerCase().includes(query)
+                    );
+                    
+                    searchResults.innerHTML = '';
+                    if (results.length > 0) {
+                        results.forEach(item => {
+                            const div = document.createElement('div');
+                            div.className = 'search-result-item';
+                            div.innerHTML = `
+                                <i class="fas ${item.icon}"></i>
+                                ${item.name}
+                            `;
+                            searchResults.appendChild(div);
+                        });
+                        searchResults.style.display = 'block';
+                    } else {
+                        searchResults.style.display = 'none';
+                    }
+                } else {
+                    searchResults.style.display = 'none';
+                }
+            });
+
+            // Close search results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) {
+                    searchResults.style.display = 'none';
+                }
+            });
+
+            // Show/Hide Notifications Modal
+            notificationIcon.addEventListener('click', function () {
+                notificationsModal.style.display = 'flex';
+                loadNotifications();
+            });
+
+            closeNotifications.addEventListener('click', function () {
+                notificationsModal.style.display = 'none';
+            });
+
+            // Delete All Notifications
+            deleteAllNotificationsBtn.addEventListener('click', function () {
+                notifications.length = 0;
+                loadNotifications();
+                showToast('All notifications deleted');
+            });
+
+            // Delete All Activities
+            deleteAllActivity.addEventListener('click', function () {
+                activities.length = 0;
+                loadActivities();
+                showToast('All activities deleted');
+            });
+
+            // Show/Hide User Dropdown
+            document.getElementById('userAvatar').addEventListener('click', function () {
+                userDropdown.classList.toggle('active');
+            });
+
+            // Profile link functionality
+            profileLink.addEventListener('click', function () {
+                dashboardContent.classList.remove('active');
+                settingsContent.classList.remove('active');
+                profileContent.classList.add('active');
+                
+                // Hide all feature sections
+                document.querySelectorAll('.feature-content').forEach(section => {
+                    section.style.display = 'none';
+                });
+            });
+
+            // Logout Functionality
+            logoutLink.addEventListener('click', function () {
+                alert('You will be redirected to the login page.');
+                // Here you can add a redirect to your login page.
+                // window.location.href = "login.html"; // Uncomment and set your login URL
+            });
+
+            // Settings Tab Functionality
+            const tabs = document.querySelectorAll('.settings-tab');
+            const settingsPanels = document.querySelectorAll('.settings-panel');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function () {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Hide all settings panels
+                    settingsPanels.forEach(p => p.classList.remove('active'));
+                    // Add active class to the clicked tab
+                    this.classList.add('active');
+
+                    // Show the corresponding panel
+                    const tabName = this.getAttribute('data-tab');
+                    document.getElementById(tabName + 'Panel').classList.add('active');
+                });
+            });
+
+            // Add Member Form
+            document.getElementById('addMemberForm')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('memberName').value;
+                const email = document.getElementById('memberEmail').value;
+                const role = document.getElementById('memberRole').value;
+                
+                teamMembers.push({
+                    id: teamMembers.length + 1,
+                    name,
+                    email,
+                    role
+                });
+                
+                loadTeamMembers();
+                this.reset();
+                showToast('Team member added successfully');
+            });
+
+            // Initialize the dashboard
+            initDashboard();
+        });
     </script>
-
 </body>
-
 </html>
