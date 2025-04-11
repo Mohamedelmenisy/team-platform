@@ -37,6 +37,7 @@
             color: var(--dark);
             display: flex;
             min-height: 100vh;
+            transition: background-color 0.3s ease;
         }
 
         /* Sidebar Styles */
@@ -904,18 +905,18 @@
 
         <div class="sidebar-menu">
             <div class="menu-title">Main Features</div>
-            <a href="#" class="menu-item active" data-feature="dashboard" id="dashboardLink">
+            <a href="dashboard.html" class="menu-item active" data-feature="dashboard" id="dashboardLink">
                 <i class="fas fa-tachometer-alt"></i>
                 <span>Dashboard</span>
             </a>
             <div class="menu-divider"></div>
 
-            <a href="#file-sharing" class="menu-item" data-feature="file-sharing">
+            <a href="file-sharing.html" class="menu-item" data-feature="file-sharing">
                 <i class="fas fa-file-upload"></i>
                 <span>File Sharing</span>
             </a>
 
-            <a href="#data-management" class="menu-item" data-feature="data-management">
+            <a href="data-management.html" class="menu-item" data-feature="data-management">
                 <i class="fas fa-database"></i>
                 <span>Data Management</span>
             </a>
@@ -1274,7 +1275,7 @@
                         </div>
                         <div class="form-group">
                             <label>Layout Density</label>
-                            <div style="margin-top: 0.5rem;">
+                            <div class="form-group">
                                 <select id="layoutDensity" class="form-control">
                                     <option value="compact">Compact</option>
                                     <option value="normal" selected>Normal</option>
@@ -1369,25 +1370,35 @@
                 tasksCompleted: 0,
             };
 
+            // Load Data from localStorage
+            function loadFromLocalStorage() {
+                activities = JSON.parse(localStorage.getItem('activities')) || [];
+                notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+                renderActivities();
+                renderNotifications();
+            }
+
+            // Save Data to localStorage
+            function saveToLocalStorage() {
+                localStorage.setItem('activities', JSON.stringify(activities));
+                localStorage.setItem('notifications', JSON.stringify(notifications));
+            }
+
             // Activities & Notifications
             let activities = [];
             let notifications = [];
 
-            // Initialize the dashboard
-            function initDashboard() {
-                updateDashboardUI();
+            // Event listeners and functions
+            notificationIcon.addEventListener('click', function () {
+                notificationsModal.style.display = 'flex';
                 loadNotifications();
-                loadActivities();
-            }
+            });
 
-            // Update Dashboard UI
-            function updateDashboardUI() {
-                document.getElementById('welcomeName').innerText = currentUser.name;
-                document.getElementById('userEmail').innerText = currentUser.email;
-            }
+            closeNotifications.addEventListener('click', function () {
+                notificationsModal.style.display = 'none';
+            });
 
-            // Load Activities
-            function loadActivities() {
+            function renderActivities() {
                 activityList.innerHTML = '';
                 activities.forEach((activity, index) => {
                     const li = document.createElement('li');
@@ -1398,7 +1409,6 @@
                         </div>
                         <div class="activity-content">
                             <div class="activity-message">${activity.message}</div>
-                            <div class="activity-time">${activity.time}</div>
                         </div>
                         <div class="activity-actions">
                             <i class="fas fa-trash delete-activity" data-index="${index}"></i>
@@ -1410,15 +1420,17 @@
                 // Delete Activity
                 document.querySelectorAll('.delete-activity').forEach(button => {
                     button.addEventListener('click', function () {
-                        const index = this.dataset.index;
+                        const index = parseInt(this.dataset.index);
                         activities.splice(index, 1);
-                        loadActivities();
+                        saveToLocalStorage();
+                        renderActivities();
                     });
                 });
+
+                saveToLocalStorage();
             }
 
-            // Load Notifications
-            function loadNotifications() {
+            function renderNotifications() {
                 notificationsList.innerHTML = '';
                 notifications.forEach((notification, index) => {
                     const div = document.createElement('div');
@@ -1433,74 +1445,57 @@
                 // Delete Notification
                 document.querySelectorAll('.delete-notification').forEach(button => {
                     button.addEventListener('click', function () {
-                        const index = this.dataset.index;
+                        const index = parseInt(this.dataset.index);
                         notifications.splice(index, 1);
-                        loadNotifications();
+                        saveToLocalStorage();
+                        renderNotifications();
                     });
                 });
+
+                saveToLocalStorage();
             }
 
-            // Show/Hide Notifications Modal
-            notificationIcon.addEventListener('click', function () {
-                notificationsModal.style.display = 'flex';
-                loadNotifications();
+            // Listen for form submissions
+            document.getElementById('addMemberForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const memberEmail = document.getElementById('memberEmail').value;
+                const memberRole = document.getElementById('memberRole').value;
+
+                if (memberEmail) {
+                    // Add member to team (to be implemented)
+                    showToast('Member added successfully!'); // Display toast message
+                }
             });
 
-            closeNotifications.addEventListener('click', function () {
-                notificationsModal.style.display = 'none';
+            document.getElementById('avatarUploadBtn').addEventListener('click', function () {
+                document.getElementById('profileAvatarInput').click();
             });
 
-            deleteAllNotificationsBtn.addEventListener('click', function () {
-                notifications = [];
-                loadNotifications();
+            document.getElementById('profileAvatarInput').addEventListener('change', function (e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function () {
+                        document.getElementById('profileAvatarLarge').style.backgroundImage = `url(${reader.result})`;
+                        document.getElementById('userAvatar').style.backgroundImage = `url(${reader.result})`;
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                }
             });
 
-            // Show/Hide User Dropdown
-            document.getElementById('userAvatar').addEventListener('click', function () {
-                userDropdown.classList.toggle('active');
-            });
-
-            // Profile link functionality
-            profileLink.addEventListener('click', function () {
-                dashboardContent.style.display = 'none';
-                settingsContent.style.display = 'none';
-                profileContent.classList.add('active');
-                profileContent.style.display = 'block';
-            });
-
-            // Logout Functionality
-            logoutLink.addEventListener('click', function () {
-                alert('You will be redirected to the login page.');
-                // Here you can add a redirect to your login page.
-                // window.location.href = "login.html"; // Uncomment and set your login URL
-            });
-
-            // View All Activities
-            deleteAllActivity.addEventListener('click', function () {
-                activities = [];
-                loadActivities();
-            });
-
-            // Settings Tab Functionality
-            const tabs = document.querySelectorAll('.settings-tab');
-            const settingsPanels = document.querySelectorAll('.settings-panel');
-
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function () {
-                    // Remove active class from all tabs
-                    tabs.forEach(t => t.classList.remove('active'));
-                    // Hide all settings panels
-                    settingsPanels.forEach(p => p.classList.remove('active'));
-                    // Add active class to the clicked tab
-                    this.classList.add('active');
-
-                    // Show the corresponding panel
-                    const tabName = this.getAttribute('data-tab');
-                    document.getElementById(tabName + 'Panel').classList.add('active');
+            // Toggle theme
+            const themes = document.querySelectorAll('.theme-option');
+            themes.forEach(theme => {
+                theme.addEventListener('click', function () {
+                    const selectedTheme = this.getAttribute('data-theme');
+                    document.body.setAttribute('data-theme', selectedTheme);
+                    document.getElementById('selectedTheme').value = selectedTheme;
                 });
             });
 
-            initDashboard();
+            // Initialize the dashboard
+            loadFromLocalStorage();
+            document.getElementById('welcomeName').innerText = currentUser.name;
+            document.getElementById('userEmail').innerText = currentUser.email;
         });
     </script>
 </body>
