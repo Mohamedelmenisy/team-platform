@@ -6,7 +6,6 @@
     <title>TeamFlow | Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* All previous styles remain unchanged here */
         :root {
             --primary: #2563eb;
             --primary-dark: #1e3a8a;
@@ -25,9 +24,100 @@
             --sidebar-active: rgba(255, 255, 255, 0.2);
         }
 
-        /* Add the rest of your CSS style rules here */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-        /* Example of a basic responsive design style */
+        body {
+            background-color: var(--primary-light);
+            color: var(--dark);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            color: var(--white);
+            font-size: 1.5rem;
+        }
+
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+
+        .menu-title {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 0.5px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            margin: 0.25rem 0;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background-color: var(--sidebar-hover);
+            color: var(--white);
+        }
+
+        .menu-item.active {
+            background-color: var(--sidebar-active);
+            color: var(--white);
+            border-left-color: var(--white);
+        }
+
+        .menu-item i {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* More styles... */
+        /* Add additional styles as needed */
+
+        /* Responsive Design */
         @media (max-width: 992px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -45,6 +135,7 @@
                 width: 250px;
             }
         }
+
     </style>
 </head>
 
@@ -111,7 +202,7 @@
 
             <div class="menu-divider"></div>
 
-            <a href="#settings" class="menu-item" data-feature="settings">
+            <a href="settings.html" class="menu-item" data-feature="settings">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
@@ -125,7 +216,7 @@
             <div class="search-bar">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" placeholder="Search employees, projects, tasks..." id="searchInput">
-                <div class="search-results" id="searchResults">
+                <div class="search-results" id="searchResults" style="display: none;">
                     <!-- Search results will be added dynamically -->
                 </div>
             </div>
@@ -157,10 +248,8 @@
         <div class="content-area">
             <!-- Dashboard Content -->
             <div id="dashboardContent" class="active">
-                <!-- Welcome Section -->
                 <div class="welcome-section">
                     <h2 class="welcome-title">Welcome, <span id="welcomeName">Mohamed</span>!</h2>
-
                     <div class="user-info">
                         <div class="user-info-avatar" id="profileAvatarLarge">M</div>
                         <div class="user-info-details">
@@ -281,7 +370,7 @@
                     </div>
                     <div class="form-actions">
                         <button type="button" class="btn btn-outline" id="cancelProfileBtn">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="submit" class="btn btn-primary" id="saveProfileBtn">Save Changes</button>
                     </div>
                 </form>
             </div>
@@ -552,13 +641,13 @@
             const profileAvatarLarge = document.getElementById('profileAvatarLarge');
             const userAvatar = document.getElementById('userAvatar');
 
-            // Check if the current user is an admin
+            // Check if current user is admin (m.elsayed@thechefz.co)
             const isAdmin = document.getElementById('userEmail').textContent === 'm.elsayed@thechefz.co';
             if (isAdmin) {
                 document.body.classList.add('user-admin');
             }
 
-            // Sample user data
+            // User Data
             let currentUser = {
                 name: 'Mohamed Elmenisy',
                 email: 'm.elsayed@thechefz.co',
@@ -568,20 +657,16 @@
 
             // Load existing data or initialize it
             const loadData = () => {
-                localStorage.setItem("activities", JSON.stringify([]));
-                localStorage.setItem("notifications", JSON.stringify([]));
-                localStorage.setItem("teamMembers", JSON.stringify([]));
+                const activities = JSON.parse(localStorage.getItem("activities") || "[]");
+                const notifications = JSON.parse(localStorage.getItem("notifications") || "[]");
+                const teamMembers = JSON.parse(localStorage.getItem("teamMembers") || "[]");
+
+                return { activities, notifications, teamMembers };
             };
 
-            const activities = JSON.parse(localStorage.getItem("activities") || "[]");
-            const notifications = JSON.parse(localStorage.getItem("notifications") || "[]");
-            const teamMembers = JSON.parse(localStorage.getItem("teamMembers") || "[]");
+            let { activities, notifications, teamMembers } = loadData();
 
-            if (!activities.length && !notifications.length && !teamMembers.length) {
-                loadData();  // Setup initial values if not set
-            }
-
-            // Update UI on page load
+            // Initialize the dashboard
             function initDashboard() {
                 updateDashboardUI();
                 loadTeamMembers();
@@ -618,7 +703,7 @@
             function loadTeamMembers() {
                 const teamList = document.getElementById('teamList');
                 teamList.innerHTML = '';
-
+                
                 teamMembers.forEach(member => {
                     const div = document.createElement('div');
                     div.className = 'team-member-card';
@@ -673,8 +758,8 @@
                     button.addEventListener('click', function () {
                         const index = this.dataset.index;
                         activities.splice(index, 1);
-                        loadActivities();
                         localStorage.setItem("activities", JSON.stringify(activities));
+                        loadActivities();
                         showToast('Activity removed');
                     });
                 });
@@ -703,8 +788,8 @@
                     button.addEventListener('click', function () {
                         const index = this.dataset.index;
                         notifications.splice(index, 1);
-                        loadNotifications();
                         localStorage.setItem("notifications", JSON.stringify(notifications));
+                        loadNotifications();
                         showToast('Notification removed');
                     });
                 });
@@ -721,7 +806,7 @@
                 }, 3000);
             }
 
-            // Search Functionality with Redirection
+            // Search Functionality
             searchInput.addEventListener('input', function() {
                 const query = this.value.toLowerCase();
                 if (query.length > 0) {
@@ -773,16 +858,16 @@
             // Delete All Notifications
             deleteAllNotificationsBtn.addEventListener('click', function () {
                 notifications.length = 0;
-                loadNotifications();
                 localStorage.setItem("notifications", JSON.stringify(notifications));
+                loadNotifications();
                 showToast('All notifications cleared');
             });
 
             // Delete All Activities
             deleteAllActivity.addEventListener('click', function () {
                 activities.length = 0;
-                loadActivities();
                 localStorage.setItem("activities", JSON.stringify(activities));
+                loadActivities();
                 showToast('All activities cleared');
             });
 
@@ -876,9 +961,9 @@
                     role
                 });
                 
+                localStorage.setItem("teamMembers", JSON.stringify(teamMembers));
                 loadTeamMembers();
                 this.reset();
-                localStorage.setItem("teamMembers", JSON.stringify(teamMembers));
                 showToast('Team member added successfully');
             });
 
