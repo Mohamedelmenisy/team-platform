@@ -358,12 +358,31 @@
             border-radius: 8px;
             padding: 1.5rem;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
         .stat-title {
             font-size: 0.9rem;
             color: var(--gray);
             margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .stat-title i {
+            color: var(--primary);
+        }
+        
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-dark);
         }
         
         /* Activity Section */
@@ -390,6 +409,12 @@
             color: var(--primary);
             font-weight: 500;
             cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .view-all:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
         }
         
         .activity-list {
@@ -528,6 +553,15 @@
             background-color: var(--primary-light);
         }
         
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        
         /* Settings Content */
         .settings-content {
             display: none;
@@ -553,6 +587,11 @@
             border-bottom: 2px solid transparent;
             font-weight: 500;
             color: var(--gray);
+            transition: all 0.2s;
+        }
+        
+        .settings-tab:hover {
+            color: var(--primary);
         }
         
         .settings-tab.active {
@@ -635,6 +674,11 @@
             border: 1px solid var(--light-gray);
             border-radius: 8px;
             margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .team-member-card:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         
         .member-avatar {
@@ -653,10 +697,6 @@
         
         .member-details {
             flex: 1;
-        }
-        
-        .member-name {
-            font-weight: 600;
         }
         
         .member-email {
@@ -681,11 +721,39 @@
             color: var(--secondary);
         }
         
+        .member-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
         .add-member-form {
             margin-top: 2rem;
             padding: 1.5rem;
             border: 1px dashed var(--light-gray);
             border-radius: 8px;
+        }
+        
+        /* Theme Classes */
+        body.light-theme {
+            --primary-light: #f8fafc;
+            --light: #ffffff;
+            --white: #ffffff;
+            --dark: #1e293b;
+        }
+        
+        body.dark-theme {
+            --primary-light: #1e293b;
+            --light: #334155;
+            --white: #1e293b;
+            --dark: #f8fafc;
+            background-color: #0f172a;
+        }
+        
+        body.blue-theme {
+            --primary-light: #dbeafe;
+            --light: #eff6ff;
+            --white: #ffffff;
+            --dark: #1e293b;
         }
         
         /* Notifications Modal */
@@ -848,7 +916,7 @@
         }
     </style>
 </head>
-<body>
+<body class="blue-theme">
     <!-- Sidebar Navigation -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
@@ -972,7 +1040,7 @@
                             <div class="user-info-title">Team Manager</div>
                             <div class="user-info-email">
                                 <i class="fas fa-envelope"></i>
-                                <span>admin@teamflow.com</span>
+                                <span id="userEmail">mohamed@teamflow.com</span>
                             </div>
                         </div>
                     </div>
@@ -981,19 +1049,35 @@
                 <!-- Stats Section -->
                 <div class="stats-section">
                     <div class="stat-card">
-                        <div class="stat-title">Upcoming Deadlines</div>
+                        <div class="stat-title">
+                            <i class="fas fa-calendar-times"></i>
+                            Upcoming Deadlines
+                        </div>
+                        <div class="stat-value">5</div>
                     </div>
                     
                     <div class="stat-card">
-                        <div class="stat-title">Active Projects</div>
+                        <div class="stat-title">
+                            <i class="fas fa-project-diagram"></i>
+                            Active Projects
+                        </div>
+                        <div class="stat-value">12</div>
                     </div>
                     
                     <div class="stat-card">
-                        <div class="stat-title">Tasks Completed</div>
+                        <div class="stat-title">
+                            <i class="fas fa-check-circle"></i>
+                            Tasks Completed
+                        </div>
+                        <div class="stat-value">48</div>
                     </div>
                     
                     <div class="stat-card">
-                        <div class="stat-title">Team Members</div>
+                        <div class="stat-title">
+                            <i class="fas fa-users"></i>
+                            Team Members
+                        </div>
+                        <div class="stat-value">24</div>
                     </div>
                 </div>
                 
@@ -1044,7 +1128,7 @@
                     
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" class="form-control" value="admin@teamflow.com" readonly>
+                        <input type="email" id="email" class="form-control" value="mohamed@teamflow.com" readonly>
                     </div>
                     
                     <div class="form-group">
@@ -1253,13 +1337,8 @@
                             <h4>Add New Member</h4>
                             <form id="addMemberForm">
                                 <div class="form-group">
-                                    <label for="memberName">Full Name</label>
-                                    <input type="text" id="memberName" class="form-control" required>
-                                </div>
-                                
-                                <div class="form-group">
                                     <label for="memberEmail">Email</label>
-                                    <input type="email" id="memberEmail" class="form-control" required>
+                                    <input type="email" id="memberEmail" class="form-control" placeholder="user@example.com" required>
                                 </div>
                                 
                                 <div class="form-group">
@@ -1360,6 +1439,7 @@
             const markAllReadBtn = document.getElementById('markAllReadBtn');
             const userAvatar = document.getElementById('userAvatar');
             const userName = document.getElementById('userName');
+            const userEmail = document.getElementById('userEmail');
             const userDropdown = document.getElementById('userDropdown');
             const profileLink = document.getElementById('profileLink');
             const settingsLink = document.getElementById('settingsLink');
@@ -1384,11 +1464,12 @@
             const preferencesForm = document.getElementById('preferencesForm');
             const teamList = document.getElementById('teamList');
             const addMemberForm = document.getElementById('addMemberForm');
+            const themeOptions = document.querySelectorAll('.theme-option');
             
             // Current user data
             const currentUser = {
                 name: 'Mohamed Elmenisy',
-                email: 'admin@teamflow.com',
+                email: 'mohamed@teamflow.com',
                 title: 'Team Manager',
                 department: 'Management',
                 phone: '+201234567890',
@@ -1400,19 +1481,16 @@
             // Sample team members
             const teamMembers = [
                 {
-                    name: 'Ahmed Mohamed',
                     email: 'ahmed@teamflow.com',
                     role: 'member',
                     initials: 'AM'
                 },
                 {
-                    name: 'Sarah Johnson',
                     email: 'sarah@teamflow.com',
                     role: 'admin',
                     initials: 'SJ'
                 },
                 {
-                    name: 'Michael Brown',
                     email: 'michael@teamflow.com',
                     role: 'member',
                     initials: 'MB'
@@ -1433,8 +1511,13 @@
                 },
                 {
                     icon: 'fa-user-plus',
-                    message: 'New team member "Ahmed Mohamed" joined',
+                    message: 'New team member "ahmed@teamflow.com" added',
                     time: 'Yesterday'
+                },
+                {
+                    icon: 'fa-trash',
+                    message: 'Removed team member "john@teamflow.com"',
+                    time: '2 days ago'
                 }
             ];
             
@@ -1456,6 +1539,7 @@
             // Update user UI elements
             function updateUserUI() {
                 userName.textContent = currentUser.name;
+                userEmail.textContent = currentUser.email;
                 document.querySelector('.user-info-name').textContent = currentUser.name;
                 document.querySelector('.user-info-title').textContent = currentUser.title;
                 document.querySelector('.user-info-email span').textContent = currentUser.email;
@@ -1479,21 +1563,50 @@
             function loadTeamMembers() {
                 teamList.innerHTML = '';
                 
-                teamMembers.forEach(member => {
+                teamMembers.forEach((member, index) => {
                     const memberCard = document.createElement('div');
                     memberCard.className = 'team-member-card';
                     memberCard.innerHTML = `
                         <div class="member-avatar">${member.initials}</div>
                         <div class="member-details">
-                            <div class="member-name">${member.name}</div>
                             <div class="member-email">${member.email}</div>
                         </div>
                         <div class="member-role ${member.role === 'admin' ? 'role-admin' : 'role-member'}">
                             ${member.role === 'admin' ? 'Admin' : 'Member'}
                         </div>
+                        <div class="member-actions">
+                            <button class="btn btn-danger btn-sm delete-member" data-index="${index}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     `;
                     teamList.appendChild(memberCard);
                 });
+                
+                // Add event listeners to delete buttons
+                document.querySelectorAll('.delete-member').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const index = this.getAttribute('data-index');
+                        deleteTeamMember(index);
+                    });
+                });
+            }
+            
+            // Delete team member
+            function deleteTeamMember(index) {
+                if (confirm('Are you sure you want to remove this team member?')) {
+                    const removedMember = teamMembers.splice(index, 1)[0];
+                    loadTeamMembers();
+                    
+                    // Add activity
+                    activities.unshift({
+                        icon: 'fa-trash',
+                        message: `Removed team member "${removedMember.email}"`,
+                        time: 'Just now'
+                    });
+                    
+                    loadActivities();
+                }
             }
             
             // Load activities
@@ -1698,8 +1811,14 @@
                 const timezone = document.getElementById('timezone').value;
                 const dateFormat = document.getElementById('dateFormat').value;
                 
-                // In a real app, you would save these settings to the server
-                console.log('Account settings saved:', { language, timezone, dateFormat });
+                // Apply language change immediately
+                if (language === 'ar') {
+                    document.documentElement.lang = 'ar';
+                    document.documentElement.dir = 'rtl';
+                } else {
+                    document.documentElement.lang = 'en';
+                    document.documentElement.dir = 'ltr';
+                }
                 
                 // Show success message
                 alert('Account settings saved successfully!');
@@ -1711,6 +1830,7 @@
                         message: 'Changed language to Arabic',
                         time: 'Just now'
                     });
+                    loadActivities();
                 }
             });
             
@@ -1719,9 +1839,6 @@
                 e.preventDefault();
                 const twoFactorAuth = document.getElementById('twoFactorAuth').checked;
                 const newPassword = document.getElementById('newPassword').value;
-                
-                // In a real app, you would save these settings to the server
-                console.log('Security settings saved:', { twoFactorAuth, newPassword });
                 
                 // Show success message
                 alert('Security settings saved successfully!');
@@ -1733,6 +1850,7 @@
                         message: 'Changed password',
                         time: 'Just now'
                     });
+                    loadActivities();
                 }
                 
                 // Reset form
@@ -1748,15 +1866,6 @@
                 const pushMessages = document.getElementById('pushMessages').checked;
                 const pushTeamUpdates = document.getElementById('pushTeamUpdates').checked;
                 
-                // In a real app, you would save these settings to the server
-                console.log('Notifications settings saved:', { 
-                    emailTasks, 
-                    emailDeadlines, 
-                    emailUpdates, 
-                    pushMessages, 
-                    pushTeamUpdates 
-                });
-                
                 // Show success message
                 alert('Notifications settings saved successfully!');
             });
@@ -1767,22 +1876,23 @@
                 const theme = document.getElementById('selectedTheme').value;
                 const layoutDensity = document.getElementById('layoutDensity').value;
                 
-                // In a real app, you would save these settings to the server
-                console.log('Preferences settings saved:', { theme, layoutDensity });
+                // Apply theme immediately
+                document.body.className = `${theme}-theme`;
                 
                 // Show success message
                 alert('Preferences settings saved successfully!');
                 
-                // Add activity if theme changed
+                // Add activity
                 activities.unshift({
                     icon: 'fa-palette',
                     message: `Changed theme to ${theme}`,
                     time: 'Just now'
                 });
+                loadActivities();
             });
             
             // Theme selection
-            document.querySelectorAll('.theme-option').forEach(option => {
+            themeOptions.forEach(option => {
                 option.addEventListener('click', function() {
                     const theme = this.getAttribute('data-theme');
                     document.getElementById('selectedTheme').value = theme;
@@ -1792,16 +1902,14 @@
             // Add team member
             addMemberForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const name = document.getElementById('memberName').value;
                 const email = document.getElementById('memberEmail').value;
                 const role = document.getElementById('memberRole').value;
                 
                 // Create new member
                 const newMember = {
-                    name,
-                    email: role === 'admin' ? `admin@teamflow.com` : `member@teamflow.com`,
+                    email: role === 'admin' ? `admin@${email.split('@')[1]}` : email,
                     role,
-                    initials: name.split(' ').map(n => n[0]).join('').toUpperCase()
+                    initials: email.split('@')[0].substring(0, 2).toUpperCase()
                 };
                 
                 // Add to team
@@ -1811,9 +1919,10 @@
                 // Add activity
                 activities.unshift({
                     icon: 'fa-user-plus',
-                    message: `Added new ${role}: ${name}`,
+                    message: `Added new ${role}: ${newMember.email}`,
                     time: 'Just now'
                 });
+                loadActivities();
                 
                 // Reset form
                 this.reset();
