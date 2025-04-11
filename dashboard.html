@@ -1395,6 +1395,10 @@
                             </select>
                         </div>
                     </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="saveAccountSettings">Save Changes</button>
+                    </div>
                 </div>
                 <div class="settings-panel" id="securityPanel">
                     <div class="settings-option">
@@ -1477,6 +1481,10 @@
                             </label>
                         </div>
                     </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="saveNotificationSettings">Save Changes</button>
+                    </div>
                 </div>
                 <div class="settings-panel" id="preferencesPanel">
                     <div class="settings-option">
@@ -1518,6 +1526,10 @@
                                 <option value="large">Large</option>
                             </select>
                         </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="savePreferenceSettings">Save Changes</button>
                     </div>
                 </div>
                 <div class="settings-panel" id="teamPanel">
@@ -1631,7 +1643,7 @@
             </div>
             <div class="notifications-actions">
                 <button class="btn btn-outline" id="markAllReadBtn">Mark All as Read</button>
-                <button class="btn btn-danger admin-only" id="deleteAllNotificationsBtn">Delete All</button>
+                <button class="btn btn-danger" id="deleteAllNotificationsBtn">Delete All</button>
             </div>
             <div id="notificationsList">
                 <!-- Notifications will be dynamically added here -->
@@ -1691,6 +1703,9 @@
             const closePreview = document.getElementById('closePreview');
             const cancelPreviewBtn = document.getElementById('cancelPreviewBtn');
             const confirmPreviewBtn = document.getElementById('confirmPreviewBtn');
+            const saveAccountSettings = document.getElementById('saveAccountSettings');
+            const saveNotificationSettings = document.getElementById('saveNotificationSettings');
+            const savePreferenceSettings = document.getElementById('savePreferenceSettings');
 
             // Load saved data from localStorage
             function loadSavedData() {
@@ -1730,6 +1745,24 @@
                     themeSelect.value = savedTheme;
                 }
 
+                // Load language
+                const savedLanguage = localStorage.getItem('language');
+                if (savedLanguage) {
+                    document.getElementById('languageSelect').value = savedLanguage;
+                }
+
+                // Load timezone
+                const savedTimezone = localStorage.getItem('timezone');
+                if (savedTimezone) {
+                    document.getElementById('timezoneSelect').value = savedTimezone;
+                }
+
+                // Load date format
+                const savedDateFormat = localStorage.getItem('dateFormat');
+                if (savedDateFormat) {
+                    document.getElementById('dateFormatSelect').value = savedDateFormat;
+                }
+
                 // Load current page
                 const currentPage = localStorage.getItem('currentPage');
                 if (currentPage) {
@@ -1744,6 +1777,9 @@
                 localStorage.setItem('notifications', JSON.stringify(notifications));
                 localStorage.setItem('teamMembers', JSON.stringify(teamMembers));
                 localStorage.setItem('theme', themeSelect.value);
+                localStorage.setItem('language', document.getElementById('languageSelect').value);
+                localStorage.setItem('timezone', document.getElementById('timezoneSelect').value);
+                localStorage.setItem('dateFormat', document.getElementById('dateFormatSelect').value);
             }
 
             // Check if current user is admin (m.elsayed@thechefz.co)
@@ -2308,6 +2344,24 @@
                 
                 saveData();
                 showToast('Profile updated successfully');
+            });
+
+            // Save account settings
+            saveAccountSettings.addEventListener('click', function() {
+                saveData();
+                showToast('Account settings saved successfully');
+            });
+
+            // Save notification settings
+            saveNotificationSettings.addEventListener('click', function() {
+                saveData();
+                showToast('Notification settings saved successfully');
+            });
+
+            // Save preference settings
+            savePreferenceSettings.addEventListener('click', function() {
+                saveData();
+                showToast('Preference settings saved successfully');
             });
 
             // Initialize the dashboard
