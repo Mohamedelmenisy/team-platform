@@ -1361,6 +1361,8 @@
             const closeNotifications = document.getElementById('closeNotifications');
             const notificationsList = document.getElementById('notificationsList');
             const deleteAllNotificationsBtn = document.getElementById('deleteAllNotificationsBtn');
+            const tabs = document.querySelectorAll('.settings-tab');
+            const settingsPanels = document.querySelectorAll('.settings-panel');
 
             // User Data
             let currentUser = {
@@ -1462,6 +1464,7 @@
 
             // Profile link functionality
             profileLink.addEventListener('click', function () {
+                history.pushState({ section: 'profile' }, '', ''); // Push to history stack
                 dashboardContent.style.display = 'none';
                 settingsContent.style.display = 'none';
                 profileContent.classList.add('active');
@@ -1470,9 +1473,7 @@
 
             // Logout Functionality
             logoutLink.addEventListener('click', function () {
-                alert('You will be redirected to the login page.');
-                // Here you can add a redirect to your login page.
-                // window.location.href = "login.html"; // Uncomment and set your login URL
+                window.location.href = "login.html"; // Change this URL to your actual login page
             });
 
             // View All Activities
@@ -1482,9 +1483,6 @@
             });
 
             // Settings Tab Functionality
-            const tabs = document.querySelectorAll('.settings-tab');
-            const settingsPanels = document.querySelectorAll('.settings-panel');
-
             tabs.forEach(tab => {
                 tab.addEventListener('click', function () {
                     // Remove active class from all tabs
@@ -1497,7 +1495,43 @@
                     // Show the corresponding panel
                     const tabName = this.getAttribute('data-tab');
                     document.getElementById(tabName + 'Panel').classList.add('active');
+
+                    // Store the current settings state
+                    history.pushState({ section: 'settings', tab: tabName }, '', ''); // Push to history stack
                 });
+            });
+
+            // Handle browser back navigation
+            window.addEventListener('popstate', function (event) {
+                if (event.state) {
+                    if (event.state.section === 'profile') {
+                        dashboardContent.style.display = 'none';
+                        settingsContent.style.display = 'none';
+                        profileContent.classList.add('active');
+                        profileContent.style.display = 'block';
+                    } else if (event.state.section === 'settings') {
+                        dashboardContent.style.display = 'none';
+                        profileContent.classList.remove('active');
+                        settingsContent.classList.add('active');
+                        settingsContent.style.display = 'block';
+
+                        // Show the selected tab if it exists
+                        if (event.state.tab) {
+                            tabs.forEach(t => t.classList.remove('active'));
+                            const selectedTab = document.querySelector(`.settings-tab[data-tab="${event.state.tab}"]`);
+                            if (selectedTab) {
+                                selectedTab.classList.add('active');
+                            }
+                            settingsPanels.forEach(p => p.classList.remove('active'));
+                            document.getElementById(event.state.tab + 'Panel').classList.add('active');
+                        }
+                    } else {
+                        // Default back to dashboard content if no section state
+                        profileContent.style.display = 'none';
+                        settingsContent.style.display = 'none';
+                        dashboardContent.style.display = 'block';
+                    }
+                }
             });
 
             initDashboard();
