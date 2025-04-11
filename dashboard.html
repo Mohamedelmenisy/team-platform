@@ -905,7 +905,7 @@
 
         <div class="sidebar-menu">
             <div class="menu-title">Main Features</div>
-            <a href="dashboard.html" class="menu-item active" data-feature="dashboard" id="dashboardLink">
+            <a href="#" class="menu-item active" data-feature="dashboard" id="dashboardLink">
                 <i class="fas fa-tachometer-alt"></i>
                 <span>Dashboard</span>
             </a>
@@ -976,7 +976,7 @@
             <div class="user-menu">
                 <div class="notification-icon" id="notificationIcon">
                     <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
+                    <span class="notification-badge" id="notificationCount">3</span>
                 </div>
 
                 <div class="user-profile">
@@ -1362,42 +1362,55 @@
             const closeNotifications = document.getElementById('closeNotifications');
             const notificationsList = document.getElementById('notificationsList');
             const deleteAllNotificationsBtn = document.getElementById('deleteAllNotificationsBtn');
+            const profileAvatarInput = document.getElementById('profileAvatarInput');
+            const profileAvatar = document.getElementById('profileAvatar');
 
             // User Data
             let currentUser = {
                 name: 'Mohamed Elmenisy',
                 email: 'm.elsayed@thechefz.co',
                 tasksCompleted: 0,
+                profileImage: ''
             };
 
             // Load Data from localStorage
             function loadFromLocalStorage() {
-                activities = JSON.parse(localStorage.getItem('activities')) || [];
-                notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+                const savedActivities = JSON.parse(localStorage.getItem('activities')) || [];
+                const savedNotifications = JSON.parse(localStorage.getItem('notifications')) || [];
+                activities = savedActivities;
+                notifications = savedNotifications;
                 renderActivities();
                 renderNotifications();
+                loadUserProfile();
             }
 
             // Save Data to localStorage
             function saveToLocalStorage() {
                 localStorage.setItem('activities', JSON.stringify(activities));
                 localStorage.setItem('notifications', JSON.stringify(notifications));
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
             }
 
-            // Activities & Notifications
+            // User Activities & Notifications
             let activities = [];
             let notifications = [];
 
-            // Event listeners and functions
-            notificationIcon.addEventListener('click', function () {
-                notificationsModal.style.display = 'flex';
-                loadNotifications();
-            });
+            // Load User Profile
+            function loadUserProfile() {
+                const savedUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (savedUser) {
+                    currentUser = savedUser;
+                    document.getElementById('userName').innerText = currentUser.name;
+                    document.getElementById('userEmail').innerText = currentUser.email;
+                    if (currentUser.profileImage) {
+                        profileAvatar.style.backgroundImage = `url(${currentUser.profileImage})`;
+                        document.getElementById('profileAvatarLarge').style.backgroundImage = `url(${currentUser.profileImage})`;
+                        document.getElementById('userAvatar').style.backgroundImage = `url(${currentUser.profileImage})`;
+                    }
+                }
+            }
 
-            closeNotifications.addEventListener('click', function () {
-                notificationsModal.style.display = 'none';
-            });
-
+            // Render Activities
             function renderActivities() {
                 activityList.innerHTML = '';
                 activities.forEach((activity, index) => {
@@ -1409,6 +1422,7 @@
                         </div>
                         <div class="activity-content">
                             <div class="activity-message">${activity.message}</div>
+                            <div class="activity-time">${activity.time}</div>
                         </div>
                         <div class="activity-actions">
                             <i class="fas fa-trash delete-activity" data-index="${index}"></i>
@@ -1426,10 +1440,9 @@
                         renderActivities();
                     });
                 });
-
-                saveToLocalStorage();
             }
 
+            // Render Notifications
             function renderNotifications() {
                 notificationsList.innerHTML = '';
                 notifications.forEach((notification, index) => {
@@ -1451,52 +1464,87 @@
                         renderNotifications();
                     });
                 });
-
-                saveToLocalStorage();
             }
 
-            // Listen for form submissions
-            document.getElementById('addMemberForm').addEventListener('submit', function (e) {
+            // Show Notifications Modal
+            notificationIcon.addEventListener('click', function () {
+                notificationsModal.style.display = 'flex';
+                renderNotifications();
+            });
+
+            closeNotifications.addEventListener('click', function () {
+                notificationsModal.style.display = 'none';
+            });
+
+            deleteAllNotificationsBtn.addEventListener('click', function () {
+                notifications = [];
+                saveToLocalStorage();
+                renderNotifications();
+            });
+
+            // Profile link functionality
+            profileLink.addEventListener('click', function () {
+                dashboardContent.style.display = 'none';
+                settingsContent.style.display = 'none';
+                profileContent.classList.add('active');
+                profileContent.style.display = 'block';
+            });
+
+            // Logout Functionality
+            logoutLink.addEventListener('click', function () {
+                alert('You will be redirected to the login page.');
+                // Here you can add a redirect to your login page.
+                // window.location.href = "login.html"; // Uncomment and set your login URL
+            });
+
+            // Saving Profile Changes
+            profileForm.addEventListener('submit', function (e) {
                 e.preventDefault();
-                const memberEmail = document.getElementById('memberEmail').value;
-                const memberRole = document.getElementById('memberRole').value;
+                currentUser.name = document.getElementById('firstName').value + ' ' + document.getElementById('lastName').value;
+                currentUser.email = document.getElementById('email').value;
+                currentUser.phone = document.getElementById('phone').value;
+                currentUser.department = document.getElementById('department').value;
 
-                if (memberEmail) {
-                    // Add member to team (to be implemented)
-                    showToast('Member added successfully!'); // Display toast message
-                }
+                const themeSelector = document.getElementById('selectedTheme');
+                currentUser.theme = themeSelector.value;
+
+                saveToLocalStorage();
+                showToast('Profile saved successfully!');
             });
 
-            document.getElementById('avatarUploadBtn').addEventListener('click', function () {
-                document.getElementById('profileAvatarInput').click();
-            });
-
-            document.getElementById('profileAvatarInput').addEventListener('change', function (e) {
+            // Profile Picture Upload
+            profileAvatarInput.addEventListener('change', function (e) {
                 if (e.target.files && e.target.files[0]) {
                     const reader = new FileReader();
                     reader.onload = function () {
+                        currentUser.profileImage = reader.result;
+                        profileAvatar.style.backgroundImage = `url(${reader.result})`;
                         document.getElementById('profileAvatarLarge').style.backgroundImage = `url(${reader.result})`;
                         document.getElementById('userAvatar').style.backgroundImage = `url(${reader.result})`;
+                        saveToLocalStorage();
                     };
                     reader.readAsDataURL(e.target.files[0]);
                 }
             });
 
-            // Toggle theme
-            const themes = document.querySelectorAll('.theme-option');
-            themes.forEach(theme => {
-                theme.addEventListener('click', function () {
-                    const selectedTheme = this.getAttribute('data-theme');
-                    document.body.setAttribute('data-theme', selectedTheme);
-                    document.getElementById('selectedTheme').value = selectedTheme;
-                });
-            });
-
             // Initialize the dashboard
             loadFromLocalStorage();
+            renderActivities();
+            renderNotifications();
             document.getElementById('welcomeName').innerText = currentUser.name;
             document.getElementById('userEmail').innerText = currentUser.email;
         });
+        
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.innerText = message;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
     </script>
 </body>
 
