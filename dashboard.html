@@ -889,78 +889,6 @@
                 grid-template-columns: 1fr;
             }
         }
-
-        /* Arabic styles */
-        body[dir="rtl"] {
-            text-align: right;
-        }
-
-        body[dir="rtl"] .sidebar {
-            right: 0;
-            left: auto;
-        }
-
-        body[dir="rtl"] .main-content {
-            margin-right: var(--sidebar-width);
-            margin-left: 0;
-        }
-
-        body[dir="rtl"] .search-icon {
-            right: 1rem;
-            left: auto;
-        }
-
-        body[dir="rtl"] .search-bar input {
-            padding: 0.75rem 2.5rem 0.75rem 1rem;
-        }
-
-        body[dir="rtl"] .menu-item i {
-            margin-right: 0;
-            margin-left: 0.75rem;
-        }
-
-        body[dir="rtl"] .menu-item {
-            border-left: none;
-            border-right: 3px solid transparent;
-        }
-
-        body[dir="rtl"] .menu-item.active {
-            border-right-color: var(--white);
-        }
-
-        body[dir="rtl"] .activity-icon {
-            margin-right: 0;
-            margin-left: 1rem;
-        }
-
-        body[dir="rtl"] .activity-actions {
-            margin-left: 0;
-            margin-right: auto;
-            padding-left: 0;
-            padding-right: 1rem;
-        }
-
-        body[dir="rtl"] .user-dropdown {
-            right: auto;
-            left: 0;
-        }
-
-        body[dir="rtl"] .form-actions {
-            justify-content: flex-start;
-        }
-
-        body[dir="rtl"] .settings-tabs {
-            flex-direction: row-reverse;
-        }
-
-        body[dir="rtl"] .member-avatar {
-            margin-right: 0;
-            margin-left: 1rem;
-        }
-
-        body[dir="rtl"] .member-actions {
-            flex-direction: row-reverse;
-        }
     </style>
 </head>
 
@@ -1076,7 +1004,7 @@
                     <h2 class="welcome-title">Welcome, <span id="welcomeName">Mohamed</span>!</h2>
 
                     <div class="user-info">
-                        <div class="user-info-avatar" id="profileAvatar">M</div>
+                        <div class="user-info-avatar" id="profileAvatarLarge">M</div>
                         <div class="user-info-details">
                             <div class="user-info-name">Mohamed Elmenisy</div>
                             <div class="user-info-title">Team Manager</div>
@@ -1163,7 +1091,7 @@
                 <form class="profile-form" id="profileForm">
                     <div class="form-group">
                         <label for="profileAvatarInput">Profile Picture</label>
-                        <div class="user-info-avatar" id="profileAvatarLarge" onclick="document.getElementById('profileAvatarInput').click();">
+                        <div class="user-info-avatar" id="profileAvatar" onclick="document.getElementById('profileAvatarInput').click();">
                             <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;">
                             <div class="avatar-upload" id="avatarUploadBtn"><i class="fas fa-camera"></i></div>
                         </div>
@@ -1532,43 +1460,43 @@
                 userDropdown.classList.toggle('active');
             });
 
+            // Profile link functionality
+            profileLink.addEventListener('click', function () {
+                dashboardContent.style.display = 'none';
+                settingsContent.style.display = 'none';
+                profileContent.classList.add('active');
+                profileContent.style.display = 'block';
+            });
+
             // Logout Functionality
             logoutLink.addEventListener('click', function () {
-                alert('Logout function has been activated.');
-                // Implement your logout logic here
+                alert('You will be redirected to the login page.');
+                // Here you can add a redirect to your login page.
+                // window.location.href = "login.html"; // Uncomment and set your login URL
             });
 
             // View All Activities
             deleteAllActivity.addEventListener('click', function () {
-                if (confirm('Are you sure you want to delete all activities?')) {
-                    activities = [];
-                    loadActivities();
-                }
+                activities = [];
+                loadActivities();
             });
 
-            // Set Active Feature
-            const features = document.querySelectorAll('.menu-item');
-            features.forEach(feature => {
-                feature.addEventListener('click', function () {
-                    features.forEach(f => f.classList.remove('active'));
+            // Settings Tab Functionality
+            const tabs = document.querySelectorAll('.settings-tab');
+            const settingsPanels = document.querySelectorAll('.settings-panel');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function () {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Hide all settings panels
+                    settingsPanels.forEach(p => p.classList.remove('active'));
+                    // Add active class to the clicked tab
                     this.classList.add('active');
-                    const featureName = this.getAttribute('data-feature');
 
-                    dashboardContent.style.display = 'none';
-                    profileContent.style.display = 'none';
-                    settingsContent.style.display = 'none';
-
-                    switch (featureName) {
-                        case 'dashboard':
-                            dashboardContent.style.display = 'block';
-                            break;
-                        case 'profile':
-                            profileContent.style.display = 'block';
-                            break;
-                        case 'settings':
-                            settingsContent.style.display = 'block';
-                            break;
-                    }
+                    // Show the corresponding panel
+                    const tabName = this.getAttribute('data-tab');
+                    document.getElementById(tabName + 'Panel').classList.add('active');
                 });
             });
 
