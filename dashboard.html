@@ -1918,24 +1918,32 @@
                 document.getElementById('email').value = currentUser.email;
                 
                 // Set avatar if exists
-                if (currentUser.avatar) {
-                    profileAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
-                    profileAvatar.textContent = '';
-                    profileAvatarLarge.style.backgroundImage = `url(${currentUser.avatar})`;
-                    profileAvatarLarge.textContent = '';
-                    userAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
-                    userAvatar.textContent = '';
-                } else {
-                    profileAvatar.textContent = currentUser.initials;
-                    profileAvatarLarge.textContent = currentUser.initials;
-                    userAvatar.textContent = currentUser.initials;
-                }
+                updateAvatarUI();
                 
                 // Show/hide admin features based on role
                 const adminFeatures = document.querySelectorAll('.admin-only');
                 adminFeatures.forEach(feature => {
                     feature.style.display = currentUser.role === 'admin' ? 'block' : 'none';
                 });
+            }
+            
+            // Update avatar UI elements
+            function updateAvatarUI() {
+                if (currentUser.avatar) {
+                    userAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
+                    userAvatar.textContent = '';
+                    profileAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
+                    profileAvatar.textContent = '';
+                    profileAvatarLarge.style.backgroundImage = `url(${currentUser.avatar})`;
+                    profileAvatarLarge.textContent = '';
+                } else {
+                    userAvatar.style.backgroundImage = '';
+                    userAvatar.textContent = currentUser.initials;
+                    profileAvatar.style.backgroundImage = '';
+                    profileAvatar.textContent = currentUser.initials;
+                    profileAvatarLarge.style.backgroundImage = '';
+                    profileAvatarLarge.textContent = currentUser.initials;
+                }
             }
             
             // Update stats
@@ -2207,12 +2215,414 @@
                     profileContent.style.display = 'block';
                 } else if (feature === 'settings') {
                     settingsContent.style.display = 'block';
+                } else if (feature === 'employee-scheduling') {
+                    // Load employee scheduling content
+                    loadEmployeeScheduling();
+                    featureSections.style.display = 'block';
+                    document.querySelector(`[data-feature="${feature}"]`).classList.add('active');
                 } else {
                     // For other features, we would load their content
                     featureSections.style.display = 'block';
                     document.querySelector(`[data-feature="${feature}"]`).classList.add('active');
                     featureSections.innerHTML = `<h2>${feature.replace('-', ' ')} Feature</h2><p>This is the ${feature.replace('-', ' ')} feature content.</p>`;
                 }
+            }
+            
+            // Load employee scheduling content
+            function loadEmployeeScheduling() {
+                featureSections.innerHTML = `
+                    <div class="page-header">
+                        <h1 class="page-title">Employee Schedule</h1>
+                        <button class="btn btn-primary" id="addEmployeeBtn">
+                            <i class="fas fa-plus"></i> Add Employee
+                        </button>
+                    </div>
+
+                    <!-- Schedule Controls -->
+                    <div class="schedule-controls">
+                        <div class="week-navigation">
+                            <button class="btn btn-outline" id="prevWeekBtn">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <div class="week-display" id="weekDisplay">June 5 - June 11, 2023</div>
+                            <button class="btn btn-outline" id="nextWeekBtn">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <button class="btn btn-primary" id="saveScheduleBtn">
+                            <i class="fas fa-save"></i> Save Schedule
+                        </button>
+                    </div>
+
+                    <!-- Schedule Table -->
+                    <div class="schedule-container">
+                        <table class="schedule-table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Monday<br>Jun 5</th>
+                                    <th>Tuesday<br>Jun 6</th>
+                                    <th>Wednesday<br>Jun 7</th>
+                                    <th>Thursday<br>Jun 8</th>
+                                    <th>Friday<br>Jun 9</th>
+                                    <th>Saturday<br>Jun 10</th>
+                                    <th>Sunday<br>Jun 11</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="employee-name">Sarah Johnson <span class="edit-shift" data-emp="1">(edit)</span></td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-morning">9:00 AM - 5:00 PM</div>
+                                        <span class="edit-shift" data-emp="1" data-day="mon">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-morning">9:00 AM - 5:00 PM</div>
+                                        <span class="edit-shift" data-emp="1" data-day="tue">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-afternoon">12:00 PM - 8:00 PM</div>
+                                        <span class="edit-shift" data-emp="1" data-day="wed">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-morning">9:00 AM - 5:00 PM</div>
+                                        <span class="edit-shift" data-emp="1" data-day="thu">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift day-off">Day Off</div>
+                                        <span class="edit-shift" data-emp="1" data-day="fri">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-night">5:00 PM - 1:00 AM</div>
+                                        <span class="edit-shift" data-emp="1" data-day="sat">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-night">5:00 PM - 1:00 AM</div>
+                                        <span class="edit-shift" data-emp="1" data-day="sun">(edit)</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="employee-name">Michael Chen <span class="edit-shift" data-emp="2">(edit)</span></td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-afternoon">12:00 PM - 8:00 PM</div>
+                                        <span class="edit-shift" data-emp="2" data-day="mon">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-morning">9:00 AM - 5:00 PM</div>
+                                        <span class="edit-shift" data-emp="2" data-day="tue">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-morning">9:00 AM - 5:00 PM</div>
+                                        <span class="edit-shift" data-emp="2" data-day="wed">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-afternoon">12:00 PM - 8:00 PM</div>
+                                        <span class="edit-shift" data-emp="2" data-day="thu">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-morning">9:00 AM - 5:00 PM</div>
+                                        <span class="edit-shift" data-emp="2" data-day="fri">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift day-off">Day Off</div>
+                                        <span class="edit-shift" data-emp="2" data-day="sat">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift day-off">Day Off</div>
+                                        <span class="edit-shift" data-emp="2" data-day="sun">(edit)</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="employee-name">David Wilson <span class="edit-shift" data-emp="3">(edit)</span></td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-night">5:00 PM - 1:00 AM</div>
+                                        <span class="edit-shift" data-emp="3" data-day="mon">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-night">5:00 PM - 1:00 AM</div>
+                                        <span class="edit-shift" data-emp="3" data-day="tue">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift day-off">Day Off</div>
+                                        <span class="edit-shift" data-emp="3" data-day="wed">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-morning">9:00 AM - 5:00 PM</div>
+                                        <span class="edit-shift" data-emp="3" data-day="thu">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-afternoon">12:00 PM - 8:00 PM</div>
+                                        <span class="edit-shift" data-emp="3" data-day="fri">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-morning">9:00 AM - 5:00 PM</div>
+                                        <span class="edit-shift" data-emp="3" data-day="sat">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift sick-leave">Sick Leave</div>
+                                        <span class="edit-shift" data-emp="3" data-day="sun">(edit)</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="employee-name">Emily Rodriguez <span class="edit-shift" data-emp="4">(edit)</span></td>
+                                    <td class="admin-controls">
+                                        <div class="shift vacation">Vacation</div>
+                                        <span class="edit-shift" data-emp="4" data-day="mon">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift vacation">Vacation</div>
+                                        <span class="edit-shift" data-emp="4" data-day="tue">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-morning">9:00 AM - 5:00 PM</div>
+                                        <span class="edit-shift" data-emp="4" data-day="wed">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-night">5:00 PM - 1:00 AM</div>
+                                        <span class="edit-shift" data-emp="4" data-day="thu">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-night">5:00 PM - 1:00 AM</div>
+                                        <span class="edit-shift" data-emp="4" data-day="fri">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift day-off">Day Off</div>
+                                        <span class="edit-shift" data-emp="4" data-day="sat">(edit)</span>
+                                    </td>
+                                    <td class="admin-controls">
+                                        <div class="shift shift-morning">9:00 AM - 5:00 PM</div>
+                                        <span class="edit-shift" data-emp="4" data-day="sun">(edit)</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Add Employee Modal -->
+                    <div class="modal" id="employeeModal">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 class="modal-title">Add New Employee</h2>
+                                <button class="close-modal" id="closeEmployeeModal">&times;</button>
+                            </div>
+                            <form id="employeeForm">
+                                <div class="form-group">
+                                    <label for="empName">Full Name</label>
+                                    <input type="text" id="empName" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="empEmail">Email</label>
+                                    <input type="email" id="empEmail" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="empPosition">Position</label>
+                                    <input type="text" id="empPosition" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="empRole">Role</label>
+                                    <select id="empRole" class="form-control" required>
+                                        <option value="employee">Employee</option>
+                                        <option value="supervisor">Supervisor</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-outline" id="cancelEmployeeBtn">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Add Employee</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Edit Shift Modal -->
+                    <div class="modal" id="shiftModal">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 class="modal-title">Edit Shift</h2>
+                                <button class="close-modal" id="closeShiftModal">&times;</button>
+                            </div>
+                            <form id="shiftForm">
+                                <div class="form-group">
+                                    <label for="shiftEmployee">Employee</label>
+                                    <input type="text" id="shiftEmployee" class="form-control" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="shiftDate">Date</label>
+                                    <input type="text" id="shiftDate" class="form-control" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="shiftType">Shift Type</label>
+                                    <select id="shiftType" class="form-control" required>
+                                        <option value="morning">Morning (9:00 AM - 5:00 PM)</option>
+                                        <option value="afternoon">Afternoon (12:00 PM - 8:00 PM)</option>
+                                        <option value="night">Night (5:00 PM - 1:00 AM)</option>
+                                        <option value="day-off">Day Off</option>
+                                        <option value="sick-leave">Sick Leave</option>
+                                        <option value="vacation">Vacation</option>
+                                        <option value="custom">Custom</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="customShiftGroup" style="display: none;">
+                                    <label for="customShift">Custom Shift Times</label>
+                                    <input type="text" id="customShift" class="form-control" placeholder="e.g., 10:00 AM - 6:00 PM">
+                                </div>
+                                <div class="form-group">
+                                    <label for="shiftNotes">Notes</label>
+                                    <textarea id="shiftNotes" class="form-control" rows="3"></textarea>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-danger" id="deleteShiftBtn">Delete Shift</button>
+                                    <button type="button" class="btn btn-outline" id="cancelShiftBtn">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                `;
+
+                // Initialize employee scheduling functionality
+                initEmployeeScheduling();
+            }
+
+            // Initialize employee scheduling functionality
+            function initEmployeeScheduling() {
+                // Current week tracking
+                let currentWeekStart = new Date();
+                currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1); // Start on Monday
+                
+                // Update week display
+                function updateWeekDisplay() {
+                    const weekEnd = new Date(currentWeekStart);
+                    weekEnd.setDate(weekEnd.getDate() + 6);
+                    
+                    const options = { month: 'short', day: 'numeric' };
+                    const startStr = currentWeekStart.toLocaleDateString('en-US', options);
+                    const endStr = weekEnd.toLocaleDateString('en-US', options);
+                    const year = currentWeekStart.getFullYear();
+                    
+                    document.getElementById('weekDisplay').textContent = `${startStr} - ${endStr}, ${year}`;
+                    
+                    // Update table headers with dates
+                    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                    const dateCells = document.querySelectorAll('.schedule-table th:not(:first-child)');
+                    
+                    const tempDate = new Date(currentWeekStart);
+                    dateCells.forEach((cell, index) => {
+                        const dayName = days[index];
+                        const dateStr = tempDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        cell.innerHTML = `${dayName}<br>${dateStr}`;
+                        tempDate.setDate(tempDate.getDate() + 1);
+                    });
+                }
+                
+                // Navigation between weeks
+                document.getElementById('prevWeekBtn').addEventListener('click', function() {
+                    currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+                    updateWeekDisplay();
+                });
+                
+                document.getElementById('nextWeekBtn').addEventListener('click', function() {
+                    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+                    updateWeekDisplay();
+                });
+                
+                // Show/hide custom shift input
+                document.getElementById('shiftType')?.addEventListener('change', function() {
+                    document.getElementById('customShiftGroup').style.display = this.value === 'custom' ? 'block' : 'none';
+                });
+                
+                // Modal controls
+                document.getElementById('addEmployeeBtn')?.addEventListener('click', function() {
+                    document.getElementById('employeeModal').style.display = 'flex';
+                });
+                
+                document.getElementById('closeEmployeeModal')?.addEventListener('click', function() {
+                    document.getElementById('employeeModal').style.display = 'none';
+                });
+                
+                document.getElementById('cancelEmployeeBtn')?.addEventListener('click', function() {
+                    document.getElementById('employeeModal').style.display = 'none';
+                });
+                
+                document.getElementById('closeShiftModal')?.addEventListener('click', function() {
+                    document.getElementById('shiftModal').style.display = 'none';
+                });
+                
+                document.getElementById('cancelShiftBtn')?.addEventListener('click', function() {
+                    document.getElementById('shiftModal').style.display = 'none';
+                });
+                
+                // Close modals when clicking outside
+                window.addEventListener('click', function(event) {
+                    if (event.target === document.getElementById('employeeModal')) {
+                        document.getElementById('employeeModal').style.display = 'none';
+                    }
+                    if (event.target === document.getElementById('shiftModal')) {
+                        document.getElementById('shiftModal').style.display = 'none';
+                    }
+                });
+                
+                // Edit shift buttons
+                document.querySelectorAll('.edit-shift').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const empId = this.getAttribute('data-emp');
+                        const day = this.getAttribute('data-day');
+                        
+                        // In a real app, you would fetch this data from your database
+                        const employees = [
+                            { id: 1, name: 'Sarah Johnson' },
+                            { id: 2, name: 'Michael Chen' },
+                            { id: 3, name: 'David Wilson' },
+                            { id: 4, name: 'Emily Rodriguez' }
+                        ];
+                        
+                        const employee = employees.find(e => e.id == empId);
+                        const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+                        const dayIndex = days.indexOf(day);
+                        
+                        if (employee && dayIndex !== -1) {
+                            const date = new Date(currentWeekStart);
+                            date.setDate(date.getDate() + dayIndex);
+                            
+                            document.getElementById('shiftEmployee').value = employee.name;
+                            document.getElementById('shiftDate').value = date.toLocaleDateString('en-US', { 
+                                weekday: 'long', 
+                                month: 'long', 
+                                day: 'numeric', 
+                                year: 'numeric' 
+                            });
+                            
+                            // Set current shift type (in a real app, get this from your data)
+                            const shiftCell = this.closest('td');
+                            const shiftDiv = shiftCell.querySelector('.shift');
+                            
+                            if (shiftDiv.classList.contains('shift-morning')) {
+                                document.getElementById('shiftType').value = 'morning';
+                            } else if (shiftDiv.classList.contains('shift-afternoon')) {
+                                document.getElementById('shiftType').value = 'afternoon';
+                            } else if (shiftDiv.classList.contains('shift-night')) {
+                                document.getElementById('shiftType').value = 'night';
+                            } else if (shiftDiv.classList.contains('day-off')) {
+                                document.getElementById('shiftType').value = 'day-off';
+                            } else if (shiftDiv.classList.contains('sick-leave')) {
+                                document.getElementById('shiftType').value = 'sick-leave';
+                            } else if (shiftDiv.classList.contains('vacation')) {
+                                document.getElementById('shiftType').value = 'vacation';
+                            }
+                            
+                            document.getElementById('shiftModal').style.display = 'flex';
+                        }
+                    });
+                });
+                
+                // Save schedule button
+                document.getElementById('saveScheduleBtn')?.addEventListener('click', function() {
+                    showToast('Schedule saved successfully!', 'success');
+                    // In a real app, you would send the schedule data to your server here
+                });
+                
+                // Initialize
+                updateWeekDisplay();
             }
             
             // Handle menu item clicks
@@ -2335,7 +2745,7 @@
                         currentUser.avatar = event.target.result;
                         // Update localStorage
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                        updateUserUI();
+                        updateAvatarUI();
                         
                         // Add activity
                         activities.unshift({
