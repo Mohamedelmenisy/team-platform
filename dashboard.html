@@ -1294,7 +1294,7 @@
                         <div class="team-list" id="teamList">
                             <!-- Team members will be added dynamically -->
                         </div>
-                        <div class="add-member-form admin-only">
+                        <div class="add-member-form">
                             <h4>Add New Member</h4>
                             <form id="addMemberForm">
                                 <div class="form-group">
@@ -1479,6 +1479,39 @@
             deleteAllActivity.addEventListener('click', function () {
                 activities = [];
                 loadActivities();
+            });
+
+            // Handle sidebar menu item clicks
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.addEventListener('click', function () {
+                    // Hide all content sections
+                    document.querySelectorAll('.content-area > div').forEach(content => {
+                        content.style.display = 'none';
+                    });
+
+                    // Show the corresponding content section based on the feature
+                    const feature = this.getAttribute('data-feature');
+                    if (feature === 'dashboard') {
+                        dashboardContent.style.display = 'block';
+                    } else if (feature === 'settings') {
+                        settingsContent.style.display = 'block';
+                    } else if (feature === 'file-sharing') {
+                        // Show file sharing section
+                    }
+                    // Add additional conditions for other features here...
+                });
+            });
+
+            // File input for profile avatar
+            document.getElementById('profileAvatarInput').addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        document.getElementById('profileAvatar').style.backgroundImage = `url(${e.target.result})`;
+                    }
+                    reader.readAsDataURL(file);
+                }
             });
 
             // Settings Tab Functionality
