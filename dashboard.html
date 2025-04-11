@@ -1192,7 +1192,7 @@
         <div class="sidebar-menu">
             <div class="menu-title">Main Features</div>
             
-            <a href="#dashboard" class="menu-item active" data-feature="dashboard">
+            <a href="#" class="menu-item active" data-feature="dashboard" id="dashboardLink">
                 <i class="fas fa-tachometer-alt"></i>
                 <span>Dashboard</span>
             </a>
@@ -1800,6 +1800,7 @@
             const upcomingDeadlines = document.getElementById('upcomingDeadlines');
             const toastNotification = document.getElementById('toastNotification');
             const toastMessage = document.getElementById('toastMessage');
+            const dashboardLink = document.getElementById('dashboardLink');
             
             // Get user data from localStorage or use default
             let currentUser = JSON.parse(localStorage.getItem('currentUser')) || {
@@ -2280,7 +2281,12 @@
             // Set active feature
             function setActiveFeature(feature) {
                 // Update URL hash for direct access
-                window.location.hash = feature;
+                if (feature === 'dashboard') {
+                    // For dashboard, we'll use just the base URL without hash
+                    history.replaceState(null, null, ' ');
+                } else {
+                    window.location.hash = feature;
+                }
                 
                 // Store current page in sessionStorage
                 sessionStorage.setItem('currentPage', feature);
@@ -2298,7 +2304,7 @@
                 // Show the selected content
                 if (feature === 'dashboard') {
                     dashboardContent.style.display = 'block';
-                    document.querySelector('[data-feature="dashboard"]').classList.add('active');
+                    dashboardLink.classList.add('active');
                 } else if (feature === 'profile') {
                     profileContent.style.display = 'block';
                 } else if (feature === 'settings') {
