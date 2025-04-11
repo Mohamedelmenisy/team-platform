@@ -910,53 +910,53 @@
             </a>
             <div class="menu-divider"></div>
 
-            <a href="#file-sharing" class="menu-item" data-feature="file-sharing">
+            <a href="#" class="menu-item" data-feature="file-sharing">
                 <i class="fas fa-file-upload"></i>
                 <span>File Sharing</span>
             </a>
 
-            <a href="#data-management" class="menu-item" data-feature="data-management">
+            <a href="#" class="menu-item" data-feature="data-management">
                 <i class="fas fa-database"></i>
                 <span>Data Management</span>
             </a>
 
-            <a href="#project-tracking" class="menu-item" data-feature="project-tracking">
+            <a href="#" class="menu-item" data-feature="project-tracking">
                 <i class="fas fa-project-diagram"></i>
                 <span>Project Tracking</span>
             </a>
 
             <div class="menu-divider"></div>
 
-            <a href="#task-management" class="menu-item" data-feature="task-management">
+            <a href="#" class="menu-item" data-feature="task-management">
                 <i class="fas fa-tasks"></i>
                 <span>Task Management</span>
             </a>
 
-            <a href="#employee-scheduling" class="menu-item" data-feature="employee-scheduling">
+            <a href="#" class="menu-item" data-feature="employee-scheduling">
                 <i class="fas fa-users"></i>
                 <span>Employee Scheduling</span>
             </a>
 
-            <a href="#team-calendar" class="menu-item" data-feature="team-calendar">
+            <a href="#" class="menu-item" data-feature="team-calendar">
                 <i class="fas fa-calendar-alt"></i>
                 <span>Team Calendar</span>
             </a>
 
             <div class="menu-divider"></div>
 
-            <a href="#deadline-tracking" class="menu-item" data-feature="deadline-tracking">
+            <a href="#" class="menu-item" data-feature="deadline-tracking">
                 <i class="fas fa-clock"></i>
                 <span>Deadline Tracking</span>
             </a>
 
-            <a href="#innovation-hub" class="menu-item" data-feature="innovation-hub">
+            <a href="#" class="menu-item" data-feature="innovation-hub">
                 <i class="fas fa-lightbulb"></i>
                 <span>Innovation Hub</span>
             </a>
 
             <div class="menu-divider"></div>
 
-            <a href="#settings" class="menu-item" data-feature="settings">
+            <a href="#" class="menu-item" data-feature="settings">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
@@ -979,7 +979,7 @@
                 </div>
 
                 <div class="user-profile">
-                    <div class="user-avatar" id="userAvatar">M</div>
+                    <div class="user-avatar" id="userAvatar" style="background-image: url('');">M</div>
                     <div class="user-name" id="userName">Mohamed Elmenisy</div>
                     <div class="user-dropdown" id="userDropdown">
                         <a href="javascript:void(0);" class="dropdown-item" id="profileLink">
@@ -1004,7 +1004,7 @@
                     <h2 class="welcome-title">Welcome, <span id="welcomeName">Mohamed</span>!</h2>
 
                     <div class="user-info">
-                        <div class="user-info-avatar" id="profileAvatarLarge">M</div>
+                        <div class="user-info-avatar" id="profileAvatarLarge" style="background-image: url('');">M</div>
                         <div class="user-info-details">
                             <div class="user-info-name">Mohamed Elmenisy</div>
                             <div class="user-info-title">Team Manager</div>
@@ -1351,6 +1351,16 @@
             const userDropdown = document.getElementById('userDropdown');
             const profileLink = document.getElementById('profileLink');
             const logoutLink = document.getElementById('logoutLink');
+            const dashboardLink = document.getElementById('dashboardLink');
+            const fileSharingLink = document.querySelector('[data-feature="file-sharing"]');
+            const dataManagementLink = document.querySelector('[data-feature="data-management"]');
+            const projectTrackingLink = document.querySelector('[data-feature="project-tracking"]');
+            const taskManagementLink = document.querySelector('[data-feature="task-management"]');
+            const employeeSchedulingLink = document.querySelector('[data-feature="employee-scheduling"]');
+            const teamCalendarLink = document.querySelector('[data-feature="team-calendar"]');
+            const deadlineTrackingLink = document.querySelector('[data-feature="deadline-tracking"]');
+            const innovationHubLink = document.querySelector('[data-feature="innovation-hub"]');
+            const settingsLink = document.querySelector('[data-feature="settings"]');
             const dashboardContent = document.getElementById('dashboardContent');
             const profileContent = document.getElementById('profileContent');
             const settingsContent = document.getElementById('settingsContent');
@@ -1361,12 +1371,16 @@
             const closeNotifications = document.getElementById('closeNotifications');
             const notificationsList = document.getElementById('notificationsList');
             const deleteAllNotificationsBtn = document.getElementById('deleteAllNotificationsBtn');
+            const profileAvatarInput = document.getElementById('profileAvatarInput');
+            const profileAvatar = document.getElementById('profileAvatar');
+            const userAvatar = document.getElementById('userAvatar');
 
             // User Data
             let currentUser = {
                 name: 'Mohamed Elmenisy',
                 email: 'm.elsayed@thechefz.co',
                 tasksCompleted: 0,
+                avatarUrl: '' // To store the uploaded image URL
             };
 
             // Activities & Notifications
@@ -1384,6 +1398,10 @@
             function updateDashboardUI() {
                 document.getElementById('welcomeName').innerText = currentUser.name;
                 document.getElementById('userEmail').innerText = currentUser.email;
+                if (currentUser.avatarUrl) {
+                    userAvatar.style.backgroundImage = `url('${currentUser.avatarUrl}')`;
+                    profileAvatar.style.backgroundImage = `url('${currentUser.avatarUrl}')`;
+                }
             }
 
             // Load Activities
@@ -1460,12 +1478,28 @@
                 userDropdown.classList.toggle('active');
             });
 
+            // Navigate Features
+            function navigateTo(feature) {
+                dashboardContent.style.display = 'none';
+                profileContent.style.display = 'none';
+                settingsContent.style.display = 'none';
+
+                if (feature === 'dashboard') {
+                    dashboardContent.style.display = 'block';
+                } else if (feature === 'profile') {
+                    profileContent.classList.add('active');
+                    profileContent.style.display = 'block';
+                } else if (feature === 'settings') {
+                    settingsContent.classList.add('active');
+                    settingsContent.style.display = 'block';
+                } else {
+                    alert('Section not implemented yet.');
+                }
+            }
+
             // Profile link functionality
             profileLink.addEventListener('click', function () {
-                dashboardContent.style.display = 'none';
-                settingsContent.style.display = 'none';
-                profileContent.classList.add('active');
-                profileContent.style.display = 'block';
+                navigateTo('profile');
             });
 
             // Logout Functionality
@@ -1473,35 +1507,53 @@
                 window.location.href = "login.html"; // Change this to your actual login page URL.
             });
 
-            // View All Activities
-            deleteAllActivity.addEventListener('click', function () {
-                activities = [];
-                loadActivities();
+            // Dashboard link
+            dashboardLink.addEventListener('click', function () {
+                navigateTo('dashboard');
             });
 
-            // Settings Tab Functionality
-            const tabs = document.querySelectorAll('.settings-tab');
-            const settingsPanels = document.querySelectorAll('.settings-panel');
+            // Other Links
+            fileSharingLink.addEventListener('click', function () {
+                alert('File Sharing section is not implemented yet.');
+            });
 
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function () {
-                    // Remove active class from all tabs
-                    tabs.forEach(t => t.classList.remove('active'));
-                    // Hide all settings panels
-                    settingsPanels.forEach(p => p.classList.remove('active'));
-                    // Add active class to the clicked tab
-                    this.classList.add('active');
+            dataManagementLink.addEventListener('click', function () {
+                alert('Data Management section is not implemented yet.');
+            });
 
-                    // Show the corresponding panel
-                    const tabName = this.getAttribute('data-tab');
-                    document.getElementById(tabName + 'Panel').classList.add('active');
-                });
+            projectTrackingLink.addEventListener('click', function () {
+                alert('Project Tracking section is not implemented yet.');
+            });
+
+            taskManagementLink.addEventListener('click', function () {
+                alert('Task Management section is not implemented yet.');
+            });
+
+            employeeSchedulingLink.addEventListener('click', function () {
+                alert('Employee Scheduling section is not implemented yet.');
+            });
+
+            teamCalendarLink.addEventListener('click', function () {
+                alert('Team Calendar section is not implemented yet.');
+            });
+
+            deadlineTrackingLink.addEventListener('click', function () {
+                alert('Deadline Tracking section is not implemented yet.');
+            });
+
+            innovationHubLink.addEventListener('click', function () {
+                alert('Innovation Hub section is not implemented yet.');
+            });
+
+            settingsLink.addEventListener('click', function () {
+                navigateTo('settings');
             });
 
             // Handle Profile Form submission
             document.getElementById('profileForm').addEventListener('submit', function (e) {
                 e.preventDefault(); // Prevent default form submission
                 // Save the changes using whatever method you prefer (AJAX, fetch, etc.)
+                currentUser.name = document.getElementById('firstName').value + ' ' + document.getElementById('lastName').value;
                 document.getElementById('toastMessage').innerText = 'Profile updated successfully!';
                 document.getElementById('toastNotification').classList.add('show');
                 setTimeout(() => {
@@ -1513,6 +1565,20 @@
             document.getElementById('cancelProfileBtn').addEventListener('click', function () {
                 profileContent.classList.remove('active');
                 dashboardContent.style.display = 'block';
+            });
+
+            // Profile Avatar Upload
+            profileAvatarInput.addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        currentUser.avatarUrl = e.target.result;
+                        userAvatar.style.backgroundImage = `url(${currentUser.avatarUrl})`;
+                        profileAvatar.style.backgroundImage = `url(${currentUser.avatarUrl})`;
+                    };
+                    reader.readAsDataURL(file);
+                }
             });
 
             initDashboard();
