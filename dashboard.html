@@ -319,6 +319,7 @@
             justify-content: center;
             font-size: 0.8rem;
             border: 2px solid var(--primary);
+            cursor: pointer;
         }
         
         .user-info-details {
@@ -440,11 +441,30 @@
             font-weight: 500;
             cursor: pointer;
             transition: color 0.2s;
+            padding: 0.5rem;
+            border-radius: 4px;
         }
         
         .view-all:hover {
             color: var(--primary-dark);
             text-decoration: underline;
+            background-color: var(--primary-light);
+        }
+        
+        .delete-all {
+            color: var(--danger);
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-left: 1rem;
+        }
+        
+        .delete-all:hover {
+            color: #dc2626;
+            text-decoration: underline;
+            background-color: rgba(239, 68, 68, 0.1);
         }
         
         .activity-list {
@@ -498,12 +518,14 @@
         .delete-activity {
             color: var(--danger);
             cursor: pointer;
-            opacity: 0;
+            opacity: 1;
             transition: opacity 0.2s;
+            padding: 0.5rem;
+            border-radius: 4px;
         }
         
-        .activity-item:hover .delete-activity {
-            opacity: 1;
+        .delete-activity:hover {
+            background-color: rgba(239, 68, 68, 0.1);
         }
         
         /* Profile Content */
@@ -1012,6 +1034,78 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Arabic styles */
+        body[dir="rtl"] {
+            text-align: right;
+        }
+
+        body[dir="rtl"] .sidebar {
+            right: 0;
+            left: auto;
+        }
+
+        body[dir="rtl"] .main-content {
+            margin-right: var(--sidebar-width);
+            margin-left: 0;
+        }
+
+        body[dir="rtl"] .search-icon {
+            right: 1rem;
+            left: auto;
+        }
+
+        body[dir="rtl"] .search-bar input {
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+        }
+
+        body[dir="rtl"] .menu-item i {
+            margin-right: 0;
+            margin-left: 0.75rem;
+        }
+
+        body[dir="rtl"] .menu-item {
+            border-left: none;
+            border-right: 3px solid transparent;
+        }
+
+        body[dir="rtl"] .menu-item.active {
+            border-right-color: var(--white);
+        }
+
+        body[dir="rtl"] .activity-icon {
+            margin-right: 0;
+            margin-left: 1rem;
+        }
+
+        body[dir="rtl"] .activity-actions {
+            margin-left: 0;
+            margin-right: auto;
+            padding-left: 0;
+            padding-right: 1rem;
+        }
+
+        body[dir="rtl"] .user-dropdown {
+            right: auto;
+            left: 0;
+        }
+
+        body[dir="rtl"] .form-actions {
+            justify-content: flex-start;
+        }
+
+        body[dir="rtl"] .settings-tabs {
+            flex-direction: row-reverse;
+        }
+
+        body[dir="rtl"] .member-avatar {
+            margin-right: 0;
+            margin-left: 1rem;
+        }
+
+        body[dir="rtl"] .member-actions {
+            flex-direction: row-reverse;
+        }
     </style>
 </head>
 <body class="blue-theme">
@@ -1129,7 +1223,7 @@
             <div id="dashboardContent">
                 <!-- Welcome Section -->
                 <div class="welcome-section">
-                    <h2 class="welcome-title">Welcome back, Mohamed!</h2>
+                    <h2 class="welcome-title">Welcome back, <span id="welcomeName">Mohamed</span>!</h2>
                     
                     <div class="user-info">
                         <div class="user-info-avatar" id="profileAvatar">ME</div>
@@ -1152,9 +1246,9 @@
                             Team Members
                         </div>
                         <div class="stat-value">
-                            24
+                            <span id="teamMembersCount">0</span>
                             <span class="stat-trend trend-up">
-                                <i class="fas fa-arrow-up"></i> 5%
+                                <i class="fas fa-arrow-up"></i> 0%
                             </span>
                         </div>
                     </div>
@@ -1165,9 +1259,9 @@
                             Tasks Completed
                         </div>
                         <div class="stat-value">
-                            48
+                            <span id="tasksCompleted">0</span>
                             <span class="stat-trend trend-up">
-                                <i class="fas fa-arrow-up"></i> 12%
+                                <i class="fas fa-arrow-up"></i> 0%
                             </span>
                         </div>
                     </div>
@@ -1178,9 +1272,9 @@
                             Active Projects
                         </div>
                         <div class="stat-value">
-                            12
+                            <span id="activeProjects">0</span>
                             <span class="stat-trend trend-down">
-                                <i class="fas fa-arrow-down"></i> 3%
+                                <i class="fas fa-arrow-down"></i> 0%
                             </span>
                         </div>
                     </div>
@@ -1191,9 +1285,9 @@
                             Upcoming Deadlines
                         </div>
                         <div class="stat-value">
-                            5
+                            <span id="upcomingDeadlines">0</span>
                             <span class="stat-trend trend-up">
-                                <i class="fas fa-arrow-up"></i> 2%
+                                <i class="fas fa-arrow-up"></i> 0%
                             </span>
                         </div>
                     </div>
@@ -1205,7 +1299,7 @@
                         <h3 class="section-title">Recent Activity</h3>
                         <div>
                             <span class="view-all" id="viewAllActivity">Show All</span>
-                            <span class="delete-activity" id="deleteAllActivity" style="margin-left: 1rem;">Delete All</span>
+                            <span class="delete-all" id="deleteAllActivity">Delete All</span>
                         </div>
                     </div>
                     
@@ -1573,6 +1667,7 @@
             const userAvatar = document.getElementById('userAvatar');
             const userName = document.getElementById('userName');
             const userEmail = document.getElementById('userEmail');
+            const welcomeName = document.getElementById('welcomeName');
             const userDropdown = document.getElementById('userDropdown');
             const profileLink = document.getElementById('profileLink');
             const settingsLink = document.getElementById('settingsLink');
@@ -1603,9 +1698,13 @@
             const confirmMessage = document.getElementById('confirmMessage');
             const cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
             const confirmBtn = document.getElementById('confirmBtn');
+            const teamMembersCount = document.getElementById('teamMembersCount');
+            const tasksCompleted = document.getElementById('tasksCompleted');
+            const activeProjects = document.getElementById('activeProjects');
+            const upcomingDeadlines = document.getElementById('upcomingDeadlines');
             
-            // Current user data
-            const currentUser = {
+            // Get user data from localStorage or use default
+            let currentUser = JSON.parse(localStorage.getItem('currentUser')) || {
                 name: 'Mohamed Elmenisy',
                 email: 'mohamed@teamflow.com',
                 title: 'Team Manager',
@@ -1613,11 +1712,19 @@
                 phone: '+201234567890',
                 avatar: '',
                 initials: 'ME',
-                role: 'admin'
+                role: 'admin',
+                password: 'password123' // In a real app, this would be hashed and stored securely
             };
+
+            // Check if we have a logged in user from login page
+            const loggedInUser = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            if (loggedInUser) {
+                currentUser = {...currentUser, ...loggedInUser};
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }
             
             // Sample team members
-            let teamMembers = [
+            let teamMembers = JSON.parse(localStorage.getItem('teamMembers')) || [
                 {
                     email: 'ahmed@teamflow.com',
                     role: 'member',
@@ -1636,7 +1743,7 @@
             ];
             
             // Sample activity data
-            let activities = [
+            let activities = JSON.parse(localStorage.getItem('activities')) || [
                 {
                     icon: 'fa-tasks',
                     message: 'Completed task "Update dashboard design"',
@@ -1659,6 +1766,14 @@
                 }
             ];
             
+            // Stats data
+            let stats = JSON.parse(localStorage.getItem('stats')) || {
+                teamMembers: 0,
+                tasksCompleted: 0,
+                activeProjects: 0,
+                upcomingDeadlines: 0
+            };
+            
             // Variables for confirm modal
             let currentAction = null;
             let currentIndex = null;
@@ -1667,6 +1782,9 @@
             function initDashboard() {
                 // Set user data
                 updateUserUI();
+                
+                // Load stats
+                updateStats();
                 
                 // Load team members
                 loadTeamMembers();
@@ -1682,9 +1800,19 @@
             function updateUserUI() {
                 userName.textContent = currentUser.name;
                 userEmail.textContent = currentUser.email;
+                welcomeName.textContent = currentUser.name.split(' ')[0];
                 document.querySelector('.user-info-name').textContent = currentUser.name;
                 document.querySelector('.user-info-title').textContent = currentUser.title;
                 document.querySelector('.user-info-email span').textContent = currentUser.email;
+                
+                // Set form values
+                const nameParts = currentUser.name.split(' ');
+                document.getElementById('firstName').value = nameParts[0];
+                document.getElementById('lastName').value = nameParts.slice(1).join(' ');
+                document.getElementById('jobTitle').value = currentUser.title;
+                document.getElementById('phone').value = currentUser.phone;
+                document.getElementById('department').value = currentUser.department;
+                document.getElementById('email').value = currentUser.email;
                 
                 // Set avatar if exists
                 if (currentUser.avatar) {
@@ -1705,6 +1833,17 @@
                 adminFeatures.forEach(feature => {
                     feature.style.display = currentUser.role === 'admin' ? 'block' : 'none';
                 });
+            }
+            
+            // Update stats
+            function updateStats() {
+                stats.teamMembers = teamMembers.length;
+                teamMembersCount.textContent = stats.teamMembers;
+                tasksCompleted.textContent = stats.tasksCompleted;
+                activeProjects.textContent = stats.activeProjects;
+                upcomingDeadlines.textContent = stats.upcomingDeadlines;
+                
+                localStorage.setItem('stats', JSON.stringify(stats));
             }
             
             // Load team members
@@ -1742,6 +1881,11 @@
                         );
                     });
                 });
+                
+                // Update stats
+                stats.teamMembers = teamMembers.length;
+                updateStats();
+                localStorage.setItem('teamMembers', JSON.stringify(teamMembers));
             }
             
             // Delete team member
@@ -1758,6 +1902,7 @@
                 
                 loadActivities();
                 hideConfirmModal();
+                localStorage.setItem('activities', JSON.stringify(activities));
             }
             
             // Load activities
@@ -1795,6 +1940,8 @@
                         );
                     });
                 });
+                
+                localStorage.setItem('activities', JSON.stringify(activities));
             }
             
             // Delete activity
@@ -1802,6 +1949,7 @@
                 activities.splice(index, 1);
                 loadActivities(viewAllActivity.style.display === 'none');
                 hideConfirmModal();
+                localStorage.setItem('activities', JSON.stringify(activities));
             }
             
             // Delete all activities
@@ -1814,6 +1962,7 @@
                         loadActivities();
                         viewAllActivity.style.display = 'block';
                         hideConfirmModal();
+                        localStorage.setItem('activities', JSON.stringify(activities));
                     }
                 );
             }
@@ -1930,7 +2079,9 @@
             // Logout link
             logoutLink.addEventListener('click', function(e) {
                 e.preventDefault();
-                // In a real app, you would handle logout process
+                // Clear session
+                sessionStorage.removeItem('loggedInUser');
+                // Redirect to login
                 window.location.href = 'login.html';
             });
             
@@ -1942,6 +2093,9 @@
                 currentUser.title = document.getElementById('jobTitle').value;
                 currentUser.phone = document.getElementById('phone').value;
                 currentUser.department = document.getElementById('department').value;
+                
+                // Update localStorage
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 
                 // Update UI
                 updateUserUI();
@@ -1958,13 +2112,6 @@
             });
             
             cancelProfileBtn.addEventListener('click', function() {
-                // Reset form
-                document.getElementById('firstName').value = currentUser.name.split(' ')[0];
-                document.getElementById('lastName').value = currentUser.name.split(' ')[1] || '';
-                document.getElementById('jobTitle').value = currentUser.title;
-                document.getElementById('phone').value = currentUser.phone;
-                document.getElementById('department').value = currentUser.department;
-                
                 // Go back to dashboard
                 setActiveFeature('dashboard');
             });
@@ -1980,6 +2127,8 @@
                     const reader = new FileReader();
                     reader.onload = function(event) {
                         currentUser.avatar = event.target.result;
+                        // Update localStorage
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         updateUserUI();
                         
                         // Add activity
@@ -1988,6 +2137,7 @@
                             message: 'Changed profile picture',
                             time: 'Just now'
                         });
+                        localStorage.setItem('activities', JSON.stringify(activities));
                     };
                     reader.readAsDataURL(file);
                 }
@@ -2043,8 +2193,25 @@
             // Security settings form
             securityForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const twoFactorAuth = document.getElementById('twoFactorAuth').checked;
+                const currentPassword = document.getElementById('currentPassword').value;
                 const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                // Validate current password
+                if (currentPassword !== currentUser.password) {
+                    alert('Current password is incorrect');
+                    return;
+                }
+                
+                // Validate new password
+                if (newPassword !== confirmPassword) {
+                    alert('New passwords do not match');
+                    return;
+                }
+                
+                // Update password
+                currentUser.password = newPassword;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 
                 // Show success message
                 alert('Security settings saved successfully!');
@@ -2108,9 +2275,15 @@
                 const email = document.getElementById('memberEmail').value;
                 const role = document.getElementById('memberRole').value;
                 
+                // Check if email already exists
+                if (teamMembers.some(member => member.email === email)) {
+                    alert('This email is already a team member');
+                    return;
+                }
+                
                 // Create new member
                 const newMember = {
-                    email: role === 'admin' ? `admin@${email.split('@')[1]}` : email,
+                    email: email,
                     role,
                     initials: email.split('@')[0].substring(0, 2).toUpperCase()
                 };
@@ -2129,6 +2302,9 @@
                 
                 // Reset form
                 this.reset();
+                
+                // In a real app, you would send an invitation email here
+                alert(`Invitation sent to ${email}`);
             });
             
             // Confirm modal actions
