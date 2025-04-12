@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TeamFlow | Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👥</text></svg>">
     <style>
         :root {
             --primary: #2563eb;
@@ -12,7 +13,6 @@
             --primary-light: #dbeafe;
             --secondary: #10b981;
             --danger: #ef4444;
-            --warning: #f59e0b;
             --dark: #1e293b;
             --light: #f8fafc;
             --gray: #64748b;
@@ -20,26 +20,49 @@
             --white: #ffffff;
             --sidebar-width: 280px;
             --sidebar-bg: #1e3a8a;
-            --sidebar-text: rgba(255,255,255,0.9);
-            --sidebar-hover: rgba(255,255,255,0.1);
-            --sidebar-active: rgba(255,255,255,0.2);
-            --sidebar-divider: rgba(255,255,255,0.1);
+            --sidebar-text: rgba(255, 255, 255, 0.9);
+            --sidebar-hover: rgba(255, 255, 255, 0.1);
+            --sidebar-active: rgba(255, 255, 255, 0.2);
+            --right-sidebar-width: 350px;
         }
-        
+
+        /* Dark theme variables */
+        .dark-theme {
+            --primary: #3b82f6;
+            --primary-dark: #1e40af;
+            --primary-light: #1e293b;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --dark: #f8fafc;
+            --light: #1e293b;
+            --gray: #94a3b8;
+            --light-gray: #334155;
+            --white: #0f172a;
+            --sidebar-bg: #1e293b;
+        }
+
+        /* Green theme variables */
+        .green-theme {
+            --primary: #10b981;
+            --primary-dark: #065f46;
+            --primary-light: #d1fae5;
+            --sidebar-bg: #065f46;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
             background-color: var(--primary-light);
             color: var(--dark);
             display: flex;
             min-height: 100vh;
         }
-        
+
         /* Sidebar Styles */
         .sidebar {
             width: var(--sidebar-width);
@@ -50,15 +73,15 @@
             transition: all 0.3s;
             z-index: 100;
         }
-        
+
         .sidebar-header {
             padding: 1.5rem;
-            border-bottom: 1px solid var(--sidebar-divider);
+            border-bottom: 1px solid var(--light-gray);
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        
+
         .logo {
             font-size: 1.25rem;
             font-weight: 700;
@@ -67,25 +90,25 @@
             align-items: center;
             gap: 0.75rem;
         }
-        
+
         .logo-icon {
             color: var(--white);
             font-size: 1.5rem;
         }
-        
+
         .sidebar-menu {
             padding: 1rem 0;
         }
-        
+
         .menu-title {
             padding: 0.75rem 1.5rem;
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255, 255, 255, 0.6);
             letter-spacing: 0.5px;
         }
-        
+
         .menu-item {
             display: flex;
             align-items: center;
@@ -95,39 +118,77 @@
             transition: all 0.2s;
             border-left: 3px solid transparent;
             margin: 0.25rem 0;
+            cursor: pointer;
         }
-        
+
         .menu-item:hover {
             background-color: var(--sidebar-hover);
             color: var(--white);
         }
-        
+
         .menu-item.active {
             background-color: var(--sidebar-active);
             color: var(--white);
             border-left-color: var(--white);
         }
-        
+
         .menu-item i {
             margin-right: 0.75rem;
             font-size: 1.1rem;
             width: 24px;
             text-align: center;
         }
-        
+
         .menu-divider {
             height: 1px;
-            background-color: var(--sidebar-divider);
+            background-color: var(--light-gray);
             margin: 1rem 1.5rem;
         }
-        
+
+        /* Right Sidebar Styles */
+        .right-sidebar {
+            width: var(--right-sidebar-width);
+            background-color: var(--white);
+            height: 100vh;
+            position: fixed;
+            right: 0;
+            top: 0;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 99;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            transform: translateX(100%);
+        }
+
+        .right-sidebar.active {
+            transform: translateX(0);
+        }
+
+        .right-sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .close-right-sidebar {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--gray);
+        }
+
+        .right-sidebar-content {
+            padding: 1.5rem;
+        }
+
         /* Main Content */
         .main-content {
             flex: 1;
             margin-left: var(--sidebar-width);
             transition: all 0.3s;
         }
-        
+
         /* Top Navigation */
         .top-nav {
             background-color: var(--white);
@@ -140,12 +201,12 @@
             top: 0;
             z-index: 90;
         }
-        
+
         .search-bar {
             position: relative;
             width: 400px;
         }
-        
+
         .search-bar input {
             width: 100%;
             padding: 0.75rem 1rem 0.75rem 2.5rem;
@@ -153,14 +214,10 @@
             border-radius: 6px;
             font-size: 0.9rem;
             transition: all 0.2s;
+            background-color: var(--white);
+            color: var(--dark);
         }
-        
-        .search-bar input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        
+
         .search-icon {
             position: absolute;
             left: 1rem;
@@ -168,19 +225,57 @@
             transform: translateY(-50%);
             color: var(--gray);
         }
-        
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 0 0 6px 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .search-result-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-result-item:hover {
+            background-color: var(--light);
+        }
+
+        .search-result-item i {
+            margin-right: 0.5rem;
+            color: var(--gray);
+        }
+
+        .search-result-item .result-type {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-left: auto;
+        }
+
         .user-menu {
             display: flex;
             align-items: center;
             gap: 1.5rem;
         }
-        
+
         .notification-icon {
             position: relative;
             color: var(--gray);
             cursor: pointer;
         }
-        
+
         .notification-badge {
             position: absolute;
             top: -5px;
@@ -196,14 +291,66 @@
             font-size: 0.65rem;
             font-weight: 600;
         }
-        
+
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .notification-dropdown.active {
+            display: block;
+        }
+
+        .notification-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-close {
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            cursor: pointer;
+        }
+
+        .notification-item.unread {
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+
+        .notification-item:hover {
+            background-color: var(--light);
+        }
+
+        .notification-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+        }
+
         .user-profile {
             display: flex;
             align-items: center;
             gap: 0.75rem;
             position: relative;
         }
-        
+
         .user-avatar {
             width: 36px;
             height: 36px;
@@ -218,12 +365,12 @@
             background-size: cover;
             background-position: center;
         }
-        
+
         .user-name {
             font-weight: 500;
             cursor: pointer;
         }
-        
+
         .user-dropdown {
             position: absolute;
             top: 100%;
@@ -236,11 +383,11 @@
             z-index: 100;
             display: none;
         }
-        
+
         .user-dropdown.active {
             display: block;
         }
-        
+
         .dropdown-item {
             padding: 0.75rem 1rem;
             display: flex;
@@ -250,22 +397,22 @@
             text-decoration: none;
             transition: background-color 0.2s;
         }
-        
+
         .dropdown-item:hover {
             background-color: var(--light);
         }
-        
+
         .dropdown-item i {
             width: 20px;
             text-align: center;
         }
-        
+
         /* Content Area */
         .content-area {
             padding: 2rem;
             min-height: calc(100vh - 70px);
         }
-        
+
         .welcome-section {
             background-color: var(--primary);
             color: var(--white);
@@ -274,20 +421,26 @@
             margin-bottom: 2rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
+
         .welcome-title {
             font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
         }
-        
+
+        .welcome-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
         .user-info {
             display: flex;
             align-items: center;
             gap: 1.5rem;
             margin-top: 1.5rem;
         }
-        
+
         .user-info-avatar {
             width: 80px;
             height: 80px;
@@ -304,7 +457,7 @@
             position: relative;
             cursor: pointer;
         }
-        
+
         .avatar-upload {
             position: absolute;
             bottom: 0;
@@ -321,23 +474,23 @@
             border: 2px solid var(--primary);
             cursor: pointer;
         }
-        
+
         .user-info-details {
             flex: 1;
         }
-        
+
         .user-info-name {
             font-weight: 600;
             font-size: 1.25rem;
             margin-bottom: 0.25rem;
         }
-        
+
         .user-info-title {
             opacity: 0.9;
             font-size: 0.9rem;
             margin-bottom: 0.5rem;
         }
-        
+
         .user-info-email {
             display: flex;
             align-items: center;
@@ -345,7 +498,7 @@
             font-size: 0.9rem;
             opacity: 0.9;
         }
-        
+
         /* Stats Section */
         .stats-section {
             display: grid;
@@ -353,7 +506,7 @@
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
-        
+
         .stat-card {
             background-color: var(--white);
             border-radius: 8px;
@@ -363,12 +516,12 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .stat-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
+
         .stat-card::before {
             content: '';
             position: absolute;
@@ -378,7 +531,7 @@
             height: 4px;
             background: linear-gradient(90deg, var(--primary), var(--primary-dark));
         }
-        
+
         .stat-title {
             font-size: 0.9rem;
             color: var(--gray);
@@ -387,11 +540,11 @@
             align-items: center;
             gap: 0.5rem;
         }
-        
+
         .stat-title i {
             color: var(--primary);
         }
-        
+
         .stat-value {
             font-size: 1.75rem;
             font-weight: 700;
@@ -400,22 +553,22 @@
             align-items: center;
             justify-content: space-between;
         }
-        
+
         .stat-trend {
             display: flex;
             align-items: center;
             font-size: 0.9rem;
             font-weight: 500;
         }
-        
+
         .trend-up {
             color: var(--secondary);
         }
-        
+
         .trend-down {
             color: var(--danger);
         }
-        
+
         /* Activity Section */
         .activity-section {
             background-color: var(--white);
@@ -423,19 +576,19 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 1.5rem;
         }
-        
+
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
         }
-        
+
         .section-title {
             font-size: 1.25rem;
             font-weight: 600;
         }
-        
+
         .view-all {
             color: var(--primary);
             font-weight: 500;
@@ -444,13 +597,13 @@
             padding: 0.5rem;
             border-radius: 4px;
         }
-        
+
         .view-all:hover {
             color: var(--primary-dark);
             text-decoration: underline;
             background-color: var(--primary-light);
         }
-        
+
         .delete-all {
             color: var(--danger);
             font-weight: 500;
@@ -460,28 +613,28 @@
             border-radius: 4px;
             margin-left: 1rem;
         }
-        
+
         .delete-all:hover {
             color: #dc2626;
             text-decoration: underline;
             background-color: rgba(239, 68, 68, 0.1);
         }
-        
+
         .activity-list {
             list-style: none;
         }
-        
+
         .activity-item {
             display: flex;
             padding: 1rem 0;
             border-bottom: 1px solid var(--light-gray);
             align-items: center;
         }
-        
+
         .activity-item:last-child {
             border-bottom: none;
         }
-        
+
         .activity-icon {
             width: 40px;
             height: 40px;
@@ -494,27 +647,32 @@
             margin-right: 1rem;
             flex-shrink: 0;
         }
-        
+
         .activity-content {
             flex: 1;
         }
-        
+
         .activity-message {
             margin-bottom: 0.25rem;
+            font-weight: 500;
         }
-        
+
+        .activity-user {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
         .activity-time {
             font-size: 0.8rem;
             color: var(--gray);
         }
-        
+
         .activity-actions {
             display: flex;
-            gap: 0.5rem;
             margin-left: auto;
             padding-left: 1rem;
         }
-        
+
         .delete-activity {
             color: var(--danger);
             cursor: pointer;
@@ -523,11 +681,11 @@
             padding: 0.5rem;
             border-radius: 4px;
         }
-        
+
         .delete-activity:hover {
             background-color: rgba(239, 68, 68, 0.1);
         }
-        
+
         /* Profile Content */
         .profile-content {
             display: none;
@@ -536,55 +694,57 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 2rem;
         }
-        
+
         .profile-content.active {
             display: block;
         }
-        
+
         .profile-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
         }
-        
+
         .profile-title {
             font-size: 1.5rem;
             font-weight: 600;
             color: var(--primary-dark);
         }
-        
+
         .profile-form {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1.5rem;
         }
-        
+
         .form-group {
             margin-bottom: 1rem;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 500;
             color: var(--dark);
         }
-        
+
         .form-control {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid var(--light-gray);
             border-radius: 6px;
             font-size: 1rem;
+            background-color: var(--white);
+            color: var(--dark);
         }
-        
+
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
-        
+
         .form-actions {
             grid-column: span 2;
             display: flex;
@@ -592,7 +752,7 @@
             gap: 1rem;
             margin-top: 1rem;
         }
-        
+
         .btn {
             padding: 0.75rem 1.5rem;
             border-radius: 6px;
@@ -604,35 +764,35 @@
             align-items: center;
             gap: 0.5rem;
         }
-        
+
         .btn-primary {
             background-color: var(--primary);
             color: white;
         }
-        
+
         .btn-primary:hover {
             background-color: var(--primary-dark);
         }
-        
+
         .btn-outline {
             background-color: transparent;
             border: 1px solid var(--primary);
             color: var(--primary);
         }
-        
+
         .btn-outline:hover {
             background-color: var(--primary-light);
         }
-        
+
         .btn-danger {
             background-color: var(--danger);
             color: white;
         }
-        
+
         .btn-danger:hover {
             background-color: #dc2626;
         }
-        
+
         /* Settings Content */
         .settings-content {
             display: none;
@@ -641,17 +801,17 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 2rem;
         }
-        
+
         .settings-content.active {
             display: block;
         }
-        
+
         .settings-tabs {
             display: flex;
             border-bottom: 1px solid var(--light-gray);
             margin-bottom: 2rem;
         }
-        
+
         .settings-tab {
             padding: 0.75rem 1.5rem;
             cursor: pointer;
@@ -660,84 +820,51 @@
             color: var(--gray);
             transition: all 0.2s;
         }
-        
+
         .settings-tab:hover {
             color: var(--primary);
         }
-        
+
         .settings-tab.active {
             color: var(--primary);
             border-bottom-color: var(--primary);
         }
-        
+
         .settings-panel {
             display: none;
         }
-        
+
         .settings-panel.active {
             display: block;
         }
-        
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
+
+        .settings-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            margin-bottom: 1rem;
         }
-        
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
+
+        .settings-option-label {
+            font-weight: 500;
         }
-        
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
+
+        .settings-option-value {
+            color: var(--gray);
         }
-        
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-        }
-        
-        input:checked + .slider {
-            background-color: var(--primary);
-        }
-        
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-        
-        .slider.round {
-            border-radius: 34px;
-        }
-        
-        .slider.round:before {
-            border-radius: 50%;
-        }
-        
+
         /* Team Management */
         .team-management {
             margin-top: 1.5rem;
         }
-        
+
         .team-list {
             margin-top: 1rem;
         }
-        
+
         .team-member-card {
             display: flex;
             align-items: center;
@@ -747,11 +874,11 @@
             margin-bottom: 1rem;
             transition: all 0.2s;
         }
-        
+
         .team-member-card:hover {
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
-        
+
         .member-avatar {
             width: 50px;
             height: 50px;
@@ -765,70 +892,69 @@
             background-size: cover;
             background-position: center;
         }
-        
+
         .member-details {
             flex: 1;
         }
-        
+
+        .member-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
         .member-email {
             font-size: 0.9rem;
             color: var(--gray);
+            margin-bottom: 0.25rem;
         }
-        
+
         .member-role {
             padding: 0.25rem 0.5rem;
             border-radius: 4px;
             font-size: 0.8rem;
             font-weight: 500;
+            display: inline-block;
         }
-        
+
         .role-admin {
             background-color: rgba(239, 68, 68, 0.1);
             color: var(--danger);
         }
-        
+
         .role-member {
             background-color: rgba(16, 185, 129, 0.1);
             color: var(--secondary);
         }
-        
+
+        .role-supervisor {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+        }
+
         .member-actions {
             display: flex;
             gap: 0.5rem;
         }
-        
+
         .add-member-form {
             margin-top: 2rem;
             padding: 1.5rem;
             border: 1px dashed var(--light-gray);
             border-radius: 8px;
         }
-        
-        /* Theme Classes */
-        body.light-theme {
-            --primary-light: #f8fafc;
-            --light: #ffffff;
-            --white: #ffffff;
-            --dark: #1e293b;
-            background-color: #f8fafc;
+
+        .admin-only {
+            display: none;
         }
-        
-        body.dark-theme {
-            --primary-light: #1e293b;
-            --light: #334155;
-            --white: #1e293b;
-            --dark: #f8fafc;
-            background-color: #0f172a;
+
+        .user-admin .admin-only {
+            display: block;
         }
-        
-        body.blue-theme {
-            --primary-light: #dbeafe;
-            --light: #eff6ff;
-            --white: #ffffff;
-            --dark: #1e293b;
-            background-color: #dbeafe;
+
+        .user-supervisor .supervisor-only {
+            display: block;
         }
-        
+
         /* Notifications Modal */
         .notifications-modal {
             position: fixed;
@@ -841,270 +967,485 @@
             display: none;
             justify-content: flex-end;
         }
-        
+
         .notifications-container {
-            width: 400px;
-            max-width: 100%;
             background-color: var(--white);
-            height: 100vh;
+            width: 400px;
+            max-height: 90%;
             overflow-y: auto;
-            animation: slideIn 0.3s ease-out;
-            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-        
-        @keyframes slideIn {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
-        }
-        
+
         .notifications-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--light-gray);
+            padding: 1rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: var(--primary);
-            color: white;
+            border-bottom: 1px solid var(--light-gray);
         }
-        
+
+        .close-notifications {
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--dark);
+        }
+
         .notifications-title {
             font-size: 1.25rem;
             font-weight: 600;
         }
-        
-        .close-notifications {
-            background: none;
-            border: none;
-            font-size: 1.25rem;
-            cursor: pointer;
-            color: white;
-        }
-        
-        .notification-item {
-            padding: 1rem 1.5rem;
+
+        .notifications-actions {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
             border-bottom: 1px solid var(--light-gray);
-            transition: background-color 0.2s;
+        }
+
+        .notification-item {
             display: flex;
-            gap: 1rem;
-        }
-        
-        .notification-item:hover {
-            background-color: var(--light);
-        }
-        
-        .notification-item.unread {
-            background-color: rgba(37, 99, 235, 0.05);
-        }
-        
-        .notification-icon-wrapper {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: rgba(37, 99, 235, 0.1);
-            color: var(--primary);
-            display: flex;
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
             align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+            justify-content: space-between;
         }
-        
+
         .notification-content {
             flex: 1;
         }
-        
+
         .notification-message {
             margin-bottom: 0.25rem;
+            font-weight: 500;
         }
-        
+
         .notification-time {
             font-size: 0.8rem;
             color: var(--gray);
         }
-        
-        .mark-all-read {
-            padding: 1rem 1.5rem;
-            text-align: center;
-            border-bottom: 1px solid var(--light-gray);
+
+        .notification-actions {
+            display: flex;
+            gap: 0.5rem;
         }
-        
-        /* Confirm Modal */
-        .confirm-modal {
+
+        .delete-notification {
+            cursor: pointer;
+            color: var(--danger);
+            font-size: 1rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .delete-notification:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            border-radius: 6px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toast.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Back button */
+        .back-button {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .back-button:hover {
+            text-decoration: underline;
+        }
+
+        /* Language and theme options */
+        .settings-select {
+            padding: 0.5rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            background-color: var(--white);
+            color: var(--dark);
+        }
+
+        /* Feature Pages */
+        .feature-page {
+            display: none;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .feature-page.active {
+            display: block;
+        }
+
+        /* Preview Modal */
+        .preview-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1100;
+            z-index: 1000;
             display: none;
             justify-content: center;
             align-items: center;
         }
 
-        .confirm-container {
+        .preview-container {
             background-color: var(--white);
+            width: 80%;
+            max-width: 800px;
+            max-height: 90%;
+            overflow-y: auto;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            width: 400px;
-            max-width: 90%;
-            padding: 1.5rem;
-            animation: fadeIn 0.3s ease-out;
+            padding: 2rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .confirm-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--danger);
-        }
-
-        .confirm-message {
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 1.5rem;
-            line-height: 1.5;
         }
 
-        .confirm-actions {
+        .preview-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-preview {
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+
+        .preview-content {
+            margin-bottom: 2rem;
+        }
+
+        .preview-actions {
             display: flex;
             justify-content: flex-end;
             gap: 1rem;
         }
-        
+
+        /* Toggle switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        /* File Sharing Right Sidebar */
+        .file-sharing-sidebar {
+            padding: 1.5rem;
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--light-gray);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--primary);
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+
+        .file-upload-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .file-list {
+            margin-top: 1.5rem;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+        }
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--light);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: var(--primary);
+        }
+
+        .file-details {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .file-meta {
+            display: flex;
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .file-size {
+            margin-right: 1rem;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .file-action-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .file-action-btn:hover {
+            color: var(--primary);
+        }
+
         /* Responsive Design */
         @media (max-width: 992px) {
             .sidebar {
                 transform: translateX(-100%);
             }
-            
+
             .sidebar.active {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
             }
-            
+
             .search-bar {
                 width: 250px;
             }
+            
+            .right-sidebar {
+                width: 100%;
+                max-width: 100%;
+            }
         }
-        
+
         @media (max-width: 768px) {
             .top-nav {
                 flex-direction: column;
                 gap: 1rem;
                 padding: 1rem;
             }
-            
+
             .search-bar {
                 width: 100%;
             }
-            
+
             .user-menu {
                 width: 100%;
                 justify-content: space-between;
             }
-            
+
             .content-area {
                 padding: 1.5rem;
             }
-            
+
             .profile-form {
                 grid-template-columns: 1fr;
             }
-            
+
             .form-actions {
                 grid-column: span 1;
             }
-            
+
             .user-info {
                 flex-direction: column;
                 text-align: center;
             }
-            
+
             .user-info-avatar {
                 margin-bottom: 1rem;
             }
-            
+
             .stats-section {
                 grid-template-columns: 1fr;
             }
         }
 
-        /* Arabic styles */
-        body[dir="rtl"] {
-            text-align: right;
+        /* NEW STYLES FOR FIXES */
+        
+        /* Real-time activity indicator */
+        .realtime-badge {
+            display: inline-block;
+            background-color: var(--secondary);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+            animation: pulse 2s infinite;
         }
 
-        body[dir="rtl"] .sidebar {
-            right: 0;
-            left: auto;
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
         }
 
-        body[dir="rtl"] .main-content {
-            margin-right: var(--sidebar-width);
-            margin-left: 0;
+        /* Role-based title styling */
+        .role-title {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
-        body[dir="rtl"] .search-icon {
-            right: 1rem;
-            left: auto;
+        /* Notification fixes */
+        .notification-badge {
+            display: none; /* Hidden by default */
         }
 
-        body[dir="rtl"] .search-bar input {
-            padding: 0.75rem 2.5rem 0.75rem 1rem;
+        .has-notifications .notification-badge {
+            display: flex; /* Only show when notifications exist */
         }
 
-        body[dir="rtl"] .menu-item i {
-            margin-right: 0;
-            margin-left: 0.75rem;
+        /* Real-time update indicator */
+        .realtime-update {
+            animation: highlightUpdate 1.5s ease-out;
         }
 
-        body[dir="rtl"] .menu-item {
-            border-left: none;
-            border-right: 3px solid transparent;
+        @keyframes highlightUpdate {
+            0% { background-color: rgba(16, 185, 129, 0.2); }
+            100% { background-color: transparent; }
         }
 
-        body[dir="rtl"] .menu-item.active {
-            border-right-color: var(--white);
+        /* WebSocket connection status */
+        .connection-status {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            z-index: 1000;
         }
 
-        body[dir="rtl"] .activity-icon {
-            margin-right: 0;
-            margin-left: 1rem;
+        .connection-connected {
+            background-color: var(--secondary);
+            color: white;
         }
 
-        body[dir="rtl"] .activity-actions {
-            margin-left: 0;
-            margin-right: auto;
-            padding-left: 0;
-            padding-right: 1rem;
+        .connection-disconnected {
+            background-color: var(--danger);
+            color: white;
         }
 
-        body[dir="rtl"] .user-dropdown {
-            right: auto;
-            left: 0;
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
         }
 
-        body[dir="rtl"] .form-actions {
-            justify-content: flex-start;
-        }
-
-        body[dir="rtl"] .settings-tabs {
-            flex-direction: row-reverse;
-        }
-
-        body[dir="rtl"] .member-avatar {
-            margin-right: 0;
-            margin-left: 1rem;
-        }
-
-        body[dir="rtl"] .member-actions {
-            flex-direction: row-reverse;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -1117,67 +1458,147 @@
                 <span>TeamFlow</span>
             </div>
         </div>
-        
+
         <div class="sidebar-menu">
             <div class="menu-title">Main Features</div>
-            
-            <a href="#dashboard" class="menu-item active" data-feature="dashboard">
+            <a href="javascript:void(0);" class="menu-item active" data-feature="dashboard" id="dashboardLink">
                 <i class="fas fa-tachometer-alt"></i>
                 <span>Dashboard</span>
             </a>
-            
             <div class="menu-divider"></div>
-            
-            <a href="#file-sharing" class="menu-item" data-feature="file-sharing">
+
+            <a href="javascript:void(0);" class="menu-item" data-feature="file-sharing" id="fileSharingLink">
                 <i class="fas fa-file-upload"></i>
                 <span>File Sharing</span>
             </a>
-            
-            <a href="#data-management" class="menu-item" data-feature="data-management">
+
+            <a href="javascript:void(0);" class="menu-item" data-feature="data-management">
                 <i class="fas fa-database"></i>
                 <span>Data Management</span>
             </a>
-            
-            <a href="#project-tracking" class="menu-item" data-feature="project-tracking">
+
+            <a href="javascript:void(0);" class="menu-item" data-feature="project-tracking">
                 <i class="fas fa-project-diagram"></i>
                 <span>Project Tracking</span>
             </a>
-            
+
             <div class="menu-divider"></div>
-            
-            <a href="#task-management" class="menu-item" data-feature="task-management">
+
+            <a href="javascript:void(0);" class="menu-item" data-feature="task-management">
                 <i class="fas fa-tasks"></i>
                 <span>Task Management</span>
             </a>
-            
-            <a href="#employee-scheduling" class="menu-item" data-feature="employee-scheduling">
+
+            <a href="javascript:void(0);" class="menu-item" data-feature="employee-scheduling">
                 <i class="fas fa-users"></i>
                 <span>Employee Scheduling</span>
             </a>
-            
-            <a href="#team-calendar" class="menu-item" data-feature="team-calendar">
+
+            <a href="javascript:void(0);" class="menu-item" data-feature="team-calendar">
                 <i class="fas fa-calendar-alt"></i>
                 <span>Team Calendar</span>
             </a>
-            
+
             <div class="menu-divider"></div>
-            
-            <a href="#deadline-tracking" class="menu-item" data-feature="deadline-tracking">
+
+            <a href="javascript:void(0);" class="menu-item" data-feature="deadline-tracking">
                 <i class="fas fa-clock"></i>
                 <span>Deadline Tracking</span>
             </a>
-            
-            <a href="#innovation-hub" class="menu-item" data-feature="innovation-hub">
+
+            <a href="javascript:void(0);" class="menu-item" data-feature="innovation-hub">
                 <i class="fas fa-lightbulb"></i>
                 <span>Innovation Hub</span>
             </a>
-            
+
             <div class="menu-divider"></div>
+
+            <a href="javascript:void(0);" class="menu-item" data-feature="profile" id="profileLinkSidebar">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
             
-            <a href="#settings" class="menu-item" data-feature="settings">
+            <a href="javascript:void(0);" class="menu-item" data-feature="settings">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
+        </div>
+    </aside>
+
+    <!-- Right Sidebar for File Sharing -->
+    <aside class="right-sidebar" id="rightSidebar">
+        <div class="right-sidebar-header">
+            <h3>File Sharing</h3>
+            <i class="fas fa-times close-right-sidebar" id="closeRightSidebar"></i>
+        </div>
+        <div class="right-sidebar-content">
+            <div class="file-sharing-sidebar">
+                <div class="file-upload-area" id="fileUploadArea">
+                    <div class="file-upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h4>Drag & Drop Files Here</h4>
+                    <p>or click to browse files</p>
+                    <input type="file" id="fileInput" style="display: none;" multiple>
+                </div>
+                
+                <div class="file-list">
+                    <h4>Recent Files</h4>
+                    <div class="file-item">
+                        <div class="file-icon">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="file-details">
+                            <div class="file-name">Project_Requirements.pdf</div>
+                            <div class="file-meta">
+                                <span class="file-size">2.4 MB</span>
+                                <span class="file-date">Uploaded 2 days ago</span>
+                            </div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="file-action-btn"><i class="fas fa-download"></i></button>
+                            <button class="file-action-btn"><i class="fas fa-share-alt"></i></button>
+                            <button class="file-action-btn"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="file-item">
+                        <div class="file-icon">
+                            <i class="fas fa-file-excel"></i>
+                        </div>
+                        <div class="file-details">
+                            <div class="file-name">Budget_2023.xlsx</div>
+                            <div class="file-meta">
+                                <span class="file-size">1.8 MB</span>
+                                <span class="file-date">Uploaded 1 week ago</span>
+                            </div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="file-action-btn"><i class="fas fa-download"></i></button>
+                            <button class="file-action-btn"><i class="fas fa-share-alt"></i></button>
+                            <button class="file-action-btn"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="file-item">
+                        <div class="file-icon">
+                            <i class="fas fa-file-image"></i>
+                        </div>
+                        <div class="file-details">
+                            <div class="file-name">Team_Photo.jpg</div>
+                            <div class="file-meta">
+                                <span class="file-size">3.2 MB</span>
+                                <span class="file-date">Uploaded 3 weeks ago</span>
+                            </div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="file-action-btn"><i class="fas fa-download"></i></button>
+                            <button class="file-action-btn"><i class="fas fa-share-alt"></i></button>
+                            <button class="file-action-btn"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </aside>
 
@@ -1188,27 +1609,35 @@
             <div class="search-bar">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" placeholder="Search employees, projects, tasks..." id="searchInput">
+                <div class="search-results" id="searchResults">
+                    <!-- Search results will be added dynamically -->
+                </div>
             </div>
-            
+
             <div class="user-menu">
                 <div class="notification-icon" id="notificationIcon">
                     <i class="fas fa-bell"></i>
                     <span class="notification-badge">3</span>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">
+                            <h4>Notifications</h4>
+                            <i class="fas fa-times notification-close" id="notificationClose"></i>
+                        </div>
+                        <div id="notificationDropdownContent">
+                            <!-- Notifications will be added here -->
+                        </div>
+                    </div>
                 </div>
-                
+
                 <div class="user-profile">
-                    <div class="user-avatar" id="userAvatar">ME</div>
+                    <div class="user-avatar" id="userAvatar">M</div>
                     <div class="user-name" id="userName">Mohamed Elmenisy</div>
                     <div class="user-dropdown" id="userDropdown">
-                        <a href="#profile" class="dropdown-item" id="profileLink">
+                        <a href="javascript:void(0);" class="dropdown-item" id="profileLink">
                             <i class="fas fa-user"></i>
                             <span>Profile</span>
                         </a>
-                        <a href="#settings" class="dropdown-item" id="settingsLink">
-                            <i class="fas fa-cog"></i>
-                            <span>Settings</span>
-                        </a>
-                        <a href="login.html" class="dropdown-item" id="logoutLink">
+                        <a href="javascript:void(0);" class="dropdown-item" id="logoutLink">
                             <i class="fas fa-sign-out-alt"></i>
                             <span>Logout</span>
                         </a>
@@ -1216,28 +1645,28 @@
                 </div>
             </div>
         </nav>
-        
+
         <!-- Content Area -->
         <div class="content-area">
             <!-- Dashboard Content -->
-            <div id="dashboardContent">
+            <div id="dashboardContent" class="active">
                 <!-- Welcome Section -->
                 <div class="welcome-section">
-                    <h2 class="welcome-title">Welcome back, <span id="welcomeName">Mohamed</span>!</h2>
-                    
+                    <h2 class="welcome-title">Welcome, <span id="welcomeName">Mohamed</span>!</h2>
+
                     <div class="user-info">
-                        <div class="user-info-avatar" id="profileAvatar">ME</div>
+                        <div class="user-info-avatar" id="profileAvatarLarge">M</div>
                         <div class="user-info-details">
                             <div class="user-info-name">Mohamed Elmenisy</div>
-                            <div class="user-info-title">Team Manager</div>
+                            <div class="user-info-title role-title role-admin">Team Manager</div>
                             <div class="user-info-email">
                                 <i class="fas fa-envelope"></i>
-                                <span id="userEmail">mohamed@teamflow.com</span>
+                                <span id="userEmail">m.elsayed@thechefz.co</span>
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Stats Section -->
                 <div class="stats-section">
                     <div class="stat-card">
@@ -1246,324 +1675,315 @@
                             Team Members
                         </div>
                         <div class="stat-value">
-                            <span id="teamMembersCount">0</span>
+                            <span id="teamMembersCount">5</span>
                             <span class="stat-trend trend-up">
-                                <i class="fas fa-arrow-up"></i> 0%
+                                <i class="fas fa-arrow-up"></i> 25%
                             </span>
                         </div>
                     </div>
-                    
                     <div class="stat-card">
                         <div class="stat-title">
                             <i class="fas fa-check-circle"></i>
                             Tasks Completed
                         </div>
                         <div class="stat-value">
-                            <span id="tasksCompleted">0</span>
+                            <span id="tasksCompleted">12</span>
                             <span class="stat-trend trend-up">
-                                <i class="fas fa-arrow-up"></i> 0%
+                                <i class="fas fa-arrow-up"></i> 20%
                             </span>
                         </div>
                     </div>
-                    
                     <div class="stat-card">
                         <div class="stat-title">
                             <i class="fas fa-project-diagram"></i>
                             Active Projects
                         </div>
                         <div class="stat-value">
-                            <span id="activeProjects">0</span>
+                            <span id="activeProjects">5</span>
                             <span class="stat-trend trend-down">
-                                <i class="fas fa-arrow-down"></i> 0%
+                                <i class="fas fa-arrow-down"></i> 10%
                             </span>
                         </div>
                     </div>
-                    
                     <div class="stat-card">
                         <div class="stat-title">
                             <i class="fas fa-calendar-times"></i>
                             Upcoming Deadlines
                         </div>
                         <div class="stat-value">
-                            <span id="upcomingDeadlines">0</span>
+                            <span id="upcomingDeadlines">2</span>
                             <span class="stat-trend trend-up">
-                                <i class="fas fa-arrow-up"></i> 0%
+                                <i class="fas fa-arrow-up"></i> 5%
                             </span>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Activity Section -->
                 <div class="activity-section">
                     <div class="section-header">
-                        <h3 class="section-title">Recent Activity</h3>
+                        <h3 class="section-title">Recent Activity <span class="realtime-badge">LIVE</span></h3>
                         <div>
                             <span class="view-all" id="viewAllActivity">Show All</span>
-                            <span class="delete-all" id="deleteAllActivity">Delete All</span>
+                            <span class="delete-all admin-only" id="deleteAllActivity">Delete All</span>
                         </div>
                     </div>
-                    
                     <ul class="activity-list" id="activityList">
                         <!-- Activity items will be added dynamically -->
                     </ul>
                 </div>
             </div>
-            
+
             <!-- Profile Content -->
             <div class="profile-content" id="profileContent">
                 <div class="profile-header">
                     <h2 class="profile-title">Profile Settings</h2>
+                    <span class="back-button" id="backToDashboardFromProfile">← Back to Dashboard</span>
                 </div>
-                
                 <form class="profile-form" id="profileForm">
                     <div class="form-group">
                         <label for="profileAvatarInput">Profile Picture</label>
-                        <div class="user-info-avatar" id="profileAvatarLarge">
-                            <div class="avatar-upload" id="avatarUploadBtn">
-                                <i class="fas fa-camera"></i>
-                                <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;">
-                            </div>
+                        <div class="user-info-avatar" id="profileAvatar" onclick="document.getElementById('profileAvatarInput').click();">
+                            <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;">
+                            <div class="avatar-upload" id="avatarUploadBtn"><i class="fas fa-camera"></i></div>
                         </div>
                     </div>
-                    
                     <div class="form-group">
                         <label for="firstName">First Name</label>
                         <input type="text" id="firstName" class="form-control" value="Mohamed">
                     </div>
-                    
                     <div class="form-group">
                         <label for="lastName">Last Name</label>
                         <input type="text" id="lastName" class="form-control" value="Elmenisy">
                     </div>
-                    
                     <div class="form-group">
                         <label for="jobTitle">Job Title</label>
                         <input type="text" id="jobTitle" class="form-control" value="Team Manager">
                     </div>
-                    
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" class="form-control" value="mohamed@teamflow.com" readonly>
+                        <input type="email" id="email" class="form-control" value="m.elsayed@thechefz.co" readonly>
                     </div>
-                    
                     <div class="form-group">
                         <label for="phone">Phone Number</label>
                         <input type="tel" id="phone" class="form-control" value="+201234567890">
                     </div>
-                    
                     <div class="form-group">
                         <label for="department">Department</label>
                         <input type="text" id="department" class="form-control" value="Management">
                     </div>
-                    
                     <div class="form-actions">
                         <button type="button" class="btn btn-outline" id="cancelProfileBtn">Cancel</button>
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>
                 </form>
             </div>
-            
+
             <!-- Settings Content -->
             <div class="settings-content" id="settingsContent">
                 <div class="profile-header">
                     <h2 class="profile-title">System Settings</h2>
+                    <span class="back-button" id="backToDashboardFromSettings">← Back to Dashboard</span>
                 </div>
-                
                 <div class="settings-tabs">
                     <div class="settings-tab active" data-tab="account">Account</div>
                     <div class="settings-tab" data-tab="security">Security</div>
                     <div class="settings-tab" data-tab="notifications">Notifications</div>
                     <div class="settings-tab" data-tab="preferences">Preferences</div>
-                    <div class="settings-tab" data-tab="team">Team Management</div>
+                    <div class="settings-tab admin-only" data-tab="team">Team Management</div>
                 </div>
-                
                 <div class="settings-panel active" id="accountPanel">
-                    <form class="profile-form" id="accountForm">
-                        <div class="form-group">
-                            <label for="language">Language</label>
-                            <select id="language" class="form-control">
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-language" style="margin-right: 0.5rem;"></i>
+                            Language
+                        </div>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="languageSelect">
                                 <option value="en">English</option>
                                 <option value="ar">Arabic</option>
+                                <option value="fr">French</option>
+                                <option value="es">Spanish</option>
                             </select>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="timezone">Timezone</label>
-                            <select id="timezone" class="form-control">
-                                <option value="utc">UTC</option>
-                                <option value="cairo" selected>Cairo (UTC+2)</option>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-globe" style="margin-right: 0.5rem;"></i>
+                            Timezone
+                        </div>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="timezoneSelect">
+                                <option value="UTC+2">Cairo (UTC+2)</option>
+                                <option value="UTC+0">London (UTC+0)</option>
+                                <option value="UTC-5">New York (UTC-5)</option>
+                                <option value="UTC+8">Beijing (UTC+8)</option>
                             </select>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="dateFormat">Date Format</label>
-                            <select id="dateFormat" class="form-control">
-                                <option value="mm/dd/yyyy">MM/DD/YYYY</option>
-                                <option value="dd/mm/yyyy" selected>DD/MM/YYYY</option>
-                                <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-calendar" style="margin-right: 0.5rem;"></i>
+                            Date Format
+                        </div>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="dateFormatSelect">
+                                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
                             </select>
                         </div>
-                        
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-outline">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save Settings</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-                
                 <div class="settings-panel" id="securityPanel">
-                    <form class="profile-form" id="securityForm">
-                        <div class="form-group">
-                            <label>Two-Factor Authentication</label>
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <label class="switch">
-                                    <input type="checkbox" id="twoFactorAuth" checked>
-                                    <span class="slider round"></span>
-                                </label>
-                                <span>Enabled</span>
-                            </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-shield-alt" style="margin-right: 0.5rem;"></i>
+                            Two-Factor Authentication
                         </div>
-                        
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="twoFactorAuth" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <form id="passwordForm" style="margin-top: 2rem;">
                         <div class="form-group">
                             <label for="currentPassword">Current Password</label>
                             <input type="password" id="currentPassword" class="form-control">
                         </div>
-                        
                         <div class="form-group">
                             <label for="newPassword">New Password</label>
                             <input type="password" id="newPassword" class="form-control">
                         </div>
-                        
                         <div class="form-group">
                             <label for="confirmPassword">Confirm Password</label>
                             <input type="password" id="confirmPassword" class="form-control">
                         </div>
-                        
                         <div class="form-actions">
-                            <button type="button" class="btn btn-outline">Cancel</button>
+                            <button type="button" class="btn btn-outline" id="cancelPasswordBtn">Cancel</button>
                             <button type="submit" class="btn btn-primary">Update Password</button>
                         </div>
                     </form>
                 </div>
-                
                 <div class="settings-panel" id="notificationsPanel">
-                    <form class="profile-form" id="notificationsForm">
-                        <div class="form-group">
-                            <label>Email Notifications</label>
-                            <div style="margin-top: 0.5rem;">
-                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-                                    <span>Task Assignments</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="emailTasks" checked>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-                                    <span>Deadline Reminders</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="emailDeadlines" checked>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                                <div style="display: flex; align-items: center; justify-content: space-between;">
-                                    <span>System Updates</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="emailUpdates">
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                            </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-envelope" style="margin-right: 0.5rem;"></i>
+                            Email Notifications
                         </div>
-                        
-                        <div class="form-group">
-                            <label>Push Notifications</label>
-                            <div style="margin-top: 0.5rem;">
-                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-                                    <span>New Messages</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="pushMessages" checked>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                                <div style="display: flex; align-items: center; justify-content: space-between;">
-                                    <span>Team Updates</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="pushTeamUpdates">
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                            </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="emailNotifications" checked>
+                                <span class="slider round"></span>
+                            </label>
                         </div>
-                        
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-outline">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save Settings</button>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-bell" style="margin-right: 0.5rem;"></i>
+                            Push Notifications
                         </div>
-                    </form>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="pushNotifications" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-tasks" style="margin-right: 0.5rem;"></i>
+                            Task Notifications
+                        </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="taskNotifications" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-calendar-check" style="margin-right: 0.5rem;"></i>
+                            Deadline Reminders
+                        </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="deadlineReminders" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
-                
                 <div class="settings-panel" id="preferencesPanel">
-                    <form class="profile-form" id="preferencesForm">
-                        <div class="form-group">
-                            <label>Theme</label>
-                            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-                                <div class="theme-option" data-theme="light">
-                                    <div style="width: 60px; height: 60px; background-color: #f8fafc; border: 2px solid #e2e8f0; border-radius: 6px; cursor: pointer;"></div>
-                                    <span style="text-align: center; display: block; margin-top: 0.5rem;">Light</span>
-                                </div>
-                                <div class="theme-option" data-theme="dark">
-                                    <div style="width: 60px; height: 60px; background-color: #1e293b; border: 2px solid #334155; border-radius: 6px; cursor: pointer;"></div>
-                                    <span style="text-align: center; display: block; margin-top: 0.5rem;">Dark</span>
-                                </div>
-                                <div class="theme-option" data-theme="blue">
-                                    <div style="width: 60px; height: 60px; background-color: #dbeafe; border: 2px solid #2563eb; border-radius: 6px; cursor: pointer;"></div>
-                                    <span style="text-align: center; display: block; margin-top: 0.5rem;">Blue</span>
-                                </div>
-                            </div>
-                            <input type="hidden" id="selectedTheme" value="blue">
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-palette" style="margin-right: 0.5rem;"></i>
+                            Theme
                         </div>
-                        
-                        <div class="form-group">
-                            <label>Layout Density</label>
-                            <div style="margin-top: 0.5rem;">
-                                <select id="layoutDensity" class="form-control">
-                                    <option value="compact">Compact</option>
-                                    <option value="normal" selected>Normal</option>
-                                    <option value="spacious">Spacious</option>
-                                </select>
-                            </div>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="themeSelect">
+                                <option value="blue">Blue</option>
+                                <option value="dark">Dark</option>
+                                <option value="light">Light</option>
+                                <option value="green">Green</option>
+                            </select>
                         </div>
-                        
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-outline">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save Preferences</button>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-columns" style="margin-right: 0.5rem;"></i>
+                            Layout Density
                         </div>
-                    </form>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="densitySelect">
+                                <option value="compact">Compact</option>
+                                <option value="normal" selected>Normal</option>
+                                <option value="comfortable">Comfortable</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-font" style="margin-right: 0.5rem;"></i>
+                            Font Size
+                        </div>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="fontSizeSelect">
+                                <option value="small">Small</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="large">Large</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="settings-panel" id="teamPanel">
+                <div class="settings-panel admin-only" id="teamPanel">
                     <div class="team-management">
                         <h3>Team Members</h3>
                         <div class="team-list" id="teamList">
                             <!-- Team members will be added dynamically -->
                         </div>
-                        
-                        <div class="add-member-form">
+                        <div class="add-member-form admin-only">
                             <h4>Add New Member</h4>
                             <form id="addMemberForm">
+                                <div class="form-group">
+                                    <label for="memberName">Full Name</label>
+                                    <input type="text" id="memberName" class="form-control" placeholder="John Doe" required>
+                                </div>
                                 <div class="form-group">
                                     <label for="memberEmail">Email</label>
                                     <input type="email" id="memberEmail" class="form-control" placeholder="user@example.com" required>
                                 </div>
-                                
                                 <div class="form-group">
                                     <label for="memberRole">Role</label>
                                     <select id="memberRole" class="form-control" required>
                                         <option value="member">Member</option>
+                                        <option value="supervisor">Supervisor</option>
                                         <option value="admin">Admin</option>
                                     </select>
                                 </div>
-                                
                                 <div class="form-actions">
                                     <button type="submit" class="btn btn-primary">Add Member</button>
                                 </div>
@@ -1572,10 +1992,72 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Feature Content Sections -->
             <div id="featureSections">
-                <!-- Feature content will be loaded here dynamically -->
+                <div id="file-sharing-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">File Sharing</h2>
+                        <span class="back-button" id="backToDashboardFromFileSharing">← Back to Dashboard</span>
+                    </div>
+                    <p>File sharing feature content will be displayed here.</p>
+                </div>
+                
+                <div id="data-management-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Data Management</h2>
+                        <span class="back-button" id="backToDashboardFromDataManagement">← Back to Dashboard</span>
+                    </div>
+                    <p>Data management feature content will be displayed here.</p>
+                </div>
+                
+                <div id="project-tracking-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Project Tracking</h2>
+                        <span class="back-button" id="backToDashboardFromProjectTracking">← Back to Dashboard</span>
+                    </div>
+                    <p>Project tracking feature content will be displayed here.</p>
+                </div>
+                
+                <div id="task-management-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Task Management</h2>
+                        <span class="back-button" id="backToDashboardFromTaskManagement">← Back to Dashboard</span>
+                    </div>
+                    <p>Task management feature content will be displayed here.</p>
+                </div>
+                
+                <div id="employee-scheduling-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Employee Scheduling</h2>
+                        <span class="back-button" id="backToDashboardFromEmployeeScheduling">← Back to Dashboard</span>
+                    </div>
+                    <p>Employee scheduling feature content will be displayed here.</p>
+                </div>
+                
+                <div id="team-calendar-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Team Calendar</h2>
+                        <span class="back-button" id="backToDashboardFromTeamCalendar">← Back to Dashboard</span>
+                    </div>
+                    <p>Team calendar feature content will be displayed here.</p>
+                </div>
+                
+                <div id="deadline-tracking-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Deadline Tracking</h2>
+                        <span class="back-button" id="backToDashboardFromDeadlineTracking">← Back to Dashboard</span>
+                    </div>
+                    <p>Deadline tracking feature content will be displayed here.</p>
+                </div>
+                
+                <div id="innovation-hub-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Innovation Hub</h2>
+                        <span class="back-button" id="backToDashboardFromInnovationHub">← Back to Dashboard</span>
+                    </div>
+                    <p>Innovation hub feature content will be displayed here.</p>
+                </div>
             </div>
         </div>
     </main>
@@ -1585,333 +2067,682 @@
         <div class="notifications-container">
             <div class="notifications-header">
                 <h3 class="notifications-title">Notifications</h3>
-                <button class="close-notifications" id="closeNotifications">&times;</button>
+                <button class="close-notifications" id="closeNotifications">×</button>
             </div>
-            
-            <div class="mark-all-read">
+            <div class="notifications-actions">
                 <button class="btn btn-outline" id="markAllReadBtn">Mark All as Read</button>
+                <button class="btn btn-danger admin-only" id="deleteAllNotificationsBtn">Delete All</button>
             </div>
-            
-            <div class="notification-item unread">
-                <div class="notification-icon-wrapper">
-                    <i class="fas fa-tasks"></i>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-message">
-                        <strong>New task assigned</strong> - You've been assigned to "Dashboard Implementation"
-                    </div>
-                    <div class="notification-time">10 minutes ago</div>
-                </div>
-            </div>
-            
-            <div class="notification-item unread">
-                <div class="notification-icon-wrapper">
-                    <i class="fas fa-project-diagram"></i>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-message">
-                        <strong>Project update</strong> - "Team Management Platform" is 75% complete
-                    </div>
-                    <div class="notification-time">2 hours ago</div>
-                </div>
-            </div>
-            
-            <div class="notification-item">
-                <div class="notification-icon-wrapper">
-                    <i class="fas fa-comment"></i>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-message">
-                        <strong>New message</strong> - From Sarah: "Can we meet tomorrow?"
-                    </div>
-                    <div class="notification-time">Yesterday</div>
-                </div>
-            </div>
-            
-            <div class="notification-item">
-                <div class="notification-icon-wrapper">
-                    <i class="fas fa-bell"></i>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-message">
-                        <strong>System update</strong> - New features added to the platform
-                    </div>
-                    <div class="notification-time">2 days ago</div>
-                </div>
+            <div id="notificationsList">
+                <!-- Notifications will be dynamically added here -->
             </div>
         </div>
     </div>
 
-    <!-- Confirm Modal -->
-    <div class="confirm-modal" id="confirmModal">
-        <div class="confirm-container">
-            <h3 class="confirm-title">Confirm Action</h3>
-            <div class="confirm-message" id="confirmMessage">Are you sure you want to delete this team member?</div>
-            <div class="confirm-actions">
-                <button class="btn btn-outline" id="cancelConfirmBtn">Cancel</button>
-                <button class="btn btn-danger" id="confirmBtn">Delete</button>
+    <!-- Preview Modal -->
+    <div class="preview-modal" id="previewModal">
+        <div class="preview-container">
+            <div class="preview-header">
+                <h3 class="preview-title">Preview Changes</h3>
+                <button class="close-preview" id="closePreview">×</button>
+            </div>
+            <div class="preview-content" id="previewContent">
+                <!-- Preview content will be added here -->
+            </div>
+            <div class="preview-actions">
+                <button class="btn btn-outline" id="cancelPreviewBtn">Cancel</button>
+                <button class="btn btn-primary" id="confirmPreviewBtn">Confirm Changes</button>
             </div>
         </div>
     </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toastNotification">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Settings saved successfully!</span>
+    </div>
+
+    <!-- WebSocket Connection Status -->
+    <div class="connection-status connection-connected" id="connectionStatus">
+        <i class="fas fa-circle"></i> Connected
+    </div>
+
+    <!-- Audio element for notification sound -->
+    <audio id="notificationSound" src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" preload="auto"></audio>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+            // Enhanced data structure
+            const appData = {
+                currentUser: {
+                    id: 1,
+                    firstName: "Mohamed",
+                    lastName: "Elmenisy",
+                    email: "m.elsayed@thechefz.co",
+                    role: "admin",
+                    phone: "+201234567890",
+                    department: "Management",
+                    jobTitle: "Team Manager",
+                    avatar: "",
+                    lastActive: Date.now(),
+                    tasksCompleted: 12
+                },
+                teamMembers: [
+                    { id: 1, name: "Mohamed Elmenisy", email: "m.elsayed@thechefz.co", role: "admin" },
+                    { id: 2, name: "Ahmed Mohamed", email: "ahmed@example.com", role: "member" },
+                    { id: 3, name: "Fatima Ali", email: "fatima@example.com", role: "member" },
+                    { id: 4, name: "Omar Hassan", email: "omar@example.com", role: "supervisor" },
+                    { id: 5, name: "Layla Ibrahim", email: "layla@example.com", role: "member" }
+                ],
+                activities: [
+                    { 
+                        user: "Mohamed Elmenisy", 
+                        message: "completed the project dashboard", 
+                        icon: "fa-check-circle",
+                        timestamp: Date.now() - 300000
+                    },
+                    { 
+                        user: "Ahmed Mohamed", 
+                        message: "uploaded new design files", 
+                        icon: "fa-file-upload",
+                        timestamp: Date.now() - 900000
+                    },
+                    { 
+                        user: "Fatima Ali", 
+                        message: "commented on the task board", 
+                        icon: "fa-comment",
+                        timestamp: Date.now() - 1800000
+                    },
+                    { 
+                        user: "Omar Hassan", 
+                        message: "started working on the API integration", 
+                        icon: "fa-code",
+                        timestamp: Date.now() - 7200000
+                    },
+                    { 
+                        user: "Layla Ibrahim", 
+                        message: "updated the project timeline", 
+                        icon: "fa-calendar-alt",
+                        timestamp: Date.now() - 18000000
+                    }
+                ],
+                notifications: [
+                    { 
+                        message: "New task assigned to you: Update dashboard design", 
+                        timestamp: Date.now() - 600000,
+                        read: false
+                    },
+                    { 
+                        message: "Deadline approaching: Project submission due tomorrow", 
+                        timestamp: Date.now() - 3600000,
+                        read: false
+                    },
+                    { 
+                        message: "Team meeting scheduled for Friday at 2 PM", 
+                        timestamp: Date.now() - 10800000,
+                        read: true
+                    }
+                ],
+                settings: {
+                    theme: "blue",
+                    language: "en",
+                    timezone: "UTC+2",
+                    dateFormat: "DD/MM/YYYY",
+                    twoFactorEnabled: true,
+                    emailNotifications: true,
+                    pushNotifications: true,
+                    taskNotifications: true,
+                    deadlineReminders: true,
+                    layoutDensity: "normal",
+                    fontSize: "medium"
+                },
+                searchData: [
+                    { type: "employee", name: "Ahmed Mohamed", email: "ahmed@example.com", role: "member" },
+                    { type: "employee", name: "Fatima Ali", email: "fatima@example.com", role: "member" },
+                    { type: "employee", name: "Omar Hassan", email: "omar@example.com", role: "supervisor" },
+                    { type: "employee", name: "Layla Ibrahim", email: "layla@example.com", role: "member" },
+                    { type: "project", name: "Dashboard Redesign", status: "In Progress" },
+                    { type: "project", name: "API Integration", status: "Pending" },
+                    { type: "task", name: "Update User Profile", project: "Dashboard Redesign" },
+                    { type: "task", name: "Fix Login Bug", project: "API Integration" },
+                    { type: "file", name: "Project Requirements.pdf", size: "2.4 MB" },
+                    { type: "file", name: "Budget_2023.xlsx", size: "1.8 MB" }
+                ]
+            };
+
             // DOM Elements
             const sidebar = document.getElementById('sidebar');
-            const menuItems = document.querySelectorAll('.menu-item');
-            const searchInput = document.getElementById('searchInput');
-            const notificationIcon = document.getElementById('notificationIcon');
-            const notificationsModal = document.getElementById('notificationsModal');
-            const closeNotifications = document.getElementById('closeNotifications');
-            const markAllReadBtn = document.getElementById('markAllReadBtn');
-            const userAvatar = document.getElementById('userAvatar');
-            const userName = document.getElementById('userName');
-            const userEmail = document.getElementById('userEmail');
-            const welcomeName = document.getElementById('welcomeName');
+            const rightSidebar = document.getElementById('rightSidebar');
+            const closeRightSidebar = document.getElementById('closeRightSidebar');
+            const fileSharingLink = document.getElementById('fileSharingLink');
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            const fileInput = document.getElementById('fileInput');
             const userDropdown = document.getElementById('userDropdown');
             const profileLink = document.getElementById('profileLink');
-            const settingsLink = document.getElementById('settingsLink');
+            const profileLinkSidebar = document.getElementById('profileLinkSidebar');
             const logoutLink = document.getElementById('logoutLink');
             const dashboardContent = document.getElementById('dashboardContent');
             const profileContent = document.getElementById('profileContent');
             const settingsContent = document.getElementById('settingsContent');
-            const featureSections = document.getElementById('featureSections');
-            const profileForm = document.getElementById('profileForm');
-            const cancelProfileBtn = document.getElementById('cancelProfileBtn');
+            const activityList = document.getElementById('activityList');
+            const deleteAllActivity = document.getElementById('deleteAllActivity');
+            const notificationIcon = document.getElementById('notificationIcon');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const notificationClose = document.getElementById('notificationClose');
+            const notificationDropdownContent = document.getElementById('notificationDropdownContent');
+            const notificationsModal = document.getElementById('notificationsModal');
+            const closeNotifications = document.getElementById('closeNotifications');
+            const notificationsList = document.getElementById('notificationsList');
+            const deleteAllNotificationsBtn = document.getElementById('deleteAllNotificationsBtn');
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            const userAvatar = document.getElementById('userAvatar');
+            const profileAvatarLarge = document.getElementById('profileAvatarLarge');
+            const connectionStatus = document.getElementById('connectionStatus');
+            const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
+            const backToDashboardFromSettings = document.getElementById('backToDashboardFromSettings');
             const profileAvatarInput = document.getElementById('profileAvatarInput');
             const profileAvatar = document.getElementById('profileAvatar');
-            const profileAvatarLarge = document.getElementById('profileAvatarLarge');
-            const avatarUploadBtn = document.getElementById('avatarUploadBtn');
-            const activityList = document.getElementById('activityList');
-            const viewAllActivity = document.getElementById('viewAllActivity');
-            const deleteAllActivity = document.getElementById('deleteAllActivity');
-            const settingsTabs = document.querySelectorAll('.settings-tab');
-            const settingsPanels = document.querySelectorAll('.settings-panel');
-            const accountForm = document.getElementById('accountForm');
-            const securityForm = document.getElementById('securityForm');
-            const notificationsForm = document.getElementById('notificationsForm');
-            const preferencesForm = document.getElementById('preferencesForm');
-            const teamList = document.getElementById('teamList');
-            const addMemberForm = document.getElementById('addMemberForm');
-            const themeOptions = document.querySelectorAll('.theme-option');
-            const confirmModal = document.getElementById('confirmModal');
-            const confirmMessage = document.getElementById('confirmMessage');
-            const cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
-            const confirmBtn = document.getElementById('confirmBtn');
-            const teamMembersCount = document.getElementById('teamMembersCount');
-            const tasksCompleted = document.getElementById('tasksCompleted');
-            const activeProjects = document.getElementById('activeProjects');
-            const upcomingDeadlines = document.getElementById('upcomingDeadlines');
-            
-            // Get user data from localStorage or use default
-            let currentUser = JSON.parse(localStorage.getItem('currentUser')) || {
-                name: 'Mohamed Elmenisy',
-                email: 'mohamed@teamflow.com',
-                title: 'Team Manager',
-                department: 'Management',
-                phone: '+201234567890',
-                avatar: '',
-                initials: 'ME',
-                role: 'admin',
-                password: 'password123' // In a real app, this would be hashed and stored securely
+            const themeSelect = document.getElementById('themeSelect');
+            const previewModal = document.getElementById('previewModal');
+            const closePreview = document.getElementById('closePreview');
+            const cancelPreviewBtn = document.getElementById('cancelPreviewBtn');
+            const confirmPreviewBtn = document.getElementById('confirmPreviewBtn');
+            const notificationSound = document.getElementById('notificationSound');
+
+            // Role title mapping
+            const roleTitles = {
+                admin: "Administrator",
+                supervisor: "Supervisor",
+                member: "Team Member"
             };
 
-            // Check if we have a logged in user from login page
-            const loggedInUser = JSON.parse(sessionStorage.getItem('loggedInUser'));
-            if (loggedInUser) {
-                currentUser = {...currentUser, ...loggedInUser};
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            }
-            
-            // Sample team members
-            let teamMembers = JSON.parse(localStorage.getItem('teamMembers')) || [
-                {
-                    email: 'ahmed@teamflow.com',
-                    role: 'member',
-                    initials: 'AM'
-                },
-                {
-                    email: 'sarah@teamflow.com',
-                    role: 'admin',
-                    initials: 'SJ'
-                },
-                {
-                    email: 'michael@teamflow.com',
-                    role: 'member',
-                    initials: 'MB'
-                }
-            ];
-            
-            // Sample activity data
-            let activities = JSON.parse(localStorage.getItem('activities')) || [
-                {
-                    icon: 'fa-tasks',
-                    message: 'Completed task "Update dashboard design"',
-                    time: '2 hours ago'
-                },
-                {
-                    icon: 'fa-calendar-check',
-                    message: 'Team meeting scheduled for tomorrow at 10 AM',
-                    time: '4 hours ago'
-                },
-                {
-                    icon: 'fa-user-plus',
-                    message: 'New team member "ahmed@teamflow.com" added',
-                    time: 'Yesterday'
-                },
-                {
-                    icon: 'fa-trash',
-                    message: 'Removed team member "john@teamflow.com"',
-                    time: '2 days ago'
-                }
-            ];
-            
-            // Stats data
-            let stats = JSON.parse(localStorage.getItem('stats')) || {
-                teamMembers: 0,
-                tasksCompleted: 0,
-                activeProjects: 0,
-                upcomingDeadlines: 0
-            };
-            
-            // Variables for confirm modal
-            let currentAction = null;
-            let currentIndex = null;
-            
+            // WebSocket connection
+            let socket;
+            let reconnectAttempts = 0;
+            const maxReconnectAttempts = 5;
+            const reconnectDelay = 3000; // 3 seconds
+
             // Initialize the dashboard
             function initDashboard() {
-                // Set user data
-                updateUserUI();
-                
-                // Load stats
-                updateStats();
-                
-                // Load team members
-                loadTeamMembers();
-                
-                // Load activities
-                loadActivities();
-                
-                // Set active feature (dashboard by default)
-                setActiveFeature('dashboard');
+                loadSavedData();
+                updateUserInterface();
+                setupEventListeners();
+                startRealTimeUpdates();
+                initWebSocket();
+                checkUserRole();
             }
-            
-            // Update user UI elements
-            function updateUserUI() {
-                userName.textContent = currentUser.name;
-                userEmail.textContent = currentUser.email;
-                welcomeName.textContent = currentUser.name.split(' ')[0];
-                document.querySelector('.user-info-name').textContent = currentUser.name;
-                document.querySelector('.user-info-title').textContent = currentUser.title;
-                document.querySelector('.user-info-email span').textContent = currentUser.email;
+
+            // Check user role and apply appropriate permissions
+            function checkUserRole() {
+                const userEmail = document.getElementById('userEmail').textContent;
+                const currentUser = appData.teamMembers.find(member => member.email === userEmail);
                 
-                // Set form values
-                const nameParts = currentUser.name.split(' ');
-                document.getElementById('firstName').value = nameParts[0];
-                document.getElementById('lastName').value = nameParts.slice(1).join(' ');
-                document.getElementById('jobTitle').value = currentUser.title;
-                document.getElementById('phone').value = currentUser.phone;
-                document.getElementById('department').value = currentUser.department;
-                document.getElementById('email').value = currentUser.email;
+                if (currentUser) {
+                    // Add role class to body for CSS targeting
+                    document.body.classList.add(`user-${currentUser.role}`);
+                    
+                    // Update role title in dashboard
+                    const roleTitleElement = document.querySelector('.user-info-title');
+                    if (roleTitleElement) {
+                        roleTitleElement.textContent = roleTitles[currentUser.role] || currentUser.role;
+                        roleTitleElement.className = `user-info-title role-title role-${currentUser.role}`;
+                    }
+                }
+            }
+
+            // Initialize WebSocket connection
+            function initWebSocket() {
+                // In a real app, you would connect to your actual WebSocket server
+                // For this demo, we'll simulate the connection
+                console.log("Connecting to WebSocket server...");
                 
-                // Set avatar if exists
-                if (currentUser.avatar) {
-                    profileAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
-                    profileAvatar.textContent = '';
-                    profileAvatarLarge.style.backgroundImage = `url(${currentUser.avatar})`;
-                    profileAvatarLarge.textContent = '';
-                    userAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
-                    userAvatar.textContent = '';
+                // Simulate connection (in real app, use new WebSocket('wss://your-server.com'))
+                simulateWebSocketConnection();
+            }
+
+            // Simulate WebSocket connection and events
+            function simulateWebSocketConnection() {
+                updateConnectionStatus(true);
+                
+                // Simulate receiving messages from server
+                setInterval(() => {
+                    if (Math.random() > 0.7) { // 30% chance of getting a new notification
+                        const messages = [
+                            "New task assigned to you: Review project documentation",
+                            "Team meeting reminder in 15 minutes",
+                            "Deadline approaching: Client presentation tomorrow",
+                            "New comment on your task: Please review the changes",
+                            "System update scheduled for tonight at 11 PM"
+                        ];
+                        
+                        const newNotification = {
+                            message: messages[Math.floor(Math.random() * messages.length)],
+                            timestamp: Date.now(),
+                            read: false
+                        };
+                        
+                        // Simulate receiving WebSocket message
+                        handleWebSocketMessage({
+                            type: "notification",
+                            data: newNotification
+                        });
+                    }
+                    
+                    if (Math.random() > 0.7) { // 30% chance of getting a new activity
+                        const users = ["Mohamed Elmenisy", "Ahmed Mohamed", "Fatima Ali", "Omar Hassan", "Layla Ibrahim"];
+                        const actions = [
+                            { message: "completed a task", icon: "fa-check-circle" },
+                            { message: "uploaded a new file", icon: "fa-file-upload" },
+                            { message: "commented on a project", icon: "fa-comment" },
+                            { message: "started a new task", icon: "fa-play-circle" },
+                            { message: "updated project status", icon: "fa-sync-alt" }
+                        ];
+                        
+                        const randomUser = users[Math.floor(Math.random() * users.length)];
+                        const randomAction = actions[Math.floor(Math.random() * actions.length)];
+                        
+                        const newActivity = {
+                            user: randomUser,
+                            message: randomAction.message,
+                            icon: randomAction.icon,
+                            timestamp: Date.now()
+                        };
+                        
+                        // Simulate receiving WebSocket message
+                        handleWebSocketMessage({
+                            type: "activity",
+                            data: newActivity
+                        });
+                    }
+                    
+                    if (Math.random() > 0.8) { // 20% chance of stats update
+                        // Simulate receiving WebSocket message
+                        handleWebSocketMessage({
+                            type: "stats",
+                            data: {
+                                teamMembers: Math.floor(Math.random() * 10) + 1,
+                                tasksCompleted: Math.floor(Math.random() * 20) + 5,
+                                activeProjects: Math.floor(Math.random() * 8) + 1,
+                                upcomingDeadlines: Math.floor(Math.random() * 5)
+                            }
+                        });
+                    }
+                }, 10000); // Check every 10 seconds
+            }
+
+            // Handle WebSocket messages
+            function handleWebSocketMessage(message) {
+                switch(message.type) {
+                    case "notification":
+                        addNotification(message.data);
+                        break;
+                    case "activity":
+                        addActivity(message.data);
+                        break;
+                    case "stats":
+                        updateStats(message.data);
+                        break;
+                    case "profile_update":
+                        updateProfileData(message.data);
+                        break;
+                    case "team_update":
+                        updateTeamData(message.data);
+                        break;
+                }
+            }
+
+            // Update connection status UI
+            function updateConnectionStatus(connected) {
+                if (connected) {
+                    connectionStatus.className = "connection-status connection-connected";
+                    connectionStatus.innerHTML = '<i class="fas fa-circle"></i> Connected';
                 } else {
-                    profileAvatar.textContent = currentUser.initials;
-                    profileAvatarLarge.textContent = currentUser.initials;
-                    userAvatar.textContent = currentUser.initials;
+                    connectionStatus.className = "connection-status connection-disconnected";
+                    connectionStatus.innerHTML = '<i class="fas fa-circle"></i> Disconnected - Reconnecting...';
+                }
+            }
+
+            // Add new notification
+            function addNotification(notification) {
+                appData.notifications.unshift(notification);
+                
+                // Keep only the last 5 notifications
+                if (appData.notifications.length > 5) {
+                    appData.notifications.pop();
                 }
                 
-                // Show/hide admin features based on role
-                const adminFeatures = document.querySelectorAll('.admin-only');
-                adminFeatures.forEach(feature => {
-                    feature.style.display = currentUser.role === 'admin' ? 'block' : 'none';
-                });
+                loadNotifications();
+                saveData();
+                
+                // Show notification badge
+                const unreadCount = appData.notifications.filter(n => !n.read).length;
+                if (unreadCount > 0) {
+                    notificationIcon.classList.add('has-notifications');
+                    document.querySelector('.notification-badge').textContent = unreadCount;
+                    
+                    // Play notification sound
+                    if (notificationSound) {
+                        notificationSound.currentTime = 0; // Rewind to start
+                        notificationSound.play().catch(e => console.log("Audio play failed:", e));
+                    }
+                }
+                
+                // Flash the notification icon
+                notificationIcon.classList.add('realtime-update');
+                setTimeout(() => {
+                    notificationIcon.classList.remove('realtime-update');
+                }, 1500);
             }
-            
+
+            // Add new activity
+            function addActivity(activity) {
+                activityList.insertAdjacentHTML('afterbegin', `
+                    <li class="activity-item realtime-update">
+                        <div class="activity-icon">
+                            <i class="fas ${activity.icon}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-message">
+                                <span class="activity-user">${activity.user}</span> ${activity.message}
+                            </div>
+                            <div class="activity-time">just now</div>
+                        </div>
+                    </li>
+                `);
+                
+                // Add to data structure
+                appData.activities.unshift(activity);
+                
+                // Keep only the last 10 activities
+                if (appData.activities.length > 10) {
+                    appData.activities.pop();
+                    activityList.removeChild(activityList.lastChild);
+                }
+                
+                saveData();
+            }
+
             // Update stats
-            function updateStats() {
-                stats.teamMembers = teamMembers.length;
-                teamMembersCount.textContent = stats.teamMembers;
-                tasksCompleted.textContent = stats.tasksCompleted;
-                activeProjects.textContent = stats.activeProjects;
-                upcomingDeadlines.textContent = stats.upcomingDeadlines;
+            function updateStats(stats) {
+                document.getElementById('teamMembersCount').textContent = stats.teamMembers;
+                document.getElementById('tasksCompleted').textContent = stats.tasksCompleted;
+                document.getElementById('activeProjects').textContent = stats.activeProjects;
+                document.getElementById('upcomingDeadlines').textContent = stats.upcomingDeadlines;
                 
-                localStorage.setItem('stats', JSON.stringify(stats));
+                // Save the updated stats
+                appData.teamMembers = stats.teamMembers;
+                appData.currentUser.tasksCompleted = stats.tasksCompleted;
+                saveData();
+                
+                // Highlight the update
+                document.querySelectorAll('.stat-card').forEach(card => {
+                    card.classList.add('realtime-update');
+                    setTimeout(() => {
+                        card.classList.remove('realtime-update');
+                    }, 1500);
+                });
             }
-            
-            // Load team members
-            function loadTeamMembers() {
-                teamList.innerHTML = '';
-                
-                teamMembers.forEach((member, index) => {
-                    const memberCard = document.createElement('div');
-                    memberCard.className = 'team-member-card';
-                    memberCard.innerHTML = `
-                        <div class="member-avatar">${member.initials}</div>
-                        <div class="member-details">
-                            <div class="member-email">${member.email}</div>
-                        </div>
-                        <div class="member-role ${member.role === 'admin' ? 'role-admin' : 'role-member'}">
-                            ${member.role === 'admin' ? 'Admin' : 'Member'}
-                        </div>
-                        <div class="member-actions ${currentUser.role === 'admin' ? '' : 'd-none'}">
-                            <button class="btn btn-danger btn-sm delete-member" data-index="${index}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    `;
-                    teamList.appendChild(memberCard);
-                });
-                
-                // Add event listeners to delete buttons
-                document.querySelectorAll('.delete-member').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const index = this.getAttribute('data-index');
-                        showConfirmModal(
-                            'Delete Team Member',
-                            `Are you sure you want to remove ${teamMembers[index].email} from the team?`,
-                            () => deleteTeamMember(index)
-                        );
-                    });
-                });
+
+            // Update profile data
+            function updateProfileData(profileData) {
+                Object.assign(appData.currentUser, profileData);
+                updateProfileDisplay();
+                saveData();
+                showToast('Your profile has been updated');
+            }
+
+            // Update team data
+            function updateTeamData(teamData) {
+                appData.teamMembers = teamData;
+                saveData();
+                showToast('Team members updated');
+                checkUserRole(); // Re-check roles after update
+            }
+
+            // Load all saved data from localStorage
+            function loadSavedData() {
+                const savedData = localStorage.getItem('teamFlowData');
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    Object.assign(appData, parsedData);
+                    
+                    // Update theme if it exists in saved data
+                    if (parsedData.settings?.theme) {
+                        document.body.className = `${parsedData.settings.theme}-theme`;
+                    }
+                }
+                updateProfileDisplay();
+            }
+
+            // Save all data to localStorage
+            function saveData() {
+                localStorage.setItem('teamFlowData', JSON.stringify(appData));
+            }
+
+            // Update UI based on current data
+            function updateUserInterface() {
+                // Update user profile
+                document.getElementById('userName').textContent = `${appData.currentUser.firstName} ${appData.currentUser.lastName}`;
+                document.getElementById('welcomeName').textContent = appData.currentUser.firstName;
+                document.getElementById('userEmail').textContent = appData.currentUser.email;
                 
                 // Update stats
-                stats.teamMembers = teamMembers.length;
-                updateStats();
-                localStorage.setItem('teamMembers', JSON.stringify(teamMembers));
-            }
-            
-            // Delete team member
-            function deleteTeamMember(index) {
-                const removedMember = teamMembers.splice(index, 1)[0];
+                document.getElementById('teamMembersCount').textContent = appData.teamMembers.length;
+                document.getElementById('tasksCompleted').textContent = appData.currentUser.tasksCompleted;
+                document.getElementById('activeProjects').textContent = 5;
+                document.getElementById('upcomingDeadlines').textContent = 2;
+                
+                // Update avatar if exists
+                if (appData.currentUser.avatar) {
+                    updateAvatar(appData.currentUser.avatar);
+                }
+                
+                // Load activities and notifications
+                loadActivities();
+                loadNotifications();
                 loadTeamMembers();
                 
-                // Add activity
-                activities.unshift({
-                    icon: 'fa-trash',
-                    message: `Removed team member "${removedMember.email}"`,
-                    time: 'Just now'
+                // Update settings form values
+                if (appData.settings) {
+                    if (document.getElementById('languageSelect')) {
+                        document.getElementById('languageSelect').value = appData.settings.language || 'en';
+                    }
+                    if (document.getElementById('timezoneSelect')) {
+                        document.getElementById('timezoneSelect').value = appData.settings.timezone || 'UTC+2';
+                    }
+                    if (document.getElementById('dateFormatSelect')) {
+                        document.getElementById('dateFormatSelect').value = appData.settings.dateFormat || 'DD/MM/YYYY';
+                    }
+                    if (document.getElementById('themeSelect')) {
+                        document.getElementById('themeSelect').value = appData.settings.theme || 'blue';
+                    }
+                    if (document.getElementById('twoFactorAuth')) {
+                        document.getElementById('twoFactorAuth').checked = appData.settings.twoFactorEnabled || false;
+                    }
+                    if (document.getElementById('emailNotifications')) {
+                        document.getElementById('emailNotifications').checked = appData.settings.emailNotifications || true;
+                    }
+                    if (document.getElementById('pushNotifications')) {
+                        document.getElementById('pushNotifications').checked = appData.settings.pushNotifications || true;
+                    }
+                    if (document.getElementById('taskNotifications')) {
+                        document.getElementById('taskNotifications').checked = appData.settings.taskNotifications || true;
+                    }
+                    if (document.getElementById('deadlineReminders')) {
+                        document.getElementById('deadlineReminders').checked = appData.settings.deadlineReminders || true;
+                    }
+                    if (document.getElementById('densitySelect')) {
+                        document.getElementById('densitySelect').value = appData.settings.layoutDensity || 'normal';
+                    }
+                    if (document.getElementById('fontSizeSelect')) {
+                        document.getElementById('fontSizeSelect').value = appData.settings.fontSize || 'medium';
+                    }
+                }
+            }
+
+            // Update profile display
+            function updateProfileDisplay() {
+                const fullName = `${appData.currentUser.firstName} ${appData.currentUser.lastName}`;
+                
+                // Update all name displays
+                document.getElementById('userName').textContent = fullName;
+                document.getElementById('welcomeName').textContent = appData.currentUser.firstName;
+                
+                // Update profile form fields
+                if (document.getElementById('firstName')) {
+                    document.getElementById('firstName').value = appData.currentUser.firstName;
+                }
+                if (document.getElementById('lastName')) {
+                    document.getElementById('lastName').value = appData.currentUser.lastName;
+                }
+                if (document.getElementById('jobTitle')) {
+                    document.getElementById('jobTitle').value = appData.currentUser.jobTitle;
+                }
+                if (document.getElementById('email')) {
+                    document.getElementById('email').value = appData.currentUser.email;
+                }
+                if (document.getElementById('phone')) {
+                    document.getElementById('phone').value = appData.currentUser.phone;
+                }
+                if (document.getElementById('department')) {
+                    document.getElementById('department').value = appData.currentUser.department;
+                }
+            }
+
+            // Update avatar in all locations
+            function updateAvatar(avatarUrl) {
+                const avatarElements = [
+                    document.getElementById('userAvatar'),
+                    document.getElementById('profileAvatar'),
+                    document.getElementById('profileAvatarLarge')
+                ];
+                
+                avatarElements.forEach(el => {
+                    if (el) {
+                        el.style.backgroundImage = `url(${avatarUrl})`;
+                        el.textContent = '';
+                    }
                 });
                 
-                loadActivities();
-                hideConfirmModal();
-                localStorage.setItem('activities', JSON.stringify(activities));
+                // Update in data structure
+                appData.currentUser.avatar = avatarUrl;
+                saveData();
             }
-            
-            // Load activities
-            function loadActivities(showAll = false) {
+
+            // Load Team Members
+            function loadTeamMembers() {
+                const teamList = document.getElementById('teamList');
+                if (!teamList) return;
+                
+                teamList.innerHTML = '';
+                
+                appData.teamMembers.forEach(member => {
+                    const div = document.createElement('div');
+                    div.className = 'team-member-card';
+                    div.innerHTML = `
+                        <div class="member-avatar">${member.name.charAt(0)}</div>
+                        <div class="member-details">
+                            <div class="member-name">${member.name}</div>
+                            <div class="member-email">${member.email}</div>
+                            <span class="member-role role-${member.role}">
+                                ${roleTitles[member.role] || member.role}
+                            </span>
+                        </div>
+                        <div class="member-actions admin-only">
+                            <button class="btn btn-outline edit-member" data-id="${member.id}" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Edit</button>
+                            <button class="btn btn-danger remove-member" data-id="${member.id}" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Remove</button>
+                        </div>
+                    `;
+                    teamList.appendChild(div);
+                });
+
+                // Add event listeners for edit and remove buttons
+                document.querySelectorAll('.edit-member').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const memberId = parseInt(this.dataset.id);
+                        const member = appData.teamMembers.find(m => m.id === memberId);
+                        if (member) {
+                            showEditMemberModal(member);
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.remove-member').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const memberId = parseInt(this.dataset.id);
+                        const memberIndex = appData.teamMembers.findIndex(m => m.id === memberId);
+                        if (memberIndex !== -1) {
+                            appData.teamMembers.splice(memberIndex, 1);
+                            loadTeamMembers();
+                            saveData();
+                            showToast('Team member removed');
+                        }
+                    });
+                });
+            }
+
+            // Show edit member modal
+            function showEditMemberModal(member) {
+                const previewContent = document.getElementById('previewContent');
+                previewContent.innerHTML = `
+                    <h4>Edit Team Member</h4>
+                    <form id="editMemberForm">
+                        <div class="form-group">
+                            <label for="editMemberName">Full Name</label>
+                            <input type="text" id="editMemberName" class="form-control" value="${member.name}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editMemberEmail">Email</label>
+                            <input type="email" id="editMemberEmail" class="form-control" value="${member.email}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editMemberRole">Role</label>
+                            <select id="editMemberRole" class="form-control" required>
+                                <option value="member" ${member.role === 'member' ? 'selected' : ''}>Member</option>
+                                <option value="supervisor" ${member.role === 'supervisor' ? 'selected' : ''}>Supervisor</option>
+                                <option value="admin" ${member.role === 'admin' ? 'selected' : ''}>Admin</option>
+                            </select>
+                        </div>
+                    </form>
+                `;
+                
+                // Set up confirm button
+                confirmPreviewBtn.onclick = function() {
+                    const name = document.getElementById('editMemberName').value;
+                    const email = document.getElementById('editMemberEmail').value;
+                    const role = document.getElementById('editMemberRole').value;
+                    
+                    member.name = name;
+                    member.email = email;
+                    member.role = role;
+                    
+                    loadTeamMembers();
+                    saveData();
+                    showToast('Team member updated successfully');
+                    previewModal.style.display = 'none';
+                };
+                
+                previewModal.style.display = 'flex';
+            }
+
+            // Format time difference
+            function formatTimeDifference(timestamp, now = Date.now()) {
+                const diff = now - timestamp;
+                const minutes = Math.floor(diff / 60000);
+                const hours = Math.floor(minutes / 60);
+                const days = Math.floor(hours / 24);
+
+                if (minutes < 1) return 'just now';
+                if (minutes < 60) return `${minutes} min${minutes === 1 ? '' : 's'} ago`;
+                if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+                return `${days} day${days === 1 ? '' : 's'} ago`;
+            }
+
+            // Load Activities
+            function loadActivities() {
                 activityList.innerHTML = '';
-                
-                const activitiesToShow = showAll ? activities : activities.slice(0, 2);
-                
-                activitiesToShow.forEach((activity, index) => {
+                appData.activities.forEach((activity, index) => {
                     const li = document.createElement('li');
                     li.className = 'activity-item';
                     li.innerHTML = `
@@ -1919,413 +2750,511 @@
                             <i class="fas ${activity.icon}"></i>
                         </div>
                         <div class="activity-content">
-                            <div class="activity-message">${activity.message}</div>
-                            <div class="activity-time">${activity.time}</div>
+                            <div class="activity-message">
+                                <span class="activity-user">${activity.user}</span> ${activity.message}
+                            </div>
+                            <div class="activity-time">${formatTimeDifference(activity.timestamp)}</div>
                         </div>
-                        <div class="activity-actions ${currentUser.role === 'admin' ? '' : 'd-none'}">
+                        <div class="activity-actions">
                             <i class="fas fa-trash delete-activity" data-index="${index}"></i>
                         </div>
                     `;
                     activityList.appendChild(li);
                 });
-                
-                // Add event listeners to delete buttons
+
+                // Delete Activity
                 document.querySelectorAll('.delete-activity').forEach(button => {
                     button.addEventListener('click', function() {
-                        const index = this.getAttribute('data-index');
-                        showConfirmModal(
-                            'Delete Activity',
-                            'Are you sure you want to delete this activity?',
-                            () => deleteActivity(index)
-                        );
-                    });
-                });
-                
-                localStorage.setItem('activities', JSON.stringify(activities));
-            }
-            
-            // Delete activity
-            function deleteActivity(index) {
-                activities.splice(index, 1);
-                loadActivities(viewAllActivity.style.display === 'none');
-                hideConfirmModal();
-                localStorage.setItem('activities', JSON.stringify(activities));
-            }
-            
-            // Delete all activities
-            function deleteAllActivities() {
-                showConfirmModal(
-                    'Delete All Activities',
-                    'Are you sure you want to delete all activities? This action cannot be undone.',
-                    () => {
-                        activities = [];
+                        const index = this.dataset.index;
+                        appData.activities.splice(index, 1);
                         loadActivities();
-                        viewAllActivity.style.display = 'block';
-                        hideConfirmModal();
-                        localStorage.setItem('activities', JSON.stringify(activities));
+                        saveData();
+                        showToast('Activity removed');
+                    });
+                });
+            }
+
+            // Load Notifications
+            function loadNotifications() {
+                notificationsList.innerHTML = '';
+                notificationDropdownContent.innerHTML = '';
+                const unreadCount = appData.notifications.filter(n => !n.read).length;
+                
+                // Update notification badge
+                const badge = document.querySelector('.notification-badge');
+                if (badge) {
+                    badge.textContent = unreadCount;
+                    notificationIcon.classList.toggle('has-notifications', unreadCount > 0);
+                }
+                
+                appData.notifications.forEach((notification, index) => {
+                    // For modal
+                    const div = document.createElement('div');
+                    div.className = 'notification-item';
+                    if (!notification.read) {
+                        div.classList.add('realtime-update');
                     }
-                );
+                    div.innerHTML = `
+                        <div class="notification-content">
+                            <div class="notification-message">${notification.message}</div>
+                            <div class="notification-time">${formatTimeDifference(notification.timestamp)}</div>
+                        </div>
+                        <div class="notification-actions">
+                            <i class="fas fa-trash delete-notification" data-index="${index}"></i>
+                        </div>
+                    `;
+                    notificationsList.appendChild(div);
+                    
+                    // For dropdown
+                    const dropdownItem = document.createElement('div');
+                    dropdownItem.className = 'notification-item';
+                    if (!notification.read) {
+                        dropdownItem.classList.add('unread');
+                    }
+                    dropdownItem.innerHTML = `
+                        <div class="notification-content">
+                            <div class="notification-message">${notification.message}</div>
+                            <div class="notification-time">${formatTimeDifference(notification.timestamp)}</div>
+                        </div>
+                    `;
+                    notificationDropdownContent.appendChild(dropdownItem);
+                });
+
+                // Delete Notification
+                document.querySelectorAll('.delete-notification').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const index = this.dataset.index;
+                        appData.notifications.splice(index, 1);
+                        loadNotifications();
+                        saveData();
+                        showToast('Notification removed');
+                    });
+                });
             }
-            
-            // Show confirm modal
-            function showConfirmModal(title, message, callback) {
-                document.querySelector('.confirm-title').textContent = title;
-                confirmMessage.textContent = message;
-                confirmModal.style.display = 'flex';
-                
-                confirmBtn.onclick = function() {
-                    callback();
-                };
-            }
-            
-            // Hide confirm modal
-            function hideConfirmModal() {
-                confirmModal.style.display = 'none';
-            }
-            
-            // Set active feature
-            function setActiveFeature(feature) {
-                // Hide all content sections
-                dashboardContent.style.display = 'none';
-                profileContent.style.display = 'none';
-                settingsContent.style.display = 'none';
-                featureSections.style.display = 'none';
-                
-                // Remove active class from all menu items
-                menuItems.forEach(item => item.classList.remove('active'));
-                
-                // Show the selected content
-                if (feature === 'dashboard') {
-                    dashboardContent.style.display = 'block';
-                    document.querySelector('[data-feature="dashboard"]').classList.add('active');
-                } else if (feature === 'profile') {
-                    profileContent.style.display = 'block';
-                } else if (feature === 'settings') {
-                    settingsContent.style.display = 'block';
-                } else {
-                    // For other features, we would load their content
-                    featureSections.style.display = 'block';
-                    document.querySelector(`[data-feature="${feature}"]`).classList.add('active');
-                    featureSections.innerHTML = `<h2>${feature.replace('-', ' ')} Feature</h2><p>This is the ${feature.replace('-', ' ')} feature content.</p>`;
+
+            // Show Toast Notification
+            function showToast(message) {
+                const toast = document.getElementById('toastNotification');
+                if (toast) {
+                    document.getElementById('toastMessage').textContent = message;
+                    toast.classList.add('show');
+                    
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                    }, 3000);
                 }
             }
-            
-            // Handle menu item clicks
-            menuItems.forEach(item => {
-                item.addEventListener('click', function(e) {
+
+            // Real-time updates
+            function startRealTimeUpdates() {
+                // Update activity timestamps every minute
+                updateActivityTimes();
+                setInterval(updateActivityTimes, 60000);
+            }
+
+            // Update activity times
+            function updateActivityTimes() {
+                const now = Date.now();
+                document.querySelectorAll('.activity-time').forEach((el, index) => {
+                    if (appData.activities[index]) {
+                        el.textContent = formatTimeDifference(appData.activities[index].timestamp, now);
+                    }
+                });
+            }
+
+            // Setup all event listeners
+            function setupEventListeners() {
+                // File Sharing Right Sidebar
+                fileSharingLink.addEventListener('click', function(e) {
                     e.preventDefault();
-                    const feature = this.getAttribute('data-feature');
-                    setActiveFeature(feature);
-                });
-            });
-            
-            // Search functionality
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                if (searchTerm.length > 2) {
-                    console.log(`Searching for: ${searchTerm}`);
-                    // In a real app, you would make an API call to search
-                }
-            });
-            
-            // Notifications
-            notificationIcon.addEventListener('click', function() {
-                notificationsModal.style.display = 'flex';
-                document.querySelector('.notification-badge').style.display = 'none';
-            });
-            
-            closeNotifications.addEventListener('click', function() {
-                notificationsModal.style.display = 'none';
-            });
-            
-            markAllReadBtn.addEventListener('click', function() {
-                document.querySelectorAll('.notification-item.unread').forEach(item => {
-                    item.classList.remove('unread');
-                });
-            });
-            
-            // View all activity
-            viewAllActivity.addEventListener('click', function() {
-                loadActivities(true);
-                this.style.display = 'none';
-            });
-            
-            // Delete all activities
-            deleteAllActivity.addEventListener('click', deleteAllActivities);
-            
-            // User dropdown
-            userAvatar.addEventListener('click', function() {
-                userDropdown.classList.toggle('active');
-            });
-            
-            userName.addEventListener('click', function() {
-                userDropdown.classList.toggle('active');
-            });
-            
-            // Profile link
-            profileLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                userDropdown.classList.remove('active');
-                setActiveFeature('profile');
-            });
-            
-            // Settings link
-            settingsLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                userDropdown.classList.remove('active');
-                setActiveFeature('settings');
-            });
-            
-            // Logout link
-            logoutLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                // Clear session
-                sessionStorage.removeItem('loggedInUser');
-                // Redirect to login
-                window.location.href = 'login.html';
-            });
-            
-            // Profile form
-            profileForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                // Save profile changes
-                currentUser.name = `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`;
-                currentUser.title = document.getElementById('jobTitle').value;
-                currentUser.phone = document.getElementById('phone').value;
-                currentUser.department = document.getElementById('department').value;
-                
-                // Update localStorage
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                // Update UI
-                updateUserUI();
-                
-                // Add activity
-                activities.unshift({
-                    icon: 'fa-user-edit',
-                    message: 'Updated profile information',
-                    time: 'Just now'
+                    rightSidebar.classList.add('active');
                 });
                 
-                // Go back to dashboard
-                setActiveFeature('dashboard');
-            });
-            
-            cancelProfileBtn.addEventListener('click', function() {
-                // Go back to dashboard
-                setActiveFeature('dashboard');
-            });
-            
-            // Avatar upload
-            avatarUploadBtn.addEventListener('click', function() {
-                profileAvatarInput.click();
-            });
-            
-            profileAvatarInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        currentUser.avatar = event.target.result;
-                        // Update localStorage
-                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                        updateUserUI();
-                        
-                        // Add activity
-                        activities.unshift({
-                            icon: 'fa-camera',
-                            message: 'Changed profile picture',
-                            time: 'Just now'
-                        });
-                        localStorage.setItem('activities', JSON.stringify(activities));
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-            
-            // Settings tabs
-            settingsTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
+                closeRightSidebar.addEventListener('click', function() {
+                    rightSidebar.classList.remove('active');
+                });
+                
+                fileUploadArea.addEventListener('click', function() {
+                    fileInput.click();
+                });
+                
+                fileInput.addEventListener('change', function(e) {
+                    if (e.target.files && e.target.files.length > 0) {
+                        showToast(`${e.target.files.length} file(s) selected for upload`);
+                        // In a real app, you would handle the file upload here
+                    }
+                });
+                
+                // Toggle user dropdown
+                document.getElementById('userAvatar').addEventListener('click', function() {
+                    userDropdown.classList.toggle('active');
+                });
+                
+                document.getElementById('userName').addEventListener('click', function() {
+                    userDropdown.classList.toggle('active');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.user-profile')) {
+                        userDropdown.classList.remove('active');
+                    }
                     
-                    // Remove active class from all tabs
-                    settingsTabs.forEach(t => t.classList.remove('active'));
-                    // Add active class to clicked tab
-                    this.classList.add('active');
+                    if (!e.target.closest('.notification-icon')) {
+                        notificationDropdown.classList.remove('active');
+                    }
+                });
+                
+                // Notifications
+                notificationIcon.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    notificationDropdown.classList.toggle('active');
+                });
+                
+                notificationClose.addEventListener('click', function() {
+                    notificationDropdown.classList.remove('active');
+                });
+                
+                // Notifications modal
+                notificationIcon.addEventListener('dblclick', function() {
+                    notificationsModal.style.display = 'flex';
                     
-                    // Hide all panels
-                    settingsPanels.forEach(panel => panel.classList.remove('active'));
-                    // Show selected panel
-                    document.getElementById(`${tabId}Panel`).classList.add('active');
+                    // Mark all notifications as read when opening
+                    appData.notifications.forEach(n => n.read = true);
+                    loadNotifications();
+                    saveData();
                 });
-            });
-            
-            // Account settings form
-            accountForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const language = document.getElementById('language').value;
-                const timezone = document.getElementById('timezone').value;
-                const dateFormat = document.getElementById('dateFormat').value;
                 
-                // Apply language change immediately
-                if (language === 'ar') {
-                    document.documentElement.lang = 'ar';
-                    document.documentElement.dir = 'rtl';
-                } else {
-                    document.documentElement.lang = 'en';
-                    document.documentElement.dir = 'ltr';
-                }
-                
-                // Show success message
-                alert('Account settings saved successfully!');
-                
-                // Add activity if language changed to Arabic
-                if (language === 'ar') {
-                    activities.unshift({
-                        icon: 'fa-language',
-                        message: 'Changed language to Arabic',
-                        time: 'Just now'
-                    });
-                    loadActivities();
-                }
-            });
-            
-            // Security settings form
-            securityForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const currentPassword = document.getElementById('currentPassword').value;
-                const newPassword = document.getElementById('newPassword').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-                
-                // Validate current password
-                if (currentPassword !== currentUser.password) {
-                    alert('Current password is incorrect');
-                    return;
-                }
-                
-                // Validate new password
-                if (newPassword !== confirmPassword) {
-                    alert('New passwords do not match');
-                    return;
-                }
-                
-                // Update password
-                currentUser.password = newPassword;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                // Show success message
-                alert('Security settings saved successfully!');
-                
-                // Add activity if password changed
-                if (newPassword) {
-                    activities.unshift({
-                        icon: 'fa-lock',
-                        message: 'Changed password',
-                        time: 'Just now'
-                    });
-                    loadActivities();
-                }
-                
-                // Reset form
-                this.reset();
-            });
-            
-            // Notifications settings form
-            notificationsForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const emailTasks = document.getElementById('emailTasks').checked;
-                const emailDeadlines = document.getElementById('emailDeadlines').checked;
-                const emailUpdates = document.getElementById('emailUpdates').checked;
-                const pushMessages = document.getElementById('pushMessages').checked;
-                const pushTeamUpdates = document.getElementById('pushTeamUpdates').checked;
-                
-                // Show success message
-                alert('Notifications settings saved successfully!');
-            });
-            
-            // Preferences settings form
-            preferencesForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const layoutDensity = document.getElementById('layoutDensity').value;
-                
-                // Show success message
-                alert('Preferences settings saved successfully!');
-            });
-            
-            // Theme selection
-            themeOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    const theme = this.getAttribute('data-theme');
-                    document.body.className = `${theme}-theme`;
-                    document.getElementById('selectedTheme').value = theme;
-                    
-                    // Add activity
-                    activities.unshift({
-                        icon: 'fa-palette',
-                        message: `Changed theme to ${theme}`,
-                        time: 'Just now'
-                    });
-                    loadActivities();
-                });
-            });
-            
-            // Add team member
-            addMemberForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const email = document.getElementById('memberEmail').value;
-                const role = document.getElementById('memberRole').value;
-                
-                // Check if email already exists
-                if (teamMembers.some(member => member.email === email)) {
-                    alert('This email is already a team member');
-                    return;
-                }
-                
-                // Create new member
-                const newMember = {
-                    email: email,
-                    role,
-                    initials: email.split('@')[0].substring(0, 2).toUpperCase()
-                };
-                
-                // Add to team
-                teamMembers.push(newMember);
-                loadTeamMembers();
-                
-                // Add activity
-                activities.unshift({
-                    icon: 'fa-user-plus',
-                    message: `Added new ${role}: ${newMember.email}`,
-                    time: 'Just now'
-                });
-                loadActivities();
-                
-                // Reset form
-                this.reset();
-                
-                // In a real app, you would send an invitation email here
-                alert(`Invitation sent to ${email}`);
-            });
-            
-            // Confirm modal actions
-            cancelConfirmBtn.addEventListener('click', hideConfirmModal);
-            
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.user-profile') && !e.target.closest('.user-dropdown')) {
-                    userDropdown.classList.remove('active');
-                }
-                
-                if (e.target === notificationsModal) {
+                closeNotifications.addEventListener('click', function() {
                     notificationsModal.style.display = 'none';
+                });
+                
+                // Close notifications when clicking outside
+                notificationsModal.addEventListener('click', function(e) {
+                    if (e.target === notificationsModal) {
+                        notificationsModal.style.display = 'none';
+                    }
+                });
+                
+                // Delete all notifications
+                deleteAllNotificationsBtn.addEventListener('click', function() {
+                    appData.notifications = [];
+                    loadNotifications();
+                    saveData();
+                    showToast('All notifications deleted');
+                });
+                
+                // Delete all activity
+                deleteAllActivity.addEventListener('click', function() {
+                    appData.activities = [];
+                    loadActivities();
+                    saveData();
+                    showToast('All activities cleared');
+                });
+
+                // Search functionality
+                searchInput.addEventListener('input', function() {
+                    const query = this.value.toLowerCase();
+                    if (query.length > 1) {
+                        searchResults.style.display = 'block';
+                        
+                        // Filter search data
+                        const results = appData.searchData.filter(item => 
+                            item.name.toLowerCase().includes(query)
+                        ).slice(0, 8);
+                        
+                        // Display results with icons based on type
+                        searchResults.innerHTML = results.map(item => {
+                            let icon, typeClass;
+                            switch(item.type) {
+                                case 'employee':
+                                    icon = 'fa-user';
+                                    typeClass = 'employee';
+                                    break;
+                                case 'project':
+                                    icon = 'fa-project-diagram';
+                                    typeClass = 'project';
+                                    break;
+                                case 'task':
+                                    icon = 'fa-tasks';
+                                    typeClass = 'task';
+                                    break;
+                                case 'file':
+                                    icon = 'fa-file';
+                                    typeClass = 'file';
+                                    break;
+                                default:
+                                    icon = 'fa-search';
+                            }
+                            
+                            return `
+                                <div class="search-result-item" data-type="${item.type}" data-name="${item.name}">
+                                    <i class="fas ${icon}"></i>
+                                    <span>${item.name}</span>
+                                    <span class="result-type">${item.type}</span>
+                                </div>
+                            `;
+                        }).join('');
+                        
+                        // Add click event to search results
+                        document.querySelectorAll('.search-result-item').forEach(item => {
+                            item.addEventListener('click', function() {
+                                const type = this.getAttribute('data-type');
+                                const name = this.getAttribute('data-name');
+                                
+                                // In a real app, you would navigate to the appropriate section
+                                showToast(`Selected ${type}: ${name}`);
+                                searchResults.style.display = 'none';
+                                searchInput.value = '';
+                            });
+                        });
+                    } else {
+                        searchResults.style.display = 'none';
+                    }
+                });
+
+                // Close search results when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.search-bar')) {
+                        searchResults.style.display = 'none';
+                    }
+                });
+
+                // Profile link functionality
+                profileLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showPage('profile');
+                    userDropdown.classList.remove('active');
+                });
+
+                profileLinkSidebar.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showPage('profile');
+                });
+
+                // Back to dashboard from profile
+                backToDashboardFromProfile.addEventListener('click', function() {
+                    showPage('dashboard');
+                });
+
+                // Back to dashboard from settings
+                backToDashboardFromSettings.addEventListener('click', function() {
+                    showPage('dashboard');
+                });
+
+                // Settings link functionality
+                document.querySelector('[data-feature="settings"]').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showPage('settings');
+                });
+
+                // Feature links functionality
+                document.querySelectorAll('[data-feature]').forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        const feature = this.dataset.feature;
+                        if (feature !== 'dashboard' && feature !== 'profile' && feature !== 'settings') {
+                            e.preventDefault();
+                            showPage(feature);
+                        }
+                    });
+                });
+
+                // Logout Functionality
+                logoutLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // In a real app, you would handle logout properly
+                    window.location.href = "login.html";
+                });
+
+                // Settings Tab Functionality
+                const tabs = document.querySelectorAll('.settings-tab');
+                const settingsPanels = document.querySelectorAll('.settings-panel');
+
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        // Remove active class from all tabs
+                        tabs.forEach(t => t.classList.remove('active'));
+                        // Hide all settings panels
+                        settingsPanels.forEach(p => p.classList.remove('active'));
+                        // Add active class to the clicked tab
+                        this.classList.add('active');
+
+                        // Show the corresponding panel
+                        const tabName = this.getAttribute('data-tab');
+                        document.getElementById(tabName + 'Panel').classList.add('active');
+                    });
+                });
+
+                // Profile picture upload
+                profileAvatarInput.addEventListener('change', function(e) {
+                    if (e.target.files && e.target.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            updateAvatar(event.target.result);
+                            showToast('Profile picture updated successfully');
+                        };
+                        reader.readAsDataURL(e.target.files[0]);
+                    }
+                });
+
+                // Theme selection
+                themeSelect.addEventListener('change', function() {
+                    // Show preview of theme change
+                    const previewContent = document.getElementById('previewContent');
+                    previewContent.innerHTML = `
+                        <h4>Theme Preview</h4>
+                        <p>You are about to change the theme to <strong>${this.value}</strong>.</p>
+                        <p>Would you like to proceed with this change?</p>
+                    `;
+                    
+                    // Set up confirm button
+                    confirmPreviewBtn.onclick = function() {
+                        document.body.className = `${themeSelect.value}-theme`;
+                        appData.settings.theme = themeSelect.value;
+                        saveData();
+                        showToast('Theme changed successfully');
+                        previewModal.style.display = 'none';
+                    };
+                    
+                    previewModal.style.display = 'flex';
+                });
+
+                // Close preview modal
+                closePreview.addEventListener('click', function() {
+                    previewModal.style.display = 'none';
+                });
+
+                cancelPreviewBtn.addEventListener('click', function() {
+                    previewModal.style.display = 'none';
+                    // Reset theme select to current theme
+                    themeSelect.value = appData.settings.theme || 'blue';
+                });
+
+                // Add Member Form
+                document.getElementById('addMemberForm')?.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const name = document.getElementById('memberName').value;
+                    const email = document.getElementById('memberEmail').value;
+                    const role = document.getElementById('memberRole').value;
+                    
+                    const newMember = {
+                        id: appData.teamMembers.length + 1,
+                        name,
+                        email,
+                        role
+                    };
+                    
+                    appData.teamMembers.push(newMember);
+                    loadTeamMembers();
+                    this.reset();
+                    saveData();
+                    showToast('Team member added successfully');
+                    
+                    // Simulate WebSocket update
+                    handleWebSocketMessage({
+                        type: "team_update",
+                        data: appData.teamMembers
+                    });
+                });
+
+                // Profile form submission
+                document.getElementById('profileForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // Update user data
+                    appData.currentUser.firstName = document.getElementById('firstName').value;
+                    appData.currentUser.lastName = document.getElementById('lastName').value;
+                    appData.currentUser.jobTitle = document.getElementById('jobTitle').value;
+                    appData.currentUser.phone = document.getElementById('phone').value;
+                    appData.currentUser.department = document.getElementById('department').value;
+                    
+                    // Update UI
+                    updateProfileDisplay();
+                    saveData();
+                    showToast('Profile updated successfully');
+                    
+                    // Simulate WebSocket update
+                    handleWebSocketMessage({
+                        type: "profile_update",
+                        data: appData.currentUser
+                    });
+                });
+
+                // Password form submission
+                document.getElementById('passwordForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // In a real app, you would validate and update the password
+                    showToast('Password updated successfully');
+                    this.reset();
+                });
+
+                // Cancel password changes
+                document.getElementById('cancelPasswordBtn').addEventListener('click', function() {
+                    document.getElementById('passwordForm').reset();
+                });
+
+                // Cancel profile changes
+                document.getElementById('cancelProfileBtn').addEventListener('click', function() {
+                    showPage('dashboard');
+                });
+
+                // Settings form changes
+                document.querySelectorAll('#languageSelect, #timezoneSelect, #dateFormatSelect, #densitySelect, #fontSizeSelect').forEach(select => {
+                    select.addEventListener('change', function() {
+                        appData.settings[this.id.replace('Select', '')] = this.value;
+                        saveData();
+                        showToast('Settings saved successfully');
+                    });
+                });
+
+                document.querySelectorAll('#twoFactorAuth, #emailNotifications, #pushNotifications, #taskNotifications, #deadlineReminders').forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        appData.settings[this.id] = this.checked;
+                        saveData();
+                        showToast('Settings saved successfully');
+                    });
+                });
+
+                // Back buttons for feature pages
+                document.querySelectorAll('[id^="backToDashboardFrom"]').forEach(button => {
+                    button.addEventListener('click', function() {
+                        showPage('dashboard');
+                    });
+                });
+            }
+
+            // Show a specific page
+            function showPage(page) {
+                // Hide all pages
+                document.querySelectorAll('.feature-page, #dashboardContent, #profileContent, #settingsContent').forEach(el => {
+                    el.classList.remove('active');
+                });
+                
+                // Show the requested page
+                if (page === 'dashboard') {
+                    dashboardContent.classList.add('active');
+                } else if (page === 'profile') {
+                    profileContent.classList.add('active');
+                } else if (page === 'settings') {
+                    settingsContent.classList.add('active');
+                } else {
+                    const pageElement = document.getElementById(`${page}-page`);
+                    if (pageElement) {
+                        pageElement.classList.add('active');
+                    } else {
+                        dashboardContent.classList.add('active');
+                    }
                 }
                 
-                if (e.target === confirmModal) {
-                    hideConfirmModal();
-                }
-            });
-            
-            // Initialize the dashboard
+                // Update active menu item
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.feature === page) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+
+            // Initialize the dashboard when DOM is loaded
             initDashboard();
         });
     </script>
