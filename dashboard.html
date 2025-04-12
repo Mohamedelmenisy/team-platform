@@ -1698,6 +1698,9 @@
                 // Update activity timestamps every minute
                 updateActivityTimes();
                 setInterval(updateActivityTimes, 60000);
+                
+                // Simulate real-time updates with WebSocket
+                simulateWebSocketUpdates();
             }
 
             // Enhanced activity time updates
@@ -1708,6 +1711,70 @@
                         el.textContent = formatTimeDifference(appData.activities[index].timestamp, now);
                     }
                 });
+            }
+
+            // Simulate WebSocket for real-time updates
+            function simulateWebSocketUpdates() {
+                // Simulate new activity every 30-60 seconds
+                setInterval(() => {
+                    const users = ["Mohamed Elmenisy", "Ahmed Mohamed", "Fatima Ali", "Omar Hassan", "Layla Ibrahim"];
+                    const actions = [
+                        { message: "completed a task", icon: "fa-check-circle" },
+                        { message: "uploaded a new file", icon: "fa-file-upload" },
+                        { message: "commented on a project", icon: "fa-comment" },
+                        { message: "started a new task", icon: "fa-play-circle" },
+                        { message: "updated project status", icon: "fa-sync-alt" }
+                    ];
+                    
+                    const randomUser = users[Math.floor(Math.random() * users.length)];
+                    const randomAction = actions[Math.floor(Math.random() * actions.length)];
+                    
+                    const newActivity = {
+                        user: randomUser,
+                        message: randomAction.message,
+                        icon: randomAction.icon,
+                        timestamp: Date.now()
+                    };
+                    
+                    appData.activities.unshift(newActivity);
+                    
+                    // Keep only the last 10 activities
+                    if (appData.activities.length > 10) {
+                        appData.activities.pop();
+                    }
+                    
+                    loadActivities();
+                    saveData();
+                    
+                }, 30000 + Math.random() * 30000);
+                
+                // Simulate new notification every 1-2 minutes
+                setInterval(() => {
+                    const messages = [
+                        "New task assigned to you: Review project documentation",
+                        "Team meeting reminder in 15 minutes",
+                        "Deadline approaching: Client presentation tomorrow",
+                        "New comment on your task: Please review the changes",
+                        "System update scheduled for tonight at 11 PM"
+                    ];
+                    
+                    const newNotification = {
+                        message: messages[Math.floor(Math.random() * messages.length)],
+                        timestamp: Date.now(),
+                        read: false
+                    };
+                    
+                    appData.notifications.unshift(newNotification);
+                    
+                    // Keep only the last 5 notifications
+                    if (appData.notifications.length > 5) {
+                        appData.notifications.pop();
+                    }
+                    
+                    loadNotifications();
+                    saveData();
+                    
+                }, 60000 + Math.random() * 60000);
             }
 
             // Initialize the dashboard when DOM is loaded
