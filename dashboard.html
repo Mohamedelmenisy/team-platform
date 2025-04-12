@@ -1135,6 +1135,52 @@
         .has-notifications .notification-badge {
             display: flex; /* Only show when notifications exist */
         }
+
+        /* Real-time update indicator */
+        .realtime-update {
+            animation: highlightUpdate 1.5s ease-out;
+        }
+
+        @keyframes highlightUpdate {
+            0% { background-color: rgba(16, 185, 129, 0.2); }
+            100% { background-color: transparent; }
+        }
+
+        /* WebSocket connection status */
+        .connection-status {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            z-index: 1000;
+        }
+
+        .connection-connected {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .connection-disconnected {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="blue-theme">
@@ -1324,7 +1370,7 @@
                 <!-- Activity Section -->
                 <div class="activity-section">
                     <div class="section-header">
-                        <h3 class="section-title">Recent Activity</h3>
+                        <h3 class="section-title">Recent Activity <span class="realtime-badge">LIVE</span></h3>
                         <div>
                             <span class="view-all" id="viewAllActivity">Show All</span>
                             <span class="delete-all" id="deleteAllActivity">Delete All</span>
@@ -1359,6 +1405,11 @@
     <div class="toast" id="toastNotification">
         <i class="fas fa-check-circle"></i>
         <span id="toastMessage">Settings saved successfully!</span>
+    </div>
+
+    <!-- WebSocket Connection Status -->
+    <div class="connection-status connection-connected" id="connectionStatus">
+        <i class="fas fa-circle"></i> Connected
     </div>
 
     <script>
@@ -1466,6 +1517,7 @@
             const searchResults = document.getElementById('searchResults');
             const userAvatar = document.getElementById('userAvatar');
             const profileAvatarLarge = document.getElementById('profileAvatarLarge');
+            const connectionStatus = document.getElementById('connectionStatus');
 
             // Role title mapping
             const roleTitles = {
@@ -1474,12 +1526,216 @@
                 member: "Team Member"
             };
 
+            // WebSocket connection
+            let socket;
+            let reconnectAttempts = 0;
+            const maxReconnectAttempts = 5;
+            const reconnectDelay = 3000; // 3 seconds
+
             // Initialize the dashboard
             function initDashboard() {
                 loadSavedData();
                 updateUserInterface();
                 setupEventListeners();
                 startRealTimeUpdates();
+                initWebSocket();
+            }
+
+            // Initialize WebSocket connection
+            function initWebSocket() {
+                // In a real app, you would connect to your actual WebSocket server
+                // For this demo, we'll simulate the connection
+                console.log("Connecting to WebSocket server...");
+                
+                // Simulate connection (in real app, use new WebSocket('wss://your-server.com'))
+                simulateWebSocketConnection();
+            }
+
+            // Simulate WebSocket connection and events
+            function simulateWebSocketConnection() {
+                updateConnectionStatus(true);
+                
+                // Simulate receiving messages from server
+                setInterval(() => {
+                    if (Math.random() > 0.7) { // 30% chance of getting a new notification
+                        const messages = [
+                            "New task assigned to you: Review project documentation",
+                            "Team meeting reminder in 15 minutes",
+                            "Deadline approaching: Client presentation tomorrow",
+                            "New comment on your task: Please review the changes",
+                            "System update scheduled for tonight at 11 PM"
+                        ];
+                        
+                        const newNotification = {
+                            message: messages[Math.floor(Math.random() * messages.length)],
+                            timestamp: Date.now(),
+                            read: false
+                        };
+                        
+                        // Simulate receiving WebSocket message
+                        handleWebSocketMessage({
+                            type: "notification",
+                            data: newNotification
+                        });
+                    }
+                    
+                    if (Math.random() > 0.7) { // 30% chance of getting a new activity
+                        const users = ["Mohamed Elmenisy", "Ahmed Mohamed", "Fatima Ali", "Omar Hassan", "Layla Ibrahim"];
+                        const actions = [
+                            { message: "completed a task", icon: "fa-check-circle" },
+                            { message: "uploaded a new file", icon: "fa-file-upload" },
+                            { message: "commented on a project", icon: "fa-comment" },
+                            { message: "started a new task", icon: "fa-play-circle" },
+                            { message: "updated project status", icon: "fa-sync-alt" }
+                        ];
+                        
+                        const randomUser = users[Math.floor(Math.random() * users.length)];
+                        const randomAction = actions[Math.floor(Math.random() * actions.length)];
+                        
+                        const newActivity = {
+                            user: randomUser,
+                            message: randomAction.message,
+                            icon: randomAction.icon,
+                            timestamp: Date.now()
+                        };
+                        
+                        // Simulate receiving WebSocket message
+                        handleWebSocketMessage({
+                            type: "activity",
+                            data: newActivity
+                        });
+                    }
+                    
+                    if (Math.random() > 0.8) { // 20% chance of stats update
+                        // Simulate receiving WebSocket message
+                        handleWebSocketMessage({
+                            type: "stats",
+                            data: {
+                                teamMembers: Math.floor(Math.random() * 10) + 1,
+                                tasksCompleted: Math.floor(Math.random() * 20) + 5,
+                                activeProjects: Math.floor(Math.random() * 8) + 1,
+                                upcomingDeadlines: Math.floor(Math.random() * 5)
+                            }
+                        });
+                    }
+                }, 10000); // Check every 10 seconds
+            }
+
+            // Handle WebSocket messages
+            function handleWebSocketMessage(message) {
+                switch(message.type) {
+                    case "notification":
+                        addNotification(message.data);
+                        break;
+                    case "activity":
+                        addActivity(message.data);
+                        break;
+                    case "stats":
+                        updateStats(message.data);
+                        break;
+                    case "profile_update":
+                        updateProfileData(message.data);
+                        break;
+                    case "team_update":
+                        updateTeamData(message.data);
+                        break;
+                }
+            }
+
+            // Update connection status UI
+            function updateConnectionStatus(connected) {
+                if (connected) {
+                    connectionStatus.className = "connection-status connection-connected";
+                    connectionStatus.innerHTML = '<i class="fas fa-circle"></i> Connected';
+                } else {
+                    connectionStatus.className = "connection-status connection-disconnected";
+                    connectionStatus.innerHTML = '<i class="fas fa-circle"></i> Disconnected - Reconnecting...';
+                }
+            }
+
+            // Add new notification
+            function addNotification(notification) {
+                appData.notifications.unshift(notification);
+                
+                // Keep only the last 5 notifications
+                if (appData.notifications.length > 5) {
+                    appData.notifications.pop();
+                }
+                
+                loadNotifications();
+                saveData();
+                
+                // Show notification badge
+                const unreadCount = appData.notifications.filter(n => !n.read).length;
+                if (unreadCount > 0) {
+                    notificationIcon.classList.add('has-notifications');
+                    document.querySelector('.notification-badge').textContent = unreadCount;
+                }
+                
+                // Flash the notification icon
+                notificationIcon.classList.add('realtime-update');
+                setTimeout(() => {
+                    notificationIcon.classList.remove('realtime-update');
+                }, 1500);
+            }
+
+            // Add new activity
+            function addActivity(activity) {
+                activityList.insertAdjacentHTML('afterbegin', `
+                    <li class="activity-item realtime-update">
+                        <div class="activity-icon">
+                            <i class="fas ${activity.icon}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-message">
+                                <span class="activity-user">${activity.user}</span> ${activity.message}
+                            </div>
+                            <div class="activity-time">just now</div>
+                        </div>
+                    </li>
+                `);
+                
+                // Add to data structure
+                appData.activities.unshift(activity);
+                
+                // Keep only the last 10 activities
+                if (appData.activities.length > 10) {
+                    appData.activities.pop();
+                    activityList.removeChild(activityList.lastChild);
+                }
+                
+                saveData();
+            }
+
+            // Update stats
+            function updateStats(stats) {
+                document.getElementById('teamMembersCount').textContent = stats.teamMembers;
+                document.getElementById('tasksCompleted').textContent = stats.tasksCompleted;
+                document.getElementById('activeProjects').textContent = stats.activeProjects;
+                document.getElementById('upcomingDeadlines').textContent = stats.upcomingDeadlines;
+                
+                // Highlight the update
+                document.querySelectorAll('.stat-card').forEach(card => {
+                    card.classList.add('realtime-update');
+                    setTimeout(() => {
+                        card.classList.remove('realtime-update');
+                    }, 1500);
+                });
+            }
+
+            // Update profile data
+            function updateProfileData(profileData) {
+                Object.assign(appData.currentUser, profileData);
+                updateProfileDisplay();
+                saveData();
+                showToast('Your profile has been updated');
+            }
+
+            // Update team data
+            function updateTeamData(teamData) {
+                appData.teamMembers = teamData;
+                saveData();
+                showToast('Team members updated');
             }
 
             // Load all saved data from localStorage
@@ -1548,6 +1804,11 @@
                 // Notifications
                 notificationIcon.addEventListener('click', function() {
                     notificationsModal.style.display = 'flex';
+                    
+                    // Mark all notifications as read when opening
+                    appData.notifications.forEach(n => n.read = true);
+                    loadNotifications();
+                    saveData();
                 });
                 
                 closeNotifications.addEventListener('click', function() {
@@ -1575,6 +1836,37 @@
                     loadActivities();
                     saveData();
                     showToast('All activities cleared');
+                });
+
+                // Search functionality
+                searchInput.addEventListener('input', function() {
+                    const query = this.value.toLowerCase();
+                    if (query.length > 2) {
+                        searchResults.style.display = 'block';
+                        
+                        // Filter team members and projects (simplified for demo)
+                        const results = appData.teamMembers.filter(member => 
+                            member.name.toLowerCase().includes(query) || 
+                            member.email.toLowerCase().includes(query)
+                        ).slice(0, 5);
+                        
+                        // Display results
+                        searchResults.innerHTML = results.map(member => `
+                            <div class="search-result-item">
+                                <i class="fas fa-user"></i>
+                                <span>${member.name} (${member.email})</span>
+                            </div>
+                        `).join('');
+                    } else {
+                        searchResults.style.display = 'none';
+                    }
+                });
+
+                // Close search results when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.search-bar')) {
+                        searchResults.style.display = 'none';
+                    }
                 });
             }
 
@@ -1656,6 +1948,9 @@
                 appData.notifications.forEach((notification, index) => {
                     const div = document.createElement('div');
                     div.className = 'notification-item';
+                    if (!notification.read) {
+                        div.classList.add('realtime-update');
+                    }
                     div.innerHTML = `
                         <div class="notification-content">
                             <div class="notification-message">${notification.message}</div>
@@ -1698,9 +1993,6 @@
                 // Update activity timestamps every minute
                 updateActivityTimes();
                 setInterval(updateActivityTimes, 60000);
-                
-                // Simulate real-time updates with WebSocket
-                simulateWebSocketUpdates();
             }
 
             // Enhanced activity time updates
@@ -1711,70 +2003,6 @@
                         el.textContent = formatTimeDifference(appData.activities[index].timestamp, now);
                     }
                 });
-            }
-
-            // Simulate WebSocket for real-time updates
-            function simulateWebSocketUpdates() {
-                // Simulate new activity every 30-60 seconds
-                setInterval(() => {
-                    const users = ["Mohamed Elmenisy", "Ahmed Mohamed", "Fatima Ali", "Omar Hassan", "Layla Ibrahim"];
-                    const actions = [
-                        { message: "completed a task", icon: "fa-check-circle" },
-                        { message: "uploaded a new file", icon: "fa-file-upload" },
-                        { message: "commented on a project", icon: "fa-comment" },
-                        { message: "started a new task", icon: "fa-play-circle" },
-                        { message: "updated project status", icon: "fa-sync-alt" }
-                    ];
-                    
-                    const randomUser = users[Math.floor(Math.random() * users.length)];
-                    const randomAction = actions[Math.floor(Math.random() * actions.length)];
-                    
-                    const newActivity = {
-                        user: randomUser,
-                        message: randomAction.message,
-                        icon: randomAction.icon,
-                        timestamp: Date.now()
-                    };
-                    
-                    appData.activities.unshift(newActivity);
-                    
-                    // Keep only the last 10 activities
-                    if (appData.activities.length > 10) {
-                        appData.activities.pop();
-                    }
-                    
-                    loadActivities();
-                    saveData();
-                    
-                }, 30000 + Math.random() * 30000);
-                
-                // Simulate new notification every 1-2 minutes
-                setInterval(() => {
-                    const messages = [
-                        "New task assigned to you: Review project documentation",
-                        "Team meeting reminder in 15 minutes",
-                        "Deadline approaching: Client presentation tomorrow",
-                        "New comment on your task: Please review the changes",
-                        "System update scheduled for tonight at 11 PM"
-                    ];
-                    
-                    const newNotification = {
-                        message: messages[Math.floor(Math.random() * messages.length)],
-                        timestamp: Date.now(),
-                        read: false
-                    };
-                    
-                    appData.notifications.unshift(newNotification);
-                    
-                    // Keep only the last 5 notifications
-                    if (appData.notifications.length > 5) {
-                        appData.notifications.pop();
-                    }
-                    
-                    loadNotifications();
-                    saveData();
-                    
-                }, 60000 + Math.random() * 60000);
             }
 
             // Initialize the dashboard when DOM is loaded
