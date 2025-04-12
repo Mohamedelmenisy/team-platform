@@ -39,6 +39,14 @@
             --sidebar-bg: #1e293b;
         }
 
+        /* Green theme variables */
+        .green-theme {
+            --primary: #10b981;
+            --primary-dark: #065f46;
+            --primary-light: #d1fae5;
+            --sidebar-bg: #065f46;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -817,6 +825,11 @@
             color: var(--secondary);
         }
 
+        .role-supervisor {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+        }
+
         .member-actions {
             display: flex;
             gap: 0.5rem;
@@ -834,6 +847,10 @@
         }
 
         .user-admin .admin-only {
+            display: block;
+        }
+
+        .user-supervisor .supervisor-only {
             display: block;
         }
 
@@ -1038,6 +1055,62 @@
             gap: 1rem;
         }
 
+        /* Toggle switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
         /* Responsive Design */
         @media (max-width: 992px) {
             .sidebar {
@@ -1195,64 +1268,64 @@
 
         <div class="sidebar-menu">
             <div class="menu-title">Main Features</div>
-            <a href="dashboard.html" class="menu-item active" target="_self">
+            <a href="javascript:void(0);" class="menu-item active" data-feature="dashboard" id="dashboardLink">
                 <i class="fas fa-tachometer-alt"></i>
                 <span>Dashboard</span>
             </a>
             <div class="menu-divider"></div>
 
-            <a href="file-sharing.html" class="menu-item" target="_blank">
+            <a href="javascript:void(0);" class="menu-item" data-feature="file-sharing">
                 <i class="fas fa-file-upload"></i>
                 <span>File Sharing</span>
             </a>
 
-            <a href="data-management.html" class="menu-item" target="_blank">
+            <a href="javascript:void(0);" class="menu-item" data-feature="data-management">
                 <i class="fas fa-database"></i>
                 <span>Data Management</span>
             </a>
 
-            <a href="project-tracking.html" class="menu-item" target="_blank">
+            <a href="javascript:void(0);" class="menu-item" data-feature="project-tracking">
                 <i class="fas fa-project-diagram"></i>
                 <span>Project Tracking</span>
             </a>
 
             <div class="menu-divider"></div>
 
-            <a href="task-management.html" class="menu-item" target="_blank">
+            <a href="javascript:void(0);" class="menu-item" data-feature="task-management">
                 <i class="fas fa-tasks"></i>
                 <span>Task Management</span>
             </a>
 
-            <a href="employee-scheduling.html" class="menu-item" target="_blank">
+            <a href="javascript:void(0);" class="menu-item" data-feature="employee-scheduling">
                 <i class="fas fa-users"></i>
                 <span>Employee Scheduling</span>
             </a>
 
-            <a href="team-calendar.html" class="menu-item" target="_blank">
+            <a href="javascript:void(0);" class="menu-item" data-feature="team-calendar">
                 <i class="fas fa-calendar-alt"></i>
                 <span>Team Calendar</span>
             </a>
 
             <div class="menu-divider"></div>
 
-            <a href="deadline-tracking.html" class="menu-item" target="_blank">
+            <a href="javascript:void(0);" class="menu-item" data-feature="deadline-tracking">
                 <i class="fas fa-clock"></i>
                 <span>Deadline Tracking</span>
             </a>
 
-            <a href="innovation-hub.html" class="menu-item" target="_blank">
+            <a href="javascript:void(0);" class="menu-item" data-feature="innovation-hub">
                 <i class="fas fa-lightbulb"></i>
                 <span>Innovation Hub</span>
             </a>
 
             <div class="menu-divider"></div>
 
-            <a href="profile.html" class="menu-item" target="_blank" id="profileLinkSidebar">
+            <a href="javascript:void(0);" class="menu-item" data-feature="profile" id="profileLinkSidebar">
                 <i class="fas fa-user"></i>
                 <span>Profile</span>
             </a>
             
-            <a href="settings.html" class="menu-item" target="_blank">
+            <a href="javascript:void(0);" class="menu-item" data-feature="settings">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
@@ -1281,7 +1354,7 @@
                     <div class="user-avatar" id="userAvatar">M</div>
                     <div class="user-name" id="userName">Mohamed Elmenisy</div>
                     <div class="user-dropdown" id="userDropdown">
-                        <a href="profile.html" class="dropdown-item" id="profileLink" target="_blank">
+                        <a href="javascript:void(0);" class="dropdown-item" id="profileLink">
                             <i class="fas fa-user"></i>
                             <span>Profile</span>
                         </a>
@@ -1373,12 +1446,338 @@
                         <h3 class="section-title">Recent Activity <span class="realtime-badge">LIVE</span></h3>
                         <div>
                             <span class="view-all" id="viewAllActivity">Show All</span>
-                            <span class="delete-all" id="deleteAllActivity">Delete All</span>
+                            <span class="delete-all admin-only" id="deleteAllActivity">Delete All</span>
                         </div>
                     </div>
                     <ul class="activity-list" id="activityList">
                         <!-- Activity items will be added dynamically -->
                     </ul>
+                </div>
+            </div>
+
+            <!-- Profile Content -->
+            <div class="profile-content" id="profileContent">
+                <div class="profile-header">
+                    <h2 class="profile-title">Profile Settings</h2>
+                    <span class="back-button" id="backToDashboardFromProfile">← Back to Dashboard</span>
+                </div>
+                <form class="profile-form" id="profileForm">
+                    <div class="form-group">
+                        <label for="profileAvatarInput">Profile Picture</label>
+                        <div class="user-info-avatar" id="profileAvatar" onclick="document.getElementById('profileAvatarInput').click();">
+                            <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;">
+                            <div class="avatar-upload" id="avatarUploadBtn"><i class="fas fa-camera"></i></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" class="form-control" value="Mohamed">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" class="form-control" value="Elmenisy">
+                    </div>
+                    <div class="form-group">
+                        <label for="jobTitle">Job Title</label>
+                        <input type="text" id="jobTitle" class="form-control" value="Team Manager">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="form-control" value="m.elsayed@thechefz.co" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" class="form-control" value="+201234567890">
+                    </div>
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <input type="text" id="department" class="form-control" value="Management">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" id="cancelProfileBtn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="settings-content" id="settingsContent">
+                <div class="profile-header">
+                    <h2 class="profile-title">System Settings</h2>
+                    <span class="back-button" id="backToDashboardFromSettings">← Back to Dashboard</span>
+                </div>
+                <div class="settings-tabs">
+                    <div class="settings-tab active" data-tab="account">Account</div>
+                    <div class="settings-tab" data-tab="security">Security</div>
+                    <div class="settings-tab" data-tab="notifications">Notifications</div>
+                    <div class="settings-tab" data-tab="preferences">Preferences</div>
+                    <div class="settings-tab admin-only" data-tab="team">Team Management</div>
+                </div>
+                <div class="settings-panel active" id="accountPanel">
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-language" style="margin-right: 0.5rem;"></i>
+                            Language
+                        </div>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="languageSelect">
+                                <option value="en">English</option>
+                                <option value="ar">Arabic</option>
+                                <option value="fr">French</option>
+                                <option value="es">Spanish</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-globe" style="margin-right: 0.5rem;"></i>
+                            Timezone
+                        </div>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="timezoneSelect">
+                                <option value="UTC+2">Cairo (UTC+2)</option>
+                                <option value="UTC+0">London (UTC+0)</option>
+                                <option value="UTC-5">New York (UTC-5)</option>
+                                <option value="UTC+8">Beijing (UTC+8)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-calendar" style="margin-right: 0.5rem;"></i>
+                            Date Format
+                        </div>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="dateFormatSelect">
+                                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-panel" id="securityPanel">
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-shield-alt" style="margin-right: 0.5rem;"></i>
+                            Two-Factor Authentication
+                        </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="twoFactorAuth" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <form id="passwordForm" style="margin-top: 2rem;">
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" class="form-control">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" id="cancelPasswordBtn">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Update Password</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="settings-panel" id="notificationsPanel">
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-envelope" style="margin-right: 0.5rem;"></i>
+                            Email Notifications
+                        </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="emailNotifications" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-bell" style="margin-right: 0.5rem;"></i>
+                            Push Notifications
+                        </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="pushNotifications" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-tasks" style="margin-right: 0.5rem;"></i>
+                            Task Notifications
+                        </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="taskNotifications" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-calendar-check" style="margin-right: 0.5rem;"></i>
+                            Deadline Reminders
+                        </div>
+                        <div class="settings-option-value">
+                            <label class="switch">
+                                <input type="checkbox" id="deadlineReminders" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-panel" id="preferencesPanel">
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-palette" style="margin-right: 0.5rem;"></i>
+                            Theme
+                        </div>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="themeSelect">
+                                <option value="blue">Blue</option>
+                                <option value="dark">Dark</option>
+                                <option value="light">Light</option>
+                                <option value="green">Green</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-columns" style="margin-right: 0.5rem;"></i>
+                            Layout Density
+                        </div>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="densitySelect">
+                                <option value="compact">Compact</option>
+                                <option value="normal" selected>Normal</option>
+                                <option value="comfortable">Comfortable</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">
+                            <i class="fas fa-font" style="margin-right: 0.5rem;"></i>
+                            Font Size
+                        </div>
+                        <div class="settings-option-value">
+                            <select class="settings-select" id="fontSizeSelect">
+                                <option value="small">Small</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="large">Large</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-panel admin-only" id="teamPanel">
+                    <div class="team-management">
+                        <h3>Team Members</h3>
+                        <div class="team-list" id="teamList">
+                            <!-- Team members will be added dynamically -->
+                        </div>
+                        <div class="add-member-form admin-only">
+                            <h4>Add New Member</h4>
+                            <form id="addMemberForm">
+                                <div class="form-group">
+                                    <label for="memberName">Full Name</label>
+                                    <input type="text" id="memberName" class="form-control" placeholder="John Doe" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="memberEmail">Email</label>
+                                    <input type="email" id="memberEmail" class="form-control" placeholder="user@example.com" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="memberRole">Role</label>
+                                    <select id="memberRole" class="form-control" required>
+                                        <option value="member">Member</option>
+                                        <option value="supervisor">Supervisor</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">Add Member</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Content Sections -->
+            <div id="featureSections">
+                <div id="file-sharing-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">File Sharing</h2>
+                        <span class="back-button" id="backToDashboardFromFileSharing">← Back to Dashboard</span>
+                    </div>
+                    <p>File sharing feature content will be displayed here.</p>
+                </div>
+                
+                <div id="data-management-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Data Management</h2>
+                        <span class="back-button" id="backToDashboardFromDataManagement">← Back to Dashboard</span>
+                    </div>
+                    <p>Data management feature content will be displayed here.</p>
+                </div>
+                
+                <div id="project-tracking-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Project Tracking</h2>
+                        <span class="back-button" id="backToDashboardFromProjectTracking">← Back to Dashboard</span>
+                    </div>
+                    <p>Project tracking feature content will be displayed here.</p>
+                </div>
+                
+                <div id="task-management-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Task Management</h2>
+                        <span class="back-button" id="backToDashboardFromTaskManagement">← Back to Dashboard</span>
+                    </div>
+                    <p>Task management feature content will be displayed here.</p>
+                </div>
+                
+                <div id="employee-scheduling-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Employee Scheduling</h2>
+                        <span class="back-button" id="backToDashboardFromEmployeeScheduling">← Back to Dashboard</span>
+                    </div>
+                    <p>Employee scheduling feature content will be displayed here.</p>
+                </div>
+                
+                <div id="team-calendar-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Team Calendar</h2>
+                        <span class="back-button" id="backToDashboardFromTeamCalendar">← Back to Dashboard</span>
+                    </div>
+                    <p>Team calendar feature content will be displayed here.</p>
+                </div>
+                
+                <div id="deadline-tracking-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Deadline Tracking</h2>
+                        <span class="back-button" id="backToDashboardFromDeadlineTracking">← Back to Dashboard</span>
+                    </div>
+                    <p>Deadline tracking feature content will be displayed here.</p>
+                </div>
+                
+                <div id="innovation-hub-page" class="feature-page">
+                    <div class="profile-header">
+                        <h2 class="profile-title">Innovation Hub</h2>
+                        <span class="back-button" id="backToDashboardFromInnovationHub">← Back to Dashboard</span>
+                    </div>
+                    <p>Innovation hub feature content will be displayed here.</p>
                 </div>
             </div>
         </div>
@@ -1393,10 +1792,27 @@
             </div>
             <div class="notifications-actions">
                 <button class="btn btn-outline" id="markAllReadBtn">Mark All as Read</button>
-                <button class="btn btn-danger" id="deleteAllNotificationsBtn">Delete All</button>
+                <button class="btn btn-danger admin-only" id="deleteAllNotificationsBtn">Delete All</button>
             </div>
             <div id="notificationsList">
                 <!-- Notifications will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div class="preview-modal" id="previewModal">
+        <div class="preview-container">
+            <div class="preview-header">
+                <h3 class="preview-title">Preview Changes</h3>
+                <button class="close-preview" id="closePreview">×</button>
+            </div>
+            <div class="preview-content" id="previewContent">
+                <!-- Preview content will be added here -->
+            </div>
+            <div class="preview-actions">
+                <button class="btn btn-outline" id="cancelPreviewBtn">Cancel</button>
+                <button class="btn btn-primary" id="confirmPreviewBtn">Confirm Changes</button>
             </div>
         </div>
     </div>
@@ -1433,7 +1849,7 @@
                     { id: 1, name: "Mohamed Elmenisy", email: "m.elsayed@thechefz.co", role: "admin" },
                     { id: 2, name: "Ahmed Mohamed", email: "ahmed@example.com", role: "member" },
                     { id: 3, name: "Fatima Ali", email: "fatima@example.com", role: "member" },
-                    { id: 4, name: "Omar Hassan", email: "omar@example.com", role: "member" },
+                    { id: 4, name: "Omar Hassan", email: "omar@example.com", role: "supervisor" },
                     { id: 5, name: "Layla Ibrahim", email: "layla@example.com", role: "member" }
                 ],
                 activities: [
@@ -1504,8 +1920,11 @@
             const sidebar = document.getElementById('sidebar');
             const userDropdown = document.getElementById('userDropdown');
             const profileLink = document.getElementById('profileLink');
+            const profileLinkSidebar = document.getElementById('profileLinkSidebar');
             const logoutLink = document.getElementById('logoutLink');
             const dashboardContent = document.getElementById('dashboardContent');
+            const profileContent = document.getElementById('profileContent');
+            const settingsContent = document.getElementById('settingsContent');
             const activityList = document.getElementById('activityList');
             const deleteAllActivity = document.getElementById('deleteAllActivity');
             const notificationIcon = document.getElementById('notificationIcon');
@@ -1518,11 +1937,20 @@
             const userAvatar = document.getElementById('userAvatar');
             const profileAvatarLarge = document.getElementById('profileAvatarLarge');
             const connectionStatus = document.getElementById('connectionStatus');
+            const backToDashboardFromProfile = document.getElementById('backToDashboardFromProfile');
+            const backToDashboardFromSettings = document.getElementById('backToDashboardFromSettings');
+            const profileAvatarInput = document.getElementById('profileAvatarInput');
+            const profileAvatar = document.getElementById('profileAvatar');
+            const themeSelect = document.getElementById('themeSelect');
+            const previewModal = document.getElementById('previewModal');
+            const closePreview = document.getElementById('closePreview');
+            const cancelPreviewBtn = document.getElementById('cancelPreviewBtn');
+            const confirmPreviewBtn = document.getElementById('confirmPreviewBtn');
 
             // Role title mapping
             const roleTitles = {
                 admin: "Administrator",
-                manager: "Team Manager", 
+                supervisor: "Supervisor",
                 member: "Team Member"
             };
 
@@ -1539,6 +1967,25 @@
                 setupEventListeners();
                 startRealTimeUpdates();
                 initWebSocket();
+                checkUserRole();
+            }
+
+            // Check user role and apply appropriate permissions
+            function checkUserRole() {
+                const userEmail = document.getElementById('userEmail').textContent;
+                const currentUser = appData.teamMembers.find(member => member.email === userEmail);
+                
+                if (currentUser) {
+                    // Add role class to body for CSS targeting
+                    document.body.classList.add(`user-${currentUser.role}`);
+                    
+                    // Update role title in dashboard
+                    const roleTitleElement = document.querySelector('.user-info-title');
+                    if (roleTitleElement) {
+                        roleTitleElement.textContent = roleTitles[currentUser.role] || currentUser.role;
+                        roleTitleElement.className = `user-info-title role-title role-${currentUser.role}`;
+                    }
+                }
             }
 
             // Initialize WebSocket connection
@@ -1736,13 +2183,20 @@
                 appData.teamMembers = teamData;
                 saveData();
                 showToast('Team members updated');
+                checkUserRole(); // Re-check roles after update
             }
 
             // Load all saved data from localStorage
             function loadSavedData() {
                 const savedData = localStorage.getItem('teamFlowData');
                 if (savedData) {
-                    Object.assign(appData, JSON.parse(savedData));
+                    const parsedData = JSON.parse(savedData);
+                    Object.assign(appData, parsedData);
+                    
+                    // Update theme if it exists in saved data
+                    if (parsedData.settings?.theme) {
+                        document.body.className = `${parsedData.settings.theme}-theme`;
+                    }
                 }
                 updateProfileDisplay();
             }
@@ -1757,6 +2211,7 @@
                 // Update user profile
                 document.getElementById('userName').textContent = `${appData.currentUser.firstName} ${appData.currentUser.lastName}`;
                 document.getElementById('welcomeName').textContent = appData.currentUser.firstName;
+                document.getElementById('userEmail').textContent = appData.currentUser.email;
                 
                 // Update stats
                 document.getElementById('teamMembersCount').textContent = appData.teamMembers.length;
@@ -1772,6 +2227,44 @@
                 // Load activities and notifications
                 loadActivities();
                 loadNotifications();
+                loadTeamMembers();
+                
+                // Update settings form values
+                if (appData.settings) {
+                    if (document.getElementById('languageSelect')) {
+                        document.getElementById('languageSelect').value = appData.settings.language || 'en';
+                    }
+                    if (document.getElementById('timezoneSelect')) {
+                        document.getElementById('timezoneSelect').value = appData.settings.timezone || 'UTC+2';
+                    }
+                    if (document.getElementById('dateFormatSelect')) {
+                        document.getElementById('dateFormatSelect').value = appData.settings.dateFormat || 'DD/MM/YYYY';
+                    }
+                    if (document.getElementById('themeSelect')) {
+                        document.getElementById('themeSelect').value = appData.settings.theme || 'blue';
+                    }
+                    if (document.getElementById('twoFactorAuth')) {
+                        document.getElementById('twoFactorAuth').checked = appData.settings.twoFactorEnabled || false;
+                    }
+                    if (document.getElementById('emailNotifications')) {
+                        document.getElementById('emailNotifications').checked = appData.settings.emailNotifications || true;
+                    }
+                    if (document.getElementById('pushNotifications')) {
+                        document.getElementById('pushNotifications').checked = appData.settings.pushNotifications || true;
+                    }
+                    if (document.getElementById('taskNotifications')) {
+                        document.getElementById('taskNotifications').checked = appData.settings.taskNotifications || true;
+                    }
+                    if (document.getElementById('deadlineReminders')) {
+                        document.getElementById('deadlineReminders').checked = appData.settings.deadlineReminders || true;
+                    }
+                    if (document.getElementById('densitySelect')) {
+                        document.getElementById('densitySelect').value = appData.settings.layoutDensity || 'normal';
+                    }
+                    if (document.getElementById('fontSizeSelect')) {
+                        document.getElementById('fontSizeSelect').value = appData.settings.fontSize || 'medium';
+                    }
+                }
             }
 
             // Update profile display
@@ -1781,99 +2274,33 @@
                 // Update all name displays
                 document.getElementById('userName').textContent = fullName;
                 document.getElementById('welcomeName').textContent = appData.currentUser.firstName;
-            }
-
-            // Setup all event listeners
-            function setupEventListeners() {
-                // Toggle user dropdown
-                document.getElementById('userAvatar').addEventListener('click', function() {
-                    userDropdown.classList.toggle('active');
-                });
                 
-                document.getElementById('userName').addEventListener('click', function() {
-                    userDropdown.classList.toggle('active');
-                });
-                
-                // Close dropdown when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!e.target.closest('.user-profile')) {
-                        userDropdown.classList.remove('active');
-                    }
-                });
-                
-                // Notifications
-                notificationIcon.addEventListener('click', function() {
-                    notificationsModal.style.display = 'flex';
-                    
-                    // Mark all notifications as read when opening
-                    appData.notifications.forEach(n => n.read = true);
-                    loadNotifications();
-                    saveData();
-                });
-                
-                closeNotifications.addEventListener('click', function() {
-                    notificationsModal.style.display = 'none';
-                });
-                
-                // Close notifications when clicking outside
-                notificationsModal.addEventListener('click', function(e) {
-                    if (e.target === notificationsModal) {
-                        notificationsModal.style.display = 'none';
-                    }
-                });
-                
-                // Delete all notifications
-                deleteAllNotificationsBtn.addEventListener('click', function() {
-                    appData.notifications = [];
-                    loadNotifications();
-                    saveData();
-                    showToast('All notifications deleted');
-                });
-                
-                // Delete all activity
-                deleteAllActivity.addEventListener('click', function() {
-                    appData.activities = [];
-                    loadActivities();
-                    saveData();
-                    showToast('All activities cleared');
-                });
-
-                // Search functionality
-                searchInput.addEventListener('input', function() {
-                    const query = this.value.toLowerCase();
-                    if (query.length > 2) {
-                        searchResults.style.display = 'block';
-                        
-                        // Filter team members and projects (simplified for demo)
-                        const results = appData.teamMembers.filter(member => 
-                            member.name.toLowerCase().includes(query) || 
-                            member.email.toLowerCase().includes(query)
-                        ).slice(0, 5);
-                        
-                        // Display results
-                        searchResults.innerHTML = results.map(member => `
-                            <div class="search-result-item">
-                                <i class="fas fa-user"></i>
-                                <span>${member.name} (${member.email})</span>
-                            </div>
-                        `).join('');
-                    } else {
-                        searchResults.style.display = 'none';
-                    }
-                });
-
-                // Close search results when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!e.target.closest('.search-bar')) {
-                        searchResults.style.display = 'none';
-                    }
-                });
+                // Update profile form fields
+                if (document.getElementById('firstName')) {
+                    document.getElementById('firstName').value = appData.currentUser.firstName;
+                }
+                if (document.getElementById('lastName')) {
+                    document.getElementById('lastName').value = appData.currentUser.lastName;
+                }
+                if (document.getElementById('jobTitle')) {
+                    document.getElementById('jobTitle').value = appData.currentUser.jobTitle;
+                }
+                if (document.getElementById('email')) {
+                    document.getElementById('email').value = appData.currentUser.email;
+                }
+                if (document.getElementById('phone')) {
+                    document.getElementById('phone').value = appData.currentUser.phone;
+                }
+                if (document.getElementById('department')) {
+                    document.getElementById('department').value = appData.currentUser.department;
+                }
             }
 
             // Update avatar in all locations
             function updateAvatar(avatarUrl) {
                 const avatarElements = [
                     document.getElementById('userAvatar'),
+                    document.getElementById('profileAvatar'),
                     document.getElementById('profileAvatarLarge')
                 ];
                 
@@ -1883,6 +2310,106 @@
                         el.textContent = '';
                     }
                 });
+                
+                // Update in data structure
+                appData.currentUser.avatar = avatarUrl;
+                saveData();
+            }
+
+            // Load Team Members
+            function loadTeamMembers() {
+                const teamList = document.getElementById('teamList');
+                if (!teamList) return;
+                
+                teamList.innerHTML = '';
+                
+                appData.teamMembers.forEach(member => {
+                    const div = document.createElement('div');
+                    div.className = 'team-member-card';
+                    div.innerHTML = `
+                        <div class="member-avatar">${member.name.charAt(0)}</div>
+                        <div class="member-details">
+                            <div class="member-name">${member.name}</div>
+                            <div class="member-email">${member.email}</div>
+                            <span class="member-role role-${member.role}">
+                                ${roleTitles[member.role] || member.role}
+                            </span>
+                        </div>
+                        <div class="member-actions admin-only">
+                            <button class="btn btn-outline edit-member" data-id="${member.id}" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Edit</button>
+                            <button class="btn btn-danger remove-member" data-id="${member.id}" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Remove</button>
+                        </div>
+                    `;
+                    teamList.appendChild(div);
+                });
+
+                // Add event listeners for edit and remove buttons
+                document.querySelectorAll('.edit-member').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const memberId = parseInt(this.dataset.id);
+                        const member = appData.teamMembers.find(m => m.id === memberId);
+                        if (member) {
+                            showEditMemberModal(member);
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.remove-member').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const memberId = parseInt(this.dataset.id);
+                        const memberIndex = appData.teamMembers.findIndex(m => m.id === memberId);
+                        if (memberIndex !== -1) {
+                            appData.teamMembers.splice(memberIndex, 1);
+                            loadTeamMembers();
+                            saveData();
+                            showToast('Team member removed');
+                        }
+                    });
+                });
+            }
+
+            // Show edit member modal
+            function showEditMemberModal(member) {
+                const previewContent = document.getElementById('previewContent');
+                previewContent.innerHTML = `
+                    <h4>Edit Team Member</h4>
+                    <form id="editMemberForm">
+                        <div class="form-group">
+                            <label for="editMemberName">Full Name</label>
+                            <input type="text" id="editMemberName" class="form-control" value="${member.name}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editMemberEmail">Email</label>
+                            <input type="email" id="editMemberEmail" class="form-control" value="${member.email}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editMemberRole">Role</label>
+                            <select id="editMemberRole" class="form-control" required>
+                                <option value="member" ${member.role === 'member' ? 'selected' : ''}>Member</option>
+                                <option value="supervisor" ${member.role === 'supervisor' ? 'selected' : ''}>Supervisor</option>
+                                <option value="admin" ${member.role === 'admin' ? 'selected' : ''}>Admin</option>
+                            </select>
+                        </div>
+                    </form>
+                `;
+                
+                // Set up confirm button
+                confirmPreviewBtn.onclick = function() {
+                    const name = document.getElementById('editMemberName').value;
+                    const email = document.getElementById('editMemberEmail').value;
+                    const role = document.getElementById('editMemberRole').value;
+                    
+                    member.name = name;
+                    member.email = email;
+                    member.role = role;
+                    
+                    loadTeamMembers();
+                    saveData();
+                    showToast('Team member updated successfully');
+                    previewModal.style.display = 'none';
+                };
+                
+                previewModal.style.display = 'flex';
             }
 
             // Format time difference
@@ -1995,12 +2522,326 @@
                 setInterval(updateActivityTimes, 60000);
             }
 
-            // Enhanced activity time updates
+            // Update activity times
             function updateActivityTimes() {
                 const now = Date.now();
                 document.querySelectorAll('.activity-time').forEach((el, index) => {
                     if (appData.activities[index]) {
                         el.textContent = formatTimeDifference(appData.activities[index].timestamp, now);
+                    }
+                });
+            }
+
+            // Setup all event listeners
+            function setupEventListeners() {
+                // Toggle user dropdown
+                document.getElementById('userAvatar').addEventListener('click', function() {
+                    userDropdown.classList.toggle('active');
+                });
+                
+                document.getElementById('userName').addEventListener('click', function() {
+                    userDropdown.classList.toggle('active');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.user-profile')) {
+                        userDropdown.classList.remove('active');
+                    }
+                });
+                
+                // Notifications
+                notificationIcon.addEventListener('click', function() {
+                    notificationsModal.style.display = 'flex';
+                    
+                    // Mark all notifications as read when opening
+                    appData.notifications.forEach(n => n.read = true);
+                    loadNotifications();
+                    saveData();
+                });
+                
+                closeNotifications.addEventListener('click', function() {
+                    notificationsModal.style.display = 'none';
+                });
+                
+                // Close notifications when clicking outside
+                notificationsModal.addEventListener('click', function(e) {
+                    if (e.target === notificationsModal) {
+                        notificationsModal.style.display = 'none';
+                    }
+                });
+                
+                // Delete all notifications
+                deleteAllNotificationsBtn.addEventListener('click', function() {
+                    appData.notifications = [];
+                    loadNotifications();
+                    saveData();
+                    showToast('All notifications deleted');
+                });
+                
+                // Delete all activity
+                deleteAllActivity.addEventListener('click', function() {
+                    appData.activities = [];
+                    loadActivities();
+                    saveData();
+                    showToast('All activities cleared');
+                });
+
+                // Search functionality
+                searchInput.addEventListener('input', function() {
+                    const query = this.value.toLowerCase();
+                    if (query.length > 2) {
+                        searchResults.style.display = 'block';
+                        
+                        // Filter team members and projects (simplified for demo)
+                        const results = appData.teamMembers.filter(member => 
+                            member.name.toLowerCase().includes(query) || 
+                            member.email.toLowerCase().includes(query)
+                        ).slice(0, 5);
+                        
+                        // Display results
+                        searchResults.innerHTML = results.map(member => `
+                            <div class="search-result-item">
+                                <i class="fas fa-user"></i>
+                                <span>${member.name} (${member.email})</span>
+                            </div>
+                        `).join('');
+                    } else {
+                        searchResults.style.display = 'none';
+                    }
+                });
+
+                // Close search results when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.search-bar')) {
+                        searchResults.style.display = 'none';
+                    }
+                });
+
+                // Profile link functionality
+                profileLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showPage('profile');
+                    userDropdown.classList.remove('active');
+                });
+
+                profileLinkSidebar.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showPage('profile');
+                });
+
+                // Back to dashboard from profile
+                backToDashboardFromProfile.addEventListener('click', function() {
+                    showPage('dashboard');
+                });
+
+                // Back to dashboard from settings
+                backToDashboardFromSettings.addEventListener('click', function() {
+                    showPage('dashboard');
+                });
+
+                // Settings link functionality
+                document.querySelector('[data-feature="settings"]').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showPage('settings');
+                });
+
+                // Feature links functionality
+                document.querySelectorAll('[data-feature]').forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        if (this.dataset.feature !== 'dashboard' && 
+                            this.dataset.feature !== 'profile' && 
+                            this.dataset.feature !== 'settings') {
+                            e.preventDefault();
+                            showPage(this.dataset.feature);
+                        }
+                    });
+                });
+
+                // Logout Functionality
+                logoutLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // In a real app, you would handle logout properly
+                    window.location.href = "login.html";
+                });
+
+                // Settings Tab Functionality
+                const tabs = document.querySelectorAll('.settings-tab');
+                const settingsPanels = document.querySelectorAll('.settings-panel');
+
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        // Remove active class from all tabs
+                        tabs.forEach(t => t.classList.remove('active'));
+                        // Hide all settings panels
+                        settingsPanels.forEach(p => p.classList.remove('active'));
+                        // Add active class to the clicked tab
+                        this.classList.add('active');
+
+                        // Show the corresponding panel
+                        const tabName = this.getAttribute('data-tab');
+                        document.getElementById(tabName + 'Panel').classList.add('active');
+                    });
+                });
+
+                // Profile picture upload
+                profileAvatarInput.addEventListener('change', function(e) {
+                    if (e.target.files && e.target.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            updateAvatar(event.target.result);
+                            showToast('Profile picture updated successfully');
+                        };
+                        reader.readAsDataURL(e.target.files[0]);
+                    }
+                });
+
+                // Theme selection
+                themeSelect.addEventListener('change', function() {
+                    // Show preview of theme change
+                    const previewContent = document.getElementById('previewContent');
+                    previewContent.innerHTML = `
+                        <h4>Theme Preview</h4>
+                        <p>You are about to change the theme to <strong>${this.value}</strong>.</p>
+                        <p>Would you like to proceed with this change?</p>
+                    `;
+                    
+                    // Set up confirm button
+                    confirmPreviewBtn.onclick = function() {
+                        document.body.className = `${themeSelect.value}-theme`;
+                        appData.settings.theme = themeSelect.value;
+                        saveData();
+                        showToast('Theme changed successfully');
+                        previewModal.style.display = 'none';
+                    };
+                    
+                    previewModal.style.display = 'flex';
+                });
+
+                // Close preview modal
+                closePreview.addEventListener('click', function() {
+                    previewModal.style.display = 'none';
+                });
+
+                cancelPreviewBtn.addEventListener('click', function() {
+                    previewModal.style.display = 'none';
+                    // Reset theme select to current theme
+                    themeSelect.value = appData.settings.theme || 'blue';
+                });
+
+                // Add Member Form
+                document.getElementById('addMemberForm')?.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const name = document.getElementById('memberName').value;
+                    const email = document.getElementById('memberEmail').value;
+                    const role = document.getElementById('memberRole').value;
+                    
+                    const newMember = {
+                        id: appData.teamMembers.length + 1,
+                        name,
+                        email,
+                        role
+                    };
+                    
+                    appData.teamMembers.push(newMember);
+                    loadTeamMembers();
+                    this.reset();
+                    saveData();
+                    showToast('Team member added successfully');
+                    
+                    // Simulate WebSocket update
+                    handleWebSocketMessage({
+                        type: "team_update",
+                        data: appData.teamMembers
+                    });
+                });
+
+                // Profile form submission
+                document.getElementById('profileForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // Update user data
+                    appData.currentUser.firstName = document.getElementById('firstName').value;
+                    appData.currentUser.lastName = document.getElementById('lastName').value;
+                    appData.currentUser.jobTitle = document.getElementById('jobTitle').value;
+                    appData.currentUser.phone = document.getElementById('phone').value;
+                    appData.currentUser.department = document.getElementById('department').value;
+                    
+                    // Update UI
+                    updateProfileDisplay();
+                    saveData();
+                    showToast('Profile updated successfully');
+                    
+                    // Simulate WebSocket update
+                    handleWebSocketMessage({
+                        type: "profile_update",
+                        data: appData.currentUser
+                    });
+                });
+
+                // Password form submission
+                document.getElementById('passwordForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // In a real app, you would validate and update the password
+                    showToast('Password updated successfully');
+                    this.reset();
+                });
+
+                // Cancel password changes
+                document.getElementById('cancelPasswordBtn').addEventListener('click', function() {
+                    document.getElementById('passwordForm').reset();
+                });
+
+                // Cancel profile changes
+                document.getElementById('cancelProfileBtn').addEventListener('click', function() {
+                    showPage('dashboard');
+                });
+
+                // Settings form changes
+                document.querySelectorAll('#languageSelect, #timezoneSelect, #dateFormatSelect, #densitySelect, #fontSizeSelect').forEach(select => {
+                    select.addEventListener('change', function() {
+                        appData.settings[this.id.replace('Select', '')] = this.value;
+                        saveData();
+                        showToast('Settings saved successfully');
+                    });
+                });
+
+                document.querySelectorAll('#twoFactorAuth, #emailNotifications, #pushNotifications, #taskNotifications, #deadlineReminders').forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        appData.settings[this.id] = this.checked;
+                        saveData();
+                        showToast('Settings saved successfully');
+                    });
+                });
+            }
+
+            // Show a specific page
+            function showPage(page) {
+                // Hide all pages
+                document.querySelectorAll('.feature-page, #dashboardContent, #profileContent, #settingsContent').forEach(el => {
+                    el.classList.remove('active');
+                });
+                
+                // Show the requested page
+                if (page === 'dashboard') {
+                    dashboardContent.classList.add('active');
+                } else if (page === 'profile') {
+                    profileContent.classList.add('active');
+                } else if (page === 'settings') {
+                    settingsContent.classList.add('active');
+                } else {
+                    const pageElement = document.getElementById(`${page}-page`);
+                    if (pageElement) {
+                        pageElement.classList.add('active');
+                    } else {
+                        dashboardContent.classList.add('active');
+                    }
+                }
+                
+                // Update active menu item
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.feature === page) {
+                        item.classList.add('active');
                     }
                 });
             }
