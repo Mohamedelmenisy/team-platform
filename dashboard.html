@@ -1828,6 +1828,9 @@
         <i class="fas fa-circle"></i> Connected
     </div>
 
+    <!-- Audio element for notification sound -->
+    <audio id="notificationSound" src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" preload="auto"></audio>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Enhanced data structure
@@ -1946,6 +1949,7 @@
             const closePreview = document.getElementById('closePreview');
             const cancelPreviewBtn = document.getElementById('cancelPreviewBtn');
             const confirmPreviewBtn = document.getElementById('confirmPreviewBtn');
+            const notificationSound = document.getElementById('notificationSound');
 
             // Role title mapping
             const roleTitles = {
@@ -2117,6 +2121,12 @@
                 if (unreadCount > 0) {
                     notificationIcon.classList.add('has-notifications');
                     document.querySelector('.notification-badge').textContent = unreadCount;
+                    
+                    // Play notification sound
+                    if (notificationSound) {
+                        notificationSound.currentTime = 0; // Rewind to start
+                        notificationSound.play().catch(e => console.log("Audio play failed:", e));
+                    }
                 }
                 
                 // Flash the notification icon
@@ -2160,6 +2170,11 @@
                 document.getElementById('tasksCompleted').textContent = stats.tasksCompleted;
                 document.getElementById('activeProjects').textContent = stats.activeProjects;
                 document.getElementById('upcomingDeadlines').textContent = stats.upcomingDeadlines;
+                
+                // Save the updated stats
+                appData.teamMembers = stats.teamMembers;
+                appData.currentUser.tasksCompleted = stats.tasksCompleted;
+                saveData();
                 
                 // Highlight the update
                 document.querySelectorAll('.stat-card').forEach(card => {
@@ -2601,11 +2616,26 @@
                         
                         // Display results
                         searchResults.innerHTML = results.map(member => `
-                            <div class="search-result-item">
+                            <div class="search-result-item" data-id="${member.id}">
                                 <i class="fas fa-user"></i>
                                 <span>${member.name} (${member.email})</span>
                             </div>
                         `).join('');
+                        
+                        // Add click event to search results
+                        document.querySelectorAll('.search-result-item').forEach(item => {
+                            item.addEventListener('click', function() {
+                                const memberId = this.getAttribute('data-id');
+                                const member = appData.teamMembers.find(m => m.id == memberId);
+                                if (member) {
+                                    // Navigate to team management section
+                                    showPage('settings');
+                                    document.querySelector('[data-tab="team"]').click();
+                                    searchResults.style.display = 'none';
+                                    searchInput.value = '';
+                                }
+                            });
+                        });
                     } else {
                         searchResults.style.display = 'none';
                     }
@@ -2810,6 +2840,13 @@
                         appData.settings[this.id] = this.checked;
                         saveData();
                         showToast('Settings saved successfully');
+                    });
+                });
+
+                // Back buttons for feature pages
+                document.querySelectorAll('[id^="backToDashboardFrom"]').forEach(button => {
+                    button.addEventListener('click', function() {
+                        showPage('dashboard');
                     });
                 });
             }
