@@ -1724,7 +1724,8 @@
                     department: "Management",
                     jobTitle: "Team Manager",
                     avatar: "",
-                    lastActive: Date.now()
+                    lastActive: Date.now(),
+                    tasksCompleted: 12
                 },
                 teamMembers: [
                     { id: 1, name: "Mohamed Elmenisy", email: "m.elsayed@thechefz.co", role: "admin" },
@@ -1842,6 +1843,10 @@
                 updateUserInterface();
                 setupEventListeners();
                 startRealTimeUpdates();
+                
+                // Show the current page based on URL hash
+                const currentPage = window.location.hash.substring(1) || 'dashboard';
+                showPage(currentPage);
             }
 
             // Load all saved data from localStorage
@@ -1869,7 +1874,9 @@
                 
                 // Update stats
                 document.getElementById('teamMembersCount').textContent = appData.teamMembers.length;
-                document.getElementById('tasksCompleted').textContent = appData.currentUser.tasksCompleted;
+                document.getElementById('tasksCompleted').textContent = appData.currentUser.tasksCompleted || 0;
+                document.getElementById('activeProjects').textContent = 5;
+                document.getElementById('upcomingDeadlines').textContent = 2;
                 
                 // Update avatar if exists
                 if (appData.currentUser.avatar) {
@@ -1927,6 +1934,33 @@
 
             // Setup all event listeners
             function setupEventListeners() {
+                // Toggle user dropdown
+                document.getElementById('userAvatar').addEventListener('click', function() {
+                    userDropdown.classList.toggle('active');
+                });
+                
+                document.getElementById('userName').addEventListener('click', function() {
+                    userDropdown.classList.toggle('active');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.user-profile')) {
+                        userDropdown.classList.remove('active');
+                    }
+                });
+                
+                // Profile navigation
+                profileLink.addEventListener('click', function() {
+                    showPage('profile');
+                    userDropdown.classList.remove('active');
+                });
+                
+                // Settings navigation
+                document.querySelector('[data-feature="settings"]').addEventListener('click', function() {
+                    showPage('settings');
+                });
+                
                 // Profile form auto-save
                 document.getElementById('profileForm').addEventListener('submit', function(e) {
                     e.preventDefault();
@@ -1953,12 +1987,8 @@
                 // Navigation
                 document.querySelectorAll('[data-feature]').forEach(item => {
                     item.addEventListener('click', function(e) {
-                        if (this.dataset.feature !== 'dashboard' && 
-                            this.dataset.feature !== 'profile' && 
-                            this.dataset.feature !== 'settings') {
-                            e.preventDefault();
-                            showPage(this.dataset.feature);
-                        }
+                        e.preventDefault();
+                        showPage(this.dataset.feature);
                     });
                 });
                 
@@ -1969,7 +1999,44 @@
                     });
                 });
                 
-                // [Rest of existing event listeners...]
+                // Notifications
+                notificationIcon.addEventListener('click', function() {
+                    notificationsModal.style.display = 'flex';
+                });
+                
+                closeNotifications.addEventListener('click', function() {
+                    notificationsModal.style.display = 'none';
+                });
+                
+                // Close notifications when clicking outside
+                notificationsModal.addEventListener('click', function(e) {
+                    if (e.target === notificationsModal) {
+                        notificationsModal.style.display = 'none';
+                    }
+                });
+                
+                // Delete all notifications
+                deleteAllNotificationsBtn.addEventListener('click', function() {
+                    appData.notifications = [];
+                    loadNotifications();
+                    saveData();
+                    showToast('All notifications deleted');
+                });
+                
+                // Delete all activity
+                deleteAllActivity.addEventListener('click', function() {
+                    appData.activities = [];
+                    loadActivities();
+                    saveData();
+                    showToast('All activities cleared');
+                });
+                
+                // Theme change
+                themeSelect.addEventListener('change', function() {
+                    appData.settings.theme = this.value;
+                    applySettings();
+                    saveData();
+                });
             }
 
             // Save profile data
@@ -2063,6 +2130,17 @@
                 document.querySelectorAll('.feature-page, #dashboardContent, #profileContent, #settingsContent').forEach(el => {
                     el.classList.remove('active');
                 });
+                
+                // Update active menu item
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.feature === page) {
+                        item.classList.add('active');
+                    }
+                });
+                
+                // Update URL hash
+                window.location.hash = page === 'dashboard' ? '' : page;
                 
                 // Show the requested page
                 if (page === 'dashboard') {
