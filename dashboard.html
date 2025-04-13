@@ -1059,11 +1059,32 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .toast.show {
             display: flex;
             opacity: 1;
+        }
+
+        .toast i {
+            font-size: 1.2rem;
+        }
+
+        .toast-success {
+            background-color: var(--secondary);
+        }
+
+        .toast-info {
+            background-color: var(--primary);
+        }
+
+        .toast-warning {
+            background-color: #f59e0b;
+        }
+
+        .toast-error {
+            background-color: var(--danger);
         }
 
         /* Back button */
@@ -2097,9 +2118,9 @@
     </div>
 
     <!-- Toast Notification -->
-    <div class="toast" id="toastNotification">
+    <div class="toast toast-success" id="toastNotification">
         <i class="fas fa-check-circle"></i>
-        <span id="toastMessage">Settings saved successfully!</span>
+        <span id="toastMessage">Changes saved successfully</span>
     </div>
 
     <!-- WebSocket Connection Status -->
@@ -2128,11 +2149,41 @@
                     tasksCompleted: 12
                 },
                 teamMembers: [
-                    { id: 1, name: "Mohamed Elmenisy", email: "m.elsayed@thechefz.co", role: "admin" },
-                    { id: 2, name: "Ahmed Mohamed", email: "ahmed@example.com", role: "member" },
-                    { id: 3, name: "Fatima Ali", email: "fatima@example.com", role: "member" },
-                    { id: 4, name: "Omar Hassan", email: "omar@example.com", role: "supervisor" },
-                    { id: 5, name: "Layla Ibrahim", email: "layla@example.com", role: "member" }
+                    { 
+                        id: 1, 
+                        name: "Mohamed Elmenisy", 
+                        email: "m.elsayed@thechefz.co", 
+                        role: "admin",
+                        shift: "Morning (9AM-5PM)"
+                    },
+                    { 
+                        id: 2, 
+                        name: "Ahmed Mohamed", 
+                        email: "ahmed@example.com", 
+                        role: "member",
+                        shift: "Afternoon (1PM-9PM)"
+                    },
+                    { 
+                        id: 3, 
+                        name: "Fatima Ali", 
+                        email: "fatima@example.com", 
+                        role: "member",
+                        shift: "Morning (9AM-5PM)"
+                    },
+                    { 
+                        id: 4, 
+                        name: "Omar Hassan", 
+                        email: "omar@example.com", 
+                        role: "supervisor",
+                        shift: "Night (5PM-1AM)"
+                    },
+                    { 
+                        id: 5, 
+                        name: "Layla Ibrahim", 
+                        email: "layla@example.com", 
+                        role: "member",
+                        shift: "Morning (9AM-5PM)"
+                    }
                 ],
                 activities: [
                     { 
@@ -2489,14 +2540,14 @@
                 Object.assign(appData.currentUser, profileData);
                 updateProfileDisplay();
                 saveData();
-                showToast('Your profile has been updated');
+                showToast('Profile updated successfully', 'success');
             }
 
             // Update team data
             function updateTeamData(teamData) {
                 appData.teamMembers = teamData;
                 saveData();
-                showToast('Team members updated');
+                showToast('Team members updated', 'success');
                 checkUserRole(); // Re-check roles after update
             }
 
@@ -2645,6 +2696,7 @@
                         <div class="member-details">
                             <div class="member-name">${member.name}</div>
                             <div class="member-email">${member.email}</div>
+                            <div class="member-shift">Shift: ${member.shift || 'Not assigned'}</div>
                             <span class="member-role role-${member.role}">
                                 ${roleTitles[member.role] || member.role}
                             </span>
@@ -2676,7 +2728,7 @@
                             appData.teamMembers.splice(memberIndex, 1);
                             loadTeamMembers();
                             saveData();
-                            showToast('Team member removed');
+                            showToast('Team member removed', 'success');
                         }
                     });
                 });
@@ -2704,6 +2756,15 @@
                                 <option value="admin" ${member.role === 'admin' ? 'selected' : ''}>Admin</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label for="editMemberShift">Work Shift</label>
+                            <select id="editMemberShift" class="form-control" required>
+                                <option value="Morning (9AM-5PM)" ${member.shift === 'Morning (9AM-5PM)' ? 'selected' : ''}>Morning (9AM-5PM)</option>
+                                <option value="Afternoon (1PM-9PM)" ${member.shift === 'Afternoon (1PM-9PM)' ? 'selected' : ''}>Afternoon (1PM-9PM)</option>
+                                <option value="Night (5PM-1AM)" ${member.shift === 'Night (5PM-1AM)' ? 'selected' : ''}>Night (5PM-1AM)</option>
+                                <option value="Flexible" ${member.shift === 'Flexible' ? 'selected' : ''}>Flexible</option>
+                            </select>
+                        </div>
                     </form>
                 `;
                 
@@ -2712,14 +2773,16 @@
                     const name = document.getElementById('editMemberName').value;
                     const email = document.getElementById('editMemberEmail').value;
                     const role = document.getElementById('editMemberRole').value;
+                    const shift = document.getElementById('editMemberShift').value;
                     
                     member.name = name;
                     member.email = email;
                     member.role = role;
+                    member.shift = shift;
                     
                     loadTeamMembers();
                     saveData();
-                    showToast('Team member updated successfully');
+                    showToast('Team member updated successfully', 'success');
                     previewModal.style.display = 'none';
                 };
                 
@@ -2769,7 +2832,7 @@
                         appData.activities.splice(index, 1);
                         loadActivities();
                         saveData();
-                        showToast('Activity removed');
+                        showToast('Activity removed', 'success');
                     });
                 });
             }
@@ -2827,16 +2890,36 @@
                         appData.notifications.splice(index, 1);
                         loadNotifications();
                         saveData();
-                        showToast('Notification removed');
+                        showToast('Notification removed', 'success');
                     });
                 });
             }
 
             // Show Toast Notification
-            function showToast(message) {
+            function showToast(message, type = 'info') {
                 const toast = document.getElementById('toastNotification');
                 if (toast) {
-                    document.getElementById('toastMessage').textContent = message;
+                    // Set the toast class based on type
+                    toast.className = `toast toast-${type}`;
+                    
+                    // Set icon based on type
+                    let icon;
+                    switch(type) {
+                        case 'success':
+                            icon = 'fa-check-circle';
+                            break;
+                        case 'error':
+                            icon = 'fa-exclamation-circle';
+                            break;
+                        case 'warning':
+                            icon = 'fa-exclamation-triangle';
+                            break;
+                        default:
+                            icon = 'fa-info-circle';
+                    }
+                    
+                    toast.innerHTML = `<i class="fas ${icon}"></i><span id="toastMessage">${message}</span>`;
+                    
                     toast.classList.add('show');
                     
                     setTimeout(() => {
@@ -2880,7 +2963,7 @@
                 
                 fileInput.addEventListener('change', function(e) {
                     if (e.target.files && e.target.files.length > 0) {
-                        showToast(`${e.target.files.length} file(s) selected for upload`);
+                        showToast(`${e.target.files.length} file(s) selected for upload`, 'info');
                         // In a real app, you would handle the file upload here
                     }
                 });
@@ -2941,7 +3024,7 @@
                     appData.notifications = [];
                     loadNotifications();
                     saveData();
-                    showToast('All notifications deleted');
+                    showToast('All notifications deleted', 'success');
                 });
                 
                 // Delete all activity
@@ -2949,7 +3032,7 @@
                     appData.activities = [];
                     loadActivities();
                     saveData();
-                    showToast('All activities cleared');
+                    showToast('All activities cleared', 'success');
                 });
 
                 // Search functionality
@@ -3003,7 +3086,7 @@
                                 const name = this.getAttribute('data-name');
                                 
                                 // In a real app, you would navigate to the appropriate section
-                                showToast(`Selected ${type}: ${name}`);
+                                showToast(`Selected ${type}: ${name}`, 'info');
                                 searchResults.style.display = 'none';
                                 searchInput.value = '';
                             });
@@ -3064,7 +3147,10 @@
                 logoutLink.addEventListener('click', function(e) {
                     e.preventDefault();
                     // In a real app, you would handle logout properly
-                    window.location.href = "login.html";
+                    showToast('Logging out...', 'info');
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 1000);
                 });
 
                 // Settings Tab Functionality
@@ -3092,7 +3178,7 @@
                         const reader = new FileReader();
                         reader.onload = function(event) {
                             updateAvatar(event.target.result);
-                            showToast('Profile picture updated successfully');
+                            showToast('Profile picture updated successfully', 'success');
                         };
                         reader.readAsDataURL(e.target.files[0]);
                     }
@@ -3113,7 +3199,7 @@
                         document.body.className = `${themeSelect.value}-theme`;
                         appData.settings.theme = themeSelect.value;
                         saveData();
-                        showToast('Theme changed successfully');
+                        showToast('Theme changed successfully', 'success');
                         previewModal.style.display = 'none';
                     };
                     
@@ -3142,14 +3228,15 @@
                         id: appData.teamMembers.length + 1,
                         name,
                         email,
-                        role
+                        role,
+                        shift: "Morning (9AM-5PM)"
                     };
                     
                     appData.teamMembers.push(newMember);
                     loadTeamMembers();
                     this.reset();
                     saveData();
-                    showToast('Team member added successfully');
+                    showToast('Team member added successfully', 'success');
                     
                     // Simulate WebSocket update
                     handleWebSocketMessage({
@@ -3171,7 +3258,7 @@
                     // Update UI
                     updateProfileDisplay();
                     saveData();
-                    showToast('Profile updated successfully');
+                    showToast('Profile updated successfully', 'success');
                     
                     // Simulate WebSocket update
                     handleWebSocketMessage({
@@ -3184,7 +3271,7 @@
                 document.getElementById('passwordForm').addEventListener('submit', function(e) {
                     e.preventDefault();
                     // In a real app, you would validate and update the password
-                    showToast('Password updated successfully');
+                    showToast('Password updated successfully', 'success');
                     this.reset();
                 });
 
@@ -3203,7 +3290,7 @@
                     select.addEventListener('change', function() {
                         appData.settings[this.id.replace('Select', '')] = this.value;
                         saveData();
-                        showToast('Settings saved successfully');
+                        showToast('Settings saved successfully', 'success');
                     });
                 });
 
@@ -3211,7 +3298,7 @@
                     checkbox.addEventListener('change', function() {
                         appData.settings[this.id] = this.checked;
                         saveData();
-                        showToast('Settings saved successfully');
+                        showToast('Settings saved successfully', 'success');
                     });
                 });
 
