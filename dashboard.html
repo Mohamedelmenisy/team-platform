@@ -30,6 +30,7 @@
             --sidebar-active: rgba(255,255,255,0.2);
             --sidebar-divider: rgba(255,255,255,0.1);
             --success: #10b981;
+            --team-manager: #ef4444;
         }
         
         * {
@@ -371,6 +372,8 @@
             opacity: 0.9;
             font-size: 0.9rem;
             margin-bottom: 0.5rem;
+            color: var(--team-manager);
+            font-weight: 600;
         }
         
         .user-info-email {
@@ -539,10 +542,21 @@
             padding: 1rem 0;
             border-bottom: 1px solid var(--light-gray);
             align-items: center;
+            transition: background-color 0.3s;
         }
         
         .activity-item:last-child {
             border-bottom: none;
+        }
+        
+        .activity-item.new-activity {
+            background-color: rgba(37, 99, 235, 0.05);
+            animation: highlight 2s;
+        }
+
+        @keyframes highlight {
+            0% { background-color: rgba(37, 99, 235, 0.2); }
+            100% { background-color: rgba(37, 99, 235, 0.05); }
         }
         
         .activity-icon {
@@ -1194,9 +1208,10 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            margin-top: 1rem;
             color: var(--success);
             font-weight: 500;
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
         }
 
         .status-dot {
@@ -1304,6 +1319,11 @@
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
+
+            <div class="connection-status">
+                <div class="status-dot"></div>
+                <span>Connected</span>
+            </div>
         </div>
     </aside>
 
@@ -1325,7 +1345,7 @@
                 
                 <div class="user-profile">
                     <div class="user-avatar" id="userAvatar">ME</div>
-                    <div class="user-name" id="userName">Mohamed Elsayed</div>
+                    <div class="user-name" id="userName">Mohamed Elmenisy</div>
                     <div class="user-dropdown" id="userDropdown">
                         <a href="#profile" class="dropdown-item" id="profileLink">
                             <i class="fas fa-user"></i>
@@ -1361,7 +1381,7 @@
                     <div class="user-info">
                         <div class="user-info-avatar" id="profileAvatar">ME</div>
                         <div class="user-info-details">
-                            <div class="user-info-name">Mohamed Elsayed</div>
+                            <div class="user-info-name">Mohamed Elmenisy</div>
                             <div class="user-info-title" id="userRoleTitle">Team Manager</div>
                             <div class="user-info-email">
                                 <i class="fas fa-envelope"></i>
@@ -1369,12 +1389,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Connection status moved here -->
-                <div class="connection-status">
-                    <div class="status-dot"></div>
-                    <span>Connected</span>
                 </div>
                 
                 <!-- Stats Section -->
@@ -1437,8 +1451,8 @@
                     <div class="section-header">
                         <h3 class="section-title">Recent Activity <span class="live-badge">LIVE</span></h3>
                         <div>
-                            <span class="view-all" id="viewAllActivity" style="display: none;">Show All</span>
-                            <span class="delete-all" id="deleteAllActivity" style="display: none;">Delete All</span>
+                            <span class="view-all" id="viewAllActivity">Show All</span>
+                            <span class="delete-all" id="deleteAllActivity">Delete All</span>
                         </div>
                     </div>
                     
@@ -1475,7 +1489,7 @@
                     
                     <div class="form-group">
                         <label for="lastName">Last Name</label>
-                        <input type="text" id="lastName" class="form-control" value="Elsayed">
+                        <input type="text" id="lastName" class="form-control" value="Elmenisy">
                     </div>
                     
                     <div class="form-group">
@@ -1509,10 +1523,6 @@
             <div class="settings-content" id="settingsContent">
                 <div class="profile-header">
                     <h2 class="profile-title">System Settings</h2>
-                    <div class="connection-status" style="color: var(--dark); margin-top: 0;">
-                        <div class="status-dot"></div>
-                        <span>Connected</span>
-                    </div>
                 </div>
                 
                 <div class="settings-tabs">
@@ -1857,7 +1867,7 @@
                 // Default user if not found
                 return {
                     id: 1,
-                    name: 'Mohamed Elsayed',
+                    name: 'Mohamed Elmenisy',
                     email: 'm.elsayed@thechefz.co',
                     title: 'Team Manager',
                     department: 'Management',
@@ -1918,7 +1928,20 @@
                 }
                 
                 // Default activities if not found
-                return [];
+                return [
+                    {
+                        id: Date.now() - 5000,
+                        icon: 'fa-info-circle',
+                        message: 'Welcome to TeamFlow! Your dashboard is ready.',
+                        timestamp: new Date(Date.now() - 5000).toISOString()
+                    },
+                    {
+                        id: Date.now() - 10000,
+                        icon: 'fa-tasks',
+                        message: 'System initialized successfully',
+                        timestamp: new Date(Date.now() - 10000).toISOString()
+                    }
+                ];
             }
             
             // Save activities to localStorage
@@ -2041,6 +2064,12 @@
                         activities.unshift(newActivity);
                         saveActivities(activities);
                         loadActivities(viewAllActivity.style.display === 'none');
+                        
+                        // Highlight new activity
+                        const activityItem = document.querySelector('.activity-item:first-child');
+                        if (activityItem) {
+                            activityItem.classList.add('new-activity');
+                        }
                         
                         // Update notification badge
                         const badge = document.querySelector('.notification-badge');
@@ -2416,8 +2445,8 @@
                     viewAllActivity.style.display = 'inline';
                     deleteAllActivity.style.display = currentUser.role === 'admin' || currentUser.role === 'supervisor' ? 'inline' : 'none';
                 } else {
-                    viewAllActivity.style.display = 'none';
-                    deleteAllActivity.style.display = 'none';
+                    viewAllActivity.style.display = 'inline';
+                    deleteAllActivity.style.display = currentUser.role === 'admin' || currentUser.role === 'supervisor' ? 'inline' : 'none';
                 }
                 
                 // Add event listeners to delete buttons
@@ -2496,8 +2525,6 @@
                         activities = [];
                         saveActivities(activities);
                         loadActivities();
-                        viewAllActivity.style.display = 'none';
-                        deleteAllActivity.style.display = 'none';
                         hideConfirmModal();
                     }
                 );
@@ -2686,7 +2713,6 @@
             // View all activity
             viewAllActivity.addEventListener('click', function() {
                 loadActivities(true);
-                this.style.display = 'none';
             });
             
             // Delete all activities
