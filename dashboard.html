@@ -3,516 +3,2590 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coaching & Leadership Course</title>
-    <!-- Favicon links for various devices -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="msapplication-TileColor" content="#2b5797">
-    <meta name="theme-color" content="#ffffff">
-    <!-- Favicon (generic version) -->
-    <link rel="shortcut icon" href="https://img.icons8.com/fluency/48/000000/conference-call.png" type="image/x-icon">
+    <title>TeamFlow | Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e3a8a;
+            --primary-light: #dbeafe;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --light-gray: #e2e8f0;
+            --white: #ffffff;
+            --sidebar-width: 280px;
+            --sidebar-bg: #1e3a8a;
+            --sidebar-text: rgba(255,255,255,0.9);
+            --sidebar-hover: rgba(255,255,255,0.1);
+            --sidebar-active: rgba(255,255,255,0.2);
+            --sidebar-divider: rgba(255,255,255,0.1);
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
+        
         body {
-            background-color: #f8fafc;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-            color: #333;
+            background-color: var(--primary-light);
+            color: var(--dark);
+            display: flex;
+            min-height: 100vh;
         }
-
-        .header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 15px 0;
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--sidebar-divider);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo-icon {
+            color: var(--white);
+            font-size: 1.5rem;
+        }
+        
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+        
+        .menu-title {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 0.5px;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            margin: 0.25rem 0;
+        }
+        
+        .menu-item:hover {
+            background-color: var(--sidebar-hover);
+            color: var(--white);
+        }
+        
+        .menu-item.active {
+            background-color: var(--sidebar-active);
+            color: var(--white);
+            border-left-color: var(--white);
+        }
+        
+        .menu-item i {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            width: 24px;
             text-align: center;
-            font-size: 24px;
-            position: relative;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-
-        .user-bar {
-            background-color: #34495e;
-            padding: 10px 30px;
+        
+        .menu-divider {
+            height: 1px;
+            background-color: var(--sidebar-divider);
+            margin: 1rem 1.5rem;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+        }
+        
+        /* Top Navigation */
+        .top-nav {
+            background-color: var(--white);
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: white;
-            font-size: 15px;
+            border-bottom: 1px solid var(--light-gray);
+            position: sticky;
+            top: 0;
+            z-index: 90;
         }
-
+        
+        .search-bar {
+            position: relative;
+            width: 400px;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .notification-icon {
+            position: relative;
+            color: var(--gray);
+            cursor: pointer;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 600;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .user-name {
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 200px;
+            z-index: 100;
+            display: none;
+        }
+        
+        .user-dropdown.active {
+            display: block;
+        }
+        
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--dark);
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        
+        .dropdown-item:hover {
+            background-color: var(--light);
+        }
+        
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Content Area */
+        .content-area {
+            padding: 2rem;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .welcome-section {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .welcome-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
         .user-info {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
         }
-
-        .user-details {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .user-name {
-            font-weight: 600;
-            font-size: 15px;
-        }
-
-        .user-email {
-            font-size: 13px;
-            opacity: 0.8;
-        }
-
-        .logout-button {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
+        
+        .user-info-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: var(--primary);
             display: flex;
             align-items: center;
-            gap: 6px;
-        }
-
-        .logout-button:hover {
-            background-color: #c0392b;
-            transform: translateY(-1px);
-        }
-
-        .logout-button:active {
-            transform: translateY(0);
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 30px auto;
-            background: white;
-            padding: 30px;
-            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.05);
-            border-radius: 10px;
-        }
-
-        .question {
-            margin-top: 25px;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 15px;
-            background: #2c3e50;
-            color: white;
-            margin-top: 40px;
-            font-size: 14px;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 14px;
-            margin: 10px 0;
-            font-size: 16px;
-            border: 1px solid #e0e4e7;
-            border-radius: 8px;
-            transition: all 0.3s;
-            background-color: #f9fafb;
-        }
-
-        .input-field:focus {
-            border-color: #3498db;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-            background-color: #fff;
-        }
-
-        .submit-button {
-            background: linear-gradient(90deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            padding: 14px 25px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 8px;
-            display: block;
-            width: 100%;
+            justify-content: center;
             font-weight: 600;
-            transition: all 0.3s;
-            margin-top: 15px;
-            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.1);
-        }
-
-        .submit-button:hover {
-            background: linear-gradient(90deg, #2980b9, #3498db);
-            box-shadow: 0 6px 8px rgba(52, 152, 219, 0.15);
-            transform: translateY(-1px);
-        }
-
-        .submit-button:active {
-            transform: translateY(0);
-        }
-
-        .error-message {
-            color: #e74c3c;
-            font-size: 14px;
-            margin-top: 8px;
-            display: none;
-            font-weight: 500;
-        }
-
-        .article-container {
+            font-size: 1.75rem;
+            background-size: cover;
+            background-position: center;
             position: relative;
-            margin: 25px 0;
-            padding-top: 40px;
+            cursor: pointer;
         }
-
-        .article-link {
-            display: inline-block;
-            background: linear-gradient(90deg, #3498db, #2ecc71);
-            color: white;
-            padding: 14px 30px;
-            text-decoration: none;
-            border-radius: 8px;
+        
+        .avatar-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background-color: var(--white);
+            color: var(--primary);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+        }
+        
+        .user-info-details {
+            flex: 1;
+        }
+        
+        .user-info-name {
             font-weight: 600;
-            transition: all 0.3s;
-            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.1);
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
         }
-
-        .article-link:hover {
-            background: linear-gradient(90deg, #2980b9, #27ae60);
-            box-shadow: 0 6px 8px rgba(52, 152, 219, 0.15);
-            transform: translateY(-1px);
+        
+        .user-info-title {
+            opacity: 0.9;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
         }
-
-        .article-link:active {
-            transform: translateY(0);
+        
+        .user-info-email {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
         }
-
-        .lock-message {
+        
+        /* Stats Section */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card::before {
+            content: '';
             position: absolute;
             top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #e74c3c;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 6px;
-            font-size: 14px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            z-index: 1;
-            width: max-content;
-            max-width: 90%;
-            text-align: center;
-            animation: pulse 2s infinite;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+        }
+        
+        .stat-title {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .stat-title i {
+            color: var(--primary);
+        }
+        
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
             font-weight: 500;
         }
-
-        @keyframes pulse {
-            0% { transform: translateX(-50%) scale(1); }
-            50% { transform: translateX(-50%) scale(1.05); }
-            100% { transform: translateX(-50%) scale(1); }
+        
+        .trend-up {
+            color: var(--secondary);
         }
-
-        .course-image {
-            width: 100%;
-            height: auto;
-            margin: 20px 0;
+        
+        .trend-down {
+            color: var(--danger);
+        }
+        
+        /* Activity Section */
+        .activity-section {
+            background-color: var(--white);
             border-radius: 8px;
-            border: 1px solid #e0e4e7;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
         }
-
-        .modal-overlay {
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .view-all {
+            color: var(--primary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .view-all:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+            background-color: var(--primary-light);
+        }
+        
+        .delete-all {
+            color: var(--danger);
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-left: 1rem;
+        }
+        
+        .delete-all:hover {
+            color: #dc2626;
+            text-decoration: underline;
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        
+        .activity-list {
+            list-style: none;
+        }
+        
+        .activity-item {
+            display: flex;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--light-gray);
+            align-items: center;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-message {
+            margin-bottom: 0.25rem;
+        }
+        
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .activity-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: auto;
+            padding-left: 1rem;
+        }
+        
+        .delete-activity {
+            color: var(--danger);
+            cursor: pointer;
+            opacity: 1;
+            transition: opacity 0.2s;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .delete-activity:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        
+        /* Profile Content */
+        .profile-content {
             display: none;
-            position: fixed;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+        
+        .profile-content.active {
+            display: block;
+        }
+        
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .profile-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .profile-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .form-actions {
+            grid-column: span 2;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        
+        /* Settings Content */
+        .settings-content {
+            display: none;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+        
+        .settings-content.active {
+            display: block;
+        }
+        
+        .settings-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--light-gray);
+            margin-bottom: 2rem;
+        }
+        
+        .settings-tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+            color: var(--gray);
+            transition: all 0.2s;
+        }
+        
+        .settings-tab:hover {
+            color: var(--primary);
+        }
+        
+        .settings-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .settings-panel {
+            display: none;
+        }
+        
+        .settings-panel.active {
+            display: block;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.7);
+            background-color: #ccc;
+            transition: .4s;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .slider.round {
+            border-radius: 34px;
+        }
+        
+        .slider.round:before {
+            border-radius: 50%;
+        }
+        
+        /* Team Management */
+        .team-management {
+            margin-top: 1.5rem;
+        }
+        
+        .team-list {
+            margin-top: 1rem;
+        }
+        
+        .team-member-card {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .team-member-card:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .member-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--light-gray);
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .member-details {
+            flex: 1;
+        }
+        
+        .member-email {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .member-role {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .role-admin {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        .role-member {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--secondary);
+        }
+        
+        .member-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .add-member-form {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border: 1px dashed var(--light-gray);
+            border-radius: 8px;
+        }
+        
+        /* Theme Classes */
+        body.light-theme {
+            --primary-light: #f8fafc;
+            --light: #ffffff;
+            --white: #ffffff;
+            --dark: #1e293b;
+            background-color: #f8fafc;
+        }
+        
+        body.dark-theme {
+            --primary-light: #1e293b;
+            --light: #334155;
+            --white: #1e293b;
+            --dark: #f8fafc;
+            background-color: #0f172a;
+        }
+        
+        body.blue-theme {
+            --primary-light: #dbeafe;
+            --light: #eff6ff;
+            --white: #ffffff;
+            --dark: #1e293b;
+            background-color: #dbeafe;
+        }
+        
+        /* Notifications Modal */
+        .notifications-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
             z-index: 1000;
+            display: none;
+            justify-content: flex-end;
+        }
+        
+        .notifications-container {
+            width: 400px;
+            max-width: 100%;
+            background-color: var(--white);
+            height: 100vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        
+        .notifications-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .notifications-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .close-notifications {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: white;
+        }
+        
+        .notification-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--light-gray);
+            transition: background-color 0.2s;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .notification-item:hover {
+            background-color: var(--light);
+        }
+        
+        .notification-item.unread {
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+        
+        .notification-icon-wrapper {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-message {
+            margin-bottom: 0.25rem;
+        }
+        
+        .notification-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .mark-all-read {
+            padding: 1rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        /* Confirm Modal */
+        .confirm-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1100;
+            display: none;
             justify-content: center;
             align-items: center;
         }
 
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 450px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            position: relative;
-            animation: modalFadeIn 0.3s ease-out;
+        .confirm-container {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            width: 400px;
+            max-width: 90%;
+            padding: 1.5rem;
+            animation: fadeIn 0.3s ease-out;
         }
 
-        @keyframes modalFadeIn {
+        @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .modal-button {
-            background: linear-gradient(90deg, #2ecc71, #27ae60);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 20px;
+        .confirm-title {
+            font-size: 1.25rem;
             font-weight: 600;
-            transition: all 0.3s;
-            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.1);
+            margin-bottom: 1rem;
+            color: var(--danger);
         }
 
-        .modal-button:hover {
-            background: linear-gradient(90deg, #27ae60, #2ecc71);
-            box-shadow: 0 6px 8px rgba(46, 204, 113, 0.15);
-            transform: translateY(-1px);
+        .confirm-message {
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
         }
 
-        .modal-button:active {
+        .confirm-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .search-bar {
+                width: 250px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .top-nav {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            .user-menu {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .content-area {
+                padding: 1.5rem;
+            }
+            
+            .profile-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                grid-column: span 1;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .user-info-avatar {
+                margin-bottom: 1rem;
+            }
+            
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Arabic styles */
+        body[dir="rtl"] {
+            text-align: right;
+        }
+
+        body[dir="rtl"] .sidebar {
+            right: 0;
+            left: auto;
+        }
+
+        body[dir="rtl"] .main-content {
+            margin-right: var(--sidebar-width);
+            margin-left: 0;
+        }
+
+        body[dir="rtl"] .search-icon {
+            right: 1rem;
+            left: auto;
+        }
+
+        body[dir="rtl"] .search-bar input {
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+        }
+
+        body[dir="rtl"] .menu-item i {
+            margin-right: 0;
+            margin-left: 0.75rem;
+        }
+
+        body[dir="rtl"] .menu-item {
+            border-left: none;
+            border-right: 3px solid transparent;
+        }
+
+        body[dir="rtl"] .menu-item.active {
+            border-right-color: var(--white);
+        }
+
+        body[dir="rtl"] .activity-icon {
+            margin-right: 0;
+            margin-left: 1rem;
+        }
+
+        body[dir="rtl"] .activity-actions {
+            margin-left: 0;
+            margin-right: auto;
+            padding-left: 0;
+            padding-right: 1rem;
+        }
+
+        body[dir="rtl"] .user-dropdown {
+            right: auto;
+            left: 0;
+        }
+
+        body[dir="rtl"] .form-actions {
+            justify-content: flex-start;
+        }
+
+        body[dir="rtl"] .settings-tabs {
+            flex-direction: row-reverse;
+        }
+
+        body[dir="rtl"] .member-avatar {
+            margin-right: 0;
+            margin-left: 1rem;
+        }
+
+        body[dir="rtl"] .member-actions {
+            flex-direction: row-reverse;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .slide-down {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
             transform: translateY(0);
+            opacity: 1;
         }
 
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
+        .toast.success {
+            background-color: var(--secondary);
+        }
+
+        .toast.error {
+            background-color: var(--danger);
+        }
+
+        .toast.warning {
+            background-color: var(--warning);
+        }
+
+        .toast-close {
             background: none;
             border: none;
-            font-size: 22px;
+            color: white;
             cursor: pointer;
-            color: #95a5a6;
-            transition: color 0.3s;
+            font-size: 16px;
         }
 
-        .close-modal:hover {
-            color: #7f8c8d;
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
         }
 
-        .author-info {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-left: 4px solid #3498db;
-            margin: 25px 0;
-            font-style: italic;
-            border-radius: 6px;
-        }
-
-        h2, h3 {
-            color: #2c3e50;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-            font-size: 28px;
-        }
-
-        h3 {
-            margin: 25px 0 15px;
-            font-size: 22px;
-        }
-
-        p {
-            margin-bottom: 15px;
-            color: #34495e;
-            line-height: 1.6;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body>
-    <div class="header">Coaching & Leadership Course</div>
-    <div class="user-bar">
-        <div class="user-info">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.8;">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            <div class="user-details">
-                <span class="user-name" id="userName">Welcome back</span>
-                <span class="user-email" id="userEmail">user@example.com</span>
+<body class="blue-theme">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-users-cog logo-icon"></i>
+                <span>TeamFlow</span>
             </div>
         </div>
-        <button class="logout-button" onclick="logout()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
-            Logout
-        </button>
-    </div>
-    <div class="container">
-        <h2>Welcome to the Coaching & Leadership Course!</h2>
-        <p>This course is provided by Mohamed Elmenisy and includes articles, images, and interactive questions designed to enhance your leadership skills.</p>
         
-        <div class="author-info">
-            <p>"Great leaders don't set out to be leaders. They set out to make a difference. It's never about the role - always about the goal."</p>
-            <p>- Mohamed Elmenisy, Learning and Development</p>
-        </div>
-        
-        <h3>First Article: Introduction to Coaching & Leadership</h3>
-        
-        <div class="article-container">
-            <div class="lock-message" id="lockMessage">Complete the question below to unlock this content</div>
-            <a href="article1.html" id="articleLink" class="article-link">READ THE FULL ARTICLE</a>
-        </div>
-        
-        <img src="Man-Speaking-in-a-Business-Meeting-800x449.jpg" alt="Leadership Course Image" class="course-image">
-        
-        <div class="question">
-            <h3>Interactive Question</h3>
-            <p>What is your goal for taking this Coaching & Leadership course?</p>
-            <input type="text" id="name" class="input-field" placeholder="Enter your name">
-            <textarea id="answer" class="input-field" placeholder="Write your answer here (minimum 20 characters)" rows="5"></textarea>
-            <p id="error-message" class="error-message">Please enter both your name and a meaningful answer (at least 20 characters).</p>
-            <button class="submit-button" onclick="submitAnswer()" id="submitBtn">Submit Your Answer</button>
-        </div>
-    </div>
-    <div class="footer">&copy; 2025 Elmenisy Leadership Coaching - All Rights Reserved</div>
-    
-    <div id="successModal" class="modal-overlay">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeModal()">×</button>
-            <h3>Thank You for Your Submission!</h3>
-            <p>We appreciate you taking the time to share your goals with us. Your insights are valuable to your leadership journey.</p>
-            <p>You now have full access to the article. We hope you find it informative and relevant to your objectives.</p>
-            <button class="modal-button" onclick="redirectToArticle()">ACCESS ARTICLE</button>
-        </div>
-    </div>
-    
-    <script>
-        // Check if user is logged in
-        if (!localStorage.getItem('loggedIn')) {
-            window.location.href = 'login.html';  // Redirect to login if not logged in
-        } else {
-            // Display user info if logged in
-            const userData = JSON.parse(localStorage.getItem('currentUser')) || {};
-            const userName = userData.name || 'User';
-            const userEmail = userData.email || 'user@example.com';
+        <div class="sidebar-menu">
+            <div class="menu-title">Main Features</div>
             
-            document.getElementById('userName').textContent = `Welcome, ${userName}`;
-            document.getElementById('userEmail').textContent = userEmail;
+            <a href="#dashboard" class="menu-item active" data-feature="dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
             
-            // If user has already submitted an answer, unlock content
-            if (localStorage.getItem('userAnswer')) {
-                document.getElementById('lockMessage').style.display = 'none';
-                document.getElementById('articleLink').style.pointerEvents = 'auto';
-                document.getElementById('articleLink').style.opacity = '1';
-                document.getElementById('name').value = localStorage.getItem('userName') || '';
-                document.getElementById('answer').value = localStorage.getItem('userAnswer') || '';
-            }
-        }
+            <div class="menu-divider"></div>
+            
+            <a href="#file-sharing" class="menu-item" data-feature="file-sharing">
+                <i class="fas fa-file-upload"></i>
+                <span>File Sharing</span>
+            </a>
+            
+            <a href="#data-management" class="menu-item" data-feature="data-management">
+                <i class="fas fa-database"></i>
+                <span>Data Management</span>
+            </a>
+            
+            <a href="#project-tracking" class="menu-item" data-feature="project-tracking">
+                <i class="fas fa-project-diagram"></i>
+                <span>Project Tracking</span>
+            </a>
+            
+            <div class="menu-divider"></div>
+            
+            <a href="#task-management" class="menu-item" data-feature="task-management">
+                <i class="fas fa-tasks"></i>
+                <span>Task Management</span>
+            </a>
+            
+            <a href="#employee-scheduling" class="menu-item" data-feature="employee-scheduling">
+                <i class="fas fa-users"></i>
+                <span>Employee Scheduling</span>
+            </a>
+            
+            <a href="#team-calendar" class="menu-item" data-feature="team-calendar">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Team Calendar</span>
+            </a>
+            
+            <div class="menu-divider"></div>
+            
+            <a href="#deadline-tracking" class="menu-item" data-feature="deadline-tracking">
+                <i class="fas fa-clock"></i>
+                <span>Deadline Tracking</span>
+            </a>
+            
+            <a href="#innovation-hub" class="menu-item" data-feature="innovation-hub">
+                <i class="fas fa-lightbulb"></i>
+                <span>Innovation Hub</span>
+            </a>
+            
+            <div class="menu-divider"></div>
+            
+            <a href="#settings" class="menu-item" data-feature="settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </div>
+    </aside>
 
-        // Store answers in localStorage
-        function storeAnswers(name, answer) {
-            localStorage.setItem('userName', name);
-            localStorage.setItem('userAnswer', answer);
-        }
-        
-        // Logout function
-        function logout() {
-            // Clear user session
-            localStorage.removeItem('loggedIn');
-            localStorage.removeItem('currentUser');
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav class="top-nav">
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search employees, projects, tasks..." id="searchInput">
+            </div>
             
-            // Redirect to login page
-            window.location.href = 'login.html';
-        }
+            <div class="user-menu">
+                <div class="notification-icon" id="notificationIcon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </div>
+                
+                <div class="user-profile">
+                    <div class="user-avatar" id="userAvatar">ME</div>
+                    <div class="user-name" id="userName">Mohamed Elmenisy</div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#profile" class="dropdown-item" id="profileLink">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                        <a href="#settings" class="dropdown-item" id="settingsLink">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="login.html" class="dropdown-item" id="logoutLink">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
         
-        // Submit answer function
-        function submitAnswer() {
-            let name = document.getElementById('name').value.trim();
-            let answer = document.getElementById('answer').value.trim();
-            let errorMessage = document.getElementById('error-message');
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Dashboard Content -->
+            <div id="dashboardContent">
+                <!-- Welcome Section -->
+                <div class="welcome-section">
+                    <h2 class="welcome-title">Welcome back, <span id="welcomeName">Mohamed</span>!</h2>
+                    
+                    <div class="user-info">
+                        <div class="user-info-avatar" id="profileAvatar">ME</div>
+                        <div class="user-info-details">
+                            <div class="user-info-name">Mohamed Elmenisy</div>
+                            <div class="user-info-title">Team Manager</div>
+                            <div class="user-info-email">
+                                <i class="fas fa-envelope"></i>
+                                <span id="userEmail">mohamed@teamflow.com</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stats Section -->
+                <div class="stats-section">
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas fa-users"></i>
+                            Team Members
+                        </div>
+                        <div class="stat-value">
+                            <span id="teamMembersCount">0</span>
+                            <span class="stat-trend trend-up">
+                                <i class="fas fa-arrow-up"></i> 0%
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas fa-check-circle"></i>
+                            Tasks Completed
+                        </div>
+                        <div class="stat-value">
+                            <span id="tasksCompleted">0</span>
+                            <span class="stat-trend trend-up">
+                                <i class="fas fa-arrow-up"></i> 0%
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas fa-project-diagram"></i>
+                            Active Projects
+                        </div>
+                        <div class="stat-value">
+                            <span id="activeProjects">0</span>
+                            <span class="stat-trend trend-down">
+                                <i class="fas fa-arrow-down"></i> 0%
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas fa-calendar-times"></i>
+                            Upcoming Deadlines
+                        </div>
+                        <div class="stat-value">
+                            <span id="upcomingDeadlines">0</span>
+                            <span class="stat-trend trend-up">
+                                <i class="fas fa-arrow-up"></i> 0%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Activity Section -->
+                <div class="activity-section">
+                    <div class="section-header">
+                        <h3 class="section-title">Recent Activity</h3>
+                        <div>
+                            <span class="view-all" id="viewAllActivity">Show All</span>
+                            <span class="delete-all" id="deleteAllActivity">Delete All</span>
+                        </div>
+                    </div>
+                    
+                    <ul class="activity-list" id="activityList">
+                        <!-- Activity items will be added dynamically -->
+                    </ul>
+                </div>
+            </div>
             
-            if (name && answer.length >= 20) {
-                // Store answers
-                storeAnswers(name, answer);
+            <!-- Profile Content -->
+            <div class="profile-content" id="profileContent">
+                <div class="profile-header">
+                    <h2 class="profile-title">Profile Settings</h2>
+                </div>
                 
-                // Update welcome message if name changed
-                document.getElementById('userName').textContent = `Welcome, ${name}`;
+                <form class="profile-form" id="profileForm">
+                    <div class="form-group">
+                        <label for="profileAvatarInput">Profile Picture</label>
+                        <div class="user-info-avatar" id="profileAvatarLarge">
+                            <div class="avatar-upload" id="avatarUploadBtn">
+                                <i class="fas fa-camera"></i>
+                                <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" class="form-control" value="Mohamed">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" class="form-control" value="Elmenisy">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="jobTitle">Job Title</label>
+                        <input type="text" id="jobTitle" class="form-control" value="Team Manager">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="form-control" value="mohamed@teamflow.com" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" class="form-control" value="+201234567890">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <input type="text" id="department" class="form-control" value="Management">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" id="cancelProfileBtn">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="saveProfileBtn">
+                            <span id="saveProfileText">Save Changes</span>
+                            <span id="saveProfileSpinner" class="spinner" style="display: none;"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Settings Content -->
+            <div class="settings-content" id="settingsContent">
+                <div class="profile-header">
+                    <h2 class="profile-title">System Settings</h2>
+                </div>
                 
-                // Unlock content
-                document.getElementById('lockMessage').style.display = 'none';
-                document.getElementById('articleLink').style.pointerEvents = 'auto';
-                document.getElementById('articleLink').style.opacity = '1';
-                document.getElementById('successModal').style.display = 'flex';
+                <div class="settings-tabs">
+                    <div class="settings-tab active" data-tab="account">Account</div>
+                    <div class="settings-tab" data-tab="security">Security</div>
+                    <div class="settings-tab" data-tab="notifications">Notifications</div>
+                    <div class="settings-tab" data-tab="preferences">Preferences</div>
+                    <div class="settings-tab" data-tab="team">Team Management</div>
+                </div>
                 
-                // Hide error message if shown
-                errorMessage.style.display = "none";
-            } else {
-                errorMessage.style.display = "block";
-                if (!name) {
-                    errorMessage.textContent = "Please enter your name";
-                } else if (answer.length < 20) {
-                    errorMessage.textContent = "Please write a more detailed answer (at least 20 characters)";
+                <div class="settings-panel active" id="accountPanel">
+                    <form class="profile-form" id="accountForm">
+                        <div class="form-group">
+                            <label for="language">Language</label>
+                            <select id="language" class="form-control">
+                                <option value="en">English</option>
+                                <option value="ar">Arabic</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="timezone">Timezone</label>
+                            <select id="timezone" class="form-control">
+                                <option value="utc">UTC</option>
+                                <option value="cairo" selected>Cairo (UTC+2)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="dateFormat">Date Format</label>
+                            <select id="dateFormat" class="form-control">
+                                <option value="mm/dd/yyyy">MM/DD/YYYY</option>
+                                <option value="dd/mm/yyyy" selected>DD/MM/YYYY</option>
+                                <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Settings</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="settings-panel" id="securityPanel">
+                    <form class="profile-form" id="securityForm">
+                        <div class="form-group">
+                            <label>Two-Factor Authentication</label>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <label class="switch">
+                                    <input type="checkbox" id="twoFactorAuth" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                                <span>Enabled</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" class="form-control">
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Update Password</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="settings-panel" id="notificationsPanel">
+                    <form class="profile-form" id="notificationsForm">
+                        <div class="form-group">
+                            <label>Email Notifications</label>
+                            <div style="margin-top: 0.5rem;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span>Task Assignments</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="emailTasks" checked>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span>Deadline Reminders</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="emailDeadlines" checked>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span>System Updates</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="emailUpdates">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Push Notifications</label>
+                            <div style="margin-top: 0.5rem;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span>New Messages</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="pushMessages" checked>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span>Team Updates</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="pushTeamUpdates">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Settings</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="settings-panel" id="preferencesPanel">
+                    <form class="profile-form" id="preferencesForm">
+                        <div class="form-group">
+                            <label>Theme</label>
+                            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                                <div class="theme-option" data-theme="light">
+                                    <div style="width: 60px; height: 60px; background-color: #f8fafc; border: 2px solid #e2e8f0; border-radius: 6px; cursor: pointer;"></div>
+                                    <span style="text-align: center; display: block; margin-top: 0.5rem;">Light</span>
+                                </div>
+                                <div class="theme-option" data-theme="dark">
+                                    <div style="width: 60px; height: 60px; background-color: #1e293b; border: 2px solid #334155; border-radius: 6px; cursor: pointer;"></div>
+                                    <span style="text-align: center; display: block; margin-top: 0.5rem;">Dark</span>
+                                </div>
+                                <div class="theme-option" data-theme="blue">
+                                    <div style="width: 60px; height: 60px; background-color: #dbeafe; border: 2px solid #2563eb; border-radius: 6px; cursor: pointer;"></div>
+                                    <span style="text-align: center; display: block; margin-top: 0.5rem;">Blue</span>
+                                </div>
+                            </div>
+                            <input type="hidden" id="selectedTheme" value="blue">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Layout Density</label>
+                            <div style="margin-top: 0.5rem;">
+                                <select id="layoutDensity" class="form-control">
+                                    <option value="compact">Compact</option>
+                                    <option value="normal" selected>Normal</option>
+                                    <option value="spacious">Spacious</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Preferences</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="settings-panel" id="teamPanel">
+                    <div class="team-management">
+                        <h3>Team Members</h3>
+                        <div class="team-list" id="teamList">
+                            <!-- Team members will be added dynamically -->
+                        </div>
+                        
+                        <div class="add-member-form">
+                            <h4>Add New Member</h4>
+                            <form id="addMemberForm">
+                                <div class="form-group">
+                                    <label for="memberEmail">Email</label>
+                                    <input type="email" id="memberEmail" class="form-control" placeholder="user@example.com" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="memberRole">Role</label>
+                                    <select id="memberRole" class="form-control" required>
+                                        <option value="member">Member</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">Add Member</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feature Content Sections -->
+            <div id="featureSections">
+                <!-- Feature content will be loaded here dynamically -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Notifications Modal -->
+    <div class="notifications-modal" id="notificationsModal">
+        <div class="notifications-container">
+            <div class="notifications-header">
+                <h3 class="notifications-title">Notifications</h3>
+                <button class="close-notifications" id="closeNotifications">&times;</button>
+            </div>
+            
+            <div class="mark-all-read">
+                <button class="btn btn-outline" id="markAllReadBtn">Mark All as Read</button>
+            </div>
+            
+            <div class="notification-item unread">
+                <div class="notification-icon-wrapper">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-message">
+                        <strong>New task assigned</strong> - You've been assigned to "Dashboard Implementation"
+                    </div>
+                    <div class="notification-time">10 minutes ago</div>
+                </div>
+            </div>
+            
+            <div class="notification-item unread">
+                <div class="notification-icon-wrapper">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-message">
+                        <strong>Project update</strong> - "Team Management Platform" is 75% complete
+                    </div>
+                    <div class="notification-time">2 hours ago</div>
+                </div>
+            </div>
+            
+            <div class="notification-item">
+                <div class="notification-icon-wrapper">
+                    <i class="fas fa-comment"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-message">
+                        <strong>New message</strong> - From Sarah: "Can we meet tomorrow?"
+                    </div>
+                    <div class="notification-time">Yesterday</div>
+                </div>
+            </div>
+            
+            <div class="notification-item">
+                <div class="notification-icon-wrapper">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-message">
+                        <strong>System update</strong> - New features added to the platform
+                    </div>
+                    <div class="notification-time">2 days ago</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-container">
+            <h3 class="confirm-title">Confirm Action</h3>
+            <div class="confirm-message" id="confirmMessage">Are you sure you want to delete this team member?</div>
+            <div class="confirm-actions">
+                <button class="btn btn-outline" id="cancelConfirmBtn">Cancel</button>
+                <button class="btn btn-danger" id="confirmBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span id="toastMessage"></span>
+        <button class="toast-close" id="toastClose">&times;</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const sidebar = document.getElementById('sidebar');
+            const menuItems = document.querySelectorAll('.menu-item');
+            const searchInput = document.getElementById('searchInput');
+            const notificationIcon = document.getElementById('notificationIcon');
+            const notificationsModal = document.getElementById('notificationsModal');
+            const closeNotifications = document.getElementById('closeNotifications');
+            const markAllReadBtn = document.getElementById('markAllReadBtn');
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userEmail = document.getElementById('userEmail');
+            const welcomeName = document.getElementById('welcomeName');
+            const userDropdown = document.getElementById('userDropdown');
+            const profileLink = document.getElementById('profileLink');
+            const settingsLink = document.getElementById('settingsLink');
+            const logoutLink = document.getElementById('logoutLink');
+            const dashboardContent = document.getElementById('dashboardContent');
+            const profileContent = document.getElementById('profileContent');
+            const settingsContent = document.getElementById('settingsContent');
+            const featureSections = document.getElementById('featureSections');
+            const profileForm = document.getElementById('profileForm');
+            const cancelProfileBtn = document.getElementById('cancelProfileBtn');
+            const profileAvatarInput = document.getElementById('profileAvatarInput');
+            const profileAvatar = document.getElementById('profileAvatar');
+            const profileAvatarLarge = document.getElementById('profileAvatarLarge');
+            const avatarUploadBtn = document.getElementById('avatarUploadBtn');
+            const activityList = document.getElementById('activityList');
+            const viewAllActivity = document.getElementById('viewAllActivity');
+            const deleteAllActivity = document.getElementById('deleteAllActivity');
+            const settingsTabs = document.querySelectorAll('.settings-tab');
+            const settingsPanels = document.querySelectorAll('.settings-panel');
+            const accountForm = document.getElementById('accountForm');
+            const securityForm = document.getElementById('securityForm');
+            const notificationsForm = document.getElementById('notificationsForm');
+            const preferencesForm = document.getElementById('preferencesForm');
+            const teamList = document.getElementById('teamList');
+            const addMemberForm = document.getElementById('addMemberForm');
+            const themeOptions = document.querySelectorAll('.theme-option');
+            const confirmModal = document.getElementById('confirmModal');
+            const confirmMessage = document.getElementById('confirmMessage');
+            const cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
+            const confirmBtn = document.getElementById('confirmBtn');
+            const teamMembersCount = document.getElementById('teamMembersCount');
+            const tasksCompleted = document.getElementById('tasksCompleted');
+            const activeProjects = document.getElementById('activeProjects');
+            const upcomingDeadlines = document.getElementById('upcomingDeadlines');
+            const saveProfileBtn = document.getElementById('saveProfileBtn');
+            const saveProfileText = document.getElementById('saveProfileText');
+            const saveProfileSpinner = document.getElementById('saveProfileSpinner');
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastClose = document.getElementById('toastClose');
+            
+            // Get user data from localStorage or use default
+            let currentUser = JSON.parse(localStorage.getItem('currentUser')) || {
+                name: 'Mohamed Elmenisy',
+                email: 'mohamed@teamflow.com',
+                title: 'Team Manager',
+                department: 'Management',
+                phone: '+201234567890',
+                avatar: '',
+                initials: 'ME',
+                role: 'admin',
+                password: 'password123', // In a real app, this would be hashed and stored securely
+                settings: {
+                    language: 'en',
+                    timezone: 'cairo',
+                    dateFormat: 'dd/mm/yyyy',
+                    twoFactorAuth: true,
+                    emailTasks: true,
+                    emailDeadlines: true,
+                    emailUpdates: false,
+                    pushMessages: true,
+                    pushTeamUpdates: false,
+                    theme: 'blue',
+                    layoutDensity: 'normal'
+                }
+            };
+
+            // Check if we have a logged in user from login page
+            const loggedInUser = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            if (loggedInUser) {
+                currentUser = {...currentUser, ...loggedInUser};
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }
+            
+            // Sample team members
+            let teamMembers = JSON.parse(localStorage.getItem('teamMembers')) || [
+                {
+                    email: 'ahmed@teamflow.com',
+                    role: 'member',
+                    initials: 'AM'
+                },
+                {
+                    email: 'sarah@teamflow.com',
+                    role: 'admin',
+                    initials: 'SJ'
+                },
+                {
+                    email: 'michael@teamflow.com',
+                    role: 'member',
+                    initials: 'MB'
+                }
+            ];
+            
+            // Sample activity data
+            let activities = JSON.parse(localStorage.getItem('activities')) || [
+                {
+                    icon: 'fa-tasks',
+                    message: 'Completed task "Update dashboard design"',
+                    time: '2 hours ago'
+                },
+                {
+                    icon: 'fa-calendar-check',
+                    message: 'Team meeting scheduled for tomorrow at 10 AM',
+                    time: '4 hours ago'
+                },
+                {
+                    icon: 'fa-user-plus',
+                    message: 'New team member "ahmed@teamflow.com" added',
+                    time: 'Yesterday'
+                },
+                {
+                    icon: 'fa-trash',
+                    message: 'Removed team member "john@teamflow.com"',
+                    time: '2 days ago'
+                }
+            ];
+            
+            // Stats data
+            let stats = JSON.parse(localStorage.getItem('stats')) || {
+                teamMembers: 0,
+                tasksCompleted: 0,
+                activeProjects: 0,
+                upcomingDeadlines: 0
+            };
+            
+            // Variables for confirm modal
+            let currentAction = null;
+            let currentIndex = null;
+            
+            // Initialize the dashboard
+            function initDashboard() {
+                // Set user data
+                updateUserUI();
+                
+                // Load stats
+                updateStats();
+                
+                // Load team members
+                loadTeamMembers();
+                
+                // Load activities
+                loadActivities();
+                
+                // Set active feature (dashboard by default)
+                setActiveFeature('dashboard');
+                
+                // Load user settings
+                loadUserSettings();
+                
+                // Simulate real-time updates
+                simulateRealTimeUpdates();
+            }
+            
+            // Update user UI elements
+            function updateUserUI() {
+                userName.textContent = currentUser.name;
+                userEmail.textContent = currentUser.email;
+                welcomeName.textContent = currentUser.name.split(' ')[0];
+                document.querySelector('.user-info-name').textContent = currentUser.name;
+                document.querySelector('.user-info-title').textContent = currentUser.title;
+                document.querySelector('.user-info-email span').textContent = currentUser.email;
+                
+                // Set form values
+                const nameParts = currentUser.name.split(' ');
+                document.getElementById('firstName').value = nameParts[0];
+                document.getElementById('lastName').value = nameParts.slice(1).join(' ');
+                document.getElementById('jobTitle').value = currentUser.title;
+                document.getElementById('phone').value = currentUser.phone;
+                document.getElementById('department').value = currentUser.department;
+                document.getElementById('email').value = currentUser.email;
+                
+                // Set avatar if exists
+                if (currentUser.avatar) {
+                    profileAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
+                    profileAvatar.textContent = '';
+                    profileAvatarLarge.style.backgroundImage = `url(${currentUser.avatar})`;
+                    profileAvatarLarge.textContent = '';
+                    userAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
+                    userAvatar.textContent = '';
+                } else {
+                    profileAvatar.textContent = currentUser.initials;
+                    profileAvatarLarge.textContent = currentUser.initials;
+                    userAvatar.textContent = currentUser.initials;
+                }
+                
+                // Show/hide admin features based on role
+                const adminFeatures = document.querySelectorAll('.admin-only');
+                adminFeatures.forEach(feature => {
+                    feature.style.display = currentUser.role === 'admin' ? 'block' : 'none';
+                });
+            }
+            
+            // Load user settings
+            function loadUserSettings() {
+                if (!currentUser.settings) return;
+                
+                // Account settings
+                document.getElementById('language').value = currentUser.settings.language || 'en';
+                document.getElementById('timezone').value = currentUser.settings.timezone || 'cairo';
+                document.getElementById('dateFormat').value = currentUser.settings.dateFormat || 'dd/mm/yyyy';
+                
+                // Security settings
+                document.getElementById('twoFactorAuth').checked = currentUser.settings.twoFactorAuth || false;
+                
+                // Notification settings
+                document.getElementById('emailTasks').checked = currentUser.settings.emailTasks || true;
+                document.getElementById('emailDeadlines').checked = currentUser.settings.emailDeadlines || true;
+                document.getElementById('emailUpdates').checked = currentUser.settings.emailUpdates || false;
+                document.getElementById('pushMessages').checked = currentUser.settings.pushMessages || true;
+                document.getElementById('pushTeamUpdates').checked = currentUser.settings.pushTeamUpdates || false;
+                
+                // Preference settings
+                document.getElementById('selectedTheme').value = currentUser.settings.theme || 'blue';
+                document.getElementById('layoutDensity').value = currentUser.settings.layoutDensity || 'normal';
+                
+                // Apply theme
+                document.body.className = `${currentUser.settings.theme || 'blue'}-theme`;
+            }
+            
+            // Update stats
+            function updateStats() {
+                stats.teamMembers = teamMembers.length;
+                teamMembersCount.textContent = stats.teamMembers;
+                tasksCompleted.textContent = stats.tasksCompleted;
+                activeProjects.textContent = stats.activeProjects;
+                upcomingDeadlines.textContent = stats.upcomingDeadlines;
+                
+                localStorage.setItem('stats', JSON.stringify(stats));
+            }
+            
+            // Load team members
+            function loadTeamMembers() {
+                teamList.innerHTML = '';
+                
+                teamMembers.forEach((member, index) => {
+                    const memberCard = document.createElement('div');
+                    memberCard.className = 'team-member-card';
+                    memberCard.innerHTML = `
+                        <div class="member-avatar">${member.initials}</div>
+                        <div class="member-details">
+                            <div class="member-email">${member.email}</div>
+                        </div>
+                        <div class="member-role ${member.role === 'admin' ? 'role-admin' : 'role-member'}">
+                            ${member.role === 'admin' ? 'Admin' : 'Member'}
+                        </div>
+                        <div class="member-actions ${currentUser.role === 'admin' ? '' : 'd-none'}">
+                            <button class="btn btn-danger btn-sm delete-member" data-index="${index}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    teamList.appendChild(memberCard);
+                });
+                
+                // Add event listeners to delete buttons
+                document.querySelectorAll('.delete-member').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const index = this.getAttribute('data-index');
+                        showConfirmModal(
+                            'Delete Team Member',
+                            `Are you sure you want to remove ${teamMembers[index].email} from the team?`,
+                            () => deleteTeamMember(index)
+                        );
+                    });
+                });
+                
+                // Update stats
+                stats.teamMembers = teamMembers.length;
+                updateStats();
+                localStorage.setItem('teamMembers', JSON.stringify(teamMembers));
+            }
+            
+            // Delete team member
+            function deleteTeamMember(index) {
+                const removedMember = teamMembers.splice(index, 1)[0];
+                loadTeamMembers();
+                
+                // Add activity
+                activities.unshift({
+                    icon: 'fa-trash',
+                    message: `Removed team member "${removedMember.email}"`,
+                    time: 'Just now'
+                });
+                
+                loadActivities();
+                hideConfirmModal();
+                localStorage.setItem('activities', JSON.stringify(activities));
+                
+                showToast(`Team member ${removedMember.email} removed`, 'success');
+            }
+            
+            // Load activities
+            function loadActivities(showAll = false) {
+                activityList.innerHTML = '';
+                
+                const activitiesToShow = showAll ? activities : activities.slice(0, 2);
+                
+                activitiesToShow.forEach((activity, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'activity-item fade-in';
+                    li.innerHTML = `
+                        <div class="activity-icon">
+                            <i class="fas ${activity.icon}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-message">${activity.message}</div>
+                            <div class="activity-time">${activity.time}</div>
+                        </div>
+                        <div class="activity-actions ${currentUser.role === 'admin' ? '' : 'd-none'}">
+                            <i class="fas fa-trash delete-activity" data-index="${index}"></i>
+                        </div>
+                    `;
+                    activityList.appendChild(li);
+                });
+                
+                // Add event listeners to delete buttons
+                document.querySelectorAll('.delete-activity').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const index = this.getAttribute('data-index');
+                        showConfirmModal(
+                            'Delete Activity',
+                            'Are you sure you want to delete this activity?',
+                            () => deleteActivity(index)
+                        );
+                    });
+                });
+                
+                localStorage.setItem('activities', JSON.stringify(activities));
+            }
+            
+            // Delete activity
+            function deleteActivity(index) {
+                activities.splice(index, 1);
+                loadActivities(viewAllActivity.style.display === 'none');
+                hideConfirmModal();
+                localStorage.setItem('activities', JSON.stringify(activities));
+                
+                showToast('Activity deleted', 'success');
+            }
+            
+            // Delete all activities
+            function deleteAllActivities() {
+                showConfirmModal(
+                    'Delete All Activities',
+                    'Are you sure you want to delete all activities? This action cannot be undone.',
+                    () => {
+                        activities = [];
+                        loadActivities();
+                        viewAllActivity.style.display = 'block';
+                        hideConfirmModal();
+                        localStorage.setItem('activities', JSON.stringify(activities));
+                        showToast('All activities deleted', 'success');
+                    }
+                );
+            }
+            
+            // Show confirm modal
+            function showConfirmModal(title, message, callback) {
+                document.querySelector('.confirm-title').textContent = title;
+                confirmMessage.textContent = message;
+                confirmModal.style.display = 'flex';
+                
+                confirmBtn.onclick = function() {
+                    callback();
+                };
+            }
+            
+            // Hide confirm modal
+            function hideConfirmModal() {
+                confirmModal.style.display = 'none';
+            }
+            
+            // Show toast notification
+            function showToast(message, type = 'info') {
+                toastMessage.textContent = message;
+                toast.className = `toast ${type}`;
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Set active feature
+            function setActiveFeature(feature) {
+                // Hide all content sections
+                dashboardContent.style.display = 'none';
+                profileContent.style.display = 'none';
+                settingsContent.style.display = 'none';
+                featureSections.style.display = 'none';
+                
+                // Remove active class from all menu items
+                menuItems.forEach(item => item.classList.remove('active'));
+                
+                // Show the selected content
+                if (feature === 'dashboard') {
+                    dashboardContent.style.display = 'block';
+                    document.querySelector('[data-feature="dashboard"]').classList.add('active');
+                } else if (feature === 'profile') {
+                    profileContent.style.display = 'block';
+                } else if (feature === 'settings') {
+                    settingsContent.style.display = 'block';
+                } else {
+                    // For other features, we would load their content
+                    featureSections.style.display = 'block';
+                    document.querySelector(`[data-feature="${feature}"]`).classList.add('active');
+                    featureSections.innerHTML = `<h2>${feature.replace('-', ' ')} Feature</h2><p>This is the ${feature.replace('-', ' ')} feature content.</p>`;
                 }
             }
-        }
-        
-        // Close modal function
-        function closeModal() {
-            document.getElementById('successModal').style.display = 'none';
-        }
-        
-        // Redirect to article
-        function redirectToArticle() {
-            window.location.href = "article1.html";
-        }
-        
-        // Handle Enter key press
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                document.getElementById('submitBtn').click();
-            }
-        }
-        
-        // Handle ESC key to close modal
-        function handleKeyDown(e) {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
-        }
-        
-        // Initialize the page
-        function init() {
-            // Disable article link initially if answer not submitted
-            if (!localStorage.getItem('userAnswer')) {
-                document.getElementById('articleLink').style.pointerEvents = 'none';
-                document.getElementById('articleLink').style.opacity = '0.7';
+            
+            // Simulate real-time updates
+            function simulateRealTimeUpdates() {
+                // Simulate new notifications
+                setTimeout(() => {
+                    if (Math.random() > 0.5) {
+                        const notificationBadge = document.querySelector('.notification-badge');
+                        const currentCount = parseInt(notificationBadge.textContent);
+                        notificationBadge.textContent = currentCount + 1;
+                        
+                        // Add new notification to modal
+                        const notificationsContainer = document.querySelector('.notifications-container');
+                        const newNotification = document.createElement('div');
+                        newNotification.className = 'notification-item unread slide-down';
+                        newNotification.innerHTML = `
+                            <div class="notification-icon-wrapper">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-message">
+                                    <strong>New update</strong> - System maintenance scheduled for tomorrow
+                                </div>
+                                <div class="notification-time">Just now</div>
+                            </div>
+                        `;
+                        
+                        // Insert after mark-all-read button
+                        const markAllRead = document.querySelector('.mark-all-read');
+                        notificationsContainer.insertBefore(newNotification, markAllRead.nextSibling);
+                        
+                        showToast('New notification received', 'info');
+                    }
+                }, 15000);
+                
+                // Simulate activity updates
+                setTimeout(() => {
+                    if (Math.random() > 0.5) {
+                        activities.unshift({
+                            icon: 'fa-tasks',
+                            message: 'New task created: "Update documentation"',
+                            time: 'Just now'
+                        });
+                        
+                        loadActivities(viewAllActivity.style.display === 'none');
+                        localStorage.setItem('activities', JSON.stringify(activities));
+                        
+                        // Update tasks completed count
+                        stats.tasksCompleted += 1;
+                        updateStats();
+                        
+                        showToast('New activity added', 'info');
+                    }
+                }, 20000);
             }
             
-            // Add keyboard event listeners
-            document.getElementById('name').addEventListener('keypress', handleKeyPress);
-            document.getElementById('answer').addEventListener('keypress', handleKeyPress);
-            document.addEventListener('keydown', handleKeyDown);
-            
-            // Add click event for the article link to show warning if clicked while locked
-            document.getElementById('articleLink').addEventListener('click', function(e) {
-                if (this.style.pointerEvents === 'none') {
+            // Handle menu item clicks
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
                     e.preventDefault();
-                    document.getElementById('lockMessage').style.animation = 'none';
-                    void document.getElementById('lockMessage').offsetWidth; // Trigger reflow
-                    document.getElementById('lockMessage').style.animation = 'pulse 0.5s 3';
-                    setTimeout(() => {
-                        document.getElementById('lockMessage').style.animation = 'pulse 2s infinite';
-                    }, 1500);
+                    const feature = this.getAttribute('data-feature');
+                    setActiveFeature(feature);
+                });
+            });
+            
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                if (searchTerm.length > 2) {
+                    console.log(`Searching for: ${searchTerm}`);
+                    // In a real app, you would make an API call to search
                 }
             });
-        }
-        
-        // Run initialization when page loads
-        window.onload = init;
+            
+            // Notifications
+            notificationIcon.addEventListener('click', function() {
+                notificationsModal.style.display = 'flex';
+                document.querySelector('.notification-badge').style.display = 'none';
+            });
+            
+            closeNotifications.addEventListener('click', function() {
+                notificationsModal.style.display = 'none';
+            });
+            
+            markAllReadBtn.addEventListener('click', function() {
+                document.querySelectorAll('.notification-item.unread').forEach(item => {
+                    item.classList.remove('unread');
+                });
+                showToast('All notifications marked as read', 'success');
+            });
+            
+            // View all activity
+            viewAllActivity.addEventListener('click', function() {
+                loadActivities(true);
+                this.style.display = 'none';
+            });
+            
+            // Delete all activities
+            deleteAllActivity.addEventListener('click', deleteAllActivities);
+            
+            // User dropdown
+            userAvatar.addEventListener('click', function() {
+                userDropdown.classList.toggle('active');
+            });
+            
+            userName.addEventListener('click', function() {
+                userDropdown.classList.toggle('active');
+            });
+            
+            // Profile link
+            profileLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                userDropdown.classList.remove('active');
+                setActiveFeature('profile');
+            });
+            
+            // Settings link
+            settingsLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                userDropdown.classList.remove('active');
+                setActiveFeature('settings');
+            });
+            
+            // Logout link
+            logoutLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Clear session
+                sessionStorage.removeItem('loggedInUser');
+                // Redirect to login
+                window.location.href = 'login.html';
+            });
+            
+            // Profile form
+            profileForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading state
+                saveProfileText.style.display = 'none';
+                saveProfileSpinner.style.display = 'block';
+                saveProfileBtn.disabled = true;
+                
+                // Simulate API call delay
+                setTimeout(() => {
+                    // Save profile changes
+                    currentUser.name = `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`;
+                    currentUser.title = document.getElementById('jobTitle').value;
+                    currentUser.phone = document.getElementById('phone').value;
+                    currentUser.department = document.getElementById('department').value;
+                    
+                    // Update localStorage
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // Update UI
+                    updateUserUI();
+                    
+                    // Add activity
+                    activities.unshift({
+                        icon: 'fa-user-edit',
+                        message: 'Updated profile information',
+                        time: 'Just now'
+                    });
+                    
+                    // Reset loading state
+                    saveProfileText.style.display = 'inline-block';
+                    saveProfileSpinner.style.display = 'none';
+                    saveProfileBtn.disabled = false;
+                    
+                    // Show success message
+                    showToast('Profile updated successfully', 'success');
+                    
+                    // Go back to dashboard
+                    setActiveFeature('dashboard');
+                }, 1000);
+            });
+            
+            cancelProfileBtn.addEventListener('click', function() {
+                // Go back to dashboard
+                setActiveFeature('dashboard');
+            });
+            
+            // Avatar upload
+            avatarUploadBtn.addEventListener('click', function() {
+                profileAvatarInput.click();
+            });
+            
+            profileAvatarInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        currentUser.avatar = event.target.result;
+                        // Update localStorage
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        updateUserUI();
+                        
+                        // Add activity
+                        activities.unshift({
+                            icon: 'fa-camera',
+                            message: 'Changed profile picture',
+                            time: 'Just now'
+                        });
+                        localStorage.setItem('activities', JSON.stringify(activities));
+                        
+                        showToast('Profile picture updated', 'success');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Settings tabs
+            settingsTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs
+                    settingsTabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all panels
+                    settingsPanels.forEach(panel => panel.classList.remove('active'));
+                    // Show selected panel
+                    document.getElementById(`${tabId}Panel`).classList.add('active');
+                });
+            });
+            
+            // Account settings form
+            accountForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Update user settings
+                currentUser.settings = currentUser.settings || {};
+                currentUser.settings.language = document.getElementById('language').value;
+                currentUser.settings.timezone = document.getElementById('timezone').value;
+                currentUser.settings.dateFormat = document.getElementById('dateFormat').value;
+                
+                // Save to localStorage
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Apply language change immediately
+                if (currentUser.settings.language === 'ar') {
+                    document.documentElement.lang = 'ar';
+                    document.documentElement.dir = 'rtl';
+                } else {
+                    document.documentElement.lang = 'en';
+                    document.documentElement.dir = 'ltr';
+                }
+                
+                // Show success message
+                showToast('Account settings saved', 'success');
+                
+                // Add activity if language changed to Arabic
+                if (currentUser.settings.language === 'ar') {
+                    activities.unshift({
+                        icon: 'fa-language',
+                        message: 'Changed language to Arabic',
+                        time: 'Just now'
+                    });
+                    loadActivities();
+                }
+            });
+            
+            // Security settings form
+            securityForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                // Validate current password
+                if (currentPassword !== currentUser.password) {
+                    showToast('Current password is incorrect', 'error');
+                    return;
+                }
+                
+                // Validate new password
+                if (newPassword !== confirmPassword) {
+                    showToast('New passwords do not match', 'error');
+                    return;
+                }
+                
+                // Update password
+                currentUser.password = newPassword;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Show success message
+                showToast('Password updated successfully', 'success');
+                
+                // Add activity if password changed
+                if (newPassword) {
+                    activities.unshift({
+                        icon: 'fa-lock',
+                        message: 'Changed password',
+                        time: 'Just now'
+                    });
+                    loadActivities();
+                }
+                
+                // Reset form
+                this.reset();
+            });
+            
+            // Notifications settings form
+            notificationsForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Update user settings
+                currentUser.settings = currentUser.settings || {};
+                currentUser.settings.emailTasks = document.getElementById('emailTasks').checked;
+                currentUser.settings.emailDeadlines = document.getElementById('emailDeadlines').checked;
+                currentUser.settings.emailUpdates = document.getElementById('emailUpdates').checked;
+                currentUser.settings.pushMessages = document.getElementById('pushMessages').checked;
+                currentUser.settings.pushTeamUpdates = document.getElementById('pushTeamUpdates').checked;
+                
+                // Save to localStorage
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Show success message
+                showToast('Notification settings saved', 'success');
+            });
+            
+            // Preferences settings form
+            preferencesForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Update user settings
+                currentUser.settings = currentUser.settings || {};
+                currentUser.settings.layoutDensity = document.getElementById('layoutDensity').value;
+                
+                // Save to localStorage
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Show success message
+                showToast('Preferences saved', 'success');
+            });
+            
+            // Theme selection
+            themeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    document.body.className = `${theme}-theme`;
+                    document.getElementById('selectedTheme').value = theme;
+                    
+                    // Update user settings
+                    currentUser.settings = currentUser.settings || {};
+                    currentUser.settings.theme = theme;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // Add activity
+                    activities.unshift({
+                        icon: 'fa-palette',
+                        message: `Changed theme to ${theme}`,
+                        time: 'Just now'
+                    });
+                    loadActivities();
+                    
+                    showToast(`Theme changed to ${theme}`, 'success');
+                });
+            });
+            
+            // Add team member
+            addMemberForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('memberEmail').value;
+                const role = document.getElementById('memberRole').value;
+                
+                // Check if email already exists
+                if (teamMembers.some(member => member.email === email)) {
+                    showToast('This email is already a team member', 'error');
+                    return;
+                }
+                
+                // Create new member
+                const newMember = {
+                    email: email,
+                    role,
+                    initials: email.split('@')[0].substring(0, 2).toUpperCase()
+                };
+                
+                // Add to team
+                teamMembers.push(newMember);
+                loadTeamMembers();
+                
+                // Add activity
+                activities.unshift({
+                    icon: 'fa-user-plus',
+                    message: `Added new ${role}: ${newMember.email}`,
+                    time: 'Just now'
+                });
+                loadActivities();
+                
+                // Reset form
+                this.reset();
+                
+                // In a real app, you would send an invitation email here
+                showToast(`Invitation sent to ${email}`, 'success');
+            });
+            
+            // Confirm modal actions
+            cancelConfirmBtn.addEventListener('click', hideConfirmModal);
+            
+            // Close toast
+            toastClose.addEventListener('click', function() {
+                toast.classList.remove('show');
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.user-profile') && !e.target.closest('.user-dropdown')) {
+                    userDropdown.classList.remove('active');
+                }
+                
+                if (e.target === notificationsModal) {
+                    notificationsModal.style.display = 'none';
+                }
+                
+                if (e.target === confirmModal) {
+                    hideConfirmModal();
+                }
+            });
+            
+            // Initialize the dashboard
+            initDashboard();
+        });
     </script>
 </body>
 </html>
