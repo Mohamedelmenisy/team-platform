@@ -6,9 +6,9 @@
     <title>TeamFlow | Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Favicon links -->
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://img.icons8.com/fluency/48/000000/group-task.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://img.icons8.com/fluency/32/000000/group-task.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://img.icons8.com/fluency/180/000000/group-task.png">
     <link rel="manifest" href="site.webmanifest">
     <style>
         :root {
@@ -1571,7 +1571,8 @@
                         <div class="form-group">
                             <label for="language">Language</label>
                             <select id="language" class="form-control">
-                                <option value="en">English</option>
+                                <option value="system">System Default</option>
+                                <option value="en" selected>English</option>
                                 <option value="ar">Arabic</option>
                             </select>
                         </div>
@@ -1793,6 +1794,9 @@
                         <strong>Welcome to TeamFlow</strong> - You have no new notifications yet
                     </div>
                     <div class="notification-time">Just now</div>
+                </div>
+                <div class="activity-actions">
+                    <i class="fas fa-trash delete-notification"></i>
                 </div>
             </div>
         </div>
@@ -2707,11 +2711,7 @@
             
             // Back button
             backButton.addEventListener('click', function() {
-                if (previousFeature) {
-                    setActiveFeature(previousFeature);
-                } else {
-                    setActiveFeature('dashboard');
-                }
+                setActiveFeature('dashboard');
             });
             
             // Handle browser back/forward buttons
@@ -2773,15 +2773,32 @@
             profileAvatarInput.addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (file) {
-                    // In a real app, you would upload to a server
-                    // For this demo, we'll use a local URL
+                    // Check if file is an image
+                    if (!file.type.match('image.*')) {
+                        alert('Please select an image file');
+                        return;
+                    }
+                    
+                    // Check file size (max 2MB)
+                    if (file.size > 2 * 1024 * 1024) {
+                        alert('Image size should be less than 2MB');
+                        return;
+                    }
+                    
+                    // Create a preview of the image
                     const reader = new FileReader();
                     reader.onload = function(e) {
+                        // Update all avatar displays
+                        profileAvatar.style.backgroundImage = `url(${e.target.result})`;
+                        profileAvatar.textContent = '';
+                        profileAvatarLarge.style.backgroundImage = `url(${e.target.result})`;
+                        profileAvatarLarge.textContent = '';
+                        userAvatar.style.backgroundImage = `url(${e.target.result})`;
+                        userAvatar.textContent = '';
+                        
+                        // Save to user data
                         currentUser.avatar = e.target.result;
                         saveUserData(currentUser);
-                        
-                        // Update UI
-                        updateUserUI();
                         
                         // Add activity
                         activities.unshift({
@@ -2874,6 +2891,11 @@
                 // Validate new password
                 if (newPassword !== confirmPassword) {
                     alert('New passwords do not match');
+                    return;
+                }
+                
+                if (newPassword.length < 8) {
+                    alert('Password must be at least 8 characters');
                     return;
                 }
                 
