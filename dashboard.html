@@ -2216,7 +2216,7 @@
                         const member = teamMembers.find(m => m.id === memberId);
                         showConfirmModal(
                             'Delete Team Member',
-                            `Are you sure you want to remove ${member.name} (${member.email}) from the team?`,
+                            `Are you sure you want to remove ${member.name} (${member.email}) from the team? This action is restricted to administrators and supervisors only.`,
                             () => deleteTeamMember(memberId)
                         );
                     });
@@ -2326,6 +2326,12 @@
             
             // Delete team member
             function deleteTeamMember(memberId) {
+                // Check if user has permission
+                if (currentUser.role !== 'admin' && currentUser.role !== 'supervisor') {
+                    alert('This option is only available for supervisors and administrators');
+                    return;
+                }
+                
                 // Remove from local array
                 const removedMember = teamMembers.find(m => m.id === memberId);
                 teamMembers = teamMembers.filter(member => member.id !== memberId);
@@ -2455,7 +2461,7 @@
                         const activityId = parseInt(this.getAttribute('data-id'));
                         showConfirmModal(
                             'Delete Activity',
-                            'Are you sure you want to delete this activity?',
+                            'Are you sure you want to delete this activity? This action is restricted to administrators and supervisors only.',
                             () => deleteActivity(activityId)
                         );
                     });
@@ -2468,25 +2474,12 @@
                         const activity = activities.find(a => a.id === activityId);
                         
                         if (activity && activity.isSystemUpdate) {
-                            // Create a more professional admin message
-                            const adminMessage = document.createElement('div');
-                            adminMessage.className = 'admin-message';
-                            adminMessage.innerHTML = `
-                                <p>This action is restricted to administrators and supervisors only.</p>
-                                <p>Please contact your system administrator if you need to perform this action.</p>
-                            `;
-                            
-                            // Insert before the confirm modal
-                            confirmModal.insertBefore(adminMessage, confirmModal.firstChild);
-                            
                             showConfirmModal(
                                 'Delete System Update',
-                                'Are you sure you want to delete this system update notification?',
+                                'Are you sure you want to delete this system update notification? This action is restricted to administrators and supervisors only.',
                                 () => {
                                     if (currentUser.role === 'admin' || currentUser.role === 'supervisor') {
                                         deleteActivity(activityId);
-                                        // Remove the admin message
-                                        adminMessage.remove();
                                     }
                                 }
                             );
@@ -2520,7 +2513,7 @@
                 
                 showConfirmModal(
                     'Delete All Activities',
-                    'Are you sure you want to delete all activities? This action cannot be undone.',
+                    'Are you sure you want to delete all activities? This action cannot be undone and is restricted to administrators and supervisors only.',
                     () => {
                         activities = [];
                         saveActivities(activities);
@@ -2532,6 +2525,9 @@
             
             // Show confirm modal
             function showConfirmModal(title, message, callback, isEdit = false) {
+                // Hide any existing modal first
+                hideConfirmModal();
+                
                 document.querySelector('.confirm-title').textContent = title;
                 confirmMessage.textContent = message;
                 confirmModal.style.display = 'flex';
@@ -2544,6 +2540,10 @@
                     confirmBtn.className = 'btn btn-danger';
                 }
                 
+                // Remove previous click handlers
+                confirmBtn.onclick = null;
+                
+                // Add new click handler
                 confirmBtn.onclick = function() {
                     callback();
                 };
