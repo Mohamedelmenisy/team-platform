@@ -3,2895 +3,408 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeamFlow | Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Login | Team Management Platform</title>
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1e3a8a;
-            --primary-light: #dbeafe;
-            --secondary: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --dark: #1e293b;
-            --light: #f8fafc;
-            --gray: #64748b;
-            --light-gray: #e2e8f0;
-            --white: #ffffff;
-            --sidebar-width: 280px;
-            --sidebar-bg: #1e3a8a;
-            --sidebar-text: rgba(255,255,255,0.9);
-            --sidebar-hover: rgba(255,255,255,0.1);
-            --sidebar-active: rgba(255,255,255,0.2);
-            --sidebar-divider: rgba(255,255,255,0.1);
-            --success: #10b981;
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
-            background-color: var(--primary-light);
-            color: var(--dark);
+            background-color: #f8fafc;
             display: flex;
+            flex-direction: column;
             min-height: 100vh;
+            color: #1e293b;
         }
-        
-        /* Sidebar Styles */
-        .sidebar {
-            width: var(--sidebar-width);
-            background-color: var(--sidebar-bg);
-            height: 100vh;
-            position: fixed;
-            overflow-y: auto;
-            transition: all 0.3s;
-            z-index: 100;
-        }
-        
-        .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--sidebar-divider);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .logo {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--white);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .logo-icon {
-            color: var(--white);
-            font-size: 1.5rem;
-        }
-        
-        .sidebar-menu {
-            padding: 1rem 0;
-        }
-        
-        .menu-title {
-            padding: 0.75rem 1.5rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.6);
-            letter-spacing: 0.5px;
-        }
-        
-        .menu-item {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1.5rem;
-            color: var(--sidebar-text);
-            text-decoration: none;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
-            margin: 0.25rem 0;
-        }
-        
-        .menu-item:hover {
-            background-color: var(--sidebar-hover);
-            color: var(--white);
-        }
-        
-        .menu-item.active {
-            background-color: var(--sidebar-active);
-            color: var(--white);
-            border-left-color: var(--white);
-        }
-        
-        .menu-item i {
-            margin-right: 0.75rem;
-            font-size: 1.1rem;
-            width: 24px;
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            padding: 2rem;
             text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
-        .menu-divider {
-            height: 1px;
-            background-color: var(--sidebar-divider);
-            margin: 1rem 1.5rem;
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
         /* Main Content */
         .main-content {
             flex: 1;
-            margin-left: var(--sidebar-width);
-            transition: all 0.3s;
-        }
-        
-        /* Top Navigation */
-        .top-nav {
-            background-color: var(--white);
-            padding: 1rem 2rem;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--light-gray);
-            position: sticky;
-            top: 0;
-            z-index: 90;
-        }
-        
-        .search-bar {
-            position: relative;
-            width: 400px;
-        }
-        
-        .search-bar input {
-            width: 100%;
-            padding: 0.75rem 1rem 0.75rem 2.5rem;
-            border: 1px solid var(--light-gray);
-            border-radius: 6px;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-        
-        .search-bar input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        
-        .search-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-        }
-        
-        .search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            background-color: var(--white);
-            border: 1px solid var(--light-gray);
-            border-radius: 0 0 6px 6px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            z-index: 100;
-            display: none;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .search-results.active {
-            display: block;
-        }
-        
-        .search-result-item {
-            padding: 0.75rem 1rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .search-result-item:hover {
-            background-color: var(--primary-light);
-        }
-        
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-        
-        .notification-icon {
-            position: relative;
-            color: var(--gray);
-            cursor: pointer;
-        }
-        
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background-color: var(--danger);
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 0.65rem;
-            font-weight: 600;
-        }
-        
-        .user-profile {
-            display: flex;
             align-items: center;
-            gap: 0.75rem;
-            position: relative;
-        }
-        
-        .user-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background-color: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            cursor: pointer;
-            background-size: cover;
-            background-position: center;
-        }
-        
-        .user-name {
-            font-weight: 500;
-            cursor: pointer;
-        }
-        
-        .user-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background-color: var(--white);
-            border: 1px solid var(--light-gray);
-            border-radius: 6px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 200px;
-            z-index: 100;
-            display: none;
-        }
-        
-        .user-dropdown.active {
-            display: block;
-        }
-        
-        .dropdown-item {
-            padding: 0.75rem 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            color: var(--dark);
-            text-decoration: none;
-            transition: background-color 0.2s;
-        }
-        
-        .dropdown-item:hover {
-            background-color: var(--light);
-        }
-        
-        .dropdown-item i {
-            width: 20px;
-            text-align: center;
-        }
-        
-        /* Content Area */
-        .content-area {
             padding: 2rem;
-            min-height: calc(100vh - 70px);
+            background-color: #f8fafc;
         }
-        
-        .welcome-section {
-            background-color: var(--primary);
-            color: var(--white);
-            padding: 2rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .welcome-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-        
-        .user-info-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: var(--primary-light);
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 1.75rem;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            cursor: pointer;
-        }
-        
-        .avatar-upload {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            background-color: var(--white);
-            color: var(--primary);
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            border: 2px solid var(--primary);
-            cursor: pointer;
-        }
-        
-        .user-info-details {
-            flex: 1;
-        }
-        
-        .user-info-name {
-            font-weight: 600;
-            font-size: 1.25rem;
-            margin-bottom: 0.25rem;
-        }
-        
-        .user-info-title {
-            opacity: 0.9;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .user-info-email {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-        
-        /* Stats Section */
-        .stats-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .stat-card {
-            background-color: var(--white);
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
+
+        /* Login Container - Professional Style */
+        .auth-container {
+            width: 100%;
+            max-width: 480px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            padding: 2.5rem;
+            margin: 2rem;
             position: relative;
             overflow: hidden;
         }
-        
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .stat-card::before {
+
+        .auth-container::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            height: 6px;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
         }
-        
-        .stat-title {
-            font-size: 0.9rem;
-            color: var(--gray);
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .stat-title i {
-            color: var(--primary);
-        }
-        
-        .stat-value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--primary-dark);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .stat-trend {
-            display: flex;
-            align-items: center;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        
-        .trend-up {
-            color: var(--secondary);
-        }
-        
-        .trend-down {
-            color: var(--danger);
-        }
-        
-        /* Activity Section */
-        .activity-section {
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
-        }
-        
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-        
-        .live-badge {
-            display: inline-flex;
-            align-items: center;
-            background-color: var(--danger);
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-left: 0.5rem;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        
-        .view-all {
-            color: var(--primary);
-            font-weight: 500;
-            cursor: pointer;
-            transition: color 0.2s;
-            padding: 0.5rem;
-            border-radius: 4px;
-        }
-        
-        .view-all:hover {
-            color: var(--primary-dark);
-            text-decoration: underline;
-            background-color: var(--primary-light);
-        }
-        
-        .delete-all {
-            color: var(--danger);
-            font-weight: 500;
-            cursor: pointer;
-            transition: color 0.2s;
-            padding: 0.5rem;
-            border-radius: 4px;
-            margin-left: 1rem;
-        }
-        
-        .delete-all:hover {
-            color: #dc2626;
-            text-decoration: underline;
-            background-color: rgba(239, 68, 68, 0.1);
-        }
-        
-        .activity-list {
-            list-style: none;
-        }
-        
-        .activity-item {
-            display: flex;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--light-gray);
-            align-items: center;
-        }
-        
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-        
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: rgba(37, 99, 235, 0.1);
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 1rem;
-            flex-shrink: 0;
-        }
-        
-        .activity-content {
-            flex: 1;
-        }
-        
-        .activity-message {
-            margin-bottom: 0.25rem;
-        }
-        
-        .activity-time {
-            font-size: 0.8rem;
-            color: var(--gray);
-        }
-        
-        .activity-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-left: auto;
-            padding-left: 1rem;
-        }
-        
-        .delete-activity {
-            color: var(--danger);
-            cursor: pointer;
-            opacity: 1;
-            transition: opacity 0.2s;
-            padding: 0.5rem;
-            border-radius: 4px;
-        }
-        
-        .delete-activity:hover {
-            background-color: rgba(239, 68, 68, 0.1);
-        }
-        
-        /* Profile Content */
-        .profile-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        
-        .profile-content.active {
-            display: block;
-        }
-        
-        .profile-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+
+        .auth-header {
+            text-align: center;
             margin-bottom: 2rem;
         }
-        
-        .profile-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary-dark);
+
+        .auth-header h2 {
+            color: #1e293b;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
         }
-        
-        .profile-form {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
+
+        .auth-header p {
+            color: #64748b;
+            font-size: 0.95rem;
         }
-        
+
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--dark);
+            font-weight: 600;
+            color: #334155;
+            font-size: 0.9rem;
         }
-        
+
         .form-control {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--light-gray);
-            border-radius: 6px;
-            font-size: 1rem;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        
-        .form-actions {
-            grid-column: span 2;
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-        }
-        
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-        }
-        
-        .btn-outline:hover {
-            background-color: var(--primary-light);
-        }
-        
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background-color: #dc2626;
-        }
-
-        .btn-success {
-            background-color: var(--success);
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background-color: #0d9f6e;
-        }
-        
-        /* Settings Content */
-        .settings-content {
-            display: none;
-            background-color: var(--white);
+            padding: 0.9rem 1rem;
+            border: 1px solid #e2e8f0;
             border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        
-        .settings-content.active {
-            display: block;
-        }
-        
-        .settings-tabs {
-            display: flex;
-            border-bottom: 1px solid var(--light-gray);
-            margin-bottom: 2rem;
-        }
-        
-        .settings-tab {
-            padding: 0.75rem 1.5rem;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            font-weight: 500;
-            color: var(--gray);
-            transition: all 0.2s;
-        }
-        
-        .settings-tab:hover {
-            color: var(--primary);
-        }
-        
-        .settings-tab.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-        
-        .settings-panel {
-            display: none;
-        }
-        
-        .settings-panel.active {
-            display: block;
-        }
-        
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-        
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-        }
-        
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-        }
-        
-        input:checked + .slider {
-            background-color: var(--primary);
-        }
-        
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-        
-        .slider.round {
-            border-radius: 34px;
-        }
-        
-        .slider.round:before {
-            border-radius: 50%;
-        }
-        
-        /* Team Management */
-        .team-management {
-            margin-top: 1.5rem;
-        }
-        
-        .team-list {
-            margin-top: 1rem;
-        }
-        
-        .team-member-card {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            border: 1px solid var(--light-gray);
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            transition: all 0.2s;
-        }
-        
-        .team-member-card:hover {
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-        
-        .member-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: var(--light-gray);
-            margin-right: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            background-size: cover;
-            background-position: center;
-        }
-        
-        .member-details {
-            flex: 1;
-        }
-        
-        .member-name {
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-        }
-        
-        .member-email {
-            font-size: 0.9rem;
-            color: var(--gray);
-        }
-        
-        .member-role {
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        
-        .role-admin {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
-        
-        .role-member {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--secondary);
-        }
-        
-        .role-supervisor {
-            background-color: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-        }
-        
-        .member-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .add-member-form {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            border: 1px dashed var(--light-gray);
-            border-radius: 8px;
-        }
-        
-        /* Theme Classes */
-        body.light-theme {
-            --primary-light: #f8fafc;
-            --light: #ffffff;
-            --white: #ffffff;
-            --dark: #1e293b;
+            font-size: 0.95rem;
+            transition: all 0.3s;
             background-color: #f8fafc;
         }
-        
-        body.dark-theme {
-            --primary-light: #1e293b;
-            --light: #334155;
-            --white: #1e293b;
-            --dark: #f8fafc;
-            background-color: #0f172a;
+
+        .form-control:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background-color: white;
         }
-        
-        body.blue-theme {
-            --primary-light: #dbeafe;
-            --light: #eff6ff;
-            --white: #ffffff;
-            --dark: #1e293b;
-            background-color: #dbeafe;
-        }
-        
-        /* Notifications Modal */
-        .notifications-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            display: none;
-            justify-content: flex-end;
-        }
-        
-        .notifications-container {
-            width: 400px;
-            max-width: 100%;
-            background-color: var(--white);
-            height: 100vh;
-            overflow-y: auto;
-            animation: slideIn 0.3s ease-out;
-            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        @keyframes slideIn {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
-        }
-        
-        .notifications-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--light-gray);
+
+        .remember-me {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            background-color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .remember-me input {
+            margin-right: 0.75rem;
+        }
+
+        .remember-me label {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
             color: white;
-        }
-        
-        .notifications-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-        
-        .close-notifications {
-            background: none;
             border: none;
-            font-size: 1.25rem;
-            cursor: pointer;
-            color: white;
-        }
-        
-        .notification-item {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--light-gray);
-            transition: background-color 0.2s;
-            display: flex;
-            gap: 1rem;
-        }
-        
-        .notification-item:hover {
-            background-color: var(--light);
-        }
-        
-        .notification-item.unread {
-            background-color: rgba(37, 99, 235, 0.05);
-        }
-        
-        .notification-icon-wrapper {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: rgba(37, 99, 235, 0.1);
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        
-        .notification-content {
-            flex: 1;
-        }
-        
-        .notification-message {
-            margin-bottom: 0.25rem;
-        }
-        
-        .notification-time {
-            font-size: 0.8rem;
-            color: var(--gray);
-        }
-        
-        .mark-all-read {
-            padding: 1rem 1.5rem;
-            text-align: center;
-            border-bottom: 1px solid var(--light-gray);
-        }
-        
-        /* Confirm Modal */
-        .confirm-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1100;
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .confirm-container {
-            background-color: var(--white);
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            width: 400px;
-            max-width: 90%;
-            padding: 1.5rem;
-            animation: fadeIn 0.3s ease-out;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
         }
 
+        .auth-btn:hover {
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            box-shadow: 0 6px 12px rgba(59, 130, 246, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .auth-footer a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .auth-footer a:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+
+        /* Validation Messages */
+        .validation-message {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .error-message {
+            color: #ef4444;
+        }
+
+        .success-message {
+            color: #10b981;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .loading-spinner {
+            border: 3px solid rgba(59, 130, 246, 0.1);
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .auth-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Animation */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .confirm-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--danger);
-        }
-
-        .confirm-message {
-            margin-bottom: 1.5rem;
-            line-height: 1.5;
-        }
-
-        .confirm-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-        }
-
-        /* Success Message */
-        .success-message {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: var(--success);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 6px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            z-index: 1200;
-            transform: translateX(120%);
-            transition: transform 0.3s ease-out;
-        }
-
-        .success-message.show {
-            transform: translateX(0);
-        }
-
-        .success-message i {
-            font-size: 1.25rem;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 992px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            
-            .main-content {
-                margin-left: 0;
-            }
-            
-            .search-bar {
-                width: 250px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .top-nav {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem;
-            }
-            
-            .search-bar {
-                width: 100%;
-            }
-            
-            .user-menu {
-                width: 100%;
-                justify-content: space-between;
-            }
-            
-            .content-area {
-                padding: 1.5rem;
-            }
-            
-            .profile-form {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-actions {
-                grid-column: span 1;
-            }
-            
-            .user-info {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .user-info-avatar {
-                margin-bottom: 1rem;
-            }
-            
-            .stats-section {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Arabic styles */
-        body[dir="rtl"] {
-            text-align: right;
-        }
-
-        body[dir="rtl"] .sidebar {
-            right: 0;
-            left: auto;
-        }
-
-        body[dir="rtl"] .main-content {
-            margin-right: var(--sidebar-width);
-            margin-left: 0;
-        }
-
-        body[dir="rtl"] .search-icon {
-            right: 1rem;
-            left: auto;
-        }
-
-        body[dir="rtl"] .search-bar input {
-            padding: 0.75rem 2.5rem 0.75rem 1rem;
-        }
-
-        body[dir="rtl"] .menu-item i {
-            margin-right: 0;
-            margin-left: 0.75rem;
-        }
-
-        body[dir="rtl"] .menu-item {
-            border-left: none;
-            border-right: 3px solid transparent;
-        }
-
-        body[dir="rtl"] .menu-item.active {
-            border-right-color: var(--white);
-        }
-
-        body[dir="rtl"] .activity-icon {
-            margin-right: 0;
-            margin-left: 1rem;
-        }
-
-        body[dir="rtl"] .activity-actions {
-            margin-left: 0;
-            margin-right: auto;
-            padding-left: 0;
-            padding-right: 1rem;
-        }
-
-        body[dir="rtl"] .user-dropdown {
-            right: auto;
-            left: 0;
-        }
-
-        body[dir="rtl"] .form-actions {
-            justify-content: flex-start;
-        }
-
-        body[dir="rtl"] .settings-tabs {
-            flex-direction: row-reverse;
-        }
-
-        body[dir="rtl"] .member-avatar {
-            margin-right: 0;
-            margin-left: 1rem;
-        }
-
-        body[dir="rtl"] .member-actions {
-            flex-direction: row-reverse;
-        }
-
-        body[dir="rtl"] .success-message {
-            right: auto;
-            left: 20px;
-            transform: translateX(-120%);
-        }
-
-        body[dir="rtl"] .success-message.show {
-            transform: translateX(0);
-        }
-        
-        /* Back button */
-        .back-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--primary);
-            font-weight: 500;
-            cursor: pointer;
-            margin-bottom: 1rem;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            transition: background-color 0.2s;
-        }
-        
-        .back-button:hover {
-            background-color: var(--primary-light);
-            text-decoration: none;
-        }
-        
-        /* Notification sound */
-        #notificationSound {
-            display: none;
-        }
-
-        /* Hidden class */
-        .d-none {
-            display: none !important;
+        .auth-container {
+            animation: fadeIn 0.5s ease-out;
         }
     </style>
 </head>
-<body class="blue-theme">
-    <!-- Notification sound (hidden) -->
-    <audio id="notificationSound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3" type="audio/mpeg">
-    </audio>
-
-    <!-- Success message -->
-    <div class="success-message" id="successMessage">
-        <i class="fas fa-check-circle"></i>
-        <span id="successMessageText">Profile updated successfully!</span>
-    </div>
-
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <i class="fas fa-users-cog logo-icon"></i>
-                <span>TeamFlow</span>
-            </div>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Team Management Platform</h1>
+            <p class="subtitle">Sign in to access your team's workspace</p>
         </div>
-        
-        <div class="sidebar-menu">
-           <li><a href="#home" data-section="home" class="menu-item active">Home</a></li>
-            <li><a href="#employee-schedule" data-section="employee-schedule" class="menu-item">Employee Schedule</a></li>
-            <!-- Add other sections here with data-section attribute -->
-        </ul>
-  <div class="sidebar-footer">
-            <!-- Sidebar Footer Content -->
-        </div>
-    </div>
+    </header>
 
-    <div class="main-content">
-        <div class="top-nav">
-            <!-- Top Navigation Content -->
-        </div>
-        <div id="appContent" class="content-area">
-            <!-- The original content of your dashboard is REMOVED from here and placed in sections/home.html -->
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
-
-            <div class="menu-divider"></div>
-            
-            <a href="#file-sharing" class="menu-item" data-feature="file-sharing">
-                <i class="fas fa-file-upload"></i>
-                <span>File Sharing</span>
-            </a>
-            
-            <a href="#data-management" class="menu-item" data-feature="data-management">
-                <i class="fas fa-database"></i>
-                <span>Data Management</span>
-            </a>
-            
-            <a href="#project-tracking" class="menu-item" data-feature="project-tracking">
-                <i class="fas fa-project-diagram"></i>
-                <span>Project Tracking</span>
-            </a>
-            
-            <div class="menu-divider"></div>
-            
-            <a href="#task-management" class="menu-item" data-feature="task-management">
-                <i class="fas fa-tasks"></i>
-                <span>Task Management</span>
-            </a>
-            
-            <a href="#employee-scheduling" class="menu-item" data-feature="employee-scheduling">
-                <i class="fas fa-users"></i>
-                <span>Employee Scheduling</span>
-            </a>
-            
-            <a href="#team-calendar" class="menu-item" data-feature="team-calendar">
-                <i class="fas fa-calendar-alt"></i>
-                <span>Team Calendar</span>
-            </a>
-            
-            <div class="menu-divider"></div>
-            
-            <a href="#deadline-tracking" class="menu-item" data-feature="deadline-tracking">
-                <i class="fas fa-clock"></i>
-                <span>Deadline Tracking</span>
-            </a>
-            
-            <a href="#innovation-hub" class="menu-item" data-feature="innovation-hub">
-                <i class="fas fa-lightbulb"></i>
-                <span>Innovation Hub</span>
-            </a>
-            
-            <div class="menu-divider"></div>
-            
-            <a href="#settings" class="menu-item" data-feature="settings">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
-            </a>
-        </div>
-    </aside>
-
-    <!-- Main Content Area -->
     <main class="main-content">
-        <!-- Top Navigation -->
-        <nav class="top-nav">
-            <div class="search-bar">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" placeholder="Search employees, projects, tasks..." id="searchInput">
-                <div class="search-results" id="searchResults"></div>
+        <div class="auth-container">
+            <div class="auth-header">
+                <h2>Welcome Back</h2>
+                <p>Enter your credentials to access your account</p>
             </div>
-            
-            <div class="user-menu">
-                <div class="notification-icon" id="notificationIcon">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="your@company.com" required>
+                    <div id="emailError" class="validation-message error-message">Please enter a valid email address</div>
                 </div>
-                
-                <div class="user-profile">
-                    <div class="user-avatar" id="userAvatar">ME</div>
-                    <div class="user-name" id="userName">Mohamed Elmenisy</div>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="#profile" class="dropdown-item" id="profileLink">
-                            <i class="fas fa-user"></i>
-                            <span>Profile</span>
-                        </a>
-                        <a href="#settings" class="dropdown-item" id="settingsLink">
-                            <i class="fas fa-cog"></i>
-                            <span>Settings</span>
-                        </a>
-                        <a href="login.html" class="dropdown-item" id="logoutLink">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
-                        </a>
-                    </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" required minlength="6">
+                    <div id="passwordError" class="validation-message error-message">Please enter your password</div>
+                    <div id="loginSuccess" class="validation-message success-message">Login successful! Redirecting...</div>
                 </div>
-            </div>
-        </nav>
-        
-        <!-- Content Area -->
-        <div class="content-area">
-            <!-- Back button (hidden by default) -->
-            <div class="back-button" id="backButton" style="display: none;">
-                <i class="fas fa-arrow-left"></i>
-                <span>Back to Dashboard</span>
-            </div>
-            
-            <!-- Dashboard Content -->
-            <div id="dashboardContent">
-                <!-- Welcome Section -->
-                <div class="welcome-section">
-                    <h2 class="welcome-title">Welcome back, <span id="welcomeName">Mohamed</span>!</h2>
-                    
-                    <div class="user-info">
-                        <div class="user-info-avatar" id="profileAvatar">ME</div>
-                        <div class="user-info-details">
-                            <div class="user-info-name">Mohamed Elmenisy</div>
-                            <div class="user-info-title" id="userRoleTitle">Team Manager</div>
-                            <div class="user-info-email">
-                                <i class="fas fa-envelope"></i>
-                                <span id="userEmail">mohamed@teamflow.com</span>
-                            </div>
-                        </div>
-                    </div>
+
+                <div class="remember-me">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe">Remember me</label>
                 </div>
-                
-                <!-- Stats Section -->
-                <div class="stats-section">
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-users"></i>
-                            Team Members
-                        </div>
-                        <div class="stat-value">
-                            <span id="teamMembersCount">0</span>
-                            <span class="stat-trend trend-up">
-                                <i class="fas fa-arrow-up"></i> 0%
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-check-circle"></i>
-                            Tasks Completed
-                        </div>
-                        <div class="stat-value">
-                            <span id="tasksCompleted">0</span>
-                            <span class="stat-trend trend-up">
-                                <i class="fas fa-arrow-up"></i> 0%
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-project-diagram"></i>
-                            Active Projects
-                        </div>
-                        <div class="stat-value">
-                            <span id="activeProjects">0</span>
-                            <span class="stat-trend trend-down">
-                                <i class="fas fa-arrow-down"></i> 0%
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-calendar-times"></i>
-                            Upcoming Deadlines
-                        </div>
-                        <div class="stat-value">
-                            <span id="upcomingDeadlines">0</span>
-                            <span class="stat-trend trend-up">
-                                <i class="fas fa-arrow-up"></i> 0%
-                            </span>
-                        </div>
-                    </div>
+
+                <button type="submit" class="auth-btn" id="loginBtn">Sign In</button>
+
+                <div class="loading" id="loading">
+                    <div class="loading-spinner"></div>
+                    <span>Authenticating...</span>
                 </div>
-                
-                <!-- Activity Section -->
-                <div class="activity-section">
-                    <div class="section-header">
-                        <h3 class="section-title">Recent Activity <span class="live-badge">LIVE</span></h3>
-                        <div>
-                            <span class="view-all" id="viewAllActivity">Show All</span>
-                            <span class="delete-all" id="deleteAllActivity">Delete All</span>
-                        </div>
-                    </div>
-                    
-                    <ul class="activity-list" id="activityList">
-                        <!-- Activity items will be added dynamically -->
-                    </ul>
-                </div>
-            </div>
-            
-            <!-- Profile Content -->
-            <div class="profile-content" id="profileContent">
-                <div class="profile-header">
-                    <h2 class="profile-title">Profile Settings</h2>
-                </div>
-                
-                <form class="profile-form" id="profileForm">
-                    <div class="form-group">
-                        <label for="profileAvatarInput">Profile Picture</label>
-                        <div class="user-info-avatar" id="profileAvatarLarge">
-                            <div class="avatar-upload" id="avatarUploadBtn">
-                                <i class="fas fa-camera"></i>
-                                <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="firstName">First Name</label>
-                        <input type="text" id="firstName" class="form-control" value="Mohamed">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="lastName">Last Name</label>
-                        <input type="text" id="lastName" class="form-control" value="Elmenisy">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="jobTitle">Job Title</label>
-                        <input type="text" id="jobTitle" class="form-control" value="Team Manager">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" class="form-control" value="mohamed@teamflow.com" readonly>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" class="form-control" value="+201234567890">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="department">Department</label>
-                        <input type="text" id="department" class="form-control" value="Management">
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-outline" id="cancelProfileBtn">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-            
-            <!-- Settings Content -->
-            <div class="settings-content" id="settingsContent">
-                <div class="profile-header">
-                    <h2 class="profile-title">System Settings</h2>
-                </div>
-                
-                <div class="settings-tabs">
-                    <div class="settings-tab active" data-tab="account">Account</div>
-                    <div class="settings-tab" data-tab="security">Security</div>
-                    <div class="settings-tab" data-tab="notifications">Notifications</div>
-                    <div class="settings-tab" data-tab="preferences">Preferences</div>
-                    <div class="settings-tab" data-tab="team">Team Management</div>
-                </div>
-                
-                <div class="settings-panel active" id="accountPanel">
-                    <form class="profile-form" id="accountForm">
-                        <div class="form-group">
-                            <label for="language">Language</label>
-                            <select id="language" class="form-control">
-                                <option value="en">English</option>
-                                <option value="ar">Arabic</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="timezone">Timezone</label>
-                            <select id="timezone" class="form-control">
-                                <option value="utc">UTC</option>
-                                <option value="cairo" selected>Cairo (UTC+2)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="dateFormat">Date Format</label>
-                            <select id="dateFormat" class="form-control">
-                                <option value="mm/dd/yyyy">MM/DD/YYYY</option>
-                                <option value="dd/mm/yyyy" selected>DD/MM/YYYY</option>
-                                <option value="yyyy-mm-dd">YYYY-MM-DD</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-outline">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save Settings</button>
-                        </div>
-                    </form>
-                </div>
-                
-                <div class="settings-panel" id="securityPanel">
-                    <form class="profile-form" id="securityForm">
-                        <div class="form-group">
-                            <label>Two-Factor Authentication</label>
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <label class="switch">
-                                    <input type="checkbox" id="twoFactorAuth" checked>
-                                    <span class="slider round"></span>
-                                </label>
-                                <span>Enabled</span>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="currentPassword">Current Password</label>
-                            <input type="password" id="currentPassword" class="form-control">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="newPassword">New Password</label>
-                            <input type="password" id="newPassword" class="form-control">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="confirmPassword">Confirm Password</label>
-                            <input type="password" id="confirmPassword" class="form-control">
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-outline">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Update Password</button>
-                        </div>
-                    </form>
-                </div>
-                
-                <div class="settings-panel" id="notificationsPanel">
-                    <form class="profile-form" id="notificationsForm">
-                        <div class="form-group">
-                            <label>Email Notifications</label>
-                            <div style="margin-top: 0.5rem;">
-                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-                                    <span>Task Assignments</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="emailTasks" checked>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-                                    <span>Deadline Reminders</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="emailDeadlines" checked>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                                <div style="display: flex; align-items: center; justify-content: space-between;">
-                                    <span>System Updates</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="emailUpdates">
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Push Notifications</label>
-                            <div style="margin-top: 0.5rem;">
-                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-                                    <span>New Messages</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="pushMessages" checked>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                                <div style="display: flex; align-items: center; justify-content: space-between;">
-                                    <span>Team Updates</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="pushTeamUpdates">
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-outline">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save Settings</button>
-                        </div>
-                    </form>
-                </div>
-                
-                <div class="settings-panel" id="preferencesPanel">
-                    <form class="profile-form" id="preferencesForm">
-                        <div class="form-group">
-                            <label>Theme</label>
-                            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-                                <div class="theme-option" data-theme="light">
-                                    <div style="width: 60px; height: 60px; background-color: #f8fafc; border: 2px solid #e2e8f0; border-radius: 6px; cursor: pointer;"></div>
-                                    <span style="text-align: center; display: block; margin-top: 0.5rem;">Light</span>
-                                </div>
-                                <div class="theme-option" data-theme="dark">
-                                    <div style="width: 60px; height: 60px; background-color: #1e293b; border: 2px solid #334155; border-radius: 6px; cursor: pointer;"></div>
-                                    <span style="text-align: center; display: block; margin-top: 0.5rem;">Dark</span>
-                                </div>
-                                <div class="theme-option" data-theme="blue">
-                                    <div style="width: 60px; height: 60px; background-color: #dbeafe; border: 2px solid #2563eb; border-radius: 6px; cursor: pointer;"></div>
-                                    <span style="text-align: center; display: block; margin-top: 0.5rem;">Blue</span>
-                                </div>
-                            </div>
-                            <input type="hidden" id="selectedTheme" value="blue">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Layout Density</label>
-                            <div style="margin-top: 0.5rem;">
-                                <select id="layoutDensity" class="form-control">
-                                    <option value="compact">Compact</option>
-                                    <option value="normal" selected>Normal</option>
-                                    <option value="spacious">Spacious</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-outline">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save Preferences</button>
-                        </div>
-                    </form>
-                </div>
-                
-                <div class="settings-panel" id="teamPanel">
-                    <div class="team-management">
-                        <h3>Team Members</h3>
-                        <div class="team-list" id="teamList">
-                            <!-- Team members will be added dynamically -->
-                        </div>
-                        
-                        <div class="add-member-form">
-                            <h4>Add New Member</h4>
-                            <form id="addMemberForm">
-                                <div class="form-group">
-                                    <label for="memberEmail">Email</label>
-                                    <input type="email" id="memberEmail" class="form-control" placeholder="user@example.com" required>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="memberRole">Role</label>
-                                    <select id="memberRole" class="form-control" required>
-                                        <option value="member">Member</option>
-                                        <option value="supervisor">Supervisor</option>
-                                        <option value="admin">Admin</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="form-actions">
-                                    <button type="submit" class="btn btn-primary">Add Member</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Feature Content Sections -->
-            <div id="featureSections">
-                <!-- Feature content will be loaded here dynamically -->
+            </form>
+
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="signup.html">Sign Up</a> | <a href="#" id="forgotPassword">Forgot Password?</a></p>
             </div>
         </div>
     </main>
 
-    <!-- Notifications Modal -->
-    <div class="notifications-modal" id="notificationsModal">
-        <div class="notifications-container">
-            <div class="notifications-header">
-                <h3 class="notifications-title">Notifications</h3>
-                <button class="close-notifications" id="closeNotifications">&times;</button>
-            </div>
-            
-            <div class="mark-all-read">
-                <button class="btn btn-outline" id="markAllReadBtn">Mark All as Read</button>
-            </div>
-            
-            <div class="notification-item unread">
-                <div class="notification-icon-wrapper">
-                    <i class="fas fa-tasks"></i>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-message">
-                        <strong>New task assigned</strong> - You've been assigned to "Dashboard Implementation"
-                    </div>
-                    <div class="notification-time">10 minutes ago</div>
-                </div>
-            </div>
-            
-            <div class="notification-item unread">
-                <div class="notification-icon-wrapper">
-                    <i class="fas fa-project-diagram"></i>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-message">
-                        <strong>Project update</strong> - "Team Management Platform" is 75% complete
-                    </div>
-                    <div class="notification-time">2 hours ago</div>
-                </div>
-            </div>
-            
-            <div class="notification-item">
-                <div class="notification-icon-wrapper">
-                    <i class="fas fa-comment"></i>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-message">
-                        <strong>New message</strong> - From Sarah: "Can we meet tomorrow?"
-                    </div>
-                    <div class="notification-time">Yesterday</div>
-                </div>
-            </div>
-            
-            <div class="notification-item">
-                <div class="notification-icon-wrapper">
-                    <i class="fas fa-bell"></i>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-message">
-                        <strong>System update</strong> - New features added to the platform
-                    </div>
-                    <div class="notification-time">2 days ago</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Confirm Modal -->
-    <div class="confirm-modal" id="confirmModal">
-        <div class="confirm-container">
-            <h3 class="confirm-title">Confirm Action</h3>
-            <div class="confirm-message" id="confirmMessage">Are you sure you want to delete this team member?</div>
-            <div class="confirm-actions">
-                <button class="btn btn-outline" id="cancelConfirmBtn">Cancel</button>
-                <button class="btn btn-danger" id="confirmBtn">Delete</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
-            const sidebar = document.getElementById('sidebar');
-            const menuItems = document.querySelectorAll('.menu-item');
-            const searchInput = document.getElementById('searchInput');
-            const searchResults = document.getElementById('searchResults');
-            const notificationIcon = document.getElementById('notificationIcon');
-            const notificationsModal = document.getElementById('notificationsModal');
-            const closeNotifications = document.getElementById('closeNotifications');
-            const markAllReadBtn = document.getElementById('markAllReadBtn');
-            const userAvatar = document.getElementById('userAvatar');
-            const userName = document.getElementById('userName');
-            const userEmail = document.getElementById('userEmail');
-            const welcomeName = document.getElementById('welcomeName');
-            const userDropdown = document.getElementById('userDropdown');
-            const profileLink = document.getElementById('profileLink');
-            const settingsLink = document.getElementById('settingsLink');
-            const logoutLink = document.getElementById('logoutLink');
-            const dashboardContent = document.getElementById('dashboardContent');
-            const profileContent = document.getElementById('profileContent');
-            const settingsContent = document.getElementById('settingsContent');
-            const featureSections = document.getElementById('featureSections');
-            const profileForm = document.getElementById('profileForm');
-            const cancelProfileBtn = document.getElementById('cancelProfileBtn');
-            const profileAvatarInput = document.getElementById('profileAvatarInput');
-            const profileAvatar = document.getElementById('profileAvatar');
-            const profileAvatarLarge = document.getElementById('profileAvatarLarge');
-            const avatarUploadBtn = document.getElementById('avatarUploadBtn');
-            const activityList = document.getElementById('activityList');
-            const viewAllActivity = document.getElementById('viewAllActivity');
-            const deleteAllActivity = document.getElementById('deleteAllActivity');
-            const settingsTabs = document.querySelectorAll('.settings-tab');
-            const settingsPanels = document.querySelectorAll('.settings-panel');
-            const accountForm = document.getElementById('accountForm');
-            const securityForm = document.getElementById('securityForm');
-            const notificationsForm = document.getElementById('notificationsForm');
-            const preferencesForm = document.getElementById('preferencesForm');
-            const teamList = document.getElementById('teamList');
-            const addMemberForm = document.getElementById('addMemberForm');
-            const themeOptions = document.querySelectorAll('.theme-option');
-            const confirmModal = document.getElementById('confirmModal');
-            const confirmMessage = document.getElementById('confirmMessage');
-            const cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
-            const confirmBtn = document.getElementById('confirmBtn');
-            const teamMembersCount = document.getElementById('teamMembersCount');
-            const tasksCompleted = document.getElementById('tasksCompleted');
-            const activeProjects = document.getElementById('activeProjects');
-            const upcomingDeadlines = document.getElementById('upcomingDeadlines');
-            const userRoleTitle = document.getElementById('userRoleTitle');
-            const backButton = document.getElementById('backButton');
-            const notificationSound = document.getElementById('notificationSound');
-            const successMessage = document.getElementById('successMessage');
-            const successMessageText = document.getElementById('successMessageText');
-            
-            // API Base URL
-            const API_BASE_URL = 'https://your-api-endpoint.com/api';
-            
-            // Current feature tracking
-            let currentFeature = 'dashboard';
-            let previousFeature = '';
-            
-            // Search data
-            const searchData = [
-                { id: 1, type: 'employee', name: 'Ahmed Mohamed', email: 'ahmed@teamflow.com', department: 'Development' },
-                { id: 2, type: 'employee', name: 'Sarah Johnson', email: 'sarah@teamflow.com', department: 'Design' },
-                { id: 3, type: 'project', name: 'Dashboard Redesign', status: 'In Progress', due: '2023-12-15' },
-                { id: 4, type: 'project', name: 'Mobile App Development', status: 'Planning', due: '2024-02-20' },
-                { id: 5, type: 'task', name: 'Implement User Authentication', project: 'Dashboard Redesign', assigned: 'Ahmed Mohamed' },
-                { id: 6, type: 'task', name: 'Create Wireframes', project: 'Mobile App Development', assigned: 'Sarah Johnson' }
-            ];
-            
-            // Get user data from localStorage or API
-            function getUserData() {
-                const savedUser = localStorage.getItem('currentUser');
-                if (savedUser) {
-                    return JSON.parse(savedUser);
-                }
-                
-                // Default user if not found
-                return {
-                    id: 1,
-                    name: 'Mohamed Elmenisy',
-                    email: 'mohamed@teamflow.com',
-                    title: 'Team Manager',
-                    department: 'Management',
-                    phone: '+201234567890',
-                    avatar: '',
-                    initials: 'ME',
-                    role: 'admin',
-                    password: 'password123',
-                    preferences: {
-                        language: 'en',
-                        timezone: 'cairo',
-                        dateFormat: 'dd/mm/yyyy',
-                        theme: 'blue',
-                        layoutDensity: 'normal'
-                    },
-                    notificationPreferences: {
-                        email: {
-                            tasks: true,
-                            deadlines: true,
-                            updates: false
-                        },
-                        push: {
-                            messages: true,
-                            teamUpdates: false
-                        }
-                    }
-                };
+            const loginForm = document.getElementById('loginForm');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const rememberMe = document.getElementById('rememberMe');
+            const loginBtn = document.getElementById('loginBtn');
+            const loading = document.getElementById('loading');
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+            const loginSuccess = document.getElementById('loginSuccess');
+            const forgotPasswordLink = document.getElementById('forgotPassword');
+
+            // Check if there's a remembered email
+            if (localStorage.getItem('rememberedEmail')) {
+                emailInput.value = localStorage.getItem('rememberedEmail');
+                rememberMe.checked = true;
             }
-            
-            // Save user data to localStorage
-            function saveUserData(userData) {
-                localStorage.setItem('currentUser', JSON.stringify(userData));
-                return userData;
+
+            // Check if redirected from signup with email
+            const urlParams = new URLSearchParams(window.location.search);
+            const signupEmail = urlParams.get('email');
+            if (signupEmail) {
+                emailInput.value = signupEmail;
+                passwordInput.focus();
+            } else if (emailInput.value === '') {
+                emailInput.focus();
             }
-            
-            // Get team members from localStorage
-            function getTeamMembers() {
-                const savedMembers = localStorage.getItem('teamMembers');
-                if (savedMembers) {
-                    return JSON.parse(savedMembers);
-                }
-                
-                // Default team members if not found
-                return [
-                    { id: 2, name: 'Ahmed Mohamed', email: 'ahmed@teamflow.com', role: 'supervisor', initials: 'AM' },
-                    { id: 3, name: 'Sarah Johnson', email: 'sarah@teamflow.com', role: 'member', initials: 'SJ' },
-                    { id: 4, name: 'John Smith', email: 'john@teamflow.com', role: 'member', initials: 'JS' }
-                ];
-            }
-            
-            // Save team members to localStorage
-            function saveTeamMembers(members) {
-                localStorage.setItem('teamMembers', JSON.stringify(members));
-                return members;
-            }
-            
-            // Get activities from localStorage
-            function getActivities() {
-                const savedActivities = localStorage.getItem('activities');
-                if (savedActivities) {
-                    return JSON.parse(savedActivities);
-                }
-                
-                // Default activities if not found
-                return [
-                    { 
-                        id: 1, 
-                        icon: 'fa-user-plus', 
-                        message: 'Ahmed Mohamed joined the team', 
-                        timestamp: new Date(Date.now() - 3600000).toISOString() 
-                    },
-                    { 
-                        id: 2, 
-                        icon: 'fa-tasks', 
-                        message: 'You completed task "Design Dashboard"', 
-                        timestamp: new Date(Date.now() - 86400000).toISOString() 
-                    }
-                ];
-            }
-            
-            // Save activities to localStorage
-            function saveActivities(activities) {
-                localStorage.setItem('activities', JSON.stringify(activities));
-                return activities;
-            }
-            
-            // Get stats from localStorage
-            function getStats() {
-                const savedStats = localStorage.getItem('stats');
-                if (savedStats) {
-                    return JSON.parse(savedStats);
-                }
-                
-                // Default stats if not found
-                return {
-                    teamMembers: 3,
-                    tasksCompleted: 12,
-                    activeProjects: 2,
-                    upcomingDeadlines: 3
-                };
-            }
-            
-            // Save stats to localStorage
-            function saveStats(stats) {
-                localStorage.setItem('stats', JSON.stringify(stats));
-                return stats;
-            }
-            
-            // Current user data
-            let currentUser = getUserData();
-            let teamMembers = getTeamMembers();
-            let activities = getActivities();
-            let stats = getStats();
-            
-            // Variables for confirm modal
-            let currentAction = null;
-            let currentIndex = null;
-            
-            // Initialize the dashboard
-            function initDashboard() {
-                // Set user data
-                updateUserUI();
-                
-                // Load team members
-                loadTeamMembers();
-                
-                // Load activities
-                loadActivities();
-                
-                // Load stats
-                updateStats();
-                
-                // Set active feature (dashboard by default)
-                setActiveFeature('dashboard');
-                
-                // Start activity time updater
-                startActivityTimeUpdater();
-                
-                // Start real-time updates
-                startRealTimeUpdates();
-                
-                // Play notification sound if there are unread notifications
-                if (document.querySelector('.notification-badge').style.display !== 'none') {
-                    playNotificationSound();
-                }
-            }
-            
-            // Play notification sound
-            function playNotificationSound() {
-                notificationSound.currentTime = 0;
-                notificationSound.play().catch(e => console.log('Audio play failed:', e));
-            }
-            
-            // Show success message
-            function showSuccessMessage(message) {
-                successMessageText.textContent = message;
-                successMessage.classList.add('show');
-                
-                setTimeout(() => {
-                    successMessage.classList.remove('show');
-                }, 3000);
-            }
-            
-            // Start real-time updates
-            function startRealTimeUpdates() {
-                // Simulate real-time updates for activities
-                setInterval(() => {
-                    // Randomly add a new activity (20% chance)
-                    if (Math.random() < 0.2) {
-                        const newActivity = {
-                            id: Date.now(),
-                            icon: ['fa-tasks', 'fa-project-diagram', 'fa-comment', 'fa-bell'][Math.floor(Math.random() * 4)],
-                            message: [
-                                'New task assigned: "Fix UI bugs"',
-                                'Project "Dashboard Redesign" reached 80% completion',
-                                'New message from Ahmed: "Can you review my work?"',
-                                'System update available - Version 2.1.0'
-                            ][Math.floor(Math.random() * 4)],
-                            timestamp: new Date().toISOString()
-                        };
-                        
-                        activities.unshift(newActivity);
-                        saveActivities(activities);
-                        loadActivities(viewAllActivity.style.display === 'none');
-                        
-                        // Update notification badge
-                        const badge = document.querySelector('.notification-badge');
-                        if (badge.style.display === 'none') {
-                            badge.style.display = 'flex';
-                            badge.textContent = '1';
-                        } else {
-                            badge.textContent = parseInt(badge.textContent) + 1;
-                        }
-                        
-                        // Play notification sound
-                        playNotificationSound();
-                    }
-                    
-                    // Randomly update stats (30% chance)
-                    if (Math.random() < 0.3) {
-                        stats.tasksCompleted += Math.floor(Math.random() * 3);
-                        stats.upcomingDeadlines += Math.random() < 0.5 ? 1 : -1;
-                        if (stats.upcomingDeadlines < 0) stats.upcomingDeadlines = 0;
-                        saveStats(stats);
-                        updateStats();
-                    }
-                }, 10000);
-            }
-            
-            // Update user UI elements
-            function updateUserUI() {
-                userName.textContent = currentUser.name;
-                userEmail.textContent = currentUser.email;
-                welcomeName.textContent = currentUser.name.split(' ')[0];
-                document.querySelector('.user-info-name').textContent = currentUser.name;
-                
-                // Update role title based on user role
-                const roleTitles = {
-                    'admin': 'Team Manager',
-                    'supervisor': 'Project Supervisor',
-                    'member': 'Team Member',
-                    'guest': 'Guest User'
-                };
-                const roleTitle = roleTitles[currentUser.role] || 'Team Member';
-                document.querySelector('.user-info-title').textContent = roleTitle;
-                userRoleTitle.textContent = roleTitle;
-                
-                document.querySelector('.user-info-email span').textContent = currentUser.email;
-                
-                // Set form values
-                const nameParts = currentUser.name.split(' ');
-                document.getElementById('firstName').value = nameParts[0];
-                document.getElementById('lastName').value = nameParts.slice(1).join(' ');
-                document.getElementById('jobTitle').value = currentUser.title || '';
-                document.getElementById('phone').value = currentUser.phone || '';
-                document.getElementById('department').value = currentUser.department || '';
-                document.getElementById('email').value = currentUser.email;
-                
-                // Set preferences
-                if (currentUser.preferences) {
-                    document.getElementById('language').value = currentUser.preferences.language || 'en';
-                    document.getElementById('timezone').value = currentUser.preferences.timezone || 'cairo';
-                    document.getElementById('dateFormat').value = currentUser.preferences.dateFormat || 'dd/mm/yyyy';
-                    document.getElementById('selectedTheme').value = currentUser.preferences.theme || 'blue';
-                    document.getElementById('layoutDensity').value = currentUser.preferences.layoutDensity || 'normal';
-                }
-                
-                // Set notification preferences
-                if (currentUser.notificationPreferences) {
-                    document.getElementById('emailTasks').checked = currentUser.notificationPreferences.email.tasks;
-                    document.getElementById('emailDeadlines').checked = currentUser.notificationPreferences.email.deadlines;
-                    document.getElementById('emailUpdates').checked = currentUser.notificationPreferences.email.updates;
-                    document.getElementById('pushMessages').checked = currentUser.notificationPreferences.push.messages;
-                    document.getElementById('pushTeamUpdates').checked = currentUser.notificationPreferences.push.teamUpdates;
-                }
-                
-                // Set avatar if exists
-                if (currentUser.avatar) {
-                    profileAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
-                    profileAvatar.textContent = '';
-                    profileAvatarLarge.style.backgroundImage = `url(${currentUser.avatar})`;
-                    profileAvatarLarge.textContent = '';
-                    userAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
-                    userAvatar.textContent = '';
-                } else {
-                    profileAvatar.textContent = currentUser.initials || 'ME';
-                    profileAvatarLarge.textContent = currentUser.initials || 'ME';
-                    userAvatar.textContent = currentUser.initials || 'ME';
-                }
-                
-                // Show/hide admin features based on role
-                const adminFeatures = document.querySelectorAll('.admin-only');
-                adminFeatures.forEach(feature => {
-                    feature.style.display = currentUser.role === 'admin' ? 'block' : 'none';
-                });
-            }
-            
-            // Update stats
-            function updateStats() {
-                teamMembersCount.textContent = stats.teamMembers || 0;
-                tasksCompleted.textContent = stats.tasksCompleted || 0;
-                activeProjects.textContent = stats.activeProjects || 0;
-                upcomingDeadlines.textContent = stats.upcomingDeadlines || 0;
-            }
-            
-            // Load team members
-            function loadTeamMembers() {
-                teamList.innerHTML = '';
-                
-                teamMembers.forEach((member) => {
-                    const memberCard = document.createElement('div');
-                    memberCard.className = 'team-member-card';
-                    memberCard.innerHTML = `
-                        <div class="member-avatar">${member.initials || member.email.substring(0, 2).toUpperCase()}</div>
-                        <div class="member-details">
-                            <div class="member-name">${member.name}</div>
-                            <div class="member-email">${member.email}</div>
-                        </div>
-                        <div class="member-role ${member.role === 'admin' ? 'role-admin' : member.role === 'supervisor' ? 'role-supervisor' : 'role-member'}">
-                            ${member.role === 'admin' ? 'Admin' : member.role === 'supervisor' ? 'Supervisor' : 'Member'}
-                        </div>
-                        <div class="member-actions ${currentUser.role === 'admin' || currentUser.role === 'supervisor' ? '' : 'd-none'}">
-                            <button class="btn btn-danger btn-sm delete-member" data-id="${member.id}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    `;
-                    teamList.appendChild(memberCard);
-                });
-                
-                // Add event listeners to delete buttons
-                document.querySelectorAll('.delete-member').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const memberId = parseInt(this.getAttribute('data-id'));
-                        const member = teamMembers.find(m => m.id === memberId);
-                        showConfirmModal(
-                            'Delete Team Member',
-                            `Are you sure you want to remove ${member.name} (${member.email}) from the team?`,
-                            () => deleteTeamMember(memberId)
-                        );
-                    });
-                });
-                
-                // Update stats
-                stats.teamMembers = teamMembers.length;
-                saveStats(stats);
-                updateStats();
-            }
-            
-            // Delete team member
-            function deleteTeamMember(memberId) {
-                // Remove from local array
-                const removedMember = teamMembers.find(m => m.id === memberId);
-                teamMembers = teamMembers.filter(member => member.id !== memberId);
-                saveTeamMembers(teamMembers);
-                loadTeamMembers();
-                
-                // Add activity
-                if (removedMember) {
-                    activities.unshift({
-                        id: Date.now(),
-                        icon: 'fa-user-minus',
-                        message: `Removed team member "${removedMember.name}" (${removedMember.email})`,
-                        timestamp: new Date().toISOString()
-                    });
-                    saveActivities(activities);
-                    loadActivities();
-                }
-                
-                hideConfirmModal();
-            }
-            
-            // Start activity time updater
-            function startActivityTimeUpdater() {
-                // Update times immediately
-                updateActivityTimes();
-                
-                // Then update every minute
-                setInterval(updateActivityTimes, 60000);
-            }
-            
-            // Update activity times
-            function updateActivityTimes() {
-                const now = new Date();
-                const activityItems = document.querySelectorAll('.activity-item');
-                
-                activityItems.forEach((item, index) => {
-                    const timeElement = item.querySelector('.activity-time');
-                    const activity = activities[index];
-                    
-                    if (activity) {
-                        // Update the time display
-                        timeElement.textContent = getTimeAgo(activity.timestamp || now);
-                    }
-                });
-            }
-            
-            // Get time ago string
-            function getTimeAgo(timestamp) {
-                const now = new Date();
-                const date = new Date(timestamp);
-                const seconds = Math.floor((now - date) / 1000);
-                
-                if (seconds < 60) {
-                    return 'Just now';
-                }
-                
-                const minutes = Math.floor(seconds / 60);
-                if (minutes < 60) {
-                    return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
-                }
-                
-                const hours = Math.floor(minutes / 60);
-                if (hours < 24) {
-                    return `${hours} hour${hours === 1 ? '' : 's'} ago`;
-                }
-                
-                const days = Math.floor(hours / 24);
-                if (days < 7) {
-                    return `${days} day${days === 1 ? '' : 's'} ago`;
-                }
-                
-                const weeks = Math.floor(days / 7);
-                if (weeks < 4) {
-                    return `${weeks} week${weeks === 1 ? '' : 's'} ago`;
-                }
-                
-                return date.toLocaleDateString();
-            }
-            
-            // Load activities
-            function loadActivities(showAll = false) {
-                activityList.innerHTML = '';
-                
-                const activitiesToShow = showAll ? activities : activities.slice(0, 5);
-                
-                activitiesToShow.forEach((activity) => {
-                    const li = document.createElement('li');
-                    li.className = 'activity-item';
-                    li.innerHTML = `
-                        <div class="activity-icon">
-                            <i class="fas ${activity.icon}"></i>
-                        </div>
-                        <div class="activity-content">
-                            <div class="activity-message">${activity.message}</div>
-                            <div class="activity-time">${getTimeAgo(activity.timestamp || new Date())}</div>
-                        </div>
-                        <div class="activity-actions ${currentUser.role === 'admin' || currentUser.role === 'supervisor' ? '' : 'd-none'}">
-                            <i class="fas fa-trash delete-activity" data-id="${activity.id}"></i>
-                        </div>
-                    `;
-                    activityList.appendChild(li);
-                });
-                
-                // Add event listeners to delete buttons
-                document.querySelectorAll('.delete-activity').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const activityId = parseInt(this.getAttribute('data-id'));
-                        showConfirmModal(
-                            'Delete Activity',
-                            'Are you sure you want to delete this activity?',
-                            () => deleteActivity(activityId)
-                        );
-                    });
-                });
-            }
-            
-            // Delete activity
-            function deleteActivity(activityId) {
-                // Remove from local array
-                activities = activities.filter(activity => activity.id !== activityId);
-                saveActivities(activities);
-                loadActivities(viewAllActivity.style.display === 'none');
-                hideConfirmModal();
-            }
-            
-            // Delete all activities
-            function deleteAllActivities() {
-                showConfirmModal(
-                    'Delete All Activities',
-                    'Are you sure you want to delete all activities? This action cannot be undone.',
-                    () => {
-                        activities = [];
-                        saveActivities(activities);
-                        loadActivities();
-                        viewAllActivity.style.display = 'block';
-                        hideConfirmModal();
-                    }
-                );
-            }
-            
-            // Show confirm modal
-            function showConfirmModal(title, message, callback) {
-                document.querySelector('.confirm-title').textContent = title;
-                confirmMessage.textContent = message;
-                confirmModal.style.display = 'flex';
-                
-                confirmBtn.onclick = function() {
-                    callback();
-                };
-            }
-            
-            // Hide confirm modal
-            function hideConfirmModal() {
-                confirmModal.style.display = 'none';
-            }
-            
-            // Set active feature and update URL
-            function setActiveFeature(feature) {
-                // Store previous feature for back button
-                if (currentFeature !== feature) {
-                    previousFeature = currentFeature;
-                }
-                
-                currentFeature = feature;
-                
-                // Update URL without reloading page
-                const newUrl = window.location.pathname + '#' + feature.replace(' ', '-').toLowerCase();
-                window.history.pushState({ feature }, '', newUrl);
-                
-                // Show/hide back button
-                backButton.style.display = feature !== 'dashboard' ? 'flex' : 'none';
-                
-                // Hide all content sections
-                dashboardContent.style.display = 'none';
-                profileContent.style.display = 'none';
-                settingsContent.style.display = 'none';
-                featureSections.style.display = 'none';
-                
-                // Remove active class from all menu items
-                menuItems.forEach(item => item.classList.remove('active'));
-                
-                // Show the selected content
-                if (feature === 'dashboard') {
-                    dashboardContent.style.display = 'block';
-                    document.querySelector('[data-feature="dashboard"]').classList.add('active');
-                } else if (feature === 'profile') {
-                    profileContent.style.display = 'block';
-                } else if (feature === 'settings') {
-                    settingsContent.style.display = 'block';
-                } else {
-                    // For other features, we would load their content
-                    featureSections.style.display = 'block';
-                    document.querySelector(`[data-feature="${feature}"]`).classList.add('active');
-                    featureSections.innerHTML = `<h2>${feature.replace('-', ' ')}</h2><p>This is the ${feature.replace('-', ' ')} feature content.</p>`;
-                }
-            }
-            
-            // Handle menu item clicks
-            menuItems.forEach(item => {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const feature = this.getAttribute('data-feature');
-                    setActiveFeature(feature);
-                });
-            });
-            
-            // Search functionality
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase().trim();
-                searchResults.innerHTML = '';
-                
-                if (searchTerm.length > 0) {
-                    const results = searchData.filter(item => 
-                        item.name.toLowerCase().includes(searchTerm) || 
-                        (item.email && item.email.toLowerCase().includes(searchTerm)) ||
-                        (item.department && item.department.toLowerCase().includes(searchTerm)) ||
-                        (item.project && item.project.toLowerCase().includes(searchTerm))
-                    );
-                    
-                    if (results.length > 0) {
-                        searchResults.classList.add('active');
-                        
-                        results.forEach(result => {
-                            const resultItem = document.createElement('div');
-                            resultItem.className = 'search-result-item';
-                            
-                            if (result.type === 'employee') {
-                                resultItem.innerHTML = `
-                                    <div><strong>${result.name}</strong></div>
-                                    <div>${result.email} • ${result.department}</div>
-                                `;
-                            } else if (result.type === 'project') {
-                                resultItem.innerHTML = `
-                                    <div><strong>${result.name}</strong></div>
-                                    <div>Status: ${result.status} • Due: ${result.due}</div>
-                                `;
-                            } else if (result.type === 'task') {
-                                resultItem.innerHTML = `
-                                    <div><strong>${result.name}</strong></div>
-                                    <div>Project: ${result.project} • Assigned: ${result.assigned}</div>
-                                `;
-                            }
-                            
-                            resultItem.addEventListener('click', function() {
-                                // In a real app, this would navigate to the specific item
-                                alert(`Navigating to ${result.type}: ${result.name}`);
-                                searchResults.classList.remove('active');
-                                searchInput.value = '';
-                            });
-                            
-                            searchResults.appendChild(resultItem);
-                        });
-                    } else {
-                        searchResults.classList.remove('active');
-                    }
-                } else {
-                    searchResults.classList.remove('active');
-                }
-            });
-            
-            // Close search results when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.search-bar')) {
-                    searchResults.classList.remove('active');
-                }
-            });
-            
-            // Notifications
-            notificationIcon.addEventListener('click', function() {
-                notificationsModal.style.display = 'flex';
-                document.querySelector('.notification-badge').style.display = 'none';
-            });
-            
-            closeNotifications.addEventListener('click', function() {
-                notificationsModal.style.display = 'none';
-            });
-            
-            markAllReadBtn.addEventListener('click', function() {
-                document.querySelectorAll('.notification-item.unread').forEach(item => {
-                    item.classList.remove('unread');
-                });
-            });
-            
-            // View all activity
-            viewAllActivity.addEventListener('click', function() {
-                loadActivities(true);
-                this.style.display = 'none';
-            });
-            
-            // Delete all activities
-            deleteAllActivity.addEventListener('click', deleteAllActivities);
-            
-            // User dropdown
-            userAvatar.addEventListener('click', function() {
-                userDropdown.classList.toggle('active');
-            });
-            
-            userName.addEventListener('click', function() {
-                userDropdown.classList.toggle('active');
-            });
-            
-            // Profile link
-            profileLink.addEventListener('click', function(e) {
+
+            // Form submission
+            loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                userDropdown.classList.remove('active');
-                setActiveFeature('profile');
-            });
-            
-            // Settings link
-            settingsLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                userDropdown.classList.remove('active');
-                setActiveFeature('settings');
-            });
-            
-            // Logout link
-            logoutLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                // Clear session
-                localStorage.removeItem('token');
-                // Redirect to login
-                window.location.href = 'login.html';
-            });
-            
-            // Back button
-            backButton.addEventListener('click', function() {
-                if (previousFeature) {
-                    setActiveFeature(previousFeature);
-                } else {
-                    setActiveFeature('dashboard');
-                }
-            });
-            
-            // Handle browser back/forward buttons
-            window.addEventListener('popstate', function(event) {
-                if (event.state && event.state.feature) {
-                    setActiveFeature(event.state.feature);
-                } else {
-                    setActiveFeature('dashboard');
-                }
-            });
-            
-            // Profile form
-            profileForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                // Prepare updated user data
-                const updatedUser = {
-                    ...currentUser,
-                    name: `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`,
-                    title: document.getElementById('jobTitle').value,
-                    phone: document.getElementById('phone').value,
-                    department: document.getElementById('department').value
-                };
                 
-                // Save to localStorage
-                currentUser = saveUserData(updatedUser);
+                // Reset messages
+                emailError.style.display = 'none';
+                passwordError.style.display = 'none';
+                loginSuccess.style.display = 'none';
                 
-                // Update UI
-                updateUserUI();
-                
-                // Add activity
-                activities.unshift({
-                    id: Date.now(),
-                    icon: 'fa-user-edit',
-                    message: 'Updated profile information',
-                    timestamp: new Date().toISOString()
-                });
-                saveActivities(activities);
-                
-                // Show success message
-                showSuccessMessage('Profile updated successfully!');
-                
-                // Go back to dashboard after a delay
-                setTimeout(() => {
-                    setActiveFeature('dashboard');
-                }, 1000);
-            });
-            
-            cancelProfileBtn.addEventListener('click', function() {
-                // Go back to dashboard
-                setActiveFeature('dashboard');
-            });
-            
-            // Avatar upload
-            avatarUploadBtn.addEventListener('click', function() {
-                profileAvatarInput.click();
-            });
-            
-            profileAvatarInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    // In a real app, you would upload to a server
-                    // For this demo, we'll use a local URL
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        currentUser.avatar = e.target.result;
-                        saveUserData(currentUser);
-                        
-                        // Update UI
-                        updateUserUI();
-                        
-                        // Add activity
-                        activities.unshift({
-                            id: Date.now(),
-                            icon: 'fa-camera',
-                            message: 'Changed profile picture',
-                            timestamp: new Date().toISOString()
-                        });
-                        saveActivities(activities);
-                        
-                        // Show success message
-                        showSuccessMessage('Profile picture updated successfully!');
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-            
-            // Settings tabs
-            settingsTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
-                    
-                    // Remove active class from all tabs
-                    settingsTabs.forEach(t => t.classList.remove('active'));
-                    // Add active class to clicked tab
-                    this.classList.add('active');
-                    
-                    // Hide all panels
-                    settingsPanels.forEach(panel => panel.classList.remove('active'));
-                    // Show selected panel
-                    document.getElementById(`${tabId}Panel`).classList.add('active');
-                });
-            });
-            
-            // Account settings form
-            accountForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const language = document.getElementById('language').value;
-                const timezone = document.getElementById('timezone').value;
-                const dateFormat = document.getElementById('dateFormat').value;
-                
-                // Save to localStorage
-                currentUser.preferences = {
-                    ...currentUser.preferences,
-                    language,
-                    timezone,
-                    dateFormat
-                };
-                saveUserData(currentUser);
-                
-                // Apply language change immediately
-                if (language === 'ar') {
-                    document.documentElement.lang = 'ar';
-                    document.documentElement.dir = 'rtl';
-                } else {
-                    document.documentElement.lang = 'en';
-                    document.documentElement.dir = 'ltr';
-                }
-                
-                // Show success message
-                showSuccessMessage('Account settings saved successfully!');
-                
-                // Add activity if language changed to Arabic
-                if (language === 'ar') {
-                    activities.unshift({
-                        id: Date.now(),
-                        icon: 'fa-language',
-                        message: 'Changed language to Arabic',
-                        timestamp: new Date().toISOString()
-                    });
-                    saveActivities(activities);
-                    loadActivities();
-                }
-            });
-            
-            // Security settings form
-            securityForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const currentPassword = document.getElementById('currentPassword').value;
-                const newPassword = document.getElementById('newPassword').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-                
-                // Validate current password (in a real app, this would check against the server)
-                if (currentPassword !== currentUser.password) {
-                    alert('Current password is incorrect');
-                    return;
-                }
-                
-                // Validate new password
-                if (newPassword !== confirmPassword) {
-                    alert('New passwords do not match');
-                    return;
-                }
-                
-                // Update password
-                currentUser.password = newPassword;
-                saveUserData(currentUser);
-                
-                // Show success message
-                showSuccessMessage('Security settings saved successfully!');
-                
-                // Add activity
-                activities.unshift({
-                    id: Date.now(),
-                    icon: 'fa-lock',
-                    message: 'Changed password',
-                    timestamp: new Date().toISOString()
-                });
-                saveActivities(activities);
-                
-                // Reset form
-                this.reset();
-            });
-            
-            // Notifications settings form
-            notificationsForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const emailTasks = document.getElementById('emailTasks').checked;
-                const emailDeadlines = document.getElementById('emailDeadlines').checked;
-                const emailUpdates = document.getElementById('emailUpdates').checked;
-                const pushMessages = document.getElementById('pushMessages').checked;
-                const pushTeamUpdates = document.getElementById('pushTeamUpdates').checked;
-                
-                // Save to localStorage
-                currentUser.notificationPreferences = {
-                    email: {
-                        tasks: emailTasks,
-                        deadlines: emailDeadlines,
-                        updates: emailUpdates
-                    },
-                    push: {
-                        messages: pushMessages,
-                        teamUpdates: pushTeamUpdates
-                    }
-                };
-                saveUserData(currentUser);
-                
-                // Show success message
-                showSuccessMessage('Notifications settings saved successfully!');
-            });
-            
-            // Preferences settings form
-            preferencesForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const layoutDensity = document.getElementById('layoutDensity').value;
-                const theme = document.getElementById('selectedTheme').value;
-                
-                // Save to localStorage
-                currentUser.preferences = {
-                    ...currentUser.preferences,
-                    layoutDensity,
-                    theme
-                };
-                saveUserData(currentUser);
-                
-                // Show success message
-                showSuccessMessage('Preferences settings saved successfully!');
-            });
-            
-            // Theme selection
-            themeOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    const theme = this.getAttribute('data-theme');
-                    document.body.className = `${theme}-theme`;
-                    document.getElementById('selectedTheme').value = theme;
-                    
-                    // Save theme preference
-                    currentUser.preferences.theme = theme;
-                    saveUserData(currentUser);
-                    
-                    // Add activity
-                    activities.unshift({
-                        id: Date.now(),
-                        icon: 'fa-palette',
-                        message: `Changed theme to ${theme}`,
-                        timestamp: new Date().toISOString()
-                    });
-                    saveActivities(activities);
-                    loadActivities();
-                });
-            });
-            
-            // Add team member
-            addMemberForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const email = document.getElementById('memberEmail').value;
-                const role = document.getElementById('memberRole').value;
+                // Get values
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
                 
                 // Validate email
-                if (!email || !email.includes('@')) {
-                    alert('Please enter a valid email address');
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    emailError.style.display = 'block';
+                    emailInput.focus();
                     return;
                 }
                 
-                // Check if email already exists
-                if (teamMembers.some(member => member.email === email)) {
-                    alert('This email is already a team member');
+                // Validate password
+                if (!password || password.length < 6) {
+                    passwordError.textContent = 'Password must be at least 6 characters';
+                    passwordError.style.display = 'block';
+                    passwordInput.focus();
                     return;
                 }
                 
-                // Create new member
-                const newMember = {
-                    id: Date.now(),
-                    name: email.split('@')[0],
-                    email,
-                    role,
-                    initials: email.substring(0, 2).toUpperCase()
-                };
+                // Show loading
+                loading.style.display = 'block';
+                loginBtn.disabled = true;
                 
-                // Add to team
-                teamMembers.push(newMember);
-                saveTeamMembers(teamMembers);
-                loadTeamMembers();
-                
-                // Add activity
-                activities.unshift({
-                    id: Date.now(),
-                    icon: 'fa-user-plus',
-                    message: `Added new ${role}: ${newMember.email}`,
-                    timestamp: new Date().toISOString()
-                });
-                saveActivities(activities);
-                loadActivities();
-                
-                // Reset form
-                this.reset();
-                
-                // Show success message
-                showSuccessMessage(`Team member ${email} added successfully!`);
+                // Simulate API call
+                setTimeout(function() {
+                    authenticateUser(email, password);
+                }, 800);
             });
             
-            // Confirm modal actions
-            cancelConfirmBtn.addEventListener('click', hideConfirmModal);
-            
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.user-profile') && !e.target.closest('.user-dropdown')) {
-                    userDropdown.classList.remove('active');
+            function authenticateUser(email, password) {
+                // Get users from localStorage (from signup page)
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                
+                // Find user
+                const user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+                
+                if (user) {
+                    // Login success
+                    loginSuccess.style.display = 'block';
+                    
+                    // Remember email if checkbox is checked
+                    if (rememberMe.checked) {
+                        localStorage.setItem('rememberedEmail', email);
+                    } else {
+                        localStorage.removeItem('rememberedEmail');
+                    }
+                    
+                    // Store user session
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    localStorage.setItem('isLoggedIn', 'true');
+                    
+                    // Redirect to dashboard after delay
+                    setTimeout(function() {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
+                } else {
+                    // Login failed
+                    passwordError.textContent = 'Invalid email or password';
+                    passwordError.style.display = 'block';
+                    passwordInput.focus();
                 }
                 
-                if (e.target === notificationsModal) {
-                    notificationsModal.style.display = 'none';
-                }
-                
-                if (e.target === confirmModal) {
-                    hideConfirmModal();
-                }
-            });
-            
-            // Initialize the dashboard
-            initDashboard();
-            
-            // Check URL hash on load
-            if (window.location.hash) {
-                const feature = window.location.hash.substring(1);
-                setActiveFeature(feature);
+                // Hide loading
+                loading.style.display = 'none';
+                loginBtn.disabled = false;
             }
+            
+            // Forgot password functionality
+            forgotPasswordLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                const email = emailInput.value.trim();
+                
+                if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    alert(`Password reset instructions will be sent to ${email}`);
+                } else {
+                    alert('Please enter your email address first');
+                    emailInput.focus();
+                }
+            });
         });
     </script>
 </body>
