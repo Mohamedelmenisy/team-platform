@@ -24,6 +24,7 @@
             --sidebar-hover: rgba(255,255,255,0.1);
             --sidebar-active: rgba(255,255,255,0.2);
             --sidebar-divider: rgba(255,255,255,0.1);
+            --success: #10b981;
         }
         
         * {
@@ -680,6 +681,15 @@
         .btn-danger:hover {
             background-color: #dc2626;
         }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #0d9f6e;
+        }
         
         /* Settings Content */
         .settings-content {
@@ -1031,6 +1041,32 @@
             justify-content: flex-end;
             gap: 1rem;
         }
+
+        /* Success Message */
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--success);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 1200;
+            transform: translateX(120%);
+            transition: transform 0.3s ease-out;
+        }
+
+        .success-message.show {
+            transform: translateX(0);
+        }
+
+        .success-message i {
+            font-size: 1.25rem;
+        }
         
         /* Responsive Design */
         @media (max-width: 992px) {
@@ -1164,6 +1200,16 @@
         body[dir="rtl"] .member-actions {
             flex-direction: row-reverse;
         }
+
+        body[dir="rtl"] .success-message {
+            right: auto;
+            left: 20px;
+            transform: translateX(-120%);
+        }
+
+        body[dir="rtl"] .success-message.show {
+            transform: translateX(0);
+        }
         
         /* Back button */
         .back-button {
@@ -1188,6 +1234,11 @@
         #notificationSound {
             display: none;
         }
+
+        /* Hidden class */
+        .d-none {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="blue-theme">
@@ -1195,6 +1246,12 @@
     <audio id="notificationSound" preload="auto">
         <source src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3" type="audio/mpeg">
     </audio>
+
+    <!-- Success message -->
+    <div class="success-message" id="successMessage">
+        <i class="fas fa-check-circle"></i>
+        <span id="successMessageText">Profile updated successfully!</span>
+    </div>
 
     <!-- Sidebar Navigation -->
     <aside class="sidebar" id="sidebar">
@@ -1801,6 +1858,8 @@
             const userRoleTitle = document.getElementById('userRoleTitle');
             const backButton = document.getElementById('backButton');
             const notificationSound = document.getElementById('notificationSound');
+            const successMessage = document.getElementById('successMessage');
+            const successMessageText = document.getElementById('successMessageText');
             
             // API Base URL
             const API_BASE_URL = 'https://your-api-endpoint.com/api';
@@ -1981,6 +2040,16 @@
             function playNotificationSound() {
                 notificationSound.currentTime = 0;
                 notificationSound.play().catch(e => console.log('Audio play failed:', e));
+            }
+            
+            // Show success message
+            function showSuccessMessage(message) {
+                successMessageText.textContent = message;
+                successMessage.classList.add('show');
+                
+                setTimeout(() => {
+                    successMessage.classList.remove('show');
+                }, 3000);
             }
             
             // Start real-time updates
@@ -2362,7 +2431,7 @@
                 const searchTerm = this.value.toLowerCase().trim();
                 searchResults.innerHTML = '';
                 
-                if (searchTerm.length > 2) {
+                if (searchTerm.length > 0) {
                     const results = searchData.filter(item => 
                         item.name.toLowerCase().includes(searchTerm) || 
                         (item.email && item.email.toLowerCase().includes(searchTerm)) ||
@@ -2380,17 +2449,17 @@
                             if (result.type === 'employee') {
                                 resultItem.innerHTML = `
                                     <div><strong>${result.name}</strong></div>
-                                    <div>${result.email} â€¢ ${result.department}</div>
+                                    <div>${result.email} • ${result.department}</div>
                                 `;
                             } else if (result.type === 'project') {
                                 resultItem.innerHTML = `
                                     <div><strong>${result.name}</strong></div>
-                                    <div>Status: ${result.status} â€¢ Due: ${result.due}</div>
+                                    <div>Status: ${result.status} • Due: ${result.due}</div>
                                 `;
                             } else if (result.type === 'task') {
                                 resultItem.innerHTML = `
                                     <div><strong>${result.name}</strong></div>
-                                    <div>Project: ${result.project} â€¢ Assigned: ${result.assigned}</div>
+                                    <div>Project: ${result.project} • Assigned: ${result.assigned}</div>
                                 `;
                             }
                             
@@ -2520,8 +2589,13 @@
                 });
                 saveActivities(activities);
                 
-                // Go back to dashboard
-                setActiveFeature('dashboard');
+                // Show success message
+                showSuccessMessage('Profile updated successfully!');
+                
+                // Go back to dashboard after a delay
+                setTimeout(() => {
+                    setActiveFeature('dashboard');
+                }, 1000);
             });
             
             cancelProfileBtn.addEventListener('click', function() {
@@ -2555,6 +2629,9 @@
                             timestamp: new Date().toISOString()
                         });
                         saveActivities(activities);
+                        
+                        // Show success message
+                        showSuccessMessage('Profile picture updated successfully!');
                     };
                     reader.readAsDataURL(file);
                 }
@@ -2603,7 +2680,7 @@
                 }
                 
                 // Show success message
-                alert('Account settings saved successfully!');
+                showSuccessMessage('Account settings saved successfully!');
                 
                 // Add activity if language changed to Arabic
                 if (language === 'ar') {
@@ -2642,7 +2719,7 @@
                 saveUserData(currentUser);
                 
                 // Show success message
-                alert('Security settings saved successfully!');
+                showSuccessMessage('Security settings saved successfully!');
                 
                 // Add activity
                 activities.unshift({
@@ -2681,7 +2758,7 @@
                 saveUserData(currentUser);
                 
                 // Show success message
-                alert('Notifications settings saved successfully!');
+                showSuccessMessage('Notifications settings saved successfully!');
             });
             
             // Preferences settings form
@@ -2699,7 +2776,7 @@
                 saveUserData(currentUser);
                 
                 // Show success message
-                alert('Preferences settings saved successfully!');
+                showSuccessMessage('Preferences settings saved successfully!');
             });
             
             // Theme selection
@@ -2771,7 +2848,7 @@
                 this.reset();
                 
                 // Show success message
-                alert(`Team member ${email} added successfully!`);
+                showSuccessMessage(`Team member ${email} added successfully!`);
             });
             
             // Confirm modal actions
