@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TeamFlow | Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Favicon links -->
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
     <style>
         :root {
             --primary: #2563eb;
@@ -850,14 +855,19 @@
             color: var(--danger);
         }
         
-        .role-member {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--secondary);
+        .role-senior {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
         }
         
         .role-supervisor {
             background-color: rgba(245, 158, 11, 0.1);
             color: var(--warning);
+        }
+        
+        .role-member {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--secondary);
         }
         
         .member-actions {
@@ -1711,6 +1721,7 @@
                                     <label for="memberRole">Role</label>
                                     <select id="memberRole" class="form-control" required>
                                         <option value="member">Member</option>
+                                        <option value="senior">Senior</option>
                                         <option value="supervisor">Supervisor</option>
                                         <option value="admin">Admin</option>
                                     </select>
@@ -1742,6 +1753,7 @@
             
             <div class="mark-all-read">
                 <button class="btn btn-outline" id="markAllReadBtn">Mark All as Read</button>
+                <button class="btn btn-danger" id="deleteAllNotifications" style="margin-left: 10px;">Delete All</button>
             </div>
             
             <div class="notification-item unread">
@@ -1753,6 +1765,9 @@
                         <strong>New task assigned</strong> - You've been assigned to "Dashboard Implementation"
                     </div>
                     <div class="notification-time">10 minutes ago</div>
+                </div>
+                <div class="notification-actions">
+                    <i class="fas fa-trash delete-notification" style="color: var(--danger); cursor: pointer;"></i>
                 </div>
             </div>
             
@@ -1766,6 +1781,9 @@
                     </div>
                     <div class="notification-time">2 hours ago</div>
                 </div>
+                <div class="notification-actions">
+                    <i class="fas fa-trash delete-notification" style="color: var(--danger); cursor: pointer;"></i>
+                </div>
             </div>
             
             <div class="notification-item">
@@ -1778,6 +1796,9 @@
                     </div>
                     <div class="notification-time">Yesterday</div>
                 </div>
+                <div class="notification-actions">
+                    <i class="fas fa-trash delete-notification" style="color: var(--danger); cursor: pointer;"></i>
+                </div>
             </div>
             
             <div class="notification-item">
@@ -1789,6 +1810,9 @@
                         <strong>System update</strong> - New features added to the platform
                     </div>
                     <div class="notification-time">2 days ago</div>
+                </div>
+                <div class="notification-actions">
+                    <i class="fas fa-trash delete-notification" style="color: var(--danger); cursor: pointer;"></i>
                 </div>
             </div>
         </div>
@@ -1817,6 +1841,7 @@
             const notificationsModal = document.getElementById('notificationsModal');
             const closeNotifications = document.getElementById('closeNotifications');
             const markAllReadBtn = document.getElementById('markAllReadBtn');
+            const deleteAllNotifications = document.getElementById('deleteAllNotifications');
             const userAvatar = document.getElementById('userAvatar');
             const userName = document.getElementById('userName');
             const userEmail = document.getElementById('userEmail');
@@ -1933,8 +1958,8 @@
                 
                 // Default team members if not found
                 return [
-                    { id: 2, name: 'Ahmed Mohamed', email: 'ahmed@teamflow.com', role: 'supervisor', initials: 'AM' },
-                    { id: 3, name: 'Sarah Johnson', email: 'sarah@teamflow.com', role: 'member', initials: 'SJ' },
+                    { id: 2, name: 'Ahmed Mohamed', email: 'ahmed@teamflow.com', role: 'senior', initials: 'AM' },
+                    { id: 3, name: 'Sarah Johnson', email: 'sarah@teamflow.com', role: 'supervisor', initials: 'SJ' },
                     { id: 4, name: 'John Smith', email: 'john@teamflow.com', role: 'member', initials: 'JS' }
                 ];
             }
@@ -2108,6 +2133,7 @@
                 // Update role title based on user role
                 const roleTitles = {
                     'admin': 'Team Manager',
+                    'senior': 'Senior Team Member',
                     'supervisor': 'Project Supervisor',
                     'member': 'Team Member',
                     'guest': 'Guest User'
@@ -2187,10 +2213,13 @@
                             <div class="member-name">${member.name}</div>
                             <div class="member-email">${member.email}</div>
                         </div>
-                        <div class="member-role ${member.role === 'admin' ? 'role-admin' : member.role === 'supervisor' ? 'role-supervisor' : 'role-member'}">
-                            ${member.role === 'admin' ? 'Admin' : member.role === 'supervisor' ? 'Supervisor' : 'Member'}
+                        <div class="member-role ${member.role === 'admin' ? 'role-admin' : member.role === 'senior' ? 'role-senior' : member.role === 'supervisor' ? 'role-supervisor' : 'role-member'}">
+                            ${member.role === 'admin' ? 'Admin' : member.role === 'senior' ? 'Senior' : member.role === 'supervisor' ? 'Supervisor' : 'Member'}
                         </div>
                         <div class="member-actions ${currentUser.role === 'admin' || currentUser.role === 'supervisor' ? '' : 'd-none'}">
+                            <button class="btn btn-outline btn-sm edit-member" data-id="${member.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
                             <button class="btn btn-danger btn-sm delete-member" data-id="${member.id}">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -2212,10 +2241,48 @@
                     });
                 });
                 
+                // Add event listeners to edit buttons
+                document.querySelectorAll('.edit-member').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const memberId = parseInt(this.getAttribute('data-id'));
+                        const member = teamMembers.find(m => m.id === memberId);
+                        editTeamMember(member);
+                    });
+                });
+                
                 // Update stats
                 stats.teamMembers = teamMembers.length;
                 saveStats(stats);
                 updateStats();
+            }
+            
+            // Edit team member
+            function editTeamMember(member) {
+                showConfirmModal(
+                    'Edit Team Member',
+                    `Edit role for ${member.name} (${member.email})`,
+                    () => {
+                        const newRole = prompt("Enter new role (admin, senior, supervisor, member):", member.role);
+                        if (newRole && ['admin', 'senior', 'supervisor', 'member'].includes(newRole)) {
+                            member.role = newRole;
+                            saveTeamMembers(teamMembers);
+                            loadTeamMembers();
+                            
+                            // Add activity
+                            activities.unshift({
+                                id: Date.now(),
+                                icon: 'fa-user-edit',
+                                message: `Updated role for ${member.name} to ${newRole}`,
+                                timestamp: new Date().toISOString()
+                            });
+                            saveActivities(activities);
+                            loadActivities();
+                            
+                            showSuccessMessage(`Team member ${member.name} updated successfully!`);
+                        }
+                    },
+                    true
+                );
             }
             
             // Delete team member
@@ -2361,10 +2428,18 @@
             }
             
             // Show confirm modal
-            function showConfirmModal(title, message, callback) {
+            function showConfirmModal(title, message, callback, isEdit = false) {
                 document.querySelector('.confirm-title').textContent = title;
                 confirmMessage.textContent = message;
                 confirmModal.style.display = 'flex';
+                
+                if (isEdit) {
+                    confirmBtn.textContent = 'Save';
+                    confirmBtn.className = 'btn btn-primary';
+                } else {
+                    confirmBtn.textContent = 'Delete';
+                    confirmBtn.className = 'btn btn-danger';
+                }
                 
                 confirmBtn.onclick = function() {
                     callback();
@@ -2501,6 +2576,35 @@
                 document.querySelectorAll('.notification-item.unread').forEach(item => {
                     item.classList.remove('unread');
                 });
+            });
+            
+            // Delete all notifications
+            deleteAllNotifications.addEventListener('click', function() {
+                showConfirmModal(
+                    'Delete All Notifications',
+                    'Are you sure you want to delete all notifications? This action cannot be undone.',
+                    () => {
+                        document.querySelectorAll('.notification-item').forEach(item => {
+                            item.remove();
+                        });
+                        hideConfirmModal();
+                    }
+                );
+            });
+            
+            // Delete single notification
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('delete-notification')) {
+                    const notificationItem = e.target.closest('.notification-item');
+                    showConfirmModal(
+                        'Delete Notification',
+                        'Are you sure you want to delete this notification?',
+                        () => {
+                            notificationItem.remove();
+                            hideConfirmModal();
+                        }
+                    );
+                }
             });
             
             // View all activity
