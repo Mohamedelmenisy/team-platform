@@ -1,85 +1,161 @@
-import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Bell, ArrowLeft } from "lucide-react";
-
-const sections = [
-  "Task Management",
-  "Employee Scheduling",
-  "File Sharing",
-  "Data Management",
-  "Project Tracking",
-  "Team Calendar",
-  "Deadline Tracking",
-  "Innovation Hub",
-  "Settings",
-  "Profile"
-];
-
-export default function Dashboard() {
-  const [activeSection, setActiveSection] = useState("Dashboard");
-
-  const user = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    role: "Admin"
-  };
-
-  return (
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <div className="w-64 bg-gray-900 text-white p-4 flex flex-col justify-between">
-        <div>
-          <h2 className="text-2xl font-bold mb-6">Team Manager</h2>
-          {sections.map((section) => (
-            <div
-              key={section}
-              onClick={() => setActiveSection(section)}
-              className={`cursor-pointer p-2 rounded-lg mb-2 hover:bg-gray-700 ${activeSection === section ? "bg-gray-700" : ""}`}
-            >
-              {section}
-            </div>
-          ))}
-        </div>
-        <div className="text-sm text-gray-400">✅ Connected</div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-6">
-        {/* Topbar */}
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-xl font-semibold">Welcome, {user.name}</h1>
-            <p className="text-gray-500">{user.email} | {user.role}</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button variant="outline" className="relative">
-              <Bell className="w-5 h-5" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Section Content */}
-        {activeSection !== "Dashboard" ? (
-          <div>
-            <Button 
-              onClick={() => setActiveSection("Dashboard")} 
-              className="mb-4 flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" /> Back
-            </Button>
-            <Card className="p-6 text-center text-xl">
-              {activeSection} Section Coming Soon...
-            </Card>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="p-4">Team Members: 12</Card>
-            <Card className="p-4">Active Tasks: 32</Card>
-            <Card className="p-4">Running Projects: 5</Card>
-          </div>
-        )}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Flow - Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+    }
+    .sidebar {
+      width: 250px;
+      background: #111827;
+      color: white;
+      height: 100vh;
+      position: fixed;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .sidebar h2 {
+      text-align: center;
+      padding: 20px 0;
+      margin: 0;
+      font-size: 22px;
+      font-weight: bold;
+      border-bottom: 1px solid #374151;
+    }
+    .sidebar .menu {
+      padding: 20px;
+    }
+    .sidebar .menu div {
+      padding: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .sidebar .menu div:hover {
+      background: #374151;
+    }
+    .connected {
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+      color: #9ca3af;
+    }
+    .main {
+      margin-left: 250px;
+      padding: 20px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .welcome h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+    .welcome p {
+      margin: 4px 0 0;
+      color: #6b7280;
+    }
+    .notification {
+      background: #f3f4f6;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+    }
+    .notification:after {
+      content: "!";
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: red;
+      color: white;
+      font-size: 10px;
+      width: 16px;
+      height: 16px;
+      text-align: center;
+      line-height: 16px;
+      border-radius: 50%;
+    }
+    .cards {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      text-align: center;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div>
+      <h2>Team Flow</h2>
+      <div class="menu">
+        <div onclick="showSection('Task Management')">Task Management</div>
+        <div onclick="showSection('Employee Scheduling')">Employee Scheduling</div>
+        <div onclick="showSection('File Sharing')">File Sharing</div>
+        <div onclick="showSection('Data Management')">Data Management</div>
+        <div onclick="showSection('Project Tracking')">Project Tracking</div>
+        <div onclick="showSection('Team Calendar')">Team Calendar</div>
+        <div onclick="showSection('Deadline Tracking')">Deadline Tracking</div>
+        <div onclick="showSection('Innovation Hub')">Innovation Hub</div>
+        <div onclick="showSection('Settings')">Settings</div>
+        <div onclick="showSection('Profile')">Profile</div>
       </div>
     </div>
-  );
-}
+    <div class="connected">✅ Connected</div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="welcome">
+        <h1>Welcome, John Doe</h1>
+        <p>john.doe@example.com | Admin</p>
+      </div>
+      <button class="notification"></button>
+    </div>
+
+    <div class="cards" id="dashboard">
+      <div class="card">Team Members: 12</div>
+      <div class="card">Active Tasks: 32</div>
+      <div class="card">Running Projects: 5</div>
+    </div>
+
+    <div id="sectionView" style="display:none;">
+      <button onclick="goBack()" style="margin: 20px 0; padding: 8px 12px; border: none; background: #111827; color: white; border-radius: 5px;">⬅ Back</button>
+      <div class="card" id="sectionContent"></div>
+    </div>
+  </div>
+
+  <script>
+    function showSection(section) {
+      document.getElementById("dashboard").style.display = "none";
+      document.getElementById("sectionView").style.display = "block";
+      document.getElementById("sectionContent").innerText = section + " Section Coming Soon...";
+    }
+    function goBack() {
+      document.getElementById("sectionView").style.display = "none";
+      document.getElementById("dashboard").style.display = "grid";
+    }
+  </script>
+</body>
+</html>
