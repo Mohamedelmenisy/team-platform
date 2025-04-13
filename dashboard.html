@@ -436,6 +436,35 @@
             font-weight: 600;
         }
         
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: var(--danger);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .live-badge::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: white;
+            border-radius: 50%;
+            margin-right: 0.25rem;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        
         .view-all {
             color: var(--primary);
             font-weight: 500;
@@ -1106,84 +1135,6 @@
         body[dir="rtl"] .member-actions {
             flex-direction: row-reverse;
         }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideDown {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        .slide-down {
-            animation: slideDown 0.3s ease-out;
-        }
-
-        /* Toast notification */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: var(--primary);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 4px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .toast.success {
-            background-color: var(--secondary);
-        }
-
-        .toast.error {
-            background-color: var(--danger);
-        }
-
-        .toast.warning {
-            background-color: var(--warning);
-        }
-
-        .toast-close {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        /* Loading spinner */
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body class="blue-theme">
@@ -1374,7 +1325,7 @@
                 <!-- Activity Section -->
                 <div class="activity-section">
                     <div class="section-header">
-                        <h3 class="section-title">Recent Activity</h3>
+                        <h3 class="section-title">Recent Activity <span class="live-badge">LIVE</span></h3>
                         <div>
                             <span class="view-all" id="viewAllActivity">Show All</span>
                             <span class="delete-all" id="deleteAllActivity">Delete All</span>
@@ -1436,10 +1387,7 @@
                     
                     <div class="form-actions">
                         <button type="button" class="btn btn-outline" id="cancelProfileBtn">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="saveProfileBtn">
-                            <span id="saveProfileText">Save Changes</span>
-                            <span id="saveProfileSpinner" class="spinner" style="display: none;"></span>
-                        </button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>
                 </form>
             </div>
@@ -1735,12 +1683,6 @@
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div class="toast" id="toast">
-        <span id="toastMessage"></span>
-        <button class="toast-close" id="toastClose">&times;</button>
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // DOM Elements
@@ -1789,12 +1731,6 @@
             const tasksCompleted = document.getElementById('tasksCompleted');
             const activeProjects = document.getElementById('activeProjects');
             const upcomingDeadlines = document.getElementById('upcomingDeadlines');
-            const saveProfileBtn = document.getElementById('saveProfileBtn');
-            const saveProfileText = document.getElementById('saveProfileText');
-            const saveProfileSpinner = document.getElementById('saveProfileSpinner');
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            const toastClose = document.getElementById('toastClose');
             
             // Get user data from localStorage or use default
             let currentUser = JSON.parse(localStorage.getItem('currentUser')) || {
@@ -1806,20 +1742,7 @@
                 avatar: '',
                 initials: 'ME',
                 role: 'admin',
-                password: 'password123', // In a real app, this would be hashed and stored securely
-                settings: {
-                    language: 'en',
-                    timezone: 'cairo',
-                    dateFormat: 'dd/mm/yyyy',
-                    twoFactorAuth: true,
-                    emailTasks: true,
-                    emailDeadlines: true,
-                    emailUpdates: false,
-                    pushMessages: true,
-                    pushTeamUpdates: false,
-                    theme: 'blue',
-                    layoutDensity: 'normal'
-                }
+                password: 'password123' // In a real app, this would be hashed and stored securely
             };
 
             // Check if we have a logged in user from login page
@@ -1901,11 +1824,8 @@
                 // Set active feature (dashboard by default)
                 setActiveFeature('dashboard');
                 
-                // Load user settings
-                loadUserSettings();
-                
-                // Simulate real-time updates
-                simulateRealTimeUpdates();
+                // Start activity time updater
+                startActivityTimeUpdater();
             }
             
             // Update user UI elements
@@ -1945,33 +1865,6 @@
                 adminFeatures.forEach(feature => {
                     feature.style.display = currentUser.role === 'admin' ? 'block' : 'none';
                 });
-            }
-            
-            // Load user settings
-            function loadUserSettings() {
-                if (!currentUser.settings) return;
-                
-                // Account settings
-                document.getElementById('language').value = currentUser.settings.language || 'en';
-                document.getElementById('timezone').value = currentUser.settings.timezone || 'cairo';
-                document.getElementById('dateFormat').value = currentUser.settings.dateFormat || 'dd/mm/yyyy';
-                
-                // Security settings
-                document.getElementById('twoFactorAuth').checked = currentUser.settings.twoFactorAuth || false;
-                
-                // Notification settings
-                document.getElementById('emailTasks').checked = currentUser.settings.emailTasks || true;
-                document.getElementById('emailDeadlines').checked = currentUser.settings.emailDeadlines || true;
-                document.getElementById('emailUpdates').checked = currentUser.settings.emailUpdates || false;
-                document.getElementById('pushMessages').checked = currentUser.settings.pushMessages || true;
-                document.getElementById('pushTeamUpdates').checked = currentUser.settings.pushTeamUpdates || false;
-                
-                // Preference settings
-                document.getElementById('selectedTheme').value = currentUser.settings.theme || 'blue';
-                document.getElementById('layoutDensity').value = currentUser.settings.layoutDensity || 'normal';
-                
-                // Apply theme
-                document.body.className = `${currentUser.settings.theme || 'blue'}-theme`;
             }
             
             // Update stats
@@ -2042,8 +1935,64 @@
                 loadActivities();
                 hideConfirmModal();
                 localStorage.setItem('activities', JSON.stringify(activities));
+            }
+            
+            // Start activity time updater
+            function startActivityTimeUpdater() {
+                // Update times immediately
+                updateActivityTimes();
                 
-                showToast(`Team member ${removedMember.email} removed`, 'success');
+                // Then update every minute
+                setInterval(updateActivityTimes, 60000);
+            }
+            
+            // Update activity times
+            function updateActivityTimes() {
+                const now = new Date();
+                const activityItems = document.querySelectorAll('.activity-item');
+                
+                activityItems.forEach((item, index) => {
+                    const timeElement = item.querySelector('.activity-time');
+                    const activity = activities[index];
+                    
+                    if (activity) {
+                        // Update the time display
+                        timeElement.textContent = getTimeAgo(activity.timestamp || now);
+                    }
+                });
+            }
+            
+            // Get time ago string
+            function getTimeAgo(timestamp) {
+                const now = new Date();
+                const date = new Date(timestamp);
+                const seconds = Math.floor((now - date) / 1000);
+                
+                if (seconds < 60) {
+                    return 'Just now';
+                }
+                
+                const minutes = Math.floor(seconds / 60);
+                if (minutes < 60) {
+                    return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+                }
+                
+                const hours = Math.floor(minutes / 60);
+                if (hours < 24) {
+                    return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+                }
+                
+                const days = Math.floor(hours / 24);
+                if (days < 7) {
+                    return `${days} day${days === 1 ? '' : 's'} ago`;
+                }
+                
+                const weeks = Math.floor(days / 7);
+                if (weeks < 4) {
+                    return `${weeks} week${weeks === 1 ? '' : 's'} ago`;
+                }
+                
+                return date.toLocaleDateString();
             }
             
             // Load activities
@@ -2054,7 +2003,7 @@
                 
                 activitiesToShow.forEach((activity, index) => {
                     const li = document.createElement('li');
-                    li.className = 'activity-item fade-in';
+                    li.className = 'activity-item';
                     li.innerHTML = `
                         <div class="activity-icon">
                             <i class="fas ${activity.icon}"></i>
@@ -2091,8 +2040,6 @@
                 loadActivities(viewAllActivity.style.display === 'none');
                 hideConfirmModal();
                 localStorage.setItem('activities', JSON.stringify(activities));
-                
-                showToast('Activity deleted', 'success');
             }
             
             // Delete all activities
@@ -2106,7 +2053,6 @@
                         viewAllActivity.style.display = 'block';
                         hideConfirmModal();
                         localStorage.setItem('activities', JSON.stringify(activities));
-                        showToast('All activities deleted', 'success');
                     }
                 );
             }
@@ -2125,17 +2071,6 @@
             // Hide confirm modal
             function hideConfirmModal() {
                 confirmModal.style.display = 'none';
-            }
-            
-            // Show toast notification
-            function showToast(message, type = 'info') {
-                toastMessage.textContent = message;
-                toast.className = `toast ${type}`;
-                toast.classList.add('show');
-                
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 3000);
             }
             
             // Set active feature
@@ -2163,60 +2098,6 @@
                     document.querySelector(`[data-feature="${feature}"]`).classList.add('active');
                     featureSections.innerHTML = `<h2>${feature.replace('-', ' ')} Feature</h2><p>This is the ${feature.replace('-', ' ')} feature content.</p>`;
                 }
-            }
-            
-            // Simulate real-time updates
-            function simulateRealTimeUpdates() {
-                // Simulate new notifications
-                setTimeout(() => {
-                    if (Math.random() > 0.5) {
-                        const notificationBadge = document.querySelector('.notification-badge');
-                        const currentCount = parseInt(notificationBadge.textContent);
-                        notificationBadge.textContent = currentCount + 1;
-                        
-                        // Add new notification to modal
-                        const notificationsContainer = document.querySelector('.notifications-container');
-                        const newNotification = document.createElement('div');
-                        newNotification.className = 'notification-item unread slide-down';
-                        newNotification.innerHTML = `
-                            <div class="notification-icon-wrapper">
-                                <i class="fas fa-bell"></i>
-                            </div>
-                            <div class="notification-content">
-                                <div class="notification-message">
-                                    <strong>New update</strong> - System maintenance scheduled for tomorrow
-                                </div>
-                                <div class="notification-time">Just now</div>
-                            </div>
-                        `;
-                        
-                        // Insert after mark-all-read button
-                        const markAllRead = document.querySelector('.mark-all-read');
-                        notificationsContainer.insertBefore(newNotification, markAllRead.nextSibling);
-                        
-                        showToast('New notification received', 'info');
-                    }
-                }, 15000);
-                
-                // Simulate activity updates
-                setTimeout(() => {
-                    if (Math.random() > 0.5) {
-                        activities.unshift({
-                            icon: 'fa-tasks',
-                            message: 'New task created: "Update documentation"',
-                            time: 'Just now'
-                        });
-                        
-                        loadActivities(viewAllActivity.style.display === 'none');
-                        localStorage.setItem('activities', JSON.stringify(activities));
-                        
-                        // Update tasks completed count
-                        stats.tasksCompleted += 1;
-                        updateStats();
-                        
-                        showToast('New activity added', 'info');
-                    }
-                }, 20000);
             }
             
             // Handle menu item clicks
@@ -2251,7 +2132,6 @@
                 document.querySelectorAll('.notification-item.unread').forEach(item => {
                     item.classList.remove('unread');
                 });
-                showToast('All notifications marked as read', 'success');
             });
             
             // View all activity
@@ -2298,44 +2178,28 @@
             // Profile form
             profileForm.addEventListener('submit', function(e) {
                 e.preventDefault();
+                // Save profile changes
+                currentUser.name = `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`;
+                currentUser.title = document.getElementById('jobTitle').value;
+                currentUser.phone = document.getElementById('phone').value;
+                currentUser.department = document.getElementById('department').value;
                 
-                // Show loading state
-                saveProfileText.style.display = 'none';
-                saveProfileSpinner.style.display = 'block';
-                saveProfileBtn.disabled = true;
+                // Update localStorage
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 
-                // Simulate API call delay
-                setTimeout(() => {
-                    // Save profile changes
-                    currentUser.name = `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`;
-                    currentUser.title = document.getElementById('jobTitle').value;
-                    currentUser.phone = document.getElementById('phone').value;
-                    currentUser.department = document.getElementById('department').value;
-                    
-                    // Update localStorage
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    // Update UI
-                    updateUserUI();
-                    
-                    // Add activity
-                    activities.unshift({
-                        icon: 'fa-user-edit',
-                        message: 'Updated profile information',
-                        time: 'Just now'
-                    });
-                    
-                    // Reset loading state
-                    saveProfileText.style.display = 'inline-block';
-                    saveProfileSpinner.style.display = 'none';
-                    saveProfileBtn.disabled = false;
-                    
-                    // Show success message
-                    showToast('Profile updated successfully', 'success');
-                    
-                    // Go back to dashboard
-                    setActiveFeature('dashboard');
-                }, 1000);
+                // Update UI
+                updateUserUI();
+                
+                // Add activity
+                activities.unshift({
+                    icon: 'fa-user-edit',
+                    message: 'Updated profile information',
+                    time: 'Just now',
+                    timestamp: new Date()
+                });
+                
+                // Go back to dashboard
+                setActiveFeature('dashboard');
             });
             
             cancelProfileBtn.addEventListener('click', function() {
@@ -2362,11 +2226,10 @@
                         activities.unshift({
                             icon: 'fa-camera',
                             message: 'Changed profile picture',
-                            time: 'Just now'
+                            time: 'Just now',
+                            timestamp: new Date()
                         });
                         localStorage.setItem('activities', JSON.stringify(activities));
-                        
-                        showToast('Profile picture updated', 'success');
                     };
                     reader.readAsDataURL(file);
                 }
@@ -2392,18 +2255,12 @@
             // Account settings form
             accountForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                
-                // Update user settings
-                currentUser.settings = currentUser.settings || {};
-                currentUser.settings.language = document.getElementById('language').value;
-                currentUser.settings.timezone = document.getElementById('timezone').value;
-                currentUser.settings.dateFormat = document.getElementById('dateFormat').value;
-                
-                // Save to localStorage
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                const language = document.getElementById('language').value;
+                const timezone = document.getElementById('timezone').value;
+                const dateFormat = document.getElementById('dateFormat').value;
                 
                 // Apply language change immediately
-                if (currentUser.settings.language === 'ar') {
+                if (language === 'ar') {
                     document.documentElement.lang = 'ar';
                     document.documentElement.dir = 'rtl';
                 } else {
@@ -2412,14 +2269,15 @@
                 }
                 
                 // Show success message
-                showToast('Account settings saved', 'success');
+                alert('Account settings saved successfully!');
                 
                 // Add activity if language changed to Arabic
-                if (currentUser.settings.language === 'ar') {
+                if (language === 'ar') {
                     activities.unshift({
                         icon: 'fa-language',
                         message: 'Changed language to Arabic',
-                        time: 'Just now'
+                        time: 'Just now',
+                        timestamp: new Date()
                     });
                     loadActivities();
                 }
@@ -2434,13 +2292,13 @@
                 
                 // Validate current password
                 if (currentPassword !== currentUser.password) {
-                    showToast('Current password is incorrect', 'error');
+                    alert('Current password is incorrect');
                     return;
                 }
                 
                 // Validate new password
                 if (newPassword !== confirmPassword) {
-                    showToast('New passwords do not match', 'error');
+                    alert('New passwords do not match');
                     return;
                 }
                 
@@ -2449,14 +2307,15 @@
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 
                 // Show success message
-                showToast('Password updated successfully', 'success');
+                alert('Security settings saved successfully!');
                 
                 // Add activity if password changed
                 if (newPassword) {
                     activities.unshift({
                         icon: 'fa-lock',
                         message: 'Changed password',
-                        time: 'Just now'
+                        time: 'Just now',
+                        timestamp: new Date()
                     });
                     loadActivities();
                 }
@@ -2468,35 +2327,23 @@
             // Notifications settings form
             notificationsForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                
-                // Update user settings
-                currentUser.settings = currentUser.settings || {};
-                currentUser.settings.emailTasks = document.getElementById('emailTasks').checked;
-                currentUser.settings.emailDeadlines = document.getElementById('emailDeadlines').checked;
-                currentUser.settings.emailUpdates = document.getElementById('emailUpdates').checked;
-                currentUser.settings.pushMessages = document.getElementById('pushMessages').checked;
-                currentUser.settings.pushTeamUpdates = document.getElementById('pushTeamUpdates').checked;
-                
-                // Save to localStorage
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                const emailTasks = document.getElementById('emailTasks').checked;
+                const emailDeadlines = document.getElementById('emailDeadlines').checked;
+                const emailUpdates = document.getElementById('emailUpdates').checked;
+                const pushMessages = document.getElementById('pushMessages').checked;
+                const pushTeamUpdates = document.getElementById('pushTeamUpdates').checked;
                 
                 // Show success message
-                showToast('Notification settings saved', 'success');
+                alert('Notifications settings saved successfully!');
             });
             
             // Preferences settings form
             preferencesForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                
-                // Update user settings
-                currentUser.settings = currentUser.settings || {};
-                currentUser.settings.layoutDensity = document.getElementById('layoutDensity').value;
-                
-                // Save to localStorage
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                const layoutDensity = document.getElementById('layoutDensity').value;
                 
                 // Show success message
-                showToast('Preferences saved', 'success');
+                alert('Preferences settings saved successfully!');
             });
             
             // Theme selection
@@ -2506,20 +2353,14 @@
                     document.body.className = `${theme}-theme`;
                     document.getElementById('selectedTheme').value = theme;
                     
-                    // Update user settings
-                    currentUser.settings = currentUser.settings || {};
-                    currentUser.settings.theme = theme;
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
                     // Add activity
                     activities.unshift({
                         icon: 'fa-palette',
                         message: `Changed theme to ${theme}`,
-                        time: 'Just now'
+                        time: 'Just now',
+                        timestamp: new Date()
                     });
                     loadActivities();
-                    
-                    showToast(`Theme changed to ${theme}`, 'success');
                 });
             });
             
@@ -2531,7 +2372,7 @@
                 
                 // Check if email already exists
                 if (teamMembers.some(member => member.email === email)) {
-                    showToast('This email is already a team member', 'error');
+                    alert('This email is already a team member');
                     return;
                 }
                 
@@ -2550,7 +2391,8 @@
                 activities.unshift({
                     icon: 'fa-user-plus',
                     message: `Added new ${role}: ${newMember.email}`,
-                    time: 'Just now'
+                    time: 'Just now',
+                    timestamp: new Date()
                 });
                 loadActivities();
                 
@@ -2558,16 +2400,11 @@
                 this.reset();
                 
                 // In a real app, you would send an invitation email here
-                showToast(`Invitation sent to ${email}`, 'success');
+                alert(`Invitation sent to ${email}`);
             });
             
             // Confirm modal actions
             cancelConfirmBtn.addEventListener('click', hideConfirmModal);
-            
-            // Close toast
-            toastClose.addEventListener('click', function() {
-                toast.classList.remove('show');
-            });
             
             // Close dropdowns when clicking outside
             document.addEventListener('click', function(e) {
