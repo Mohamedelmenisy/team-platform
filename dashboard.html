@@ -1258,7 +1258,7 @@
                         <div class="user-info-avatar" id="profileAvatar">ME</div>
                         <div class="user-info-details">
                             <div class="user-info-name">Mohamed Elmenisy</div>
-                            <div class="user-info-title">Team Manager</div>
+                            <div class="user-info-title" id="userRoleTitle">Team Manager</div>
                             <div class="user-info-email">
                                 <i class="fas fa-envelope"></i>
                                 <span id="userEmail">mohamed@teamflow.com</span>
@@ -1731,72 +1731,246 @@
             const tasksCompleted = document.getElementById('tasksCompleted');
             const activeProjects = document.getElementById('activeProjects');
             const upcomingDeadlines = document.getElementById('upcomingDeadlines');
+            const userRoleTitle = document.getElementById('userRoleTitle');
             
-            // Get user data from localStorage or use default
-            let currentUser = JSON.parse(localStorage.getItem('currentUser')) || {
-                name: 'Mohamed Elmenisy',
-                email: 'mohamed@teamflow.com',
-                title: 'Team Manager',
-                department: 'Management',
-                phone: '+201234567890',
-                avatar: '',
-                initials: 'ME',
-                role: 'admin',
-                password: 'password123' // In a real app, this would be hashed and stored securely
-            };
-
-            // Check if we have a logged in user from login page
-            const loggedInUser = JSON.parse(sessionStorage.getItem('loggedInUser'));
-            if (loggedInUser) {
-                currentUser = {...currentUser, ...loggedInUser};
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            // API Base URL
+            const API_BASE_URL = 'https://your-api-endpoint.com/api';
+            
+            // Get user data from API
+            async function fetchUserData() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/users/current`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch user data');
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                    // Return default user if API fails
+                    return {
+                        name: 'Mohamed Elmenisy',
+                        email: 'mohamed@teamflow.com',
+                        title: 'Team Manager',
+                        department: 'Management',
+                        phone: '+201234567890',
+                        avatar: '',
+                        initials: 'ME',
+                        role: 'admin',
+                        password: 'password123'
+                    };
+                }
             }
             
-            // Sample team members
-            let teamMembers = JSON.parse(localStorage.getItem('teamMembers')) || [
-                {
-                    email: 'ahmed@teamflow.com',
-                    role: 'member',
-                    initials: 'AM'
-                },
-                {
-                    email: 'sarah@teamflow.com',
-                    role: 'admin',
-                    initials: 'SJ'
-                },
-                {
-                    email: 'michael@teamflow.com',
-                    role: 'member',
-                    initials: 'MB'
+            // Save user data to API
+            async function saveUserData(userData) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/users/current`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify(userData)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to save user data');
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error saving user data:', error);
+                    throw error;
                 }
-            ];
+            }
             
-            // Sample activity data
-            let activities = JSON.parse(localStorage.getItem('activities')) || [
-                {
-                    icon: 'fa-tasks',
-                    message: 'Completed task "Update dashboard design"',
-                    time: '2 hours ago'
-                },
-                {
-                    icon: 'fa-calendar-check',
-                    message: 'Team meeting scheduled for tomorrow at 10 AM',
-                    time: '4 hours ago'
-                },
-                {
-                    icon: 'fa-user-plus',
-                    message: 'New team member "ahmed@teamflow.com" added',
-                    time: 'Yesterday'
-                },
-                {
-                    icon: 'fa-trash',
-                    message: 'Removed team member "john@teamflow.com"',
-                    time: '2 days ago'
+            // Upload avatar to API
+            async function uploadAvatar(file) {
+                try {
+                    const formData = new FormData();
+                    formData.append('avatar', file);
+                    
+                    const response = await fetch(`${API_BASE_URL}/users/avatar`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to upload avatar');
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error uploading avatar:', error);
+                    throw error;
                 }
-            ];
+            }
             
-            // Stats data
-            let stats = JSON.parse(localStorage.getItem('stats')) || {
+            // Fetch team members from API
+            async function fetchTeamMembers() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/team-members`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch team members');
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error fetching team members:', error);
+                    return [];
+                }
+            }
+            
+            // Add team member via API
+            async function addTeamMember(email, role) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/team-members`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({ email, role })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to add team member');
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error adding team member:', error);
+                    throw error;
+                }
+            }
+            
+            // Delete team member via API
+            async function deleteTeamMemberAPI(memberId) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/team-members/${memberId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to delete team member');
+                    }
+                    
+                    return true;
+                } catch (error) {
+                    console.error('Error deleting team member:', error);
+                    throw error;
+                }
+            }
+            
+            // Fetch activities from API
+            async function fetchActivities() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/activities`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch activities');
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error fetching activities:', error);
+                    return [];
+                }
+            }
+            
+            // Delete activity via API
+            async function deleteActivityAPI(activityId) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/activities/${activityId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to delete activity');
+                    }
+                    
+                    return true;
+                } catch (error) {
+                    console.error('Error deleting activity:', error);
+                    throw error;
+                }
+            }
+            
+            // Delete all activities via API
+            async function deleteAllActivitiesAPI() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/activities`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to delete all activities');
+                    }
+                    
+                    return true;
+                } catch (error) {
+                    console.error('Error deleting all activities:', error);
+                    throw error;
+                }
+            }
+            
+            // Fetch stats from API
+            async function fetchStats() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/stats`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch stats');
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error fetching stats:', error);
+                    return {
+                        teamMembers: 0,
+                        tasksCompleted: 0,
+                        activeProjects: 0,
+                        upcomingDeadlines: 0
+                    };
+                }
+            }
+            
+            // Current user data
+            let currentUser = {};
+            let teamMembers = [];
+            let activities = [];
+            let stats = {
                 teamMembers: 0,
                 tasksCompleted: 0,
                 activeProjects: 0,
@@ -1808,24 +1982,69 @@
             let currentIndex = null;
             
             // Initialize the dashboard
-            function initDashboard() {
-                // Set user data
-                updateUserUI();
+            async function initDashboard() {
+                try {
+                    // Load user data
+                    currentUser = await fetchUserData();
+                    
+                    // Set user data
+                    updateUserUI();
+                    
+                    // Load team members
+                    teamMembers = await fetchTeamMembers();
+                    loadTeamMembers();
+                    
+                    // Load activities
+                    activities = await fetchActivities();
+                    loadActivities();
+                    
+                    // Load stats
+                    stats = await fetchStats();
+                    updateStats();
+                    
+                    // Set active feature (dashboard by default)
+                    setActiveFeature('dashboard');
+                    
+                    // Start activity time updater
+                    startActivityTimeUpdater();
+                    
+                    // Start real-time updates
+                    startRealTimeUpdates();
+                } catch (error) {
+                    console.error('Error initializing dashboard:', error);
+                }
+            }
+            
+            // Start real-time updates using WebSocket
+            function startRealTimeUpdates() {
+                // In a real app, you would connect to a WebSocket server
+                // For this example, we'll simulate with setInterval
                 
-                // Load stats
-                updateStats();
+                // Simulate real-time updates for activities
+                setInterval(async () => {
+                    try {
+                        const newActivities = await fetchActivities();
+                        if (newActivities.length !== activities.length) {
+                            activities = newActivities;
+                            loadActivities(viewAllActivity.style.display === 'none');
+                        }
+                    } catch (error) {
+                        console.error('Error fetching activities:', error);
+                    }
+                }, 5000);
                 
-                // Load team members
-                loadTeamMembers();
-                
-                // Load activities
-                loadActivities();
-                
-                // Set active feature (dashboard by default)
-                setActiveFeature('dashboard');
-                
-                // Start activity time updater
-                startActivityTimeUpdater();
+                // Simulate real-time updates for stats
+                setInterval(async () => {
+                    try {
+                        const newStats = await fetchStats();
+                        if (JSON.stringify(newStats) !== JSON.stringify(stats)) {
+                            stats = newStats;
+                            updateStats();
+                        }
+                    } catch (error) {
+                        console.error('Error fetching stats:', error);
+                    }
+                }, 10000);
             }
             
             // Update user UI elements
@@ -1834,16 +2053,27 @@
                 userEmail.textContent = currentUser.email;
                 welcomeName.textContent = currentUser.name.split(' ')[0];
                 document.querySelector('.user-info-name').textContent = currentUser.name;
-                document.querySelector('.user-info-title').textContent = currentUser.title;
+                
+                // Update role title based on user role
+                const roleTitles = {
+                    'admin': 'Team Manager',
+                    'manager': 'Project Manager',
+                    'member': 'Team Member',
+                    'guest': 'Guest User'
+                };
+                const roleTitle = roleTitles[currentUser.role] || 'Team Member';
+                document.querySelector('.user-info-title').textContent = roleTitle;
+                userRoleTitle.textContent = roleTitle;
+                
                 document.querySelector('.user-info-email span').textContent = currentUser.email;
                 
                 // Set form values
                 const nameParts = currentUser.name.split(' ');
                 document.getElementById('firstName').value = nameParts[0];
                 document.getElementById('lastName').value = nameParts.slice(1).join(' ');
-                document.getElementById('jobTitle').value = currentUser.title;
-                document.getElementById('phone').value = currentUser.phone;
-                document.getElementById('department').value = currentUser.department;
+                document.getElementById('jobTitle').value = currentUser.title || '';
+                document.getElementById('phone').value = currentUser.phone || '';
+                document.getElementById('department').value = currentUser.department || '';
                 document.getElementById('email').value = currentUser.email;
                 
                 // Set avatar if exists
@@ -1855,9 +2085,9 @@
                     userAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
                     userAvatar.textContent = '';
                 } else {
-                    profileAvatar.textContent = currentUser.initials;
-                    profileAvatarLarge.textContent = currentUser.initials;
-                    userAvatar.textContent = currentUser.initials;
+                    profileAvatar.textContent = currentUser.initials || 'ME';
+                    profileAvatarLarge.textContent = currentUser.initials || 'ME';
+                    userAvatar.textContent = currentUser.initials || 'ME';
                 }
                 
                 // Show/hide admin features based on role
@@ -1869,24 +2099,21 @@
             
             // Update stats
             function updateStats() {
-                stats.teamMembers = teamMembers.length;
-                teamMembersCount.textContent = stats.teamMembers;
-                tasksCompleted.textContent = stats.tasksCompleted;
-                activeProjects.textContent = stats.activeProjects;
-                upcomingDeadlines.textContent = stats.upcomingDeadlines;
-                
-                localStorage.setItem('stats', JSON.stringify(stats));
+                teamMembersCount.textContent = stats.teamMembers || 0;
+                tasksCompleted.textContent = stats.tasksCompleted || 0;
+                activeProjects.textContent = stats.activeProjects || 0;
+                upcomingDeadlines.textContent = stats.upcomingDeadlines || 0;
             }
             
             // Load team members
             function loadTeamMembers() {
                 teamList.innerHTML = '';
                 
-                teamMembers.forEach((member, index) => {
+                teamMembers.forEach((member) => {
                     const memberCard = document.createElement('div');
                     memberCard.className = 'team-member-card';
                     memberCard.innerHTML = `
-                        <div class="member-avatar">${member.initials}</div>
+                        <div class="member-avatar">${member.initials || member.email.substring(0, 2).toUpperCase()}</div>
                         <div class="member-details">
                             <div class="member-email">${member.email}</div>
                         </div>
@@ -1894,7 +2121,7 @@
                             ${member.role === 'admin' ? 'Admin' : 'Member'}
                         </div>
                         <div class="member-actions ${currentUser.role === 'admin' ? '' : 'd-none'}">
-                            <button class="btn btn-danger btn-sm delete-member" data-index="${index}">
+                            <button class="btn btn-danger btn-sm delete-member" data-id="${member.id}">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -1905,11 +2132,12 @@
                 // Add event listeners to delete buttons
                 document.querySelectorAll('.delete-member').forEach(button => {
                     button.addEventListener('click', function() {
-                        const index = this.getAttribute('data-index');
+                        const memberId = this.getAttribute('data-id');
+                        const member = teamMembers.find(m => m.id === memberId);
                         showConfirmModal(
                             'Delete Team Member',
-                            `Are you sure you want to remove ${teamMembers[index].email} from the team?`,
-                            () => deleteTeamMember(index)
+                            `Are you sure you want to remove ${member.email} from the team?`,
+                            () => deleteTeamMember(memberId)
                         );
                     });
                 });
@@ -1917,24 +2145,34 @@
                 // Update stats
                 stats.teamMembers = teamMembers.length;
                 updateStats();
-                localStorage.setItem('teamMembers', JSON.stringify(teamMembers));
             }
             
             // Delete team member
-            function deleteTeamMember(index) {
-                const removedMember = teamMembers.splice(index, 1)[0];
-                loadTeamMembers();
-                
-                // Add activity
-                activities.unshift({
-                    icon: 'fa-trash',
-                    message: `Removed team member "${removedMember.email}"`,
-                    time: 'Just now'
-                });
-                
-                loadActivities();
-                hideConfirmModal();
-                localStorage.setItem('activities', JSON.stringify(activities));
+            async function deleteTeamMember(memberId) {
+                try {
+                    await deleteTeamMemberAPI(memberId);
+                    
+                    // Remove from local array
+                    teamMembers = teamMembers.filter(member => member.id !== memberId);
+                    loadTeamMembers();
+                    
+                    // Add activity
+                    const removedMember = teamMembers.find(m => m.id === memberId);
+                    if (removedMember) {
+                        activities.unshift({
+                            icon: 'fa-trash',
+                            message: `Removed team member "${removedMember.email}"`,
+                            time: 'Just now',
+                            timestamp: new Date()
+                        });
+                        loadActivities();
+                    }
+                    
+                    hideConfirmModal();
+                } catch (error) {
+                    alert('Failed to delete team member. Please try again.');
+                    console.error('Error deleting team member:', error);
+                }
             }
             
             // Start activity time updater
@@ -2001,7 +2239,7 @@
                 
                 const activitiesToShow = showAll ? activities : activities.slice(0, 2);
                 
-                activitiesToShow.forEach((activity, index) => {
+                activitiesToShow.forEach((activity) => {
                     const li = document.createElement('li');
                     li.className = 'activity-item';
                     li.innerHTML = `
@@ -2010,10 +2248,10 @@
                         </div>
                         <div class="activity-content">
                             <div class="activity-message">${activity.message}</div>
-                            <div class="activity-time">${activity.time}</div>
+                            <div class="activity-time">${getTimeAgo(activity.timestamp || new Date())}</div>
                         </div>
                         <div class="activity-actions ${currentUser.role === 'admin' ? '' : 'd-none'}">
-                            <i class="fas fa-trash delete-activity" data-index="${index}"></i>
+                            <i class="fas fa-trash delete-activity" data-id="${activity.id}"></i>
                         </div>
                     `;
                     activityList.appendChild(li);
@@ -2022,37 +2260,47 @@
                 // Add event listeners to delete buttons
                 document.querySelectorAll('.delete-activity').forEach(button => {
                     button.addEventListener('click', function() {
-                        const index = this.getAttribute('data-index');
+                        const activityId = this.getAttribute('data-id');
                         showConfirmModal(
                             'Delete Activity',
                             'Are you sure you want to delete this activity?',
-                            () => deleteActivity(index)
+                            () => deleteActivity(activityId)
                         );
                     });
                 });
-                
-                localStorage.setItem('activities', JSON.stringify(activities));
             }
             
             // Delete activity
-            function deleteActivity(index) {
-                activities.splice(index, 1);
-                loadActivities(viewAllActivity.style.display === 'none');
-                hideConfirmModal();
-                localStorage.setItem('activities', JSON.stringify(activities));
+            async function deleteActivity(activityId) {
+                try {
+                    await deleteActivityAPI(activityId);
+                    
+                    // Remove from local array
+                    activities = activities.filter(activity => activity.id !== activityId);
+                    loadActivities(viewAllActivity.style.display === 'none');
+                    hideConfirmModal();
+                } catch (error) {
+                    alert('Failed to delete activity. Please try again.');
+                    console.error('Error deleting activity:', error);
+                }
             }
             
             // Delete all activities
-            function deleteAllActivities() {
+            async function deleteAllActivities() {
                 showConfirmModal(
                     'Delete All Activities',
                     'Are you sure you want to delete all activities? This action cannot be undone.',
-                    () => {
-                        activities = [];
-                        loadActivities();
-                        viewAllActivity.style.display = 'block';
-                        hideConfirmModal();
-                        localStorage.setItem('activities', JSON.stringify(activities));
+                    async () => {
+                        try {
+                            await deleteAllActivitiesAPI();
+                            activities = [];
+                            loadActivities();
+                            viewAllActivity.style.display = 'block';
+                            hideConfirmModal();
+                        } catch (error) {
+                            alert('Failed to delete all activities. Please try again.');
+                            console.error('Error deleting all activities:', error);
+                        }
                     }
                 );
             }
@@ -2170,36 +2418,46 @@
             logoutLink.addEventListener('click', function(e) {
                 e.preventDefault();
                 // Clear session
+                localStorage.removeItem('token');
                 sessionStorage.removeItem('loggedInUser');
                 // Redirect to login
                 window.location.href = 'login.html';
             });
             
             // Profile form
-            profileForm.addEventListener('submit', function(e) {
+            profileForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                // Save profile changes
-                currentUser.name = `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`;
-                currentUser.title = document.getElementById('jobTitle').value;
-                currentUser.phone = document.getElementById('phone').value;
-                currentUser.department = document.getElementById('department').value;
-                
-                // Update localStorage
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                // Update UI
-                updateUserUI();
-                
-                // Add activity
-                activities.unshift({
-                    icon: 'fa-user-edit',
-                    message: 'Updated profile information',
-                    time: 'Just now',
-                    timestamp: new Date()
-                });
-                
-                // Go back to dashboard
-                setActiveFeature('dashboard');
+                try {
+                    // Prepare updated user data
+                    const updatedUser = {
+                        ...currentUser,
+                        name: `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`,
+                        title: document.getElementById('jobTitle').value,
+                        phone: document.getElementById('phone').value,
+                        department: document.getElementById('department').value
+                    };
+                    
+                    // Save to API
+                    const savedUser = await saveUserData(updatedUser);
+                    currentUser = savedUser;
+                    
+                    // Update UI
+                    updateUserUI();
+                    
+                    // Add activity
+                    activities.unshift({
+                        icon: 'fa-user-edit',
+                        message: 'Updated profile information',
+                        time: 'Just now',
+                        timestamp: new Date()
+                    });
+                    
+                    // Go back to dashboard
+                    setActiveFeature('dashboard');
+                } catch (error) {
+                    alert('Failed to save profile. Please try again.');
+                    console.error('Error saving profile:', error);
+                }
             });
             
             cancelProfileBtn.addEventListener('click', function() {
@@ -2212,14 +2470,18 @@
                 profileAvatarInput.click();
             });
             
-            profileAvatarInput.addEventListener('change', function(e) {
+            profileAvatarInput.addEventListener('change', async function(e) {
                 const file = e.target.files[0];
                 if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        currentUser.avatar = event.target.result;
-                        // Update localStorage
-                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    try {
+                        // Upload to API
+                        const result = await uploadAvatar(file);
+                        
+                        // Update local user data
+                        currentUser.avatar = result.avatarUrl;
+                        currentUser = await saveUserData(currentUser);
+                        
+                        // Update UI
                         updateUserUI();
                         
                         // Add activity
@@ -2229,9 +2491,10 @@
                             time: 'Just now',
                             timestamp: new Date()
                         });
-                        localStorage.setItem('activities', JSON.stringify(activities));
-                    };
-                    reader.readAsDataURL(file);
+                    } catch (error) {
+                        alert('Failed to upload avatar. Please try again.');
+                        console.error('Error uploading avatar:', error);
+                    }
                 }
             });
             
@@ -2253,97 +2516,157 @@
             });
             
             // Account settings form
-            accountForm.addEventListener('submit', function(e) {
+            accountForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const language = document.getElementById('language').value;
-                const timezone = document.getElementById('timezone').value;
-                const dateFormat = document.getElementById('dateFormat').value;
-                
-                // Apply language change immediately
-                if (language === 'ar') {
-                    document.documentElement.lang = 'ar';
-                    document.documentElement.dir = 'rtl';
-                } else {
-                    document.documentElement.lang = 'en';
-                    document.documentElement.dir = 'ltr';
-                }
-                
-                // Show success message
-                alert('Account settings saved successfully!');
-                
-                // Add activity if language changed to Arabic
-                if (language === 'ar') {
-                    activities.unshift({
-                        icon: 'fa-language',
-                        message: 'Changed language to Arabic',
-                        time: 'Just now',
-                        timestamp: new Date()
+                try {
+                    const language = document.getElementById('language').value;
+                    const timezone = document.getElementById('timezone').value;
+                    const dateFormat = document.getElementById('dateFormat').value;
+                    
+                    // Save to API
+                    await saveUserData({
+                        ...currentUser,
+                        preferences: {
+                            language,
+                            timezone,
+                            dateFormat
+                        }
                     });
-                    loadActivities();
+                    
+                    // Apply language change immediately
+                    if (language === 'ar') {
+                        document.documentElement.lang = 'ar';
+                        document.documentElement.dir = 'rtl';
+                    } else {
+                        document.documentElement.lang = 'en';
+                        document.documentElement.dir = 'ltr';
+                    }
+                    
+                    // Show success message
+                    alert('Account settings saved successfully!');
+                    
+                    // Add activity if language changed to Arabic
+                    if (language === 'ar') {
+                        activities.unshift({
+                            icon: 'fa-language',
+                            message: 'Changed language to Arabic',
+                            time: 'Just now',
+                            timestamp: new Date()
+                        });
+                        loadActivities();
+                    }
+                } catch (error) {
+                    alert('Failed to save account settings. Please try again.');
+                    console.error('Error saving account settings:', error);
                 }
             });
             
             // Security settings form
-            securityForm.addEventListener('submit', function(e) {
+            securityForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const currentPassword = document.getElementById('currentPassword').value;
-                const newPassword = document.getElementById('newPassword').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-                
-                // Validate current password
-                if (currentPassword !== currentUser.password) {
-                    alert('Current password is incorrect');
-                    return;
-                }
-                
-                // Validate new password
-                if (newPassword !== confirmPassword) {
-                    alert('New passwords do not match');
-                    return;
-                }
-                
-                // Update password
-                currentUser.password = newPassword;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                // Show success message
-                alert('Security settings saved successfully!');
-                
-                // Add activity if password changed
-                if (newPassword) {
-                    activities.unshift({
-                        icon: 'fa-lock',
-                        message: 'Changed password',
-                        time: 'Just now',
-                        timestamp: new Date()
+                try {
+                    const currentPassword = document.getElementById('currentPassword').value;
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    // Validate new password
+                    if (newPassword !== confirmPassword) {
+                        alert('New passwords do not match');
+                        return;
+                    }
+                    
+                    // Update password via API
+                    await fetch(`${API_BASE_URL}/users/password`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({
+                            currentPassword,
+                            newPassword
+                        })
                     });
-                    loadActivities();
+                    
+                    // Show success message
+                    alert('Security settings saved successfully!');
+                    
+                    // Add activity if password changed
+                    if (newPassword) {
+                        activities.unshift({
+                            icon: 'fa-lock',
+                            message: 'Changed password',
+                            time: 'Just now',
+                            timestamp: new Date()
+                        });
+                        loadActivities();
+                    }
+                    
+                    // Reset form
+                    this.reset();
+                } catch (error) {
+                    alert('Failed to update password. Please try again.');
+                    console.error('Error updating password:', error);
                 }
-                
-                // Reset form
-                this.reset();
             });
             
             // Notifications settings form
-            notificationsForm.addEventListener('submit', function(e) {
+            notificationsForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const emailTasks = document.getElementById('emailTasks').checked;
-                const emailDeadlines = document.getElementById('emailDeadlines').checked;
-                const emailUpdates = document.getElementById('emailUpdates').checked;
-                const pushMessages = document.getElementById('pushMessages').checked;
-                const pushTeamUpdates = document.getElementById('pushTeamUpdates').checked;
-                
-                // Show success message
-                alert('Notifications settings saved successfully!');
+                try {
+                    const emailTasks = document.getElementById('emailTasks').checked;
+                    const emailDeadlines = document.getElementById('emailDeadlines').checked;
+                    const emailUpdates = document.getElementById('emailUpdates').checked;
+                    const pushMessages = document.getElementById('pushMessages').checked;
+                    const pushTeamUpdates = document.getElementById('pushTeamUpdates').checked;
+                    
+                    // Save to API
+                    await saveUserData({
+                        ...currentUser,
+                        notificationPreferences: {
+                            email: {
+                                tasks: emailTasks,
+                                deadlines: emailDeadlines,
+                                updates: emailUpdates
+                            },
+                            push: {
+                                messages: pushMessages,
+                                teamUpdates: pushTeamUpdates
+                            }
+                        }
+                    });
+                    
+                    // Show success message
+                    alert('Notifications settings saved successfully!');
+                } catch (error) {
+                    alert('Failed to save notification settings. Please try again.');
+                    console.error('Error saving notification settings:', error);
+                }
             });
             
             // Preferences settings form
-            preferencesForm.addEventListener('submit', function(e) {
+            preferencesForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const layoutDensity = document.getElementById('layoutDensity').value;
-                
-                // Show success message
-                alert('Preferences settings saved successfully!');
+                try {
+                    const layoutDensity = document.getElementById('layoutDensity').value;
+                    const theme = document.getElementById('selectedTheme').value;
+                    
+                    // Save to API
+                    await saveUserData({
+                        ...currentUser,
+                        preferences: {
+                            ...currentUser.preferences,
+                            layoutDensity,
+                            theme
+                        }
+                    });
+                    
+                    // Show success message
+                    alert('Preferences settings saved successfully!');
+                } catch (error) {
+                    alert('Failed to save preferences. Please try again.');
+                    console.error('Error saving preferences:', error);
+                }
             });
             
             // Theme selection
@@ -2365,42 +2688,43 @@
             });
             
             // Add team member
-            addMemberForm.addEventListener('submit', function(e) {
+            addMemberForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const email = document.getElementById('memberEmail').value;
-                const role = document.getElementById('memberRole').value;
-                
-                // Check if email already exists
-                if (teamMembers.some(member => member.email === email)) {
-                    alert('This email is already a team member');
-                    return;
+                try {
+                    const email = document.getElementById('memberEmail').value;
+                    const role = document.getElementById('memberRole').value;
+                    
+                    // Check if email already exists locally (would be checked on server in real app)
+                    if (teamMembers.some(member => member.email === email)) {
+                        alert('This email is already a team member');
+                        return;
+                    }
+                    
+                    // Add via API
+                    const newMember = await addTeamMember(email, role);
+                    
+                    // Add to local array
+                    teamMembers.push(newMember);
+                    loadTeamMembers();
+                    
+                    // Add activity
+                    activities.unshift({
+                        icon: 'fa-user-plus',
+                        message: `Added new ${role}: ${newMember.email}`,
+                        time: 'Just now',
+                        timestamp: new Date()
+                    });
+                    loadActivities();
+                    
+                    // Reset form
+                    this.reset();
+                    
+                    // Show success message
+                    alert(`Team member ${email} added successfully!`);
+                } catch (error) {
+                    alert('Failed to add team member. Please try again.');
+                    console.error('Error adding team member:', error);
                 }
-                
-                // Create new member
-                const newMember = {
-                    email: email,
-                    role,
-                    initials: email.split('@')[0].substring(0, 2).toUpperCase()
-                };
-                
-                // Add to team
-                teamMembers.push(newMember);
-                loadTeamMembers();
-                
-                // Add activity
-                activities.unshift({
-                    icon: 'fa-user-plus',
-                    message: `Added new ${role}: ${newMember.email}`,
-                    time: 'Just now',
-                    timestamp: new Date()
-                });
-                loadActivities();
-                
-                // Reset form
-                this.reset();
-                
-                // In a real app, you would send an invitation email here
-                alert(`Invitation sent to ${email}`);
             });
             
             // Confirm modal actions
