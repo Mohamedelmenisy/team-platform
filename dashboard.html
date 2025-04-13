@@ -1195,8 +1195,8 @@
             align-items: center;
             gap: 0.5rem;
             margin-top: 1rem;
-            padding: 0.75rem 1.5rem;
-            color: var(--sidebar-text);
+            color: var(--success);
+            font-weight: 500;
         }
 
         .status-dot {
@@ -1205,6 +1205,21 @@
             border-radius: 50%;
             background-color: var(--success);
             animation: pulse 2s infinite;
+        }
+
+        /* Admin message styling */
+        .admin-message {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid var(--danger);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .admin-message p {
+            margin: 0;
+            color: var(--danger);
+            font-weight: 500;
         }
     </style>
 </head>
@@ -1311,10 +1326,6 @@
                 <div class="user-profile">
                     <div class="user-avatar" id="userAvatar">ME</div>
                     <div class="user-name" id="userName">Mohamed Elsayed</div>
-                    <div class="connection-status">
-                        <div class="status-dot"></div>
-                        <span>Connected</span>
-                    </div>
                     <div class="user-dropdown" id="userDropdown">
                         <a href="#profile" class="dropdown-item" id="profileLink">
                             <i class="fas fa-user"></i>
@@ -1354,14 +1365,16 @@
                             <div class="user-info-title" id="userRoleTitle">Team Manager</div>
                             <div class="user-info-email">
                                 <i class="fas fa-envelope"></i>
-                                <span id="userEmail" style="color: var(--danger);">m.elsayed@thechefz.co</span>
-                            </div>
-                            <div class="user-info-status">
-                                <i class="fas fa-circle"></i>
-                                <span>Connected</span>
+                                <span id="userEmail">m.elsayed@thechefz.co</span>
                             </div>
                         </div>
                     </div>
+                </div>
+                
+                <!-- Connection status moved here -->
+                <div class="connection-status">
+                    <div class="status-dot"></div>
+                    <span>Connected</span>
                 </div>
                 
                 <!-- Stats Section -->
@@ -2152,7 +2165,7 @@
                             <div class="member-name">${member.name}</div>
                             <div class="member-email">${member.email}</div>
                         </div>
-                        <div class="member-role ${member.role === 'member' ? 'role-admin' : member.role === 'senior' ? 'role-senior' : member.role === 'supervisor' ? 'role-supervisor' : 'role-member'}">
+                        <div class="member-role ${member.role === 'admin' ? 'role-admin' : member.role === 'senior' ? 'role-senior' : member.role === 'supervisor' ? 'role-supervisor' : 'role-member'}">
                             ${member.role === 'admin' ? 'Admin' : member.role === 'senior' ? 'Senior' : member.role === 'supervisor' ? 'Supervisor' : 'Member'}
                         </div>
                         <div class="member-actions ${currentUser.role === 'admin' || currentUser.role === 'supervisor' ? '' : 'd-none'}">
@@ -2426,14 +2439,25 @@
                         const activity = activities.find(a => a.id === activityId);
                         
                         if (activity && activity.isSystemUpdate) {
+                            // Create a more professional admin message
+                            const adminMessage = document.createElement('div');
+                            adminMessage.className = 'admin-message';
+                            adminMessage.innerHTML = `
+                                <p>This action is restricted to administrators and supervisors only.</p>
+                                <p>Please contact your system administrator if you need to perform this action.</p>
+                            `;
+                            
+                            // Insert before the confirm modal
+                            confirmModal.insertBefore(adminMessage, confirmModal.firstChild);
+                            
                             showConfirmModal(
                                 'Delete System Update',
-                                'Are you sure you want to delete this system update notification? This action is only available for admins and supervisors.',
+                                'Are you sure you want to delete this system update notification?',
                                 () => {
                                     if (currentUser.role === 'admin' || currentUser.role === 'supervisor') {
                                         deleteActivity(activityId);
-                                    } else {
-                                        alert('This option is only available for supervisors and administrators');
+                                        // Remove the admin message
+                                        adminMessage.remove();
                                     }
                                 }
                             );
@@ -2766,7 +2790,7 @@
                 if (file) {
                     // Check if file is an image
                     if (!file.type.match('image.*')) {
-                        alert('Please select an image file');
+                        alert('Please select an image file (JPEG, PNG, GIF)');
                         return;
                     }
                     
