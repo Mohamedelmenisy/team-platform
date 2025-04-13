@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team Dashboard</title>
+    <title>TeamFlow | Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #2563eb;
             --primary-dark: #1e3a8a;
+            --primary-light: #dbeafe;
             --secondary: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
@@ -17,7 +18,12 @@
             --gray: #64748b;
             --light-gray: #e2e8f0;
             --white: #ffffff;
-            --sidebar-width: 260px;
+            --sidebar-width: 280px;
+            --sidebar-bg: #1e3a8a;
+            --sidebar-text: rgba(255,255,255,0.9);
+            --sidebar-hover: rgba(255,255,255,0.1);
+            --sidebar-active: rgba(255,255,255,0.2);
+            --sidebar-divider: rgba(255,255,255,0.1);
         }
 
         * {
@@ -28,71 +34,117 @@
         }
 
         body {
+            background-color: var(--primary-light);
+            color: var(--dark);
             display: flex;
             min-height: 100vh;
-            background-color: var(--light);
         }
 
+        /* Sidebar Styles */
         .sidebar {
             width: var(--sidebar-width);
-            background-color: var(--primary-dark);
-            color: white;
+            background-color: var(--sidebar-bg);
             height: 100vh;
             position: fixed;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 100;
         }
 
         .sidebar-header {
             padding: 1.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid var(--sidebar-divider);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .logo {
-            font-size: 1.5rem;
-            font-weight: 600;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
-        .menu {
+        .logo-icon {
+            color: var(--white);
+            font-size: 1.5rem;
+        }
+
+        .sidebar-menu {
             padding: 1rem 0;
+        }
+
+        .menu-title {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 0.5px;
         }
 
         .menu-item {
             display: flex;
             align-items: center;
-            padding: 1rem 1.5rem;
-            color: white;
+            padding: 0.75rem 1.5rem;
+            color: var(--sidebar-text);
             text-decoration: none;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            margin: 0.25rem 0;
+            cursor: pointer;
         }
 
         .menu-item:hover {
-            background-color: rgba(255,255,255,0.1);
+            background-color: var(--sidebar-hover);
+            color: var(--white);
         }
 
         .menu-item.active {
-            background-color: var(--primary);
+            background-color: var(--sidebar-active);
+            color: var(--white);
+            border-left-color: var(--white);
         }
 
         .menu-item i {
-            margin-right: 1rem;
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
         }
 
+        .menu-divider {
+            height: 1px;
+            background-color: var(--sidebar-divider);
+            margin: 1rem 1.5rem;
+        }
+
+        /* Main Content */
         .main-content {
-            margin-left: var(--sidebar-width);
             flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
         }
 
+        /* Top Navigation */
         .top-nav {
+            background-color: var(--white);
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 2rem;
-            background-color: var(--white);
             border-bottom: 1px solid var(--light-gray);
+            position: sticky;
+            top: 0;
+            z-index: 90;
         }
 
         .search-bar {
             position: relative;
-            width: 300px;
+            width: 400px;
         }
 
         .search-bar input {
@@ -101,6 +153,13 @@
             border: 1px solid var(--light-gray);
             border-radius: 6px;
             font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .search-icon {
@@ -119,8 +178,8 @@
 
         .notification-icon {
             position: relative;
-            cursor: pointer;
             color: var(--gray);
+            cursor: pointer;
         }
 
         .notification-badge {
@@ -136,16 +195,19 @@
             align-items: center;
             justify-content: center;
             font-size: 0.65rem;
+            font-weight: 600;
         }
 
         .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
             position: relative;
-            cursor: pointer;
         }
 
         .user-avatar {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background-color: var(--primary);
             color: white;
@@ -153,7 +215,14 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
+            cursor: pointer;
             background-size: cover;
+            background-position: center;
+        }
+
+        .user-name {
+            font-weight: 500;
+            cursor: pointer;
         }
 
         .user-dropdown {
@@ -163,19 +232,23 @@
             background-color: var(--white);
             border: 1px solid var(--light-gray);
             border-radius: 6px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             width: 200px;
-            display: none;
             z-index: 100;
+            display: none;
+        }
+
+        .user-dropdown.active {
+            display: block;
         }
 
         .dropdown-item {
             padding: 0.75rem 1rem;
-            color: var(--dark);
-            text-decoration: none;
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            color: var(--dark);
+            text-decoration: none;
             transition: background-color 0.2s;
         }
 
@@ -183,25 +256,99 @@
             background-color: var(--light);
         }
 
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Content Area */
         .content-area {
             padding: 2rem;
+            min-height: calc(100vh - 70px);
         }
 
-        .content-section {
-            display: none;
+        .welcome-section {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .content-section.active {
-            display: block;
-            animation: fadeIn 0.3s;
+        .welcome-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
         }
 
-        .stats-grid {
+        .user-info-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.75rem;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .avatar-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background-color: var(--white);
+            color: var(--primary);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+        }
+
+        .user-info-details {
+            flex: 1;
+        }
+
+        .user-info-name {
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-info-title {
+            opacity: 0.9;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-info-email {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Stats Section */
+        .stats-section {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1.5rem;
@@ -210,96 +357,72 @@
 
         .stat-card {
             background-color: var(--white);
-            padding: 1.5rem;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
         }
 
         .stat-title {
-            color: var(--gray);
             font-size: 0.9rem;
+            color: var(--gray);
             margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-title i {
+            color: var(--primary);
         }
 
         .stat-value {
-            font-size: 2rem;
+            font-size: 1.75rem;
             font-weight: 700;
             color: var(--primary-dark);
-        }
-
-        .user-info-card {
-            background-color: var(--white);
-            padding: 2rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .user-info-header {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
+            justify-content: space-between;
         }
 
-        .user-avatar-lg {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: var(--primary-light);
+        .stat-trend {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 1.75rem;
-            font-weight: 600;
-            position: relative;
-            background-size: cover;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
-        .avatar-upload {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            background-color: var(--white);
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            cursor: pointer;
+        .trend-up {
+            color: var(--secondary);
         }
 
-        .user-info-details {
-            flex: 1;
+        .trend-down {
+            color: var(--danger);
         }
 
-        .user-name {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .user-email {
-            color: var(--gray);
-            margin-bottom: 0.5rem;
-        }
-
-        .user-role {
-            background-color: var(--primary-light);
-            color: var(--primary);
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            display: inline-block;
-        }
-
+        /* Activity Section */
         .activity-section {
             background-color: var(--white);
-            padding: 1.5rem;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
         }
 
         .section-header {
@@ -310,27 +433,39 @@
         }
 
         .section-title {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
             font-size: 1.25rem;
             font-weight: 600;
         }
 
-        .live-badge {
-            background-color: var(--secondary);
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            animation: pulse 1.5s infinite;
+        .view-all {
+            color: var(--primary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0.5rem;
+            border-radius: 4px;
         }
 
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
+        .view-all:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+            background-color: var(--primary-light);
+        }
+
+        .delete-all {
+            color: var(--danger);
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-left: 1rem;
+        }
+
+        .delete-all:hover {
+            color: #dc2626;
+            text-decoration: underline;
+            background-color: rgba(239, 68, 68, 0.1);
         }
 
         .activity-list {
@@ -339,9 +474,9 @@
 
         .activity-item {
             display: flex;
-            align-items: center;
             padding: 1rem 0;
             border-bottom: 1px solid var(--light-gray);
+            align-items: center;
         }
 
         .activity-item:last-child {
@@ -352,12 +487,13 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: var(--primary-light);
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--primary);
             margin-right: 1rem;
+            flex-shrink: 0;
         }
 
         .activity-content {
@@ -365,32 +501,68 @@
         }
 
         .activity-message {
-            font-weight: 500;
+            margin-bottom: 0.25rem;
         }
 
         .activity-time {
-            color: var(--gray);
             font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .activity-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: auto;
+            padding-left: 1rem;
         }
 
         .delete-activity {
             color: var(--danger);
             cursor: pointer;
+            opacity: 1;
+            transition: opacity 0.2s;
             padding: 0.5rem;
             border-radius: 4px;
         }
 
         .delete-activity:hover {
-            background-color: rgba(239,68,68,0.1);
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Profile Content */
+        .profile-content {
+            display: none;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .profile-content.active {
+            display: block;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .profile-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-dark);
         }
 
         .profile-form {
-            max-width: 800px;
-            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .form-group label {
@@ -406,14 +578,738 @@
             border: 1px solid var(--light-gray);
             border-radius: 6px;
             font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .btn-primary {
             background-color: var(--primary);
-            color: white;
+            color: var(--white);
             padding: 0.75rem 1.5rem;
             border: none;
             border-radius: 6px;
-            cursor: pointer;
             font-size: 1rem;
-            transition: background-color 0.2
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--light-gray);
+            color: var(--dark);
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--gray);
+            color: var(--white);
+        }
+
+        /* Settings Content */
+        .settings-content {
+            display: none;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .settings-content.active {
+            display: block;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .settings-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .settings-group {
+            margin-bottom: 2rem;
+        }
+
+        .settings-group h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+        }
+
+        .settings-list {
+            list-style: none;
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-label {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--light-gray);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Add Member Section */
+        .add-member-section {
+            display: none;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .add-member-section.active {
+            display: block;
+        }
+
+        .add-member-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .add-member-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .add-member-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Utility Classes */
+        .mt-2 {
+            margin-top: 2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            :root {
+                --sidebar-width: 0;
+            }
+
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .top-nav {
+                padding: 1rem;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-bar {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-form,
+            .add-member-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Style for content sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="logo">
+                <i class="logo-icon fas fa-rocket"></i>
+                TeamFlow
+            </a>
+        </div>
+        <div class="sidebar-menu">
+            <a href="#" class="menu-item active" data-content="dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+            <a href="#" class="menu-item" data-content="task-management">
+                <i class="fas fa-tasks"></i>
+                Task Management
+            </a>
+            <a href="#" class="menu-item" data-content="employee-scheduling">
+                <i class="fas fa-calendar-alt"></i>
+                Employee Scheduling
+            </a>
+            <a href="#" class="menu-item" data-content="file-sharing">
+                <i class="fas fa-file-alt"></i>
+                File Sharing
+            </a>
+            <a href="#" class="menu-item" data-content="data-management">
+                <i class="fas fa-database"></i>
+                Data Management
+            </a>
+            <a href="#" class="menu-item" data-content="project-tracking">
+                <i class="fas fa-project-diagram"></i>
+                Project Tracking
+            </a>
+            <a href="#" class="menu-item" data-content="team-calendar">
+                <i class="fas fa-calendar"></i>
+                Team Calendar
+            </a>
+            <a href="#" class="menu-item" data-content="deadline-tracking">
+                <i class="fas fa-clock"></i>
+                Deadline Tracking
+            </a>
+            <a href="#" class="menu-item" data-content="innovation-hub">
+                <i class="fas fa-lightbulb"></i>
+                Innovation Hub
+            </a>
+            <div class="menu-divider"></div>
+            <a href="#" class="menu-item" data-content="profile">
+                <i class="fas fa-user"></i>
+                Profile
+            </a>
+            <a href="#" class="menu-item" data-content="settings">
+                <i class="fas fa-cog"></i>
+                Settings
+            </a>
+            <a href="#" class="menu-item" data-content="add-member">
+                <i class="fas fa-user-plus"></i>
+                Add Member
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navigation -->
+        <div class="top-nav">
+            <div class="search-bar">
+                <input type="text" placeholder="Search...">
+                <i class="search-icon fas fa-search"></i>
+            </div>
+            <div class="user-menu">
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationBadge">3</span>
+                </div>
+                <div class="user-profile" onclick="toggleUserDropdown()">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-name">John Doe</div>
+                    <div class="user-dropdown">
+                        <a href="#" class="dropdown-item" onclick="showContent('profile')">
+                            <i class="fas fa-user"></i>
+                            Profile
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="showContent('settings')">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Dashboard Content -->
+            <div class="content-section active" id="dashboard-content">
+                <div class="welcome-section">
+                    <h2 class="welcome-title">Welcome back, John!</h2>
+                    <p>Here's a quick overview of what's happening in your team.</p>
+                    <div class="user-info">
+                        <div class="user-info-avatar">
+                            JD
+                            <div class="avatar-upload">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                        <div class="user-info-details">
+                            <div class="user-info-name">John Doe</div>
+                            <div class="user-info-title">Senior Project Manager</div>
+                            <div class="user-info-email">
+                                <i class="fas fa-envelope"></i>
+                                john.doe@example.com
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas fa-users"></i>
+                            Team Members
+                        </div>
+                        <div class="stat-value">
+                            24
+                            <div class="stat-trend trend-up">
+                                <i class="fas fa-arrow-up"></i>
+                                12%
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas fa-tasks"></i>
+                            Active Tasks
+                        </div>
+                        <div class="stat-value">
+                            68
+                            <div class="stat-trend trend-down">
+                                <i class="fas fa-arrow-down"></i>
+                                4%
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas fa-project-diagram"></i>
+                            Ongoing Projects
+                        </div>
+                        <div class="stat-value">
+                            8
+                            <div class="stat-trend trend-up">
+                                <i class="fas fa-arrow-up"></i>
+                                20%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-section">
+                    <div class="section-header">
+                        <h3 class="section-title">Recent Activity</h3>
+                        <div class="actions">
+                            <span class="view-all" onclick="loadAllActivities()">View All</span>
+                            <span class="delete-all" onclick="deleteAllActivities()">Delete All</span>
+                        </div>
+                    </div>
+                    <ul class="activity-list" id="activityList">
+                        <!-- Activities will be loaded here -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Profile Content -->
+            <div class="content-section" id="profile-content">
+                <div class="profile-header">
+                    <h2 class="profile-title">Your Profile</h2>
+                </div>
+                <form class="profile-form" id="profileForm">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" class="form-control" value="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="title">Job Title</label>
+                        <input type="text" id="title" class="form-control" value="Senior Project Manager">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" class="form-control" value="john.doe@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" class="form-control" value="123-456-7890">
+                    </div>
+                    <div class="form-group">
+                        <label for="profileImage">Profile Image URL</label>
+                        <input type="url" id="profileImage" class="form-control" value="url_to_your_image.jpg">
+                    </div>
+                    <div class="form-group mt-2">
+                        <button type="button" class="btn-primary" onclick="saveProfile()">Save Changes</button>
+                        <button type="button" class="btn-secondary" onclick="showContent('dashboard')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="content-section" id="settings-content">
+                <div class="settings-header">
+                    <h2 class="settings-title">Settings</h2>
+                </div>
+                <div class="settings-group">
+                    <h3>Appearance</h3>
+                    <ul class="settings-list">
+                        <li class="settings-item">
+                            <span class="settings-label">Dark Mode</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="darkModeToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+                <div class="settings-group">
+                    <h3>Notifications</h3>
+                    <ul class="settings-list">
+                        <li class="settings-item">
+                            <span class="settings-label">Email Notifications</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="emailNotifications" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </li>
+                        <li class="settings-item">
+                            <span class="settings-label">Push Notifications</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="pushNotifications">
+                                <span class="slider"></span>
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+                <div class="settings-group mt-2">
+                    <button type="button" class="btn-primary" onclick="saveSettings()">Save Settings</button>
+                    <button type="button" class="btn-secondary" onclick="showContent('dashboard')">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Add Member Content -->
+            <div class="content-section" id="add-member-content">
+                <div class="add-member-header">
+                    <h2 class="add-member-title">Add Team Member</h2>
+                </div>
+                <form class="add-member-form" id="addMemberForm">
+                    <div class="form-group">
+                        <label for="memberName">Full Name</label>
+                        <input type="text" id="memberName" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="memberEmail">Email Address</label>
+                        <input type="email" id="memberEmail" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="memberRole">Role</label>
+                        <input type="text" id="memberRole" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="memberDepartment">Department</label>
+                        <input type="text" id="memberDepartment" class="form-control">
+                    </div>
+                    <div class="form-group mt-2">
+                        <button type="button" class="btn-primary" onclick="addMember()">Add Member</button>
+                        <button type="button" class="btn-secondary" onclick="showContent('dashboard')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Other sections (empty for now) -->
+            <div class="content-section" id="task-management-content">
+                <h2>Task Management</h2>
+                <p>This section is under construction.</p>
+            </div>
+            <div class="content-section" id="employee-scheduling-content">
+                <h2>Employee Scheduling</h2>
+                <p>This section is under construction.</p>
+            </div>
+            <div class="content-section" id="file-sharing-content">
+                <h2>File Sharing</h2>
+                <p>This section is under construction.</p>
+            </div>
+            <div class="content-section" id="data-management-content">
+                <h2>Data Management</h2>
+                <p>This section is under construction.</p>
+            </div>
+            <div class="content-section" id="project-tracking-content">
+                <h2>Project Tracking</h2>
+                <p>This section is under construction.</p>
+            </div>
+            <div class="content-section" id="team-calendar-content">
+                <h2>Team Calendar</h2>
+                <p>This section is under construction.</p>
+            </div>
+            <div class="content-section" id="deadline-tracking-content">
+                <h2>Deadline Tracking</h2>
+                <p>This section is under construction.</p>
+            </div>
+            <div class="content-section" id="innovation-hub-content">
+                <h2>Innovation Hub</h2>
+                <p>This section is under construction.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample activity data
+        const activities = [
+            {
+                icon: 'fas fa-tasks',
+                message: 'You completed the project kickoff meeting',
+                time: '10 minutes ago'
+            },
+            {
+                icon: 'fas fa-user-plus',
+                message: 'New team member Sarah joined the project',
+                time: '1 hour ago'
+            },
+            {
+                icon: 'fas fa-file-alt',
+                message: 'Project requirements document was updated',
+                time: '3 hours ago'
+            },
+            {
+                icon: 'fas fa-comment',
+                message: 'You received 3 new comments on your task',
+                time: '5 hours ago'
+            },
+            {
+                icon: 'fas fa-check-circle',
+                message: 'Task "Design homepage" was marked as completed',
+                time: 'Yesterday'
+            }
+        ];
+
+        // DOM elements
+        const menuItems = document.querySelectorAll('.menu-item');
+        const contentSections = document.querySelectorAll('.content-section');
+        const userDropdown = document.querySelector('.user-dropdown');
+        const activityList = document.getElementById('activityList');
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load activities
+            loadActivities();
+            
+            // Set up menu item click handlers
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const contentId = this.getAttribute('data-content');
+                    showContent(contentId);
+                });
+            });
+        });
+
+        // Show the selected content section
+        function showContent(contentId) {
+            // Hide all content sections
+            contentSections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show the selected section
+            document.getElementById(`${contentId}-content`).classList.add('active');
+            
+            // Update active menu item
+            menuItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-content') === contentId) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Close user dropdown if open
+            userDropdown.classList.remove('active');
+            
+            // Update URL hash
+            window.location.hash = contentId;
+        }
+
+        // Toggle user dropdown
+        function toggleUserDropdown() {
+            userDropdown.classList.toggle('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-profile')) {
+                userDropdown.classList.remove('active');
+            }
+        });
+
+        // Load activities
+        function loadActivities() {
+            activityList.innerHTML = '';
+            activities.slice(0, 3).forEach(activity => {
+                const activityItem = document.createElement('li');
+                activityItem.className = 'activity-item';
+                activityItem.innerHTML = `
+                    <div class="activity-icon">
+                        <i class="${activity.icon}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-message">${activity.message}</div>
+                        <div class="activity-time">${activity.time}</div>
+                    </div>
+                    <div class="activity-actions">
+                        <i class="fas fa-trash delete-activity" onclick="deleteActivity(this)"></i>
+                    </div>
+                `;
+                activityList.appendChild(activityItem);
+            });
+        }
+
+        // Load all activities
+        function loadAllActivities() {
+            activityList.innerHTML = '';
+            activities.forEach(activity => {
+                const activityItem = document.createElement('li');
+                activityItem.className = 'activity-item';
+                activityItem.innerHTML = `
+                    <div class="activity-icon">
+                        <i class="${activity.icon}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-message">${activity.message}</div>
+                        <div class="activity-time">${activity.time}</div>
+                    </div>
+                    <div class="activity-actions">
+                        <i class="fas fa-trash delete-activity" onclick="deleteActivity(this)"></i>
+                    </div>
+                `;
+                activityList.appendChild(activityItem);
+            });
+        }
+
+        // Delete activity
+        function deleteActivity(element) {
+            const activityItem = element.closest('.activity-item');
+            activityItem.remove();
+        }
+
+        // Delete all activities
+        function deleteAllActivities() {
+            if (confirm('Are you sure you want to delete all activities?')) {
+                activityList.innerHTML = '<li class="activity-item">No activities found</li>';
+            }
+        }
+
+        // Save profile
+        function saveProfile() {
+            alert('Profile saved successfully!');
+            showContent('dashboard');
+        }
+
+        // Save settings
+        function saveSettings() {
+            alert('Settings saved successfully!');
+            showContent('dashboard');
+        }
+
+        // Add new member
+        function addMember() {
+            const name = document.getElementById('memberName').value;
+            if (name) {
+                alert(`Member ${name} added successfully!`);
+                document.getElementById('addMemberForm').reset();
+                showContent('dashboard');
+            } else {
+                alert('Please enter at least a name for the new member');
+            }
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                alert('You have been logged out. Redirecting to login page...');
+                // In a real app, you would redirect to login page
+                // window.location.href = '/login';
+            }
+        }
+
+        // Check URL hash on page load
+        window.addEventListener('load', function() {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                showContent(hash);
+            }
+        });
+    </script>
+</body>
+</html>
