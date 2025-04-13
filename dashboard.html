@@ -1570,15 +1570,15 @@
             align-items: center;
             gap: 0.5rem;
             color: var(--success);
-            font-size: 1.2rem;
+            font-size: 0.9rem;
             margin-left: 1.5rem;
             margin-top: 0.5rem;
             opacity: 0.9;
         }
 
         .status-dot {
-            width: 12px;
-            height: 12px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background-color: var(--success);
             animation: pulse 2s infinite;
@@ -1775,7 +1775,7 @@
                         <div class="user-info-avatar" id="profileAvatar">ME</div>
                         <div class="user-info-details">
                             <div class="user-info-name">Mohamed Elmenisy</div>
-                            <div class="user-info-title" id="userRoleTitle">Team Manager</div>
+                            <div class="user-info-title" id="userRoleTitle">Administrator</div>
                             <div class="user-info-email">
                                 <i class="fas fa-envelope"></i>
                                 <span id="userEmail">m.elsayed@thechefz.co</span>
@@ -1887,7 +1887,7 @@
                     
                     <div class="form-group">
                         <label for="jobTitle">Job Title</label>
-                        <input type="text" id="jobTitle" class="form-control" value="Team Manager">
+                        <input type="text" id="jobTitle" class="form-control" value="Administrator">
                     </div>
                     
                     <div class="form-group">
@@ -2282,7 +2282,7 @@
                     id: 1,
                     name: 'Mohamed Elmenisy',
                     email: 'm.elsayed@thechefz.co',
-                    title: 'Team Manager',
+                    title: 'Administrator',
                     department: 'Management',
                     phone: '+201234567890',
                     avatar: '',
@@ -2572,7 +2572,7 @@
                 
                 // Update role title based on user role
                 const roleTitles = {
-                    'admin': 'Team Manager',
+                    'admin': 'Administrator',
                     'senior': 'Senior Team Member',
                     'supervisor': 'Project Supervisor',
                     'member': 'Team Member',
@@ -2669,7 +2669,7 @@
                             <button class="btn btn-outline btn-sm edit-member" data-id="${member.id}">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn btn-danger btn-sm delete-member" data-id="${member.id}">
+                            <button class="btn btn-danger btn-sm delete-member" data-id="${member.id}" ${currentUser.role === 'admin' ? '' : 'disabled'}>
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -2684,7 +2684,7 @@
                         const member = teamMembers.find(m => m.id === memberId);
                         showConfirmModal(
                             'Delete Team Member',
-                            `Are you sure you want to remove ${member.name} (${member.email}) from the team? This action is restricted to administrators and supervisors only.`,
+                            `Are you sure you want to remove ${member.name} (${member.email}) from the team? This action is restricted to administrators only.`,
                             () => deleteTeamMember(memberId)
                         );
                     });
@@ -2733,7 +2733,7 @@
                         </div>
                         <div class="form-group">
                             <label>Role</label>
-                            <select id="editMemberRole" class="form-control" style="width: 100%;">
+                            <select id="editMemberRole" class="form-control" style="width: 100%;" ${currentUser.role === 'admin' ? '' : 'disabled'}>
                                 <option value="member" ${member.role === 'member' ? 'selected' : ''}>Member</option>
                                 <option value="senior" ${member.role === 'senior' ? 'selected' : ''}>Senior</option>
                                 <option value="supervisor" ${member.role === 'supervisor' ? 'selected' : ''}>Supervisor</option>
@@ -2767,7 +2767,9 @@
                     // Update member
                     member.name = newName;
                     member.email = newEmail;
-                    member.role = newRole;
+                    if (currentUser.role === 'admin') {
+                        member.role = newRole;
+                    }
                     member.initials = newName.split(' ').map(n => n[0]).join('').toUpperCase();
                     
                     // Save changes
@@ -2778,7 +2780,7 @@
                     activities.unshift({
                         id: Date.now(),
                         icon: 'fa-user-edit',
-                        message: `Updated team member ${member.name} (${member.email})`,
+                        message: `${currentUser.name} updated team member ${member.name} (${member.email})`,
                         timestamp: new Date().toISOString()
                     });
                     saveActivities(activities);
@@ -2795,8 +2797,8 @@
             // Delete team member
             function deleteTeamMember(memberId) {
                 // Check if user has permission
-                if (currentUser.role !== 'admin' && currentUser.role !== 'supervisor') {
-                    alert('This option is only available for supervisors and administrators');
+                if (currentUser.role !== 'admin') {
+                    alert('This option is only available for administrators');
                     return;
                 }
                 
@@ -2811,7 +2813,7 @@
                     activities.unshift({
                         id: Date.now(),
                         icon: 'fa-user-minus',
-                        message: `Removed team member "${removedMember.name}" (${removedMember.email})`,
+                        message: `${currentUser.name} removed team member "${removedMember.name}" (${removedMember.email})`,
                         timestamp: new Date().toISOString()
                     });
                     saveActivities(activities);
@@ -3588,7 +3590,7 @@
                 activities.unshift({
                     id: Date.now(),
                     icon: 'fa-user-plus',
-                    message: `Added new ${role}: ${newMember.email}`,
+                    message: `${currentUser.name} added new ${role}: ${newMember.email}`,
                     timestamp: new Date().toISOString()
                 });
                 saveActivities(activities);
