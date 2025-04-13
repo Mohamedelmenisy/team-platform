@@ -1209,15 +1209,15 @@
             align-items: center;
             gap: 0.5rem;
             color: var(--success);
-            font-size: 0.8rem;
+            font-size: 1rem;
             margin-left: 1.5rem;
             margin-top: 0.5rem;
-            opacity: 0.7;
+            opacity: 0.9;
         }
 
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background-color: var(--success);
             animation: pulse 2s infinite;
@@ -1865,7 +1865,7 @@
                     return JSON.parse(savedUser);
                 }
                 
-                // Default user if not found
+                // Default user if not found (admin with all permissions)
                 return {
                     id: 1,
                     name: 'Mohamed Elmenisy',
@@ -1912,7 +1912,29 @@
                 }
                 
                 // Default team members if not found
-                return [];
+                return [
+                    {
+                        id: 2,
+                        name: 'Ahmed Mohamed',
+                        email: 'ahmed@teamflow.com',
+                        role: 'senior',
+                        initials: 'AM'
+                    },
+                    {
+                        id: 3,
+                        name: 'Sarah Johnson',
+                        email: 'sarah@teamflow.com',
+                        role: 'supervisor',
+                        initials: 'SJ'
+                    },
+                    {
+                        id: 4,
+                        name: 'John Smith',
+                        email: 'john@teamflow.com',
+                        role: 'member',
+                        initials: 'JS'
+                    }
+                ];
             }
             
             // Save team members to localStorage
@@ -1995,7 +2017,9 @@
                 loadActivities();
                 
                 // Load stats - set all to 0 except team members
+                stats.teamMembers = teamMembers.length;
                 stats.tasksCompleted = 0;
+                stats.activeProjects = 0;
                 stats.upcomingDeadlines = 0;
                 saveStats(stats);
                 updateStats();
@@ -2094,7 +2118,7 @@
                         saveStats(stats);
                         updateStats();
                     }
-                }, 10000);
+                }, 10000); // Update every 10 seconds
             }
             
             // Update user UI elements
@@ -2169,9 +2193,9 @@
             // Update stats
             function updateStats() {
                 teamMembersCount.textContent = stats.teamMembers || 0;
-                tasksCompleted.textContent = 0; // Always show 0 for tasks completed
+                tasksCompleted.textContent = stats.tasksCompleted || 0;
                 activeProjects.textContent = stats.activeProjects || 0;
-                upcomingDeadlines.textContent = 0; // Always show 0 for upcoming deadlines
+                upcomingDeadlines.textContent = stats.upcomingDeadlines || 0;
             }
             
             // Load team members
