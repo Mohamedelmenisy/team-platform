@@ -1147,88 +1147,6 @@
                 grid-template-columns: 1fr;
             }
         }
-
-        /* Arabic styles */
-        body[dir="rtl"] {
-            text-align: right;
-        }
-
-        body[dir="rtl"] .sidebar {
-            right: 0;
-            left: auto;
-        }
-
-        body[dir="rtl"] .main-content {
-            margin-right: var(--sidebar-width);
-            margin-left: 0;
-        }
-
-        body[dir="rtl"] .search-icon {
-            right: 1rem;
-            left: auto;
-        }
-
-        body[dir="rtl"] .search-bar input {
-            padding: 0.75rem 2.5rem 0.75rem 1rem;
-        }
-
-        body[dir="rtl"] .menu-item i {
-            margin-right: 0;
-            margin-left: 0.75rem;
-        }
-
-        body[dir="rtl"] .menu-item {
-            border-left: none;
-            border-right: 3px solid transparent;
-        }
-
-        body[dir="rtl"] .menu-item.active {
-            border-right-color: var(--white);
-        }
-
-        body[dir="rtl"] .activity-icon {
-            margin-right: 0;
-            margin-left: 1rem;
-        }
-
-        body[dir="rtl"] .activity-actions {
-            margin-left: 0;
-            margin-right: auto;
-            padding-left: 0;
-            padding-right: 1rem;
-        }
-
-        body[dir="rtl"] .user-dropdown {
-            right: auto;
-            left: 0;
-        }
-
-        body[dir="rtl"] .form-actions {
-            justify-content: flex-start;
-        }
-
-        body[dir="rtl"] .settings-tabs {
-            flex-direction: row-reverse;
-        }
-
-        body[dir="rtl"] .member-avatar {
-            margin-right: 0;
-            margin-left: 1rem;
-        }
-
-        body[dir="rtl"] .member-actions {
-            flex-direction: row-reverse;
-        }
-
-        body[dir="rtl"] .success-message {
-            right: auto;
-            left: 20px;
-            transform: translateX(-120%);
-        }
-
-        body[dir="rtl"] .success-message.show {
-            transform: translateX(0);
-        }
         
         /* Back button */
         .back-button {
@@ -1414,7 +1332,7 @@
                             <div class="user-info-title" id="userRoleTitle">Team Manager</div>
                             <div class="user-info-email">
                                 <i class="fas fa-envelope"></i>
-                                <span id="userEmail">m.elsayed@thechefz.co</span>
+                                <span id="userEmail" style="color: var(--danger);">m.elsayed@thechefz.co</span>
                             </div>
                             <div class="user-info-status">
                                 <i class="fas fa-circle"></i>
@@ -1573,7 +1491,6 @@
                             <select id="language" class="form-control">
                                 <option value="system">System Default</option>
                                 <option value="en" selected>English</option>
-                                <option value="ar">Arabic</option>
                             </select>
                         </div>
                         
@@ -1595,7 +1512,7 @@
                         </div>
                         
                         <div class="form-actions">
-                            <button type="button" class="btn btn-outline">Cancel</button>
+                            <button type="button" class="btn btn-outline" id="cancelAccountBtn">Cancel</button>
                             <button type="submit" class="btn btn-primary">Save Settings</button>
                         </div>
                     </form>
@@ -1630,7 +1547,7 @@
                         </div>
                         
                         <div class="form-actions">
-                            <button type="button" class="btn btn-outline">Cancel</button>
+                            <button type="button" class="btn btn-outline" id="cancelSecurityBtn">Cancel</button>
                             <button type="submit" class="btn btn-primary">Update Password</button>
                         </div>
                     </form>
@@ -1686,7 +1603,7 @@
                         </div>
                         
                         <div class="form-actions">
-                            <button type="button" class="btn btn-outline">Cancel</button>
+                            <button type="button" class="btn btn-outline" id="cancelNotificationsBtn">Cancel</button>
                             <button type="submit" class="btn btn-primary">Save Settings</button>
                         </div>
                     </form>
@@ -1725,7 +1642,7 @@
                         </div>
                         
                         <div class="form-actions">
-                            <button type="button" class="btn btn-outline">Cancel</button>
+                            <button type="button" class="btn btn-outline" id="cancelPreferencesBtn">Cancel</button>
                             <button type="submit" class="btn btn-primary">Save Preferences</button>
                         </div>
                     </form>
@@ -1869,6 +1786,10 @@
             const notificationSound = document.getElementById('notificationSound');
             const successMessage = document.getElementById('successMessage');
             const successMessageText = document.getElementById('successMessageText');
+            const cancelAccountBtn = document.getElementById('cancelAccountBtn');
+            const cancelSecurityBtn = document.getElementById('cancelSecurityBtn');
+            const cancelNotificationsBtn = document.getElementById('cancelNotificationsBtn');
+            const cancelPreferencesBtn = document.getElementById('cancelPreferencesBtn');
             
             // API Base URL
             const API_BASE_URL = 'https://your-api-endpoint.com/api';
@@ -2850,29 +2771,15 @@
                 };
                 saveUserData(currentUser);
                 
-                // Apply language change immediately
-                if (language === 'ar') {
-                    document.documentElement.lang = 'ar';
-                    document.documentElement.dir = 'rtl';
-                } else {
-                    document.documentElement.lang = 'en';
-                    document.documentElement.dir = 'ltr';
-                }
-                
                 // Show success message
                 showSuccessMessage('Account settings saved successfully!');
                 
-                // Add activity if language changed to Arabic
-                if (language === 'ar') {
-                    activities.unshift({
-                        id: Date.now(),
-                        icon: 'fa-language',
-                        message: 'Changed language to Arabic',
-                        timestamp: new Date().toISOString()
-                    });
-                    saveActivities(activities);
-                    loadActivities();
-                }
+                // Reload the page to apply changes
+                window.location.reload();
+            });
+            
+            cancelAccountBtn.addEventListener('click', function() {
+                window.location.reload();
             });
             
             // Security settings form
@@ -2916,6 +2823,13 @@
                 
                 // Reset form
                 this.reset();
+                
+                // Reload the page to apply changes
+                window.location.reload();
+            });
+            
+            cancelSecurityBtn.addEventListener('click', function() {
+                window.location.reload();
             });
             
             // Notifications settings form
@@ -2943,6 +2857,13 @@
                 
                 // Show success message
                 showSuccessMessage('Notifications settings saved successfully!');
+                
+                // Reload the page to apply changes
+                window.location.reload();
+            });
+            
+            cancelNotificationsBtn.addEventListener('click', function() {
+                window.location.reload();
             });
             
             // Preferences settings form
@@ -2961,6 +2882,13 @@
                 
                 // Show success message
                 showSuccessMessage('Preferences settings saved successfully!');
+                
+                // Reload the page to apply changes
+                window.location.reload();
+            });
+            
+            cancelPreferencesBtn.addEventListener('click', function() {
+                window.location.reload();
             });
             
             // Theme selection
