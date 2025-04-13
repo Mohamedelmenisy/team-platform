@@ -380,6 +380,15 @@
             font-size: 0.9rem;
             opacity: 0.9;
         }
+
+        .user-info-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            color: var(--success);
+        }
         
         /* Stats Section */
         .stats-section {
@@ -1249,6 +1258,18 @@
         .d-none {
             display: none !important;
         }
+
+        /* Favicon in URL */
+        .favicon-url {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .favicon-url img {
+            width: 16px;
+            height: 16px;
+        }
     </style>
 </head>
 <body class="blue-theme">
@@ -1384,7 +1405,7 @@
             <div id="dashboardContent">
                 <!-- Welcome Section -->
                 <div class="welcome-section">
-                    <h2 class="welcome-title">Welcome back, <span id="welcomeName">Mohamed</span>!</h2>
+                    <h2 class="welcome-title">Welcome, <span id="welcomeName">Mohamed</span>!</h2>
                     
                     <div class="user-info">
                         <div class="user-info-avatar" id="profileAvatar">ME</div>
@@ -1394,6 +1415,10 @@
                             <div class="user-info-email">
                                 <i class="fas fa-envelope"></i>
                                 <span id="userEmail">m.elsayed@thechefz.co</span>
+                            </div>
+                            <div class="user-info-status">
+                                <i class="fas fa-circle"></i>
+                                <span>Connected</span>
                             </div>
                         </div>
                     </div>
@@ -2392,8 +2417,9 @@
                             <div class="activity-message">${activity.message}</div>
                             <div class="activity-time">${getTimeAgo(activity.timestamp || new Date())}</div>
                         </div>
-                        <div class="activity-actions ${currentUser.role === 'admin' || currentUser.role === 'supervisor' ? '' : 'd-none'}">
-                            <i class="fas fa-trash delete-activity" data-id="${activity.id}"></i>
+                        <div class="activity-actions">
+                            <i class="fas fa-trash delete-activity" data-id="${activity.id}" 
+                               style="${currentUser.role === 'admin' || currentUser.role === 'supervisor' ? '' : 'display: none;'}"></i>
                         </div>
                     `;
                     activityList.appendChild(li);
@@ -2402,7 +2428,7 @@
                 // Show view all button if there are more activities
                 if (activities.length > 5) {
                     viewAllActivity.style.display = 'inline';
-                    deleteAllActivity.style.display = 'inline';
+                    deleteAllActivity.style.display = currentUser.role === 'admin' || currentUser.role === 'supervisor' ? 'inline' : 'none';
                 } else {
                     viewAllActivity.style.display = 'none';
                     deleteAllActivity.style.display = 'none';
@@ -2423,6 +2449,12 @@
             
             // Delete activity
             function deleteActivity(activityId) {
+                // Check if user has permission
+                if (currentUser.role !== 'admin' && currentUser.role !== 'supervisor') {
+                    alert('This option is only available for supervisors and administrators');
+                    return;
+                }
+                
                 // Remove from local array
                 activities = activities.filter(activity => activity.id !== activityId);
                 saveActivities(activities);
@@ -2432,6 +2464,12 @@
             
             // Delete all activities
             function deleteAllActivities() {
+                // Check if user has permission
+                if (currentUser.role !== 'admin' && currentUser.role !== 'supervisor') {
+                    alert('This option is only available for supervisors and administrators');
+                    return;
+                }
+                
                 showConfirmModal(
                     'Delete All Activities',
                     'Are you sure you want to delete all activities? This action cannot be undone.',
@@ -2853,7 +2891,6 @@
                     message: 'Changed password',
                     timestamp: new Date().toISOString()
                 });
-                saveActivities(activities);
                 
                 // Reset form
                 this.reset();
