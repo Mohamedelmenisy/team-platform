@@ -1289,12 +1289,6 @@
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
-
-            <!-- Connection Status -->
-            <div class="connection-status">
-                <div class="status-dot"></div>
-                <span>Connected</span>
-            </div>
         </div>
     </aside>
 
@@ -1317,6 +1311,10 @@
                 <div class="user-profile">
                     <div class="user-avatar" id="userAvatar">ME</div>
                     <div class="user-name" id="userName">Mohamed Elsayed</div>
+                    <div class="connection-status">
+                        <div class="status-dot"></div>
+                        <span>Connected</span>
+                    </div>
                     <div class="user-dropdown" id="userDropdown">
                         <a href="#profile" class="dropdown-item" id="profileLink">
                             <i class="fas fa-user"></i>
@@ -1498,6 +1496,10 @@
             <div class="settings-content" id="settingsContent">
                 <div class="profile-header">
                     <h2 class="profile-title">System Settings</h2>
+                    <div class="connection-status" style="color: var(--dark); margin-top: 0;">
+                        <div class="status-dot"></div>
+                        <span>Connected</span>
+                    </div>
                 </div>
                 
                 <div class="settings-tabs">
@@ -1955,7 +1957,10 @@
                 // Load activities
                 loadActivities();
                 
-                // Load stats
+                // Load stats - set all to 0 except team members
+                stats.tasksCompleted = 0;
+                stats.upcomingDeadlines = 0;
+                saveStats(stats);
                 updateStats();
                 
                 // Set active feature (dashboard by default)
@@ -1966,6 +1971,24 @@
                 
                 // Start real-time updates
                 startRealTimeUpdates();
+                
+                // Add system update notification
+                addSystemUpdateNotification();
+            }
+            
+            // Add system update notification
+            function addSystemUpdateNotification() {
+                const systemUpdate = {
+                    id: Date.now(),
+                    icon: 'fa-info-circle',
+                    message: 'System update available - Version 2.1.0',
+                    timestamp: new Date().toISOString(),
+                    isSystemUpdate: true
+                };
+                
+                activities.unshift(systemUpdate);
+                saveActivities(activities);
+                loadActivities();
             }
             
             // Play notification sound
@@ -2102,9 +2125,9 @@
             // Update stats
             function updateStats() {
                 teamMembersCount.textContent = stats.teamMembers || 0;
-                tasksCompleted.textContent = stats.tasksCompleted || 0;
+                tasksCompleted.textContent = 0; // Always show 0 for tasks completed
                 activeProjects.textContent = stats.activeProjects || 0;
-                upcomingDeadlines.textContent = stats.upcomingDeadlines || 0;
+                upcomingDeadlines.textContent = 0; // Always show 0 for upcoming deadlines
             }
             
             // Load team members
@@ -2129,7 +2152,7 @@
                             <div class="member-name">${member.name}</div>
                             <div class="member-email">${member.email}</div>
                         </div>
-                        <div class="member-role ${member.role === 'admin' ? 'role-admin' : member.role === 'senior' ? 'role-senior' : member.role === 'supervisor' ? 'role-supervisor' : 'role-member'}">
+                        <div class="member-role ${member.role === 'member' ? 'role-admin' : member.role === 'senior' ? 'role-senior' : member.role === 'supervisor' ? 'role-supervisor' : 'role-member'}">
                             ${member.role === 'admin' ? 'Admin' : member.role === 'senior' ? 'Senior' : member.role === 'supervisor' ? 'Supervisor' : 'Member'}
                         </div>
                         <div class="member-actions ${currentUser.role === 'admin' || currentUser.role === 'supervisor' ? '' : 'd-none'}">
@@ -2368,7 +2391,8 @@
                         </div>
                         <div class="activity-actions">
                             <i class="fas fa-trash delete-activity" data-id="${activity.id}" 
-                               style="${currentUser.role === 'admin' || currentUser.role === 'supervisor' ? '' : 'display: none;'}"></i>
+                               style="${(currentUser.role === 'admin' || currentUser.role === 'supervisor') && !activity.isSystemUpdate ? '' : 'display: none;'}"></i>
+                            ${activity.isSystemUpdate ? `<button class="btn btn-danger btn-sm delete-system-update" data-id="${activity.id}">Delete</button>` : ''}
                         </div>
                     `;
                     activityList.appendChild(li);
@@ -2392,6 +2416,28 @@
                             'Are you sure you want to delete this activity?',
                             () => deleteActivity(activityId)
                         );
+                    });
+                });
+                
+                // Add event listeners to delete system update buttons
+                document.querySelectorAll('.delete-system-update').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const activityId = parseInt(this.getAttribute('data-id'));
+                        const activity = activities.find(a => a.id === activityId);
+                        
+                        if (activity && activity.isSystemUpdate) {
+                            showConfirmModal(
+                                'Delete System Update',
+                                'Are you sure you want to delete this system update notification? This action is only available for admins and supervisors.',
+                                () => {
+                                    if (currentUser.role === 'admin' || currentUser.role === 'supervisor') {
+                                        deleteActivity(activityId);
+                                    } else {
+                                        alert('This option is only available for supervisors and administrators');
+                                    }
+                                }
+                            );
+                        }
                     });
                 });
             }
