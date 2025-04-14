@@ -313,27 +313,46 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            if (email && password) {
-                loading.style.display = 'block';
-                auth.signInWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        loading.style.display = 'none';
-                        loginSuccess.style.display = 'block';
-                        setTimeout(() => {
-                            window.location.href = 'dashboard.html';
-                        }, 2000);
-                    })
-                    .catch((error) => {
-                        loading.style.display = 'none';
-                        const errorCode = error.code;
-                        const errorMessage = error.message;
-                        if (errorCode === 'auth/invalid-email' || errorCode === 'auth/user-not-found') {
-                            emailError.style.display = 'block';
-                        } else if (errorCode === 'auth/wrong-password') {
-                            passwordError.style.display = 'block';
-                        }
-                    });
+            if (email === '' || password === '') {
+                if (email === '') emailError.style.display = 'block';
+                else emailError.style.display = 'none';
+
+                if (password === '') passwordError.style.display = 'block';
+                else passwordError.style.display = 'none';
+                return;
             }
+
+            emailError.style.display = 'none';
+            passwordError.style.display = 'none';
+
+            loginBtn.disabled = true;
+            loading.style.display = 'block';
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    loginSuccess.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html'; // Redirect to dashboard
+                    }, 2000);
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+
+                    loginBtn.disabled = false;
+                    loading.style.display = 'none';
+
+                    if (errorCode === 'auth/wrong-password') {
+                        passwordError.textContent = 'Incorrect password';
+                        passwordError.style.display = 'block';
+                    } else if (errorCode === 'auth/user-not-found') {
+                        emailError.textContent = 'User not found';
+                        emailError.style.display = 'block';
+                    } else {
+                        alert(errorMessage);
+                    }
+                });
         });
     </script>
 </body>
