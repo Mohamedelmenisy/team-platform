@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeamFlow | Dashboard</title>
+    <title>TeamFlow | Modern Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/48/000000/group-task.png">
     <style>
@@ -26,6 +26,7 @@
             --sidebar-active: rgba(255,255,255,0.2);
             --sidebar-divider: rgba(255,255,255,0.1);
             --success: #10b981;
+            --transition-speed: 0.3s;
         }
         
         * {
@@ -50,6 +51,7 @@
             position: fixed;
             overflow-y: auto;
             z-index: 100;
+            transition: transform var(--transition-speed) ease-in-out;
         }
         
         .sidebar-header {
@@ -74,6 +76,15 @@
             font-size: 1.5rem;
         }
         
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
         .sidebar-menu {
             padding: 1rem 0;
         }
@@ -93,7 +104,7 @@
             padding: 0.75rem 1.5rem;
             color: var(--sidebar-text);
             text-decoration: none;
-            transition: all 0.2s;
+            transition: all var(--transition-speed);
             border-left: 3px solid transparent;
             margin: 0.25rem 0;
         }
@@ -101,6 +112,7 @@
         .menu-item:hover {
             background-color: var(--sidebar-hover);
             color: var(--white);
+            transform: translateX(5px);
         }
         
         .menu-item.active {
@@ -126,6 +138,7 @@
         .main-content {
             flex: 1;
             margin-left: var(--sidebar-width);
+            transition: margin-left var(--transition-speed) ease-in-out;
         }
         
         /* Top Navigation */
@@ -139,6 +152,22 @@
             position: sticky;
             top: 0;
             z-index: 90;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .nav-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            margin-right: 1rem;
+            cursor: pointer;
+            color: var(--dark);
         }
         
         .search-bar {
@@ -152,6 +181,7 @@
             border: 1px solid var(--light-gray);
             border-radius: 6px;
             font-size: 0.9rem;
+            transition: all 0.2s;
         }
         
         .search-bar input:focus {
@@ -178,6 +208,11 @@
             position: relative;
             color: var(--gray);
             cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .notification-icon:hover {
+            color: var(--primary);
         }
         
         .notification-badge {
@@ -194,6 +229,11 @@
             justify-content: center;
             font-size: 0.65rem;
             font-weight: 600;
+            transition: transform 0.2s;
+        }
+        
+        .notification-badge:hover {
+            transform: scale(1.1);
         }
         
         .user-profile {
@@ -201,6 +241,7 @@
             align-items: center;
             gap: 0.75rem;
             position: relative;
+            cursor: pointer;
         }
         
         .user-avatar {
@@ -213,29 +254,53 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.05);
         }
         
         .user-name {
             font-weight: 500;
-            cursor: pointer;
         }
         
         .user-dropdown {
             position: absolute;
-            top: 100%;
+            top: calc(100% + 10px);
             right: 0;
             background-color: var(--white);
             border: 1px solid var(--light-gray);
-            border-radius: 6px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 200px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 220px;
             z-index: 100;
             display: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s;
         }
         
         .user-dropdown.active {
             display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .dropdown-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .dropdown-user-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .dropdown-user-email {
+            font-size: 0.8rem;
+            color: var(--gray);
         }
         
         .dropdown-item {
@@ -245,10 +310,23 @@
             gap: 0.75rem;
             color: var(--dark);
             text-decoration: none;
+            transition: background-color 0.2s;
         }
         
         .dropdown-item:hover {
             background-color: var(--light);
+        }
+        
+        .dropdown-item i {
+            width: 16px;
+            text-align: center;
+            color: var(--primary);
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--light-gray);
+            margin: 0.5rem 0;
         }
         
         /* Content Area */
@@ -258,17 +336,38 @@
         }
         
         .welcome-section {
-            background-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: var(--white);
             padding: 2rem;
-            border-radius: 8px;
+            border-radius: 12px;
             margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-overlay {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 30%;
+            background: url('/api/placeholder/300/300') no-repeat center center;
+            background-size: cover;
+            opacity: 0.1;
         }
         
         .welcome-title {
             font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
+            position: relative;
+        }
+        
+        .welcome-subtitle {
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+            position: relative;
         }
         
         .user-info {
@@ -276,6 +375,7 @@
             align-items: center;
             gap: 1.5rem;
             margin-top: 1.5rem;
+            position: relative;
         }
         
         .user-info-avatar {
@@ -289,6 +389,7 @@
             justify-content: center;
             font-weight: 600;
             font-size: 1.75rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
         .user-info-details {
@@ -302,11 +403,13 @@
         }
         
         .user-info-title {
-            opacity: 0.9;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            color: var(--danger);
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: 600;
+            margin-bottom: 0.5rem;
         }
         
         .user-info-email {
@@ -327,18 +430,35 @@
         
         .stat-card {
             background-color: var(--white);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-icon {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2.5rem;
+            color: rgba(37, 99, 235, 0.1);
         }
         
         .stat-title {
             font-size: 0.9rem;
             color: var(--gray);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            position: relative;
         }
         
         .stat-title i {
@@ -349,15 +469,30 @@
             font-size: 1.75rem;
             font-weight: 700;
             color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-change {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .stat-change.positive {
+            color: var(--success);
+        }
+        
+        .stat-change.negative {
+            color: var(--danger);
         }
         
         /* Activity Section */
         .activity-section {
             background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
             padding: 1.5rem;
-            margin-bottom: 2rem;
         }
         
         .section-header {
@@ -370,6 +505,33 @@
         .section-title {
             font-size: 1.25rem;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .section-title i {
+            color: var(--primary);
+        }
+        
+        .section-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .section-action-btn {
+            background-color: var(--light);
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .section-action-btn:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
         }
         
         .activity-list {
@@ -380,7 +542,12 @@
             display: flex;
             padding: 1rem 0;
             border-bottom: 1px solid var(--light-gray);
-            align-items: center;
+            align-items: flex-start;
+            transition: background-color 0.2s;
+        }
+        
+        .activity-item:hover {
+            background-color: rgba(242, 242, 242, 0.5);
         }
         
         .activity-item:last-child {
@@ -397,6 +564,7 @@
             align-items: center;
             justify-content: center;
             margin-right: 1rem;
+            flex-shrink: 0;
         }
         
         .activity-content {
@@ -407,17 +575,34 @@
             margin-bottom: 0.25rem;
         }
         
+        .activity-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
         .activity-time {
             font-size: 0.8rem;
             color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .activity-project {
+            font-size: 0.8rem;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            padding: 0.1rem 0.5rem;
+            border-radius: 20px;
         }
         
         /* Profile Content */
         .profile-content {
             display: none;
             background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
             padding: 2rem;
         }
         
@@ -430,12 +615,43 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--light-gray);
         }
         
         .profile-title {
             font-size: 1.5rem;
             font-weight: 600;
             color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .profile-title i {
+            color: var(--primary);
+        }
+        
+        .profile-sections {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .profile-section-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background-color: var(--light);
+            color: var(--gray);
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .profile-section-btn.active {
+            background-color: var(--primary);
+            color: var(--white);
         }
         
         .profile-form {
@@ -461,6 +677,7 @@
             border: 1px solid var(--light-gray);
             border-radius: 6px;
             font-size: 1rem;
+            transition: all 0.2s;
         }
         
         .form-control:focus {
@@ -474,7 +691,7 @@
             display: flex;
             justify-content: flex-end;
             gap: 1rem;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
         }
         
         .btn {
@@ -483,11 +700,18 @@
             font-weight: 500;
             cursor: pointer;
             border: none;
+            transition: all 0.2s;
         }
         
         .btn-primary {
             background-color: var(--primary);
             color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
         }
         
         .btn-outline {
@@ -496,37 +720,156 @@
             color: var(--primary);
         }
         
-        /* Task Management */
-        .task-management-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
+        .btn-outline:hover {
+            background-color: var(--primary-light);
         }
         
-        .task-management-content.active {
-            display: block;
-        }
-        
-        .task-filters {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .filter-btn {
-            padding: 0.5rem 1rem;
+        /* Loading Effects */
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
             border-radius: 4px;
-            background-color: var(--light);
-            border: 1px solid var(--light-gray);
+            height: 16px;
+            margin-bottom: 8px;
+        }
+        
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+        
+        /* Animation Effects */
+        .fade-in {
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Notification Panel */
+        .notification-panel {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 320px;
+            background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 110;
+            display: none;
+            transform: translateY(-10px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        
+        .notification-panel.active {
+            display: block;
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .notification-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .notification-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .notification-action {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 0.8rem;
             cursor: pointer;
         }
         
-        .filter-btn.active {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
+        .notification-list {
+            max-height: 360px;
+            overflow-y: auto;
+        }
+        
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            gap: 0.75rem;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        
+        .notification-item:hover {
+            background-color: var(--light);
+        }
+        
+        .notification-item-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .notification-item-content {
+            flex: 1;
+        }
+        
+        .notification-item-message {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .notification-item-time {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
+        .notification-footer {
+            padding: 0.75rem;
+            text-align: center;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        .view-all-link {
+            color: var(--primary);
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+        
+        /* Task Section */
+        .tasks-section {
+            background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
         }
         
         .task-list {
@@ -534,165 +877,151 @@
         }
         
         .task-item {
-            padding: 1rem;
-            border: 1px solid var(--light-gray);
-            border-radius: 6px;
-            margin-bottom: 1rem;
             display: flex;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--light-gray);
             align-items: center;
-            justify-content: space-between;
         }
         
-        .task-item-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+        .task-checkbox {
+            margin-right: 1rem;
+            position: relative;
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
         }
         
-        .task-priority {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
+        .task-checkbox input {
+            opacity: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 2;
         }
         
-        .priority-high {
-            background-color: var(--danger);
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--gray);
+            border-radius: 4px;
+            transition: all 0.2s;
         }
         
-        .priority-medium {
-            background-color: var(--warning);
+        .task-checkbox input:checked ~ .checkmark {
+            background-color: var(--primary);
+            border-color: var(--primary);
         }
         
-        .priority-low {
-            background-color: var(--success);
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        
+        .task-checkbox input:checked ~ .checkmark:after {
+            display: block;
+        }
+        
+        .task-content {
+            flex: 1;
         }
         
         .task-title {
-            font-weight: 500;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
         }
         
-        .task-due-date {
-            font-size: 0.85rem;
+        .task-checkbox input:checked ~ .task-content .task-title {
+            text-decoration: line-through;
             color: var(--gray);
         }
         
-        .task-status {
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
+        .task-meta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
             font-size: 0.8rem;
+        }
+        
+        .task-deadline {
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .task-priority {
+            padding: 0.1rem 0.5rem;
+            border-radius: 20px;
             font-weight: 500;
         }
         
-        .status-pending {
+        .priority-high {
             background-color: rgba(239, 68, 68, 0.1);
             color: var(--danger);
         }
         
-        .status-in-progress {
+        .priority-medium {
             background-color: rgba(245, 158, 11, 0.1);
             color: var(--warning);
         }
         
-        .status-completed {
+        .priority-low {
             background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success);
+            color: var(--secondary);
         }
         
-        /* Team Calendar */
-        .calendar-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        
-        .calendar-content.active {
-            display: block;
-        }
-        
-        .calendar-header {
+        .task-actions {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .calendar-nav {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .calendar-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-        
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
             gap: 0.5rem;
         }
         
-        .calendar-day-header {
-            text-align: center;
-            font-weight: 600;
-            padding: 0.5rem;
+        .task-action {
+            background: none;
+            border: none;
             color: var(--gray);
-        }
-        
-        .calendar-day {
-            border: 1px solid var(--light-gray);
-            border-radius: 4px;
-            min-height: 100px;
-            padding: 0.5rem;
-        }
-        
-        .day-number {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        
-        .calendar-event {
-            background-color: var(--primary-light);
-            color: var(--primary-dark);
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            margin-bottom: 0.25rem;
             cursor: pointer;
+            transition: color 0.2s;
         }
         
-        /* Projects Section */
-        .projects-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
+        .task-action:hover {
+            color: var(--primary);
         }
         
-        .projects-content.active {
-            display: block;
-        }
-        
-        .project-list {
+        /* Projects Grid */
+        .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
+            margin-bottom: 2rem;
         }
         
         .project-card {
-            border: 1px solid var(--light-gray);
-            border-radius: 8px;
-            padding: 1.5rem;
-            transition: all 0.2s;
+            background-color: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
         }
         
         .project-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .project-header {
+            padding: 1.5rem 1.5rem 1rem;
         }
         
         .project-title {
@@ -701,1344 +1030,19 @@
             margin-bottom: 0.5rem;
         }
         
-        .project-description {
-            color: var(--gray);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-        
         .project-progress {
-            margin-bottom: 1rem;
-        }
-        
-        .progress-bar {
-            height: 8px;
+            height: 6px;
             background-color: var(--light-gray);
-            border-radius: 4px;
+            border-radius: 3px;
+            margin: 1rem 0;
             overflow: hidden;
         }
         
-        .progress-fill {
+        .progress-bar {
             height: 100%;
             background-color: var(--primary);
-            border-radius: 4px;
+            border-radius: 3px;
         }
         
         .project-meta {
             display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            color: var(--gray);
-        }
-        
-        /* Team Members */
-        .team-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        
-        .team-content.active {
-            display: block;
-        }
-        
-        .member-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .member-card {
-            border: 1px solid var(--light-gray);
-            border-radius: 8px;
-            padding: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .member-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: var(--primary-light);
-            color: var(--primary-dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-        }
-        
-        .member-info {
-            flex: 1;
-        }
-        
-        .member-name {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        
-        .member-role {
-            font-size: 0.85rem;
-            color: var(--gray);
-            margin-bottom: 0.25rem;
-        }
-        
-        .member-status {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 0.5rem;
-        }
-        
-        .status-active {
-            background-color: var(--success);
-        }
-        
-        .status-inactive {
-            background-color: var(--gray);
-        }
-        
-        /* Reports Section */
-        .reports-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        
-        .reports-content.active {
-            display: block;
-        }
-        
-        .chart-container {
-            height: 400px;
-            margin-bottom: 2rem;
-            background-color: var(--light);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--gray);
-        }
-        
-        /* Settings Section */
-        .settings-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        
-        .settings-content.active {
-            display: block;
-        }
-        
-        .settings-tabs {
-            display: flex;
-            border-bottom: 1px solid var(--light-gray);
-            margin-bottom: 1.5rem;
-        }
-        
-        .settings-tab {
-            padding: 0.75rem 1.5rem;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-        }
-        
-        .settings-tab.active {
-            border-bottom-color: var(--primary);
-            color: var(--primary);
-            font-weight: 500;
-        }
-        
-        .settings-panel {
-            display: none;
-        }
-        
-        .settings-panel.active {
-            display: block;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 992px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            
-            .main-content {
-                margin-left: 0;
-            }
-            
-            .search-bar {
-                width: 250px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .top-nav {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem;
-            }
-            
-            .search-bar {
-                width: 100%;
-            }
-            
-            .user-menu {
-                width: 100%;
-                justify-content: space-between;
-            }
-            
-            .content-area {
-                padding: 1.5rem;
-            }
-            
-            .profile-form {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-actions {
-                grid-column: span 1;
-            }
-            
-            .user-info {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .stats-section {
-                grid-template-columns: 1fr;
-            }
-            
-            .task-filters {
-                flex-wrap: wrap;
-            }
-            
-            .project-list {
-                grid-template-columns: 1fr;
-            }
-            
-            .member-list {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <i class="fas fa-users-cog logo-icon"></i>
-                <span>TeamFlow</span>
-            </div>
-        </div>
-        
-        <div class="sidebar-menu">
-            <div class="menu-title">Main Features</div>
-            
-            <a href="#dashboard" class="menu-item active" data-feature="dashboard">
-                <i class="fas fa-tachometer-alt"></i>
-                <span>Dashboard</span>
-            </a>
-            
-            <a href="#tasks" class="menu-item" data-feature="tasks">
-                <i class="fas fa-tasks"></i>
-                <span>Task Management</span>
-            </a>
-            
-            <a href="#calendar" class="menu-item" data-feature="calendar">
-                <i class="fas fa-calendar-alt"></i>
-                <span>Team Calendar</span>
-            </a>
-            
-            <a href="#projects" class="menu-item" data-feature="projects">
-                <i class="fas fa-project-diagram"></i>
-                <span>Projects</span>
-            </a>
-            
-            <a href="#team" class="menu-item" data-feature="team">
-                <i class="fas fa-users"></i>
-                <span>Team Members</span>
-            </a>
-            
-            <a href="#reports" class="menu-item" data-feature="reports">
-                <i class="fas fa-chart-bar"></i>
-                <span>Reports</span>
-            </a>
-            
-            <div class="menu-divider"></div>
-            
-            <a href="#settings" class="menu-item" data-feature="settings">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
-            </a>
-        </div>
-    </aside>
-
-    <!-- Main Content Area -->
-    <main class="main-content">
-        <!-- Top Navigation -->
-        <nav class="top-nav">
-            <div class="search-bar">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" placeholder="Search employees, projects, tasks..." id="searchInput">
-            </div>
-            
-            <div class="user-menu">
-                <div class="notification-icon" id="notificationIcon">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
-                </div>
-                
-                <div class="user-profile">
-                    <div class="user-avatar" id="userAvatar">ME</div>
-                    <div class="user-name" id="userName">Mohamed Elmenisy</div>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="#profile" class="dropdown-item" id="profileLink">
-                            <i class="fas fa-user"></i>
-                            <span>Profile</span>
-                        </a>
-                        <a href="#settings" class="dropdown-item" id="settingsLink">
-                            <i class="fas fa-cog"></i>
-                            <span>Settings</span>
-                        </a>
-                        <a href="login.html" class="dropdown-item" id="logoutLink">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </nav>
-        
-        <!-- Content Area -->
-        <div class="content-area">
-            <!-- Dashboard Content -->
-            <div id="dashboardContent">
-                <!-- Welcome Section -->
-                <div class="welcome-section">
-                    <h2 class="welcome-title">Welcome, <span id="welcomeName">Mohamed</span>!</h2>
-                    <p>Here's what's happening with your team today.</p>
-                    
-                    <div class="user-info">
-                        <div class="user-info-avatar" id="profileAvatar">ME</div>
-                        <div class="user-info-details">
-                            <div class="user-info-name">Mohamed Elmenisy</div>
-                            <div class="user-info-title" id="userRoleTitle">Administrator</div>
-                            <div class="user-info-email">
-                                <i class="fas fa-envelope"></i>
-                                <span id="userEmail">m.elsayed@thechefz.co</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Stats Section -->
-                <div class="stats-section">
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-users"></i>
-                            Team Members
-                        </div>
-                        <div class="stat-value">
-                            <span id="teamMembersCount">12</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-check-circle"></i>
-                            Tasks Completed
-                        </div>
-                        <div class="stat-value">
-                            <span id="tasksCompleted">24</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-project-diagram"></i>
-                            Active Projects
-                        </div>
-                        <div class="stat-value">
-                            <span id="activeProjects">5</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-clock"></i>
-                            Pending Tasks
-                        </div>
-                        <div class="stat-value">
-                            <span id="pendingTasks">8</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Activity Section -->
-                <div class="activity-section">
-                    <div class="section-header">
-                        <h3 class="section-title">Recent Activity</h3>
-                        <a href="#" class="btn btn-outline">View All</a>
-                    </div>
-                    
-                    <ul class="activity-list" id="activityList">
-                        <li class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-check"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-message">You completed the task "Design new logo"</div>
-                                <div class="activity-time">10 minutes ago</div>
-                            </div>
-                        </li>
-                        <li class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-comment"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-message">Ahmed commented on project "Website Redesign"</div>
-                                <div class="activity-time">1 hour ago</div>
-                            </div>
-                        </li>
-                        <li class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-plus"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-message">New task assigned to you: "Review client feedback"</div>
-                                <div class="activity-time">3 hours ago</div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                
-                <!-- Tasks Overview -->
-                <div class="activity-section">
-                    <div class="section-header">
-                        <h3 class="section-title">Your Tasks</h3>
-                        <a href="#tasks" class="btn btn-outline">View All Tasks</a>
-                    </div>
-                    
-                    <ul class="activity-list" id="taskList">
-                        <li class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-tasks"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-message">
-                                    <span class="task-priority priority-high"></span>
-                                    Review client feedback (Due today)
-                                </div>
-                                <div class="activity-time">Project: Website Redesign</div>
-                            </div>
-                            <span class="task-status status-pending">Pending</span>
-                        </li>
-                        <li class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-tasks"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-message">
-                                    <span class="task-priority priority-medium"></span>
-                                    Prepare quarterly report (Due tomorrow)
-                                </div>
-                                <div class="activity-time">Project: Management</div>
-                            </div>
-                            <span class="task-status status-in-progress">In Progress</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            
-            <!-- Profile Content -->
-            <div class="profile-content" id="profileContent">
-                <div class="profile-header">
-                    <h2 class="profile-title">Profile Settings</h2>
-                </div>
-                
-                <form class="profile-form" id="profileForm">
-                    <div class="form-group">
-                        <label for="firstName">First Name</label>
-                        <input type="text" id="firstName" class="form-control" value="Mohamed">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="lastName">Last Name</label>
-                        <input type="text" id="lastName" class="form-control" value="Elmenisy">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="jobTitle">Job Title</label>
-                        <input type="text" id="jobTitle" class="form-control" value="Administrator">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="department">Department</label>
-                        <input type="text" id="department" class="form-control" value="Management">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" class="form-control" value="m.elsayed@thechefz.co" readonly>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="phone">Phone</label>
-                        <input type="tel" id="phone" class="form-control" value="+201234567890">
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-outline" id="cancelProfileBtn">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-            
-            <!-- Task Management Content -->
-            <div class="task-management-content" id="tasksContent">
-                <div class="section-header">
-                    <h2 class="section-title">Task Management</h2>
-                    <button class="btn btn-primary">Add New Task</button>
-                </div>
-                
-                <div class="task-filters">
-                    <button class="filter-btn active">All Tasks</button>
-                    <button class="filter-btn">Pending</button>
-                    <button class="filter-btn">In Progress</button>
-                    <button class="filter-btn">Completed</button>
-                    <button class="filter-btn">Overdue</button>
-                </div>
-                
-                <ul class="task-list" id="fullTaskList">
-                    <li class="task-item">
-                        <div class="task-item-header">
-                            <span class="task-priority priority-high"></span>
-                            <div>
-                                <div class="task-title">Review client feedback</div>
-                                <div class="task-due-date">Due: Today, 5:00 PM</div>
-                            </div>
-                        </div>
-                        <span class="task-status status-pending">Pending</span>
-                    </li>
-                    <li class="task-item">
-                        <div class="task-item-header">
-                            <span class="task-priority priority-medium"></span>
-                            <div>
-                                <div class="task-title">Prepare quarterly report</div>
-                                <div class="task-due-date">Due: Tomorrow, 10:00 AM</div>
-                            </div>
-                        </div>
-                        <span class="task-status status-in-progress">In Progress</span>
-                    </li>
-                    <li class="task-item">
-                        <div class="task-item-header">
-                            <span class="task-priority priority-low"></span>
-                            <div>
-                                <div class="task-title">Update project documentation</div>
-                                <div class="task-due-date">Due: Friday, 3:00 PM</div>
-                            </div>
-                        </div>
-                        <span class="task-status status-pending">Pending</span>
-                    </li>
-                    <li class="task-item">
-                        <div class="task-item-header">
-                            <span class="task-priority priority-high"></span>
-                            <div>
-                                <div class="task-title">Fix critical bug in checkout</div>
-                                <div class="task-due-date">Due: Yesterday, 6:00 PM</div>
-                            </div>
-                        </div>
-                        <span class="task-status status-completed">Completed</span>
-                    </li>
-                </ul>
-            </div>
-            
-            <!-- Calendar Content -->
-            <div class="calendar-content" id="calendarContent">
-                <div class="calendar-header">
-                    <h2 class="calendar-title">Team Calendar</h2>
-                    <div class="calendar-nav">
-                        <button class="btn btn-outline"><i class="fas fa-chevron-left"></i></button>
-                        <span>April 2023</span>
-                        <button class="btn btn-outline"><i class="fas fa-chevron-right"></i></button>
-                    </div>
-                </div>
-                
-                <div class="calendar-grid">
-                    <div class="calendar-day-header">Sun</div>
-                    <div class="calendar-day-header">Mon</div>
-                    <div class="calendar-day-header">Tue</div>
-                    <div class="calendar-day-header">Wed</div>
-                    <div class="calendar-day-header">Thu</div>
-                    <div class="calendar-day-header">Fri</div>
-                    <div class="calendar-day-header">Sat</div>
-                    
-                    <!-- Calendar days would be generated dynamically in a real app -->
-                    <div class="calendar-day">
-                        <div class="day-number">1</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">2</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">3</div>
-                        <div class="calendar-event">Team Meeting</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">4</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">5</div>
-                        <div class="calendar-event">Project Deadline</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">6</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">7</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">8</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">9</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">10</div>
-                        <div class="calendar-event">Client Call</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">11</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">12</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">13</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">14</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">15</div>
-                        <div class="calendar-event">Review Session</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">16</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">17</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">18</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">19</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">20</div>
-                        <div class="calendar-event">Sprint Planning</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">21</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">22</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">23</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">24</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">25</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">26</div>
-                        <div class="calendar-event">Demo Day</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">27</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">28</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">29</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">30</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Projects Content -->
-            <div class="projects-content" id="projectsContent">
-                <div class="section-header">
-                    <h2 class="section-title">Projects</h2>
-                    <button class="btn btn-primary">New Project</button>
-                </div>
-                
-                <div class="project-list">
-                    <div class="project-card">
-                        <h3 class="project-title">Website Redesign</h3>
-                        <p class="project-description">Complete redesign of company website with modern UI/UX</p>
-                        <div class="project-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 65%"></div>
-                            </div>
-                            <div class="project-meta">
-                                <span>65% complete</span>
-                                <span>Due: May 15</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="project-card">
-                        <h3 class="project-title">Mobile App Development</h3>
-                        <p class="project-description">New iOS and Android app for customer engagement</p>
-                        <div class="project-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 30%"></div>
-                            </div>
-                            <div class="project-meta">
-                                <span>30% complete</span>
-                                <span>Due: July 1</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="project-card">
-                        <h3 class="project-title">Marketing Campaign</h3>
-                        <p class="project-description">Q3 digital marketing campaign for new product launch</p>
-                        <div class="project-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 15%"></div>
-                            </div>
-                            <div class="project-meta">
-                                <span>15% complete</span>
-                                <span>Due: June 10</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="project-card">
-                        <h3 class="project-title">CRM Implementation</h3>
-                        <p class="project-description">Implement new CRM system for sales team</p>
-                        <div class="project-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 80%"></div>
-                            </div>
-                            <div class="project-meta">
-                                <span>80% complete</span>
-                                <span>Due: April 30</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="project-card">
-                        <h3 class="project-title">Employee Training Program</h3>
-                        <p class="project-description">Develop and implement new employee training materials</p>
-                        <div class="project-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 45%"></div>
-                            </div>
-                            <div class="project-meta">
-                                <span>45% complete</span>
-                                <span>Due: May 20</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Team Members Content -->
-            <div class="team-content" id="teamContent">
-                <div class="section-header">
-                    <h2 class="section-title">Team Members</h2>
-                    <button class="btn btn-primary">Add Member</button>
-                </div>
-                
-                <div class="member-list">
-                    <div class="member-card">
-                        <div class="member-avatar">ME</div>
-                        <div class="member-info">
-                            <div class="member-name">Mohamed Elmenisy</div>
-                            <div class="member-role">Administrator</div>
-                            <div>
-                                <span class="member-status status-active"></span>
-                                <span>Active</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="member-card">
-                        <div class="member-avatar">AS</div>
-                        <div class="member-info">
-                            <div class="member-name">Ahmed Samir</div>
-                            <div class="member-role">Project Manager</div>
-                            <div>
-                                <span class="member-status status-active"></span>
-                                <span>Active</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="member-card">
-                        <div class="member-avatar">NM</div>
-                        <div class="member-info">
-                            <div class="member-name">Nada Mohamed</div>
-                            <div class="member-role">UI/UX Designer</div>
-                            <div>
-                                <span class="member-status status-active"></span>
-                                <span>Active</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="member-card">
-                        <div class="member-avatar">KA</div>
-                        <div class="member-info">
-                            <div class="member-name">Karim Ali</div>
-                            <div class="member-role">Frontend Developer</div>
-                            <div>
-                                <span class="member-status status-active"></span>
-                                <span>Active</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="member-card">
-                        <div class="member-avatar">MA</div>
-                        <div class="member-info">
-                            <div class="member-name">Mariam Adel</div>
-                            <div class="member-role">Backend Developer</div>
-                            <div>
-                                <span class="member-status status-active"></span>
-                                <span>Active</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="member-card">
-                        <div class="member-avatar">OM</div>
-                        <div class="member-info">
-                            <div class="member-name">Omar Mahmoud</div>
-                            <div class="member-role">QA Engineer</div>
-                            <div>
-                                <span class="member-status status-inactive"></span>
-                                <span>On Leave</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Reports Content -->
-            <div class="reports-content" id="reportsContent">
-                <div class="section-header">
-                    <h2 class="section-title">Reports & Analytics</h2>
-                    <div>
-                        <select class="form-control" style="width: 200px; display: inline-block;">
-                            <option>Last 7 Days</option>
-                            <option>Last 30 Days</option>
-                            <option>Last Quarter</option>
-                            <option>Last Year</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="stats-section">
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-tasks"></i>
-                            Tasks Completed
-                        </div>
-                        <div class="stat-value">
-                            <span>124</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-clock"></i>
-                            Avg. Completion Time
-                        </div>
-                        <div class="stat-value">
-                            <span>2.3</span> <span style="font-size: 1rem;">days</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            Overdue Tasks
-                        </div>
-                        <div class="stat-value">
-                            <span>18</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-user-check"></i>
-                            Most Productive Member
-                        </div>
-                        <div class="stat-value" style="font-size: 1.25rem;">
-                            <span>Ahmed Samir (42 tasks)</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="chart-container">
-                    <div>Task Completion Rate Chart</div>
-                </div>
-                
-                <div class="chart-container">
-                    <div>Team Performance Chart</div>
-                </div>
-            </div>
-            
-            <!-- Settings Content -->
-            <div class="settings-content" id="settingsContent">
-                <div class="settings-tabs">
-                    <div class="settings-tab active" data-tab="general">General</div>
-                    <div class="settings-tab" data-tab="notifications">Notifications</div>
-                    <div class="settings-tab" data-tab="integrations">Integrations</div>
-                    <div class="settings-tab" data-tab="security">Security</div>
-                </div>
-                
-                <div class="settings-panel active" id="generalSettings">
-                    <h3>General Settings</h3>
-                    <form>
-                        <div class="form-group">
-                            <label for="theme">Theme</label>
-                            <select id="theme" class="form-control">
-                                <option>Light</option>
-                                <option>Dark</option>
-                                <option>System Default</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="language">Language</label>
-                            <select id="language" class="form-control">
-                                <option>English</option>
-                                <option>Arabic</option>
-                                <option>French</option>
-                                <option>Spanish</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="timezone">Timezone</label>
-                            <select id="timezone" class="form-control">
-                                <option>(GMT+02:00) Cairo</option>
-                                <option>(GMT+00:00) London</option>
-                                <option>(GMT-05:00) New York</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Save Settings</button>
-                        </div>
-                    </form>
-                </div>
-                
-                <div class="settings-panel" id="notificationSettings">
-                    <h3>Notification Settings</h3>
-                    <form>
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" checked> Email Notifications
-                            </label>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" checked> Task Assignments
-                            </label>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" checked> Deadline Reminders
-                            </label>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox"> Team Mentions
-                            </label>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" checked> Project Updates
-                            </label>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Save Settings</button>
-                        </div>
-                    </form>
-                </div>
-                
-                <div class="settings-panel" id="integrationSettings">
-                    <h3>Integration Settings</h3>
-                    <form>
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox"> Google Calendar
-                            </label>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox"> Slack
-                            </label>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox"> Microsoft Teams
-                            </label>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox"> Trello
-                            </label>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox"> GitHub
-                            </label>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Save Settings</button>
-                        </div>
-                    </form>
-                </div>
-                
-                <div class="settings-panel" id="securitySettings">
-                    <h3>Security Settings</h3>
-                    <form>
-                        <div class="form-group">
-                            <label for="currentPassword">Current Password</label>
-                            <input type="password" id="currentPassword" class="form-control">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="newPassword">New Password</label>
-                            <input type="password" id="newPassword" class="form-control">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="confirmPassword">Confirm New Password</label>
-                            <input type="password" id="confirmPassword" class="form-control">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox"> Two-Factor Authentication
-                            </label>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Update Security</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
-            const sidebar = document.getElementById('sidebar');
-            const menuItems = document.querySelectorAll('.menu-item');
-            const searchInput = document.getElementById('searchInput');
-            const notificationIcon = document.getElementById('notificationIcon');
-            const userAvatar = document.getElementById('userAvatar');
-            const userName = document.getElementById('userName');
-            const userEmail = document.getElementById('userEmail');
-            const welcomeName = document.getElementById('welcomeName');
-            const userDropdown = document.getElementById('userDropdown');
-            const profileLink = document.getElementById('profileLink');
-            const settingsLink = document.getElementById('settingsLink');
-            const logoutLink = document.getElementById('logoutLink');
-            const dashboardContent = document.getElementById('dashboardContent');
-            const profileContent = document.getElementById('profileContent');
-            const profileForm = document.getElementById('profileForm');
-            const cancelProfileBtn = document.getElementById('cancelProfileBtn');
-            const activityList = document.getElementById('activityList');
-            const teamMembersCount = document.getElementById('teamMembersCount');
-            const tasksCompleted = document.getElementById('tasksCompleted');
-            const activeProjects = document.getElementById('activeProjects');
-            const pendingTasks = document.getElementById('pendingTasks');
-            const userRoleTitle = document.getElementById('userRoleTitle');
-            
-            // Content sections
-            const tasksContent = document.getElementById('tasksContent');
-            const calendarContent = document.getElementById('calendarContent');
-            const projectsContent = document.getElementById('projectsContent');
-            const teamContent = document.getElementById('teamContent');
-            const reportsContent = document.getElementById('reportsContent');
-            const settingsContent = document.getElementById('settingsContent');
-            
-            // Settings tabs
-            const settingsTabs = document.querySelectorAll('.settings-tab');
-            const settingsPanels = document.querySelectorAll('.settings-panel');
-            
-            // Task filters
-            const filterBtns = document.querySelectorAll('.filter-btn');
-            
-            // Current user data
-            let currentUser = {
-                id: 1,
-                name: 'Mohamed Elmenisy',
-                email: 'm.elsayed@thechefz.co',
-                title: 'Administrator',
-                department: 'Management',
-                phone: '+201234567890',
-                initials: 'ME',
-                role: 'admin',
-                stats: {
-                    teamMembers: 12,
-                    tasksCompleted: 24,
-                    activeProjects: 5,
-                    pendingTasks: 8
-                }
-            };
-            
-            // Initialize the dashboard
-            function initDashboard() {
-                // Set user data
-                updateUserUI();
-                
-                // Update stats
-                updateStats();
-                
-                // Set active feature based on URL hash or default to dashboard
-                const hash = window.location.hash.substring(1);
-                if (hash) {
-                    setActiveFeature(hash);
-                } else {
-                    setActiveFeature('dashboard');
-                }
-            }
-            
-            // Update user UI elements
-            function updateUserUI() {
-                userName.textContent = currentUser.name;
-                userEmail.textContent = currentUser.email;
-                welcomeName.textContent = currentUser.name.split(' ')[0];
-                document.querySelector('.user-info-name').textContent = currentUser.name;
-                
-                // Update role title based on user role
-                const roleTitles = {
-                    'admin': 'Administrator',
-                    'member': 'Team Member'
-                };
-                const roleTitle = roleTitles[currentUser.role] || 'Team Member';
-                document.querySelector('.user-info-title').textContent = roleTitle;
-                userRoleTitle.textContent = roleTitle;
-                
-                document.querySelector('.user-info-email span').textContent = currentUser.email;
-                
-                // Set form values
-                const nameParts = currentUser.name.split(' ');
-                document.getElementById('firstName').value = nameParts[0];
-                document.getElementById('lastName').value = nameParts.slice(1).join(' ');
-                document.getElementById('jobTitle').value = currentUser.title || '';
-                document.getElementById('department').value = currentUser.department || '';
-                document.getElementById('email').value = currentUser.email;
-                document.getElementById('phone').value = currentUser.phone;
-                
-                // Set avatar
-                userAvatar.textContent = currentUser.initials || 'ME';
-            }
-            
-            // Update stats
-            function updateStats() {
-                teamMembersCount.textContent = currentUser.stats.teamMembers || 0;
-                tasksCompleted.textContent = currentUser.stats.tasksCompleted || 0;
-                activeProjects.textContent = currentUser.stats.activeProjects || 0;
-                pendingTasks.textContent = currentUser.stats.pendingTasks || 0;
-            }
-            
-            // Set active feature and update URL
-            function setActiveFeature(feature) {
-                // Update URL without reloading page
-                const newUrl = window.location.pathname + '#' + feature;
-                window.history.pushState({ feature }, '', newUrl);
-                
-                // Hide all content sections
-                dashboardContent.style.display = 'none';
-                profileContent.style.display = 'none';
-                tasksContent.style.display = 'none';
-                calendarContent.style.display = 'none';
-                projectsContent.style.display = 'none';
-                teamContent.style.display = 'none';
-                reportsContent.style.display = 'none';
-                settingsContent.style.display = 'none';
-                
-                // Remove active class from all menu items
-                menuItems.forEach(item => item.classList.remove('active'));
-                
-                // Show the selected content
-                if (feature === 'dashboard') {
-                    dashboardContent.style.display = 'block';
-                    document.querySelector('[data-feature="dashboard"]').classList.add('active');
-                } else if (feature === 'profile') {
-                    profileContent.style.display = 'block';
-                } else if (feature === 'tasks') {
-                    tasksContent.style.display = 'block';
-                    document.querySelector('[data-feature="tasks"]').classList.add('active');
-                } else if (feature === 'calendar') {
-                    calendarContent.style.display = 'block';
-                    document.querySelector('[data-feature="calendar"]').classList.add('active');
-                } else if (feature === 'projects') {
-                    projectsContent.style.display = 'block';
-                    document.querySelector('[data-feature="projects"]').classList.add('active');
-                } else if (feature === 'team') {
-                    teamContent.style.display = 'block';
-                    document.querySelector('[data-feature="team"]').classList.add('active');
-                } else if (feature === 'reports') {
-                    reportsContent.style.display = 'block';
-                    document.querySelector('[data-feature="reports"]').classList.add('active');
-                } else if (feature === 'settings') {
-                    settingsContent.style.display = 'block';
-                    document.querySelector('[data-feature="settings"]').classList.add('active');
-                } else {
-                    // For unknown features, default to dashboard
-                    dashboardContent.style.display = 'block';
-                    document.querySelector('[data-feature="dashboard"]').classList.add('active');
-                }
-            }
-            
-            // Handle menu item clicks
-            menuItems.forEach(item => {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const feature = this.getAttribute('data-feature');
-                    setActiveFeature(feature);
-                });
-            });
-            
-            // User dropdown
-            userAvatar.addEventListener('click', function() {
-                userDropdown.classList.toggle('active');
-            });
-            
-            userName.addEventListener('click', function() {
-                userDropdown.classList.toggle('active');
-            });
-            
-            // Profile link
-            profileLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                userDropdown.classList.remove('active');
-                setActiveFeature('profile');
-            });
-            
-            // Settings link
-            settingsLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                userDropdown.classList.remove('active');
-                setActiveFeature('settings');
-            });
-            
-            // Logout link
-            logoutLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                // Redirect to login
-                window.location.href = 'login.html';
-            });
-            
-            // Profile form
-            profileForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                // Update user data
-                currentUser.name = `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`;
-                currentUser.title = document.getElementById('jobTitle').value;
-                currentUser.department = document.getElementById('department').value;
-                currentUser.phone = document.getElementById('phone').value;
-                
-                // Update UI
-                updateUserUI();
-                
-                // Go back to dashboard
-                setActiveFeature('dashboard');
-            });
-            
-            cancelProfileBtn.addEventListener('click', function() {
-                // Go back to dashboard
-                setActiveFeature('dashboard');
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.user-profile') && !e.target.closest('.user-dropdown')) {
-                    userDropdown.classList.remove('active');
-                }
-            });
-            
-            // Handle browser back/forward buttons
-            window.addEventListener('popstate', function(event) {
-                if (event.state && event.state.feature) {
-                    setActiveFeature(event.state.feature);
-                } else {
-                    setActiveFeature('dashboard');
-                }
-            });
-            
-            // Settings tabs
-            settingsTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
-                    
-                    // Remove active class from all tabs and panels
-                    settingsTabs.forEach(t => t.classList.remove('active'));
-                    settingsPanels.forEach(p => p.classList.remove('active'));
-                    
-                    // Add active class to clicked tab and corresponding panel
-                    this.classList.add('active');
-                    document.getElementById(`${tabId}Settings`).classList.add('active');
-                });
-            });
-            
-            // Task filters
-            filterBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    filterBtns.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    // In a real app, you would filter tasks here
-                });
-            });
-            
-            // Initialize the dashboard
-            initDashboard();
-        });
-    </script>
-</body>
-</html>
