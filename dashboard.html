@@ -1633,6 +1633,92 @@
             color: var(--gray);
             margin-left: 0.5rem;
         }
+
+        /* Invitation status */
+        .invitation-status {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.25rem;
+        }
+
+        .status-pending {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .status-accepted {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-declined {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        /* Invitation actions */
+        .invitation-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Invitation email */
+        .invitation-email {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+        }
+
+        /* Invitation card */
+        .invitation-card {
+            background-color: var(--light);
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        /* Invitation date */
+        .invitation-date {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+        }
+
+        /* Resend button */
+        .btn-resend {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-resend:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Cancel invitation button */
+        .btn-cancel-invite {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-cancel-invite:hover {
+            background-color: var(--danger);
+            color: white;
+        }
     </style>
 </head>
 <body class="blue-theme">
@@ -2143,6 +2229,14 @@
                                 </div>
                             </form>
                         </div>
+
+                        <!-- Invitations Section -->
+                        <div class="invitations-section" id="invitationsSection" style="margin-top: 2rem; display: none;">
+                            <h4>Pending Invitations</h4>
+                            <div class="invitations-list" id="invitationsList">
+                                <!-- Invitations will be added here -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2250,6 +2344,8 @@
             const tasksCompletedTrend = document.getElementById('tasksCompletedTrend');
             const activeProjectsTrend = document.getElementById('activeProjectsTrend');
             const upcomingDeadlinesTrend = document.getElementById('upcomingDeadlinesTrend');
+            const invitationsSection = document.getElementById('invitationsSection');
+            const invitationsList = document.getElementById('invitationsList');
             
             // API Base URL
             const API_BASE_URL = 'https://your-api-endpoint.com/api';
@@ -2342,6 +2438,23 @@
                 return members;
             }
             
+            // Get invitations from localStorage
+            function getInvitations() {
+                const savedInvitations = localStorage.getItem('invitations');
+                if (savedInvitations) {
+                    return JSON.parse(savedInvitations);
+                }
+                
+                // Default invitations if not found
+                return [];
+            }
+            
+            // Save invitations to localStorage
+            function saveInvitations(invitations) {
+                localStorage.setItem('invitations', JSON.stringify(invitations));
+                return invitations;
+            }
+            
             // Get activities from localStorage
             function getActivities() {
                 const savedActivities = localStorage.getItem('activities');
@@ -2379,6 +2492,7 @@
             // Current user data
             let currentUser = getUserData();
             let teamMembers = getTeamMembers();
+            let invitations = getInvitations();
             let activities = getActivities();
             let notifications = getNotifications();
             
@@ -2393,6 +2507,9 @@
                 
                 // Load team members
                 loadTeamMembers();
+                
+                // Load invitations
+                loadInvitations();
                 
                 // Load activities
                 loadActivities();
@@ -2672,9 +2789,9 @@
                         <div class="member-details">
                             <div class="member-name">${member.name}</div>
                             <div class="member-email">${member.email}</div>
-                        </div>
-                        <div class="member-role ${member.role === 'admin' ? 'role-admin' : member.role === 'senior' ? 'role-senior' : member.role === 'supervisor' ? 'role-supervisor' : 'role-member'}">
-                            ${member.role === 'admin' ? 'Admin' : member.role === 'senior' ? 'Senior' : member.role === 'supervisor' ? 'Supervisor' : 'Member'}
+                            <div class="member-role ${member.role === 'admin' ? 'role-admin' : member.role === 'senior' ? 'role-senior' : member.role === 'supervisor' ? 'role-supervisor' : 'role-member'}">
+                                ${member.role === 'admin' ? 'Admin' : member.role === 'senior' ? 'Senior' : member.role === 'supervisor' ? 'Supervisor' : 'Member'}
+                            </div>
                         </div>
                         <div class="member-actions ${currentUser.role === 'admin' || currentUser.role === 'supervisor' ? '' : 'd-none'}">
                             <button class="btn btn-outline btn-sm edit-member" data-id="${member.id}">
@@ -2714,6 +2831,115 @@
                 currentUser.stats.teamMembers = teamMembers.length;
                 saveUserData(currentUser);
                 updateStats();
+            }
+            
+            // Load invitations
+            function loadInvitations() {
+                invitationsList.innerHTML = '';
+                
+                if (invitations.length === 0) {
+                    invitationsSection.style.display = 'none';
+                    return;
+                }
+                
+                invitationsSection.style.display = 'block';
+                
+                invitations.forEach((invitation) => {
+                    const invitationCard = document.createElement('div');
+                    invitationCard.className = 'invitation-card';
+                    
+                    let statusClass = '';
+                    let statusText = '';
+                    
+                    switch(invitation.status) {
+                        case 'pending':
+                            statusClass = 'status-pending';
+                            statusText = 'Pending';
+                            break;
+                        case 'accepted':
+                            statusClass = 'status-accepted';
+                            statusText = 'Accepted';
+                            break;
+                        case 'declined':
+                            statusClass = 'status-declined';
+                            statusText = 'Declined';
+                            break;
+                    }
+                    
+                    invitationCard.innerHTML = `
+                        <div class="member-name">${invitation.email}</div>
+                        <div class="invitation-email">Invited as: ${invitation.role}</div>
+                        <div class="invitation-status ${statusClass}">${statusText}</div>
+                        <div class="invitation-date">Sent on: ${new Date(invitation.timestamp).toLocaleDateString()}</div>
+                        ${invitation.status === 'pending' ? `
+                            <div class="invitation-actions">
+                                <button class="btn-resend resend-invite" data-id="${invitation.id}">Resend</button>
+                                <button class="btn-cancel-invite cancel-invite" data-id="${invitation.id}">Cancel</button>
+                            </div>
+                        ` : ''}
+                    `;
+                    
+                    invitationsList.appendChild(invitationCard);
+                });
+                
+                // Add event listeners to resend buttons
+                document.querySelectorAll('.resend-invite').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const invitationId = parseInt(this.getAttribute('data-id'));
+                        const invitation = invitations.find(i => i.id === invitationId);
+                        resendInvitation(invitation);
+                    });
+                });
+                
+                // Add event listeners to cancel buttons
+                document.querySelectorAll('.cancel-invite').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const invitationId = parseInt(this.getAttribute('data-id'));
+                        const invitation = invitations.find(i => i.id === invitationId);
+                        showConfirmModal(
+                            'Cancel Invitation',
+                            `Are you sure you want to cancel the invitation to ${invitation.email}?`,
+                            () => cancelInvitation(invitationId)
+                        );
+                    });
+                });
+            }
+            
+            // Resend invitation
+            function resendInvitation(invitation) {
+                // In a real app, this would send a new email
+                // For demo purposes, we'll just update the timestamp
+                invitation.timestamp = new Date().toISOString();
+                saveInvitations(invitations);
+                loadInvitations();
+                
+                // Add activity
+                activities.unshift({
+                    id: Date.now(),
+                    icon: 'fa-envelope',
+                    message: `Resent invitation to ${invitation.email}`,
+                    timestamp: new Date().toISOString()
+                });
+                saveActivities(activities);
+                loadActivities();
+                
+                // Show success message
+                showSuccessMessage(`Invitation resent to ${invitation.email}`);
+                
+                // Play notification sound
+                playNotificationSound();
+            }
+            
+            // Cancel invitation
+            function cancelInvitation(invitationId) {
+                // Remove from local array
+                invitations = invitations.filter(invitation => invitation.id !== invitationId);
+                saveInvitations(invitations);
+                loadInvitations();
+                hideConfirmModal();
+                
+                // Show success message
+                showSuccessMessage('Invitation cancelled successfully');
             }
             
             // Edit team member
@@ -3298,6 +3524,7 @@
                 // Clear session
                 localStorage.removeItem('currentUser');
                 localStorage.removeItem('teamMembers');
+                localStorage.removeItem('invitations');
                 localStorage.removeItem('activities');
                 localStorage.removeItem('notifications');
                 // Redirect to login
@@ -3650,35 +3877,42 @@
                     return;
                 }
                 
-                // Check if email already exists
+                // Check if email already exists in team members
                 if (teamMembers.some(member => member.email === email)) {
                     alert('This email is already a team member');
                     return;
                 }
                 
-                // Create new member
+                // Check if invitation is already pending for this email
+                if (invitations.some(invite => invite.email === email && invite.status === 'pending')) {
+                    alert('An invitation is already pending for this email');
+                    return;
+                }
+                
+                // Create new member (but don't add to team yet - they need to accept invitation)
                 const name = email.split('@')[0].split('.').map(part => 
                     part.charAt(0).toUpperCase() + part.slice(1)
                 ).join(' ');
                 
-                const newMember = {
+                // Create invitation
+                const newInvitation = {
                     id: Date.now(),
-                    name: name,
                     email,
                     role,
-                    initials: name.split(' ').map(n => n[0]).join('').toUpperCase()
+                    status: 'pending',
+                    timestamp: new Date().toISOString()
                 };
                 
-                // Add to team
-                teamMembers.push(newMember);
-                saveTeamMembers(teamMembers);
-                loadTeamMembers();
+                // Add to invitations
+                invitations.unshift(newInvitation);
+                saveInvitations(invitations);
+                loadInvitations();
                 
                 // Add activity
                 activities.unshift({
                     id: Date.now(),
                     icon: 'fa-user-plus',
-                    message: `${currentUser.name} added new ${role}: ${newMember.email}`,
+                    message: `${currentUser.name} invited ${email} to join the team as ${role}`,
                     timestamp: new Date().toISOString()
                 });
                 saveActivities(activities);
@@ -3687,8 +3921,8 @@
                 // Add notification
                 const newNotification = {
                     id: Date.now(),
-                    icon: 'fa-user-plus',
-                    message: `New team member - ${newMember.name} has joined your team`,
+                    icon: 'fa-envelope',
+                    message: `Invitation sent - ${email} has been invited to join your team`,
                     timestamp: new Date().toISOString(),
                     read: false
                 };
@@ -3703,8 +3937,13 @@
                 // Reset form
                 this.reset();
                 
-                // Show success message
-                showSuccessMessage(`Team member ${email} added successfully!`);
+                // Show success message with professional wording
+                showSuccessMessage(`Invitation sent to ${email}. They will receive an email to join your team.`);
+                
+                // Simulate sending email (in a real app, this would call your backend API)
+                setTimeout(() => {
+                    console.log(`Email sent to ${email} with invitation to join TeamFlow`);
+                }, 1000);
             });
             
             // Confirm modal actions
