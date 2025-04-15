@@ -2941,22 +2941,29 @@
             
             // Initialize the dashboard
             function initDashboard() {
-                // Set user data
-                updateUserUI();
-                
-                // Load notifications
-                updateNotifications();
-                
-                // Set active feature based on URL hash or default to dashboard
-                const hash = window.location.hash.substring(1);
-                if (hash) {
-                    setActiveFeature(hash);
-                } else {
-                    setActiveFeature('dashboard');
-                }
-                
-                // Initialize real-time updates
-                initRealTimeUpdates();
+                function initDashboard() {
+    // Set user data
+    updateUserUI();
+    
+    // Load notifications
+    updateNotifications();
+    
+    // Set active feature based on URL hash or default to dashboard
+    const hash = window.location.hash.substring(1);
+    setActiveFeature(hash || 'dashboard');
+    
+    // Initialize real-time updates
+    initRealTimeUpdates();
+    
+    // Add click handlers for menu items
+    menuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const feature = this.getAttribute('data-feature');
+            setActiveFeature(feature);
+        });
+    });
+}
             }
             
             // Update user UI elements
@@ -3293,6 +3300,18 @@
                     e.preventDefault();
                     const feature = this.getAttribute('data-feature');
                     setActiveFeature(feature);
+                    // Run this when the page loads to handle direct links
+window.addEventListener('DOMContentLoaded', () => {
+    const initialFeature = window.location.hash.replace('#', '') || 'dashboard';
+    setActiveFeature(initialFeature);
+});
+
+// Run this whenever the hash changes (user clicks back/forward or changes section manually)
+window.addEventListener('hashchange', () => {
+    const currentFeature = window.location.hash.replace('#', '') || 'dashboard';
+    setActiveFeature(currentFeature);
+});
+
                 });
             });
             
