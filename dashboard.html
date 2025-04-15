@@ -1,3 +1,4 @@
+html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -176,7 +177,7 @@
             align-items: center;
             gap: 1.5rem;
         }
-        .notification-icon {
+        .notification-icon-wrapper { /* Renamed to avoid conflict */
             position: relative;
             color: var(--gray);
             cursor: pointer;
@@ -223,7 +224,25 @@
         .user-name {
             font-weight: 500;
             cursor: pointer;
+            margin-right: 0.5rem; /* Spacing before 'Connected' */
         }
+        /* Added Style for 'Connected' status */
+        .connection-status {
+            display: flex;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--success);
+            cursor: default; /* Not interactive */
+        }
+        .connection-status .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success);
+            border-radius: 50%;
+            margin-right: 0.3rem;
+            display: inline-block;
+        }
+        /* End Added Style */
         .user-dropdown {
             position: absolute;
             top: 100%;
@@ -253,8 +272,34 @@
         /* Content Area */
         .content-area {
             padding: 2rem;
-            min-height: calc(100vh - 70px);
+            min-height: calc(100vh - 70px); /* Adjusted for top nav height */
         }
+        /* Generic Content Section Styles */
+        .content-section {
+            display: none; /* Hide all sections by default */
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem; /* Add margin between sections if needed */
+        }
+        .content-section.active {
+            display: block; /* Show active section */
+        }
+        /* Specific content styles remain the same, just target the container */
+        #dashboardContent {
+            background-color: transparent; /* Dashboard has different structure */
+            box-shadow: none;
+            padding: 0;
+            display: block; /* Show dashboard by default */
+        }
+        #dashboardContent.active {
+             display: block; /* Ensure dashboard stays block when active */
+        }
+        #profileContent {
+            /* Keep existing profile styles, applied via .profile-content class */
+        }
+
         .welcome-section {
             background-color: var(--primary);
             color: var(--white);
@@ -303,7 +348,7 @@
             opacity: 0.9;
             font-size: 0.9rem;
             margin-bottom: 0.5rem;
-            color: var(--danger);
+            /* color: var(--danger); Removed red color */
             font-weight: 600;
         }
         .user-info-email {
@@ -379,7 +424,7 @@
         .activity-item.new {
             background-color: rgba(16, 185, 129, 0.05);
         }
-        .activity-icon {
+        .activity-icon { /* Class for activity icons */
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -390,6 +435,7 @@
             justify-content: center;
             margin-right: 1rem;
             position: relative;
+            flex-shrink: 0; /* Prevent shrinking */
         }
         .activity-icon::after {
             content: '';
@@ -423,6 +469,7 @@
             cursor: pointer;
             padding: 0.5rem;
             border-radius: 4px;
+            margin-left: auto; /* Push button to the right */
         }
         .activity-actions-btn:hover {
             background-color: var(--light-gray);
@@ -431,16 +478,7 @@
             margin-bottom: 1rem;
         }
         /* Profile Content */
-        .profile-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        .profile-content.active {
-            display: block;
-        }
+        /* .profile-content removed, uses .content-section */
         .profile-header {
             display: flex;
             justify-content: space-between;
@@ -522,11 +560,16 @@
         .btn-danger:hover {
             background-color: #dc2626;
         }
+        .btn-sm { /* For smaller buttons like in dropdowns */
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
         .profile-picture-upload {
             display: flex;
             align-items: center;
             gap: 1rem;
             margin-bottom: 1rem;
+            grid-column: span 2; /* Make it span both columns */
         }
         .profile-picture-preview {
             width: 100px;
@@ -587,7 +630,7 @@
         /* Notification dropdown */
         .notification-dropdown {
             position: absolute;
-            top: 100%;
+            top: calc(100% + 10px); /* Add spacing */
             right: 0;
             width: 350px;
             max-height: 500px;
@@ -625,6 +668,7 @@
             display: flex;
             gap: 1rem;
             position: relative;
+            cursor: pointer; /* Make items clickable */
         }
         .notification-item:last-child {
             border-bottom: none;
@@ -632,7 +676,10 @@
         .notification-item.unread {
             background-color: rgba(37, 99, 235, 0.05);
         }
-        .notification-icon {
+        .notification-item:hover {
+            background-color: var(--light); /* Hover effect */
+        }
+        .notification-icon { /* Class for notification icons */
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -670,21 +717,16 @@
             color: var(--gray);
             cursor: pointer;
             border-radius: 4px;
+            background: none; /* Make it look like a button */
+            border: none;
+            margin-left: auto; /* Push to right */
         }
         .notification-actions-item:hover {
             background-color: var(--light-gray);
         }
+
         /* Task Management Styles */
-        .task-management-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        .task-management-content.active {
-            display: block;
-        }
+        /* .task-management-content removed, uses .content-section */
         .task-filters {
             display: flex;
             gap: 1rem;
@@ -729,8 +771,13 @@
         .task-item.low-priority {
             border-left-color: var(--success);
         }
+        .task-item.completed { /* Style for completed task */
+            border-left-color: var(--gray);
+            opacity: 0.7;
+        }
         .task-info {
             flex: 1;
+            margin-right: 1rem; /* Add space before actions */
         }
         .task-title {
             font-weight: 600;
@@ -746,6 +793,7 @@
             gap: 1rem;
             font-size: 0.8rem;
             color: var(--gray);
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
         }
         .task-status {
             display: inline-flex;
@@ -771,6 +819,7 @@
         .task-actions {
             display: flex;
             gap: 0.5rem;
+            flex-shrink: 0; /* Prevent actions from shrinking */
         }
         .task-btn {
             padding: 0.5rem;
@@ -783,17 +832,80 @@
         .task-btn:hover {
             background-color: rgba(0, 0, 0, 0.05);
         }
-        /* Team Calendar Styles */
-        .calendar-content {
-            display: none;
-            background-color: var(--white);
+
+        /* Employee Scheduling Styles */
+        /* .scheduling-content removed, uses .content-section */
+        .schedule-view {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .schedule-sidebar {
+            width: 250px;
+            flex-shrink: 0;
+        }
+        .schedule-main {
+            flex: 1;
+        }
+        .schedule-filters {
+            margin-bottom: 1.5rem;
+        }
+        .schedule-calendar {
+            background-color: var(--light);
             border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
+            padding: 1rem;
+            min-height: 400px; /* Give it some default height */
         }
-        .calendar-content.active {
-            display: block;
+        .time-off-requests {
+            margin-top: 1.5rem;
         }
+        .time-off-requests h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .request-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0; /* Remove side padding */
+            border-bottom: 1px solid var(--light-gray);
+        }
+        .request-item:last-child {
+            border-bottom: none;
+        }
+        .request-details {
+            flex: 1;
+            margin-right: 1rem;
+        }
+        .request-details div {
+            font-size: 0.9rem;
+        }
+        .request-details small {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        .request-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .request-status.pending {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        .request-status.approved {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        .request-status.rejected {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        /* Team Calendar Styles */
+        /* .calendar-content removed, uses .content-section */
         .calendar-header {
             display: flex;
             justify-content: space-between;
@@ -815,15 +927,22 @@
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 0.5rem;
+            border: 1px solid var(--light-gray); /* Add border around grid */
+            border-radius: 4px;
+            padding: 0.5rem;
         }
         .calendar-day-header {
             text-align: center;
             font-weight: 600;
             padding: 0.5rem;
             color: var(--gray);
+            background-color: var(--light);
+            border-radius: 4px;
+            font-size: 0.9rem;
         }
         .calendar-day {
-            background-color: var(--light);
+            background-color: var(--white); /* Changed from light */
+            border: 1px solid var(--light-gray); /* Add border */
             border-radius: 4px;
             min-height: 100px;
             padding: 0.5rem;
@@ -831,54 +950,141 @@
             flex-direction: column;
         }
         .calendar-day.empty {
-            background-color: transparent;
+            background-color: var(--light); /* Keep empty days distinct */
+            border: 1px dashed var(--light-gray);
         }
         .day-number {
             font-weight: 600;
             margin-bottom: 0.5rem;
+            text-align: right;
+            font-size: 0.85rem;
+            color: var(--gray);
         }
         .calendar-event {
-            background-color: var(--primary-light);
+            /* background-color: var(--primary-light); Removed generic background */
             color: var(--primary-dark);
             padding: 0.25rem 0.5rem;
             border-radius: 4px;
             font-size: 0.8rem;
             margin-bottom: 0.25rem;
             cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .calendar-event.team-meeting {
             background-color: #dbeafe;
             border-left: 3px solid var(--primary);
+            color: var(--primary-dark);
         }
         .calendar-event.deadline {
             background-color: #fee2e2;
             border-left: 3px solid var(--danger);
+            color: #b91c1c; /* Darker red */
         }
         .calendar-event.vacation {
-            background-color: #ecfccb;
+            background-color: #f0fdf4; /* Lighter green */
             border-left: 3px solid var(--success);
+            color: #15803d; /* Darker green */
         }
-        /* Projects Styles */
-        .projects-content {
-            display: none;
-            background-color: var(--white);
+
+        /* Files Sharing Styles */
+        /* .files-content removed, uses .content-section */
+        .file-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; /* Align items vertically */
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap; /* Allow wrapping */
+            gap: 1rem; /* Add gap for wrapping */
+        }
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+        .file-card {
+            background-color: var(--light);
             border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid var(--light-gray);
+            transition: box-shadow 0.2s;
         }
-        .projects-content.active {
-            display: block;
+        .file-card:hover {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
+        .file-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            height: 40px; /* Fixed height */
+            line-height: 40px; /* Center icon vertically */
+        }
+        .file-icon.pdf { color: var(--danger); }
+        .file-icon.doc { color: var(--file-blue); }
+        .file-icon.xls { color: var(--file-green); }
+        .file-icon.img { color: var(--file-purple); }
+        .file-icon.zip { color: var(--file-orange); }
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.9rem; /* Slightly smaller */
+        }
+        .file-meta {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        /* Data Management Styles */
+        /* .data-content removed, uses .content-section */
+        .data-search {
+            margin-bottom: 1.5rem;
+        }
+        .data-table-container { /* Add container for scrolling */
+            overflow-x: auto;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px; /* Ensure table has min width for scroll */
+        }
+        .data-table th, .data-table td {
+            padding: 0.75rem 1rem; /* Increase padding */
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+            font-size: 0.9rem; /* Standardize font size */
+            white-space: nowrap; /* Prevent wrapping */
+        }
+        .data-table th {
+            font-weight: 600;
+            color: var(--gray);
+            background-color: var(--light); /* Header background */
+            position: sticky; /* Make header sticky if table scrolls vertically */
+            top: 0;
+        }
+        .data-table tbody tr:hover {
+            background-color: var(--light); /* Row hover effect */
+        }
+
+        /* Projects Styles */
+        /* .projects-content removed, uses .content-section */
         .projects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
         }
         .project-card {
-            background-color: var(--light);
+            background-color: var(--white); /* Use white background */
+            border: 1px solid var(--light-gray); /* Add border */
             border-radius: 8px;
             padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Lighter shadow */
+            display: flex; /* Use flexbox for better structure */
+            flex-direction: column;
         }
         .project-header {
             display: flex;
@@ -889,29 +1095,24 @@
         .project-title {
             font-size: 1.1rem;
             font-weight: 600;
+            color: var(--primary-dark);
         }
         .project-status {
             padding: 0.25rem 0.5rem;
             border-radius: 12px;
             font-size: 0.75rem;
             font-weight: 500;
+            flex-shrink: 0; /* Prevent shrinking */
         }
-        .project-status.active {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-        .project-status.on-hold {
-            background-color: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-        }
-        .project-status.completed {
-            background-color: rgba(156, 163, 175, 0.1);
-            color: var(--gray);
-        }
+        .project-status.active { background-color: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .project-status.on-hold { background-color: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .project-status.completed { background-color: rgba(156, 163, 175, 0.1); color: var(--gray); }
         .project-description {
             color: var(--gray);
             font-size: 0.9rem;
             margin-bottom: 1.5rem;
+            flex-grow: 1; /* Allow description to take space */
+            line-height: 1.4;
         }
         .project-progress {
             margin-bottom: 1.5rem;
@@ -927,6 +1128,7 @@
             height: 100%;
             background-color: var(--primary);
             border-radius: 4px;
+            transition: width 0.3s ease;
         }
         .progress-text {
             display: flex;
@@ -937,35 +1139,35 @@
         .project-meta {
             display: flex;
             justify-content: space-between;
+            align-items: center; /* Align meta items */
             font-size: 0.8rem;
             color: var(--gray);
+            border-top: 1px solid var(--light-gray); /* Separator */
+            padding-top: 1rem;
+            margin-top: auto; /* Push meta to bottom */
         }
-        .project-due {
+        .project-team, .project-due {
             display: flex;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.35rem; /* Slightly increased gap */
         }
+        .project-team i, .project-due i {
+            color: var(--primary); /* Icon color */
+        }
+
         /* Team Members Styles */
-        .team-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        .team-content.active {
-            display: block;
-        }
+        /* .team-content removed, uses .content-section */
         .team-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 1.5rem;
         }
         .member-card {
-            background-color: var(--light);
+            background-color: var(--white); /* Use white */
+            border: 1px solid var(--light-gray); /* Add border */
             border-radius: 8px;
             padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             text-align: center;
         }
         .member-avatar {
@@ -981,6 +1183,8 @@
             font-size: 1.5rem;
             margin: 0 auto 1rem;
             overflow: hidden;
+            border: 3px solid var(--white); /* Add border */
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
         }
         .member-avatar img {
             width: 100%;
@@ -990,6 +1194,7 @@
         .member-name {
             font-weight: 600;
             margin-bottom: 0.25rem;
+            font-size: 1.1rem;
         }
         .member-role {
             color: var(--gray);
@@ -1002,20 +1207,16 @@
             border-radius: 12px;
             font-size: 0.75rem;
             font-weight: 500;
+            margin-bottom: 1rem; /* Add margin below status */
         }
-        .member-status.active {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-        .member-status.inactive {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
+        .member-status.active { background-color: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .member-status.inactive { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); }
         .member-contact {
-            margin-top: 1rem;
             display: flex;
             justify-content: center;
             gap: 0.5rem;
+            border-top: 1px solid var(--light-gray); /* Separator */
+            padding-top: 1rem;
         }
         .contact-btn {
             width: 32px;
@@ -1027,37 +1228,44 @@
             justify-content: center;
             color: var(--gray);
             cursor: pointer;
+            text-decoration: none; /* Ensure it's not underlined if it's an anchor */
+            transition: all 0.2s;
         }
         .contact-btn:hover {
             background-color: var(--primary-light);
             color: var(--primary);
         }
+
         /* Reports & Analytics Styles */
-        .reports-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        .reports-content.active {
-            display: block;
+        /* .reports-content removed, uses .content-section */
+        .reports-grid { /* Use grid for charts */
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
         }
         .chart-container {
             background-color: var(--light);
+            border: 1px solid var(--light-gray); /* Add border */
             border-radius: 8px;
             padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            height: 300px;
+            min-height: 300px; /* Ensure min height */
             display: flex;
+            flex-direction: column; /* Allow title */
             align-items: center;
             justify-content: center;
             color: var(--gray);
         }
+        .chart-title { /* Optional title for charts */
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            font-size: 1rem;
+        }
         .time-filters {
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem; /* Reduced gap */
             margin-bottom: 1.5rem;
+            flex-wrap: wrap;
         }
         .time-filter {
             padding: 0.5rem 1rem;
@@ -1065,27 +1273,25 @@
             border-radius: 4px;
             font-size: 0.9rem;
             cursor: pointer;
+            background-color: var(--white);
+            transition: all 0.2s;
+        }
+        .time-filter:hover {
+            background-color: var(--light);
         }
         .time-filter.active {
             background-color: var(--primary);
             color: white;
             border-color: var(--primary);
         }
+
         /* Settings Styles */
-        .settings-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        .settings-content.active {
-            display: block;
-        }
+        /* .settings-content removed, uses .content-section */
         .settings-tabs {
             display: flex;
             border-bottom: 1px solid var(--light-gray);
             margin-bottom: 1.5rem;
+            overflow-x: auto; /* Allow scrolling on small screens */
         }
         .settings-tab {
             padding: 0.75rem 1.5rem;
@@ -1093,6 +1299,11 @@
             font-weight: 500;
             color: var(--gray);
             border-bottom: 2px solid transparent;
+            white-space: nowrap; /* Prevent wrapping */
+            transition: all 0.2s;
+        }
+        .settings-tab:hover {
+            color: var(--primary);
         }
         .settings-tab.active {
             color: var(--primary);
@@ -1109,19 +1320,13 @@
             display: inline-block;
             width: 50px;
             height: 24px;
+            flex-shrink: 0; /* Prevent shrinking */
         }
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .slider {
             position: absolute;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background-color: var(--light-gray);
             transition: .4s;
             border-radius: 24px;
@@ -1129,26 +1334,24 @@
         .slider:before {
             position: absolute;
             content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
+            height: 16px; width: 16px;
+            left: 4px; bottom: 4px;
             background-color: white;
             transition: .4s;
             border-radius: 50%;
         }
-        input:checked + .slider {
-            background-color: var(--primary);
-        }
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(26px); }
         .security-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 1rem 0;
             border-bottom: 1px solid var(--light-gray);
+            gap: 1rem; /* Add gap */
+        }
+        .security-item:last-child {
+            border-bottom: none;
         }
         .security-info {
             flex: 1;
@@ -1161,172 +1364,21 @@
             color: var(--gray);
             font-size: 0.9rem;
         }
-        /* Employee Scheduling Styles */
-        .scheduling-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        .scheduling-content.active {
-            display: block;
-        }
-        .schedule-view {
-            display: flex;
-            gap: 1.5rem;
-        }
-        .schedule-sidebar {
-            width: 250px;
-        }
-        .schedule-main {
-            flex: 1;
-        }
-        .schedule-filters {
-            margin-bottom: 1.5rem;
-        }
-        .schedule-calendar {
-            background-color: var(--light);
-            border-radius: 8px;
-            padding: 1rem;
-        }
-        .time-off-requests {
-            margin-top: 1.5rem;
-        }
-        .request-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--light-gray);
-        }
-        .request-details {
-            flex: 1;
-        }
-        .request-status {
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        .request-status.pending {
-            background-color: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-        }
-        .request-status.approved {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-        .request-status.rejected {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
-        /* File Sharing Styles */
-        .files-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        .files-content.active {
-            display: block;
-        }
-        .file-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1.5rem;
-        }
-        .file-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 1rem;
-        }
-        .file-card {
-            background-color: var(--light);
-            border-radius: 8px;
-            padding: 1rem;
-            text-align: center;
-            cursor: pointer;
-        }
-        .file-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-        .file-icon.pdf {
-            color: var(--danger);
-        }
-        .file-icon.doc {
-            color: var(--file-blue);
-        }
-        .file-icon.xls {
-            color: var(--file-green);
-        }
-        .file-icon.img {
-            color: var(--file-purple);
-        }
-        .file-icon.zip {
-            color: var(--file-orange);
-        }
-        .file-name {
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .file-meta {
-            font-size: 0.75rem;
-            color: var(--gray);
-        }
-        /* Data Management Styles */
-        .data-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        .data-content.active {
-            display: block;
-        }
-        .data-search {
-            margin-bottom: 1.5rem;
-        }
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .data-table th, .data-table td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid var(--light-gray);
-        }
-        .data-table th {
-            font-weight: 600;
-            color: var(--gray);
-        }
+
         /* Project Tracking Styles */
-        .tracking-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        .tracking-content.active {
-            display: block;
-        }
+        /* .tracking-content removed, uses .content-section */
         .gantt-chart {
             width: 100%;
-            height: 400px;
+            min-height: 400px; /* Ensure min height */
             background-color: var(--light);
+            border: 1px solid var(--light-gray);
             border-radius: 8px;
             margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--gray);
+            overflow-x: auto; /* Allow horizontal scrolling if needed */
         }
         .milestone-list {
             list-style: none;
@@ -1336,29 +1388,29 @@
             align-items: center;
             padding: 0.75rem;
             border-bottom: 1px solid var(--light-gray);
+            gap: 1rem; /* Add gap */
+            flex-wrap: wrap; /* Allow wrapping */
+        }
+        .milestone-item:last-child {
+            border-bottom: none;
         }
         .milestone-date {
             width: 100px;
             font-weight: 500;
+            flex-shrink: 0;
         }
         .milestone-name {
             flex: 1;
+            min-width: 150px; /* Ensure name has space */
         }
         .milestone-status {
             width: 100px;
             text-align: right;
+            flex-shrink: 0;
         }
+
         /* Deadline Tracking Styles */
-        .deadline-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        .deadline-content.active {
-            display: block;
-        }
+        /* .deadline-content removed, uses .content-section */
         .deadline-list {
             list-style: none;
         }
@@ -1369,16 +1421,12 @@
             margin-bottom: 0.5rem;
             background-color: var(--light);
             border-radius: 6px;
+            border-left: 4px solid transparent; /* Keep border */
+            gap: 1rem; /* Add gap */
         }
-        .deadline-item.critical {
-            border-left: 4px solid var(--danger);
-        }
-        .deadline-item.high {
-            border-left: 4px solid var(--warning);
-        }
-        .deadline-item.normal {
-            border-left: 4px solid var(--success);
-        }
+        .deadline-item.critical { border-left-color: var(--danger); }
+        .deadline-item.high { border-left-color: var(--warning); }
+        .deadline-item.normal { border-left-color: var(--success); }
         .deadline-info {
             flex: 1;
         }
@@ -1394,59 +1442,59 @@
             width: 120px;
             text-align: right;
             font-weight: 500;
+            flex-shrink: 0;
         }
+
         /* Innovation Hub Styles */
-        .innovation-content {
-            display: none;
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        .innovation-content.active {
-            display: block;
+        /* .innovation-content removed, uses .content-section */
+        .innovation-grid { /* Use grid for layout */
+             display: grid;
+             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+             gap: 1.5rem;
         }
         .idea-card {
             background-color: var(--light);
+            border: 1px solid var(--light-gray);
             border-radius: 8px;
             padding: 1.5rem;
-            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
         }
         .idea-header {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: 0.5rem;
         }
         .idea-title {
             font-weight: 600;
+            font-size: 1.05rem; /* Slightly larger */
         }
         .idea-status {
             padding: 0.25rem 0.5rem;
             border-radius: 12px;
             font-size: 0.75rem;
             font-weight: 500;
+            flex-shrink: 0;
         }
-        .idea-status.new {
-            background-color: rgba(59, 130, 246, 0.1);
-            color: var(--primary);
-        }
-        .idea-status.in-progress {
-            background-color: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-        }
-        .idea-status.implemented {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
+        .idea-status.new { background-color: rgba(59, 130, 246, 0.1); color: var(--primary); }
+        .idea-status.in-progress { background-color: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .idea-status.implemented { background-color: rgba(16, 185, 129, 0.1); color: var(--success); }
         .idea-description {
             margin-bottom: 1rem;
             color: var(--gray);
+            flex-grow: 1;
+            line-height: 1.4;
         }
         .idea-meta {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 0.8rem;
             color: var(--gray);
+            border-top: 1px solid var(--light-gray);
+            padding-top: 1rem;
+            margin-top: auto;
         }
         .idea-author {
             display: flex;
@@ -1464,13 +1512,16 @@
             justify-content: center;
             font-size: 0.7rem;
             font-weight: 600;
+            flex-shrink: 0;
         }
+
         /* Responsive Design */
         @media (max-width: 992px) {
             .sidebar {
                 transform: translateX(-100%);
+                transition: transform 0.3s ease; /* Add transition */
             }
-            .sidebar.active {
+            .sidebar.active { /* Need a class to toggle sidebar */
                 transform: translateX(0);
             }
             .main-content {
@@ -1488,22 +1539,29 @@
             .notification-dropdown {
                 width: 300px;
             }
+            .reports-grid, .innovation-grid {
+                grid-template-columns: 1fr; /* Stack cards */
+            }
         }
         @media (max-width: 768px) {
             .top-nav {
                 flex-direction: column;
                 gap: 1rem;
                 padding: 1rem;
+                height: auto; /* Allow height to adjust */
             }
             .search-bar {
                 width: 100%;
+                order: 2; /* Move search below user menu */
             }
             .user-menu {
                 width: 100%;
                 justify-content: space-between;
+                order: 1; /* Move user menu to top */
             }
             .content-area {
                 padding: 1.5rem;
+                 min-height: calc(100vh - 120px); /* Adjust for taller nav */
             }
             .profile-form {
                 grid-template-columns: 1fr;
@@ -1511,26 +1569,72 @@
             .form-actions {
                 grid-column: span 1;
             }
+            .profile-picture-upload {
+                grid-column: span 1; /* Adjust span for single column */
+                flex-direction: column; /* Stack elements vertically */
+                align-items: flex-start; /* Align left */
+            }
             .user-info {
                 flex-direction: column;
                 text-align: center;
+                align-items: center; /* Center items */
             }
             .stats-section {
                 grid-template-columns: 1fr;
             }
+            /* Calendar adjustments for mobile */
             .calendar-grid {
-                grid-template-columns: repeat(1, 1fr);
+                 grid-template-columns: 1fr; /* Stack days */
+                 gap: 0.25rem;
             }
+             .calendar-day-header {
+                 display: none; /* Hide headers in stacked view */
+             }
             .calendar-day {
-                min-height: 60px;
+                 min-height: 60px;
+                 flex-direction: row; /* Arrange number and events horizontally */
+                 align-items: flex-start;
+                 gap: 0.5rem;
             }
+            .day-number {
+                 margin-bottom: 0;
+                 text-align: left;
+                 width: 30px; /* Fixed width for day number */
+                 flex-shrink: 0;
+            }
+            .calendar-events-container { /* New container for events */
+                 display: flex;
+                 flex-wrap: wrap;
+                 gap: 0.25rem;
+            }
+            /* --- End Calendar Adjustments --- */
             .file-grid {
                 grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             }
-            .notification-dropdown {
-                width: 100%;
-                right: -20px;
+            .projects-grid, .team-grid {
+                 grid-template-columns: 1fr; /* Stack cards */
             }
+            .notification-dropdown {
+                width: calc(100% - 40px); /* Full width minus padding */
+                right: auto; /* Remove right alignment */
+                left: 20px; /* Align left with padding */
+            }
+            .security-item {
+                flex-direction: column; /* Stack security items */
+                align-items: flex-start; /* Align left */
+            }
+            .security-item .btn, .security-item .toggle-switch {
+                margin-top: 0.5rem; /* Add space when stacked */
+            }
+             .milestone-item, .deadline-item {
+                 flex-direction: column; /* Stack items */
+                 align-items: flex-start;
+             }
+             .milestone-status, .deadline-date {
+                 width: auto; /* Auto width */
+                 text-align: left; /* Align left */
+                 margin-top: 0.25rem;
+             }
         }
     </style>
 </head>
@@ -1542,6 +1646,10 @@
                 <i class="fas fa-users-cog logo-icon"></i>
                 <span>TeamFlow</span>
             </div>
+            <!-- Add a toggle button for mobile -->
+            <button class="btn btn-outline" id="sidebarToggle" style="color:white; border-color:white; padding: 0.25rem 0.5rem; display:none;">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
         <div class="sidebar-menu">
             <div class="menu-title">Main Features</div>
@@ -1606,13 +1714,17 @@
     <main class="main-content">
         <!-- Top Navigation -->
         <nav class="top-nav">
+             <!-- Hamburger Menu for Mobile -->
+             <button class="btn btn-outline" id="hamburgerMenu" style="padding: 0.5rem 0.75rem; display: none; margin-right: 1rem;">
+                 <i class="fas fa-bars"></i>
+             </button>
             <div class="search-bar">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" placeholder="Search employees, projects, tasks..." id="searchInput">
                 <div class="search-results" id="searchResults"></div>
             </div>
             <div class="user-menu">
-                <div class="notification-icon" id="notificationIcon">
+                <div class="notification-icon-wrapper" id="notificationIconWrapper">
                     <i class="fas fa-bell"></i>
                     <span class="notification-badge" id="notificationBadge">0</span>
                     <div class="notification-dropdown" id="notificationDropdown">
@@ -1620,11 +1732,12 @@
                             <div class="notification-title">Notifications</div>
                             <div class="notification-actions">
                                 <button class="btn btn-secondary btn-sm" id="markAllAsRead">Mark All as Read</button>
-                                <button class="btn btn-danger btn-sm" id="deleteAllNotifications">Delete All</button>
+                                <button class="btn btn-danger btn-sm" id="deleteAllNotificationsBtn">Delete All</button>
                             </div>
                         </div>
                         <ul class="notification-list" id="notificationList">
                             <!-- Notifications will be added here dynamically -->
+                             <li style="text-align: center; padding: 1rem; color: var(--gray);">No new notifications</li>
                         </ul>
                     </div>
                 </div>
@@ -1633,6 +1746,12 @@
                         <div class="initials">ME</div>
                     </div>
                     <div class="user-name" id="userName">Mohamed Elmenisy</div>
+                    <!-- Added Connection Status -->
+                    <div class="connection-status">
+                        <span class="status-dot"></span>
+                        <span>Connected</span>
+                    </div>
+                    <!-- End Connection Status -->
                     <div class="user-dropdown" id="userDropdown">
                         <a href="#profile" class="dropdown-item" id="profileLink">
                             <i class="fas fa-user"></i>
@@ -1642,7 +1761,7 @@
                             <i class="fas fa-cog"></i>
                             <span>Settings</span>
                         </a>
-                        <a href="login.html" class="dropdown-item" id="logoutLink">
+                        <a href="#" class="dropdown-item" id="logoutLink"> <!-- Changed href to # for SPA behavior -->
                             <i class="fas fa-sign-out-alt"></i>
                             <span>Logout</span>
                         </a>
@@ -1652,8 +1771,8 @@
         </nav>
         <!-- Content Area -->
         <div class="content-area">
-            <!-- Dashboard Content -->
-            <div id="dashboardContent">
+            <!-- Dashboard Content (Special Case) -->
+            <div id="dashboardContent" class="active"> <!-- Add active class -->
                 <!-- Welcome Section -->
                 <div class="welcome-section">
                     <h2 class="welcome-title">Welcome, <span id="welcomeName">Mohamed</span>! Here's what's happening with your team today.</h2>
@@ -1674,40 +1793,20 @@
                 <!-- Stats Section -->
                 <div class="stats-section">
                     <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-users"></i>
-                            Team Members
-                        </div>
-                        <div class="stat-value">
-                            <span id="teamMembersCount">12</span>
-                        </div>
+                        <div class="stat-title"> <i class="fas fa-users"></i> Team Members </div>
+                        <div class="stat-value"> <span id="teamMembersCount">12</span> </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-check-circle"></i>
-                            Tasks Completed
-                        </div>
-                        <div class="stat-value">
-                            <span id="tasksCompleted">24</span>
-                        </div>
+                        <div class="stat-title"> <i class="fas fa-check-circle"></i> Tasks Completed </div>
+                        <div class="stat-value"> <span id="tasksCompleted">24</span> </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-project-diagram"></i>
-                            Active Projects
-                        </div>
-                        <div class="stat-value">
-                            <span id="activeProjects">5</span>
-                        </div>
+                        <div class="stat-title"> <i class="fas fa-project-diagram"></i> Active Projects </div>
+                        <div class="stat-value"> <span id="activeProjects">5</span> </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-clock"></i>
-                            Upcoming Deadlines
-                        </div>
-                        <div class="stat-value">
-                            <span id="upcomingDeadlines">3</span>
-                        </div>
+                        <div class="stat-title"> <i class="fas fa-clock"></i> Upcoming Deadlines </div>
+                        <div class="stat-value"> <span id="upcomingDeadlines">3</span> </div>
                     </div>
                 </div>
                 <!-- Activity Section -->
@@ -1715,87 +1814,65 @@
                     <div class="section-header">
                         <h3 class="section-title">Recent Activity</h3>
                         <div class="activity-actions">
-                            <button class="btn btn-outline" id="showAllActivities">Show All</button>
-                            <button class="btn btn-danger" id="deleteAllActivities">Delete All</button>
+                            <button class="btn btn-outline btn-sm" id="showAllActivities">Show All</button>
+                            <button class="btn btn-danger btn-sm" id="deleteAllActivitiesBtn">Delete All</button>
                         </div>
                     </div>
                     <ul class="activity-list" id="activityList">
+                        <!-- Example Activities -->
                         <li class="activity-item new">
-                            <div class="activity-icon">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
+                            <div class="activity-icon"><i class="fas fa-check-circle"></i></div>
                             <div class="activity-content">
-                                <div class="activity-message">
-                                    <strong>You</strong> completed the task <strong>Dashboard Design</strong>
-                                </div>
+                                <div class="activity-message"><strong>You</strong> completed the task <strong>Dashboard Design</strong></div>
                                 <div class="activity-time">2 hours ago</div>
                             </div>
-                            <button class="activity-actions-btn" title="Delete">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <button class="activity-actions-btn delete-activity" title="Delete"><i class="fas fa-trash"></i></button>
                         </li>
-                        <li class="activity-item new">
-                            <div class="activity-icon">
-                                <i class="fas fa-comment-alt"></i>
-                            </div>
+                         <li class="activity-item new">
+                            <div class="activity-icon"><i class="fas fa-comment-alt"></i></div>
                             <div class="activity-content">
-                                <div class="activity-message">
-                                    <strong>Sarah Johnson</strong> commented on <strong>Project Timeline</strong>
-                                </div>
+                                <div class="activity-message"><strong>Sarah Johnson</strong> commented on <strong>Project Timeline</strong></div>
                                 <div class="activity-time">5 hours ago</div>
                             </div>
-                            <button class="activity-actions-btn" title="Delete">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <button class="activity-actions-btn delete-activity" title="Delete"><i class="fas fa-trash"></i></button>
                         </li>
                         <li class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-tasks"></i>
-                            </div>
+                             <div class="activity-icon"><i class="fas fa-tasks"></i></div>
+                             <div class="activity-content">
+                                 <div class="activity-message"><strong>New task</strong> assigned to you: <strong>User Profile Page</strong></div>
+                                 <div class="activity-time">Yesterday, 3:45 PM</div>
+                             </div>
+                             <button class="activity-actions-btn delete-activity" title="Delete"><i class="fas fa-trash"></i></button>
+                         </li>
+                         <li class="activity-item">
+                            <div class="activity-icon"><i class="fas fa-user-plus"></i></div>
                             <div class="activity-content">
-                                <div class="activity-message">
-                                    <strong>New task</strong> assigned to you: <strong>User Profile Page</strong>
-                                </div>
-                                <div class="activity-time">Yesterday, 3:45 PM</div>
-                            </div>
-                            <button class="activity-actions-btn" title="Delete">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </li>
-                        <li class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-user-plus"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-message">
-                                    <strong>New team member</strong> added: <strong>Alex Rodriguez</strong>
-                                </div>
+                                <div class="activity-message"><strong>New team member</strong> added: <strong>Alex Rodriguez</strong></div>
                                 <div class="activity-time">Yesterday, 10:30 AM</div>
                             </div>
-                            <button class="activity-actions-btn" title="Delete">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <button class="activity-actions-btn delete-activity" title="Delete"><i class="fas fa-trash"></i></button>
                         </li>
+                        <!-- End Example Activities -->
                     </ul>
                 </div>
-            </div>
+            </div> <!-- End #dashboardContent -->
+
             <!-- Profile Content -->
-            <div class="profile-content" id="profileContent">
+            <div class="content-section profile-content" id="profileContent">
                 <div class="profile-header">
                     <h2 class="profile-title">Profile Settings</h2>
-                </div>
-                <div class="back-to-dashboard">
-                    <button class="btn btn-outline" id="backToDashboard">
+                     <button class="btn btn-outline btn-sm" id="backToDashboardBtnProfile"> <!-- Unique ID -->
                         <i class="fas fa-arrow-left"></i> Back to Dashboard
                     </button>
                 </div>
+                <!-- Removed redundant back button div -->
                 <form class="profile-form" id="profileForm">
                     <div class="profile-picture-upload">
                         <div class="profile-picture-preview" id="profilePicturePreview">
                             <div class="initials">ME</div>
                         </div>
                         <div class="upload-btn">
-                            <button type="button" class="btn btn-primary">
+                            <button type="button" class="btn btn-primary btn-sm">
                                 <i class="fas fa-upload"></i> Upload Photo
                             </button>
                             <input type="file" id="profilePictureInput" accept="image/*">
@@ -1826,16 +1903,17 @@
                         <input type="tel" id="phone" class="form-control" value="+201234567890">
                     </div>
                     <div class="form-actions">
-                        <button type="button" class="btn btn-outline" id="cancelProfileBtn">Cancel</button>
+                        <button type="button" class="btn btn-secondary" id="cancelProfileBtn">Cancel</button>
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>
                 </form>
             </div>
+
             <!-- Task Management Content -->
-            <div class="task-management-content" id="taskManagementContent">
-                <div class="section-header">
+            <div class="content-section task-management-content" id="taskManagementContent">
+                 <div class="section-header">
                     <h2 class="section-title">Task Management</h2>
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary btn-sm">
                         <i class="fas fa-plus"></i> New Task
                     </button>
                 </div>
@@ -1935,18 +2013,19 @@
                     </li>
                 </ul>
             </div>
+
             <!-- Employee Scheduling Content -->
-            <div class="scheduling-content" id="schedulingContent">
-                <div class="section-header">
+             <div class="content-section scheduling-content" id="schedulingContent">
+                 <div class="section-header">
                     <h2 class="section-title">Employee Scheduling</h2>
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary btn-sm">
                         <i class="fas fa-plus"></i> New Shift
                     </button>
                 </div>
                 <div class="schedule-view">
                     <div class="schedule-sidebar">
                         <div class="schedule-filters">
-                            <div class="filter-group">
+                            <div class="filter-group" style="margin-bottom: 1rem;"> <!-- Added margin -->
                                 <label for="teamFilter">Team:</label>
                                 <select id="teamFilter" class="filter-select">
                                     <option value="all">All Teams</option>
@@ -1998,19 +2077,21 @@
                     </div>
                 </div>
             </div>
+
             <!-- Team Calendar Content -->
-            <div class="calendar-content" id="calendarContent">
+            <div class="content-section calendar-content" id="calendarContent">
                 <div class="calendar-header">
                     <div class="calendar-nav">
-                        <button class="btn btn-outline"><i class="fas fa-chevron-left"></i></button>
+                        <button class="btn btn-outline btn-sm"><i class="fas fa-chevron-left"></i></button>
                         <div class="calendar-title">June 2023</div>
-                        <button class="btn btn-outline"><i class="fas fa-chevron-right"></i></button>
+                        <button class="btn btn-outline btn-sm"><i class="fas fa-chevron-right"></i></button>
                     </div>
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary btn-sm">
                         <i class="fas fa-plus"></i> New Event
                     </button>
                 </div>
                 <div class="calendar-grid">
+                    <!-- Headers -->
                     <div class="calendar-day-header">Sun</div>
                     <div class="calendar-day-header">Mon</div>
                     <div class="calendar-day-header">Tue</div>
@@ -2018,129 +2099,73 @@
                     <div class="calendar-day-header">Thu</div>
                     <div class="calendar-day-header">Fri</div>
                     <div class="calendar-day-header">Sat</div>
-                    
-                    <div class="calendar-day empty"></div>
-                    <div class="calendar-day empty"></div>
-                    <div class="calendar-day empty"></div>
-                    <div class="calendar-day">
-                        <div class="day-number">1</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">2</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">3</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">4</div>
-                    </div>
-                    
+                    <!-- Days -->
+                    <div class="calendar-day empty"></div> <div class="calendar-day empty"></div> <div class="calendar-day empty"></div>
+                    <div class="calendar-day"><div class="day-number">1</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">2</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">3</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">4</div><div class="calendar-events-container"></div></div>
                     <div class="calendar-day">
                         <div class="day-number">5</div>
-                        <div class="calendar-event team-meeting">
-                            Team Meeting
+                        <div class="calendar-events-container">
+                            <div class="calendar-event team-meeting">Team Meeting</div>
                         </div>
                     </div>
-                    <div class="calendar-day">
-                        <div class="day-number">6</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">7</div>
-                    </div>
+                    <div class="calendar-day"><div class="day-number">6</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">7</div><div class="calendar-events-container"></div></div>
                     <div class="calendar-day">
                         <div class="day-number">8</div>
-                        <div class="calendar-event deadline">
-                            Project Deadline
+                        <div class="calendar-events-container">
+                            <div class="calendar-event deadline">Project Deadline</div>
                         </div>
                     </div>
-                    <div class="calendar-day">
-                        <div class="day-number">9</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">10</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">11</div>
-                    </div>
-                    
-                    <div class="calendar-day">
+                     <div class="calendar-day"><div class="day-number">9</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">10</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">11</div><div class="calendar-events-container"></div></div>
+                     <div class="calendar-day">
                         <div class="day-number">12</div>
-                        <div class="calendar-event team-meeting">
-                            Sprint Planning
+                        <div class="calendar-events-container">
+                             <div class="calendar-event team-meeting">Sprint Planning</div>
                         </div>
                     </div>
-                    <div class="calendar-day">
-                        <div class="day-number">13</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">14</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">15</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">16</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">17</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">18</div>
-                    </div>
-                    
-                    <div class="calendar-day">
+                     <div class="calendar-day"><div class="day-number">13</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">14</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">15</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">16</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">17</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">18</div><div class="calendar-events-container"></div></div>
+                     <div class="calendar-day">
                         <div class="day-number">19</div>
-                        <div class="calendar-event vacation">
-                            Vacation Starts
+                        <div class="calendar-events-container">
+                            <div class="calendar-event vacation">Vacation Starts</div>
                         </div>
                     </div>
-                    <div class="calendar-day">
-                        <div class="day-number">20</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">21</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">22</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">23</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">24</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">25</div>
-                    </div>
-                    
-                    <div class="calendar-day">
+                    <div class="calendar-day"><div class="day-number">20</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">21</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">22</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">23</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">24</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">25</div><div class="calendar-events-container"></div></div>
+                     <div class="calendar-day">
                         <div class="day-number">26</div>
-                        <div class="calendar-event team-meeting">
-                            Monthly Review
+                        <div class="calendar-events-container">
+                            <div class="calendar-event team-meeting">Monthly Review</div>
                         </div>
                     </div>
-                    <div class="calendar-day">
-                        <div class="day-number">27</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">28</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">29</div>
-                    </div>
-                    <div class="calendar-day">
-                        <div class="day-number">30</div>
-                    </div>
-                    <div class="calendar-day empty"></div>
-                    <div class="calendar-day empty"></div>
+                    <div class="calendar-day"><div class="day-number">27</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">28</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">29</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day"><div class="day-number">30</div><div class="calendar-events-container"></div></div>
+                    <div class="calendar-day empty"></div> <div class="calendar-day empty"></div>
                 </div>
             </div>
+
             <!-- File Sharing Content -->
-            <div class="files-content" id="filesContent">
-                <div class="section-header">
+            <div class="content-section files-content" id="filesContent">
+                 <div class="section-header">
                     <h2 class="section-title">File Sharing</h2>
                     <div class="file-actions">
-                        <button class="btn btn-primary">
+                        <button class="btn btn-primary btn-sm">
                             <i class="fas fa-upload"></i> Upload File
                         </button>
                         <div class="search-bar" style="width: 300px;">
@@ -2151,51 +2176,40 @@
                 </div>
                 <div class="file-grid">
                     <div class="file-card">
-                        <div class="file-icon pdf">
-                            <i class="fas fa-file-pdf"></i>
-                        </div>
+                        <div class="file-icon pdf"><i class="fas fa-file-pdf"></i></div>
                         <div class="file-name">Project Proposal.pdf</div>
-                        <div class="file-meta">2.4 MB · Jun 10, 2023</div>
+                        <div class="file-meta">2.4 MB · Jun 10</div>
                     </div>
                     <div class="file-card">
-                        <div class="file-icon doc">
-                            <i class="fas fa-file-word"></i>
-                        </div>
-                        <div class="file-name">Requirements.docx</div>
-                        <div class="file-meta">1.8 MB · Jun 12, 2023</div>
+                        <div class="file-icon doc"><i class="fas fa-file-word"></i></div>
+                        <div class="file-name">Requirements Long File Name Test.docx</div>
+                        <div class="file-meta">1.8 MB · Jun 12</div>
                     </div>
                     <div class="file-card">
-                        <div class="file-icon xls">
-                            <i class="fas fa-file-excel"></i>
-                        </div>
+                        <div class="file-icon xls"><i class="fas fa-file-excel"></i></div>
                         <div class="file-name">Budget.xlsx</div>
-                        <div class="file-meta">3.2 MB · Jun 8, 2023</div>
+                        <div class="file-meta">3.2 MB · Jun 8</div>
                     </div>
                     <div class="file-card">
-                        <div class="file-icon img">
-                            <i class="fas fa-file-image"></i>
-                        </div>
+                        <div class="file-icon img"><i class="fas fa-file-image"></i></div>
                         <div class="file-name">Wireframes.png</div>
-                        <div class="file-meta">4.1 MB · Jun 5, 2023</div>
+                        <div class="file-meta">4.1 MB · Jun 5</div>
                     </div>
                     <div class="file-card">
-                        <div class="file-icon zip">
-                            <i class="fas fa-file-archive"></i>
-                        </div>
+                        <div class="file-icon zip"><i class="fas fa-file-archive"></i></div>
                         <div class="file-name">Assets.zip</div>
-                        <div class="file-meta">12.7 MB · May 28, 2023</div>
+                        <div class="file-meta">12.7 MB · May 28</div>
                     </div>
                     <div class="file-card">
-                        <div class="file-icon doc">
-                            <i class="fas fa-file-word"></i>
-                        </div>
+                        <div class="file-icon doc"><i class="fas fa-file-word"></i></div>
                         <div class="file-name">Meeting Notes.docx</div>
-                        <div class="file-meta">0.8 MB · Jun 15, 2023</div>
+                        <div class="file-meta">0.8 MB · Jun 15</div>
                     </div>
                 </div>
             </div>
-            <!-- Data Management Content -->
-            <div class="data-content" id="dataContent">
+
+             <!-- Data Management Content -->
+            <div class="content-section data-content" id="dataContent">
                 <div class="section-header">
                     <h2 class="section-title">Data Management</h2>
                     <div class="data-search">
@@ -2205,592 +2219,261 @@
                         </div>
                     </div>
                 </div>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>Last Modified</th>
-                            <th>Size</th>
-                            <th>Access</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Customer Database</td>
-                            <td>SQL Database</td>
-                            <td>Jun 14, 2023</td>
-                            <td>45.2 MB</td>
-                            <td>Restricted</td>
-                        </tr>
-                        <tr>
-                            <td>Sales Records</td>
-                            <td>CSV File</td>
-                            <td>Jun 12, 2023</td>
-                            <td>8.7 MB</td>
-                            <td>Team</td>
-                        </tr>
-                        <tr>
-                            <td>Product Catalog</td>
-                            <td>JSON File</td>
-                            <td>Jun 10, 2023</td>
-                            <td>3.2 MB</td>
-                            <td>Public</td>
-                        </tr>
-                        <tr>
-                            <td>Employee Directory</td>
-                            <td>SQL Database</td>
-                            <td>Jun 8, 2023</td>
-                            <td>12.5 MB</td>
-                            <td>Restricted</td>
-                        </tr>
-                        <tr>
-                            <td>Project Archive</td>
-                            <td>ZIP Archive</td>
-                            <td>Jun 5, 2023</td>
-                            <td>256.4 MB</td>
-                            <td>Team</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th> <th>Type</th> <th>Last Modified</th> <th>Size</th> <th>Access</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Customer Database</td><td>SQL Database</td><td>Jun 14, 2023</td><td>45.2 MB</td><td>Restricted</td></tr>
+                            <tr><td>Sales Records</td><td>CSV File</td><td>Jun 12, 2023</td><td>8.7 MB</td><td>Team</td></tr>
+                            <tr><td>Product Catalog</td><td>JSON File</td><td>Jun 10, 2023</td><td>3.2 MB</td><td>Public</td></tr>
+                            <tr><td>Employee Directory</td><td>SQL Database</td><td>Jun 8, 2023</td><td>12.5 MB</td><td>Restricted</td></tr>
+                            <tr><td>Project Archive</td><td>ZIP Archive</td><td>Jun 5, 2023</td><td>256.4 MB</td><td>Team</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
             <!-- Projects Content -->
-            <div class="projects-content" id="projectsContent">
-                <div class="section-header">
+            <div class="content-section projects-content" id="projectsContent">
+                 <div class="section-header">
                     <h2 class="section-title">Projects</h2>
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary btn-sm">
                         <i class="fas fa-plus"></i> New Project
                     </button>
                 </div>
                 <div class="projects-grid">
                     <div class="project-card">
-                        <div class="project-header">
-                            <div class="project-title">Dashboard Redesign</div>
-                            <div class="project-status active">Active</div>
-                        </div>
-                        <div class="project-description">
-                            Complete redesign of the admin dashboard with new analytics features and improved UI.
-                        </div>
-                        <div class="project-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 75%"></div>
-                            </div>
-                            <div class="progress-text">
-                                <span>Progress</span>
-                                <span>75%</span>
-                            </div>
-                        </div>
-                        <div class="project-meta">
-                            <div class="project-team">
-                                <i class="fas fa-users"></i> 5 members
-                            </div>
-                            <div class="project-due">
-                                <i class="far fa-calendar-alt"></i> Jun 30, 2023
-                            </div>
-                        </div>
+                        <div class="project-header"><div class="project-title">Dashboard Redesign</div><div class="project-status active">Active</div></div>
+                        <div class="project-description">Complete redesign of the admin dashboard with new analytics features and improved UI.</div>
+                        <div class="project-progress"><div class="progress-bar"><div class="progress-fill" style="width: 75%"></div></div><div class="progress-text"><span>Progress</span><span>75%</span></div></div>
+                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 5 members</div><div class="project-due"><i class="far fa-calendar-alt"></i> Jun 30</div></div>
+                    </div>
+                     <div class="project-card">
+                        <div class="project-header"><div class="project-title">Mobile App Dev</div><div class="project-status active">Active</div></div>
+                        <div class="project-description">Development of the new mobile application for iOS and Android platforms.</div>
+                        <div class="project-progress"><div class="progress-bar"><div class="progress-fill" style="width: 45%"></div></div><div class="progress-text"><span>Progress</span><span>45%</span></div></div>
+                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 8 members</div><div class="project-due"><i class="far fa-calendar-alt"></i> Aug 15</div></div>
                     </div>
                     <div class="project-card">
-                        <div class="project-header">
-                            <div class="project-title">Mobile App Development</div>
-                            <div class="project-status active">Active</div>
-                        </div>
-                        <div class="project-description">
-                            Development of the new mobile application for iOS and Android platforms.
-                        </div>
-                        <div class="project-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 45%"></div>
-                            </div>
-                            <div class="progress-text">
-                                <span>Progress</span>
-                                <span>45%</span>
-                            </div>
-                        </div>
-                        <div class="project-meta">
-                            <div class="project-team">
-                                <i class="fas fa-users"></i> 8 members
-                            </div>
-                            <div class="project-due">
-                                <i class="far fa-calendar-alt"></i> Aug 15, 2023
-                            </div>
-                        </div>
+                        <div class="project-header"><div class="project-title">API Integration</div><div class="project-status active">Active</div></div>
+                        <div class="project-description">Integration with third-party services and development of new API endpoints.</div>
+                        <div class="project-progress"><div class="progress-bar"><div class="progress-fill" style="width: 30%"></div></div><div class="progress-text"><span>Progress</span><span>30%</span></div></div>
+                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 3 members</div><div class="project-due"><i class="far fa-calendar-alt"></i> Jul 20</div></div>
                     </div>
-                    <div class="project-card">
-                        <div class="project-header">
-                            <div class="project-title">API Integration</div>
-                            <div class="project-status active">Active</div>
-                        </div>
-                        <div class="project-description">
-                            Integration with third-party services and development of new API endpoints.
-                        </div>
-                        <div class="project-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 30%"></div>
-                            </div>
-                            <div class="progress-text">
-                                <span>Progress</span>
-                                <span>30%</span>
-                            </div>
-                        </div>
-                        <div class="project-meta">
-                            <div class="project-team">
-                                <i class="fas fa-users"></i> 3 members
-                            </div>
-                            <div class="project-due">
-                                <i class="far fa-calendar-alt"></i> Jul 20, 2023
-                            </div>
-                        </div>
+                     <div class="project-card">
+                        <div class="project-header"><div class="project-title">Marketing Website</div><div class="project-status on-hold">On Hold</div></div>
+                        <div class="project-description">New marketing website with updated content and improved SEO.</div>
+                        <div class="project-progress"><div class="progress-bar"><div class="progress-fill" style="width: 15%"></div></div><div class="progress-text"><span>Progress</span><span>15%</span></div></div>
+                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 2 members</div><div class="project-due"><i class="far fa-calendar-alt"></i> TBD</div></div>
                     </div>
-                    <div class="project-card">
-                        <div class="project-header">
-                            <div class="project-title">Marketing Website</div>
-                            <div class="project-status on-hold">On Hold</div>
-                        </div>
-                        <div class="project-description">
-                            New marketing website with updated content and improved SEO.
-                        </div>
-                        <div class="project-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 15%"></div>
-                            </div>
-                            <div class="progress-text">
-                                <span>Progress</span>
-                                <span>15%</span>
-                            </div>
-                        </div>
-                        <div class="project-meta">
-                            <div class="project-team">
-                                <i class="fas fa-users"></i> 2 members
-                            </div>
-                            <div class="project-due">
-                                <i class="far fa-calendar-alt"></i> TBD
-                            </div>
-                        </div>
-                    </div>
-                    <div class="project-card">
-                        <div class="project-header">
-                            <div class="project-title">Database Migration</div>
-                            <div class="project-status completed">Completed</div>
-                        </div>
-                        <div class="project-description">
-                            Migration from legacy database to new cloud-based solution.
-                        </div>
-                        <div class="project-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 100%"></div>
-                            </div>
-                            <div class="progress-text">
-                                <span>Progress</span>
-                                <span>100%</span>
-                            </div>
-                        </div>
-                        <div class="project-meta">
-                            <div class="project-team">
-                                <i class="fas fa-users"></i> 4 members
-                            </div>
-                            <div class="project-due">
-                                <i class="far fa-calendar-alt"></i> May 10, 2023
-                            </div>
-                        </div>
+                     <div class="project-card">
+                        <div class="project-header"><div class="project-title">Database Migration</div><div class="project-status completed">Completed</div></div>
+                        <div class="project-description">Migration from legacy database to new cloud-based solution.</div>
+                        <div class="project-progress"><div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div><div class="progress-text"><span>Progress</span><span>100%</span></div></div>
+                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 4 members</div><div class="project-due"><i class="far fa-calendar-alt"></i> May 10</div></div>
                     </div>
                 </div>
             </div>
+
             <!-- Project Tracking Content -->
-            <div class="tracking-content" id="trackingContent">
-                <div class="section-header">
+            <div class="content-section tracking-content" id="trackingContent">
+                 <div class="section-header">
                     <h2 class="section-title">Project Tracking</h2>
                     <div class="filter-group">
                         <label for="projectSelect">Project:</label>
                         <select id="projectSelect" class="filter-select">
-                            <option>Dashboard Redesign</option>
-                            <option>Mobile App Development</option>
-                            <option>API Integration</option>
+                            <option>Dashboard Redesign</option> <option>Mobile App Development</option> <option>API Integration</option>
                         </select>
                     </div>
                 </div>
-                <div class="gantt-chart">
-                    Gantt Chart Visualization (Placeholder)
-                </div>
-                <h3>Milestones</h3>
+                <div class="gantt-chart"> Gantt Chart Visualization (Placeholder) </div>
+                <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Milestones</h3>
                 <ul class="milestone-list">
-                    <li class="milestone-item">
-                        <div class="milestone-date">Jun 15, 2023</div>
-                        <div class="milestone-name">Design Approval</div>
-                        <div class="milestone-status"><span class="task-status completed">Completed</span></div>
-                    </li>
-                    <li class="milestone-item">
-                        <div class="milestone-date">Jun 30, 2023</div>
-                        <div class="milestone-name">Beta Release</div>
-                        <div class="milestone-status"><span class="task-status in-progress">In Progress</span></div>
-                    </li>
-                    <li class="milestone-item">
-                        <div class="milestone-date">Jul 15, 2023</div>
-                        <div class="milestone-name">User Testing</div>
-                        <div class="milestone-status"><span class="task-status pending">Pending</span></div>
-                    </li>
-                    <li class="milestone-item">
-                        <div class="milestone-date">Jul 30, 2023</div>
-                        <div class="milestone-name">Final Release</div>
-                        <div class="milestone-status"><span class="task-status pending">Pending</span></div>
-                    </li>
+                    <li class="milestone-item"><div class="milestone-date">Jun 15</div><div class="milestone-name">Design Approval</div><div class="milestone-status"><span class="task-status completed">Completed</span></div></li>
+                    <li class="milestone-item"><div class="milestone-date">Jun 30</div><div class="milestone-name">Beta Release</div><div class="milestone-status"><span class="task-status in-progress">In Progress</span></div></li>
+                    <li class="milestone-item"><div class="milestone-date">Jul 15</div><div class="milestone-name">User Testing</div><div class="milestone-status"><span class="task-status pending">Pending</span></div></li>
+                    <li class="milestone-item"><div class="milestone-date">Jul 30</div><div class="milestone-name">Final Release</div><div class="milestone-status"><span class="task-status pending">Pending</span></div></li>
                 </ul>
             </div>
+
             <!-- Deadline Tracking Content -->
-            <div class="deadline-content" id="deadlineContent">
+             <div class="content-section deadline-content" id="deadlineContent">
                 <div class="section-header">
                     <h2 class="section-title">Deadline Tracking</h2>
                     <div class="filter-group">
                         <label for="deadlineFilter">Filter:</label>
                         <select id="deadlineFilter" class="filter-select">
-                            <option value="all">All Deadlines</option>
-                            <option value="critical">Critical</option>
-                            <option value="high">High Priority</option>
-                            <option value="normal">Normal</option>
+                            <option value="all">All Deadlines</option> <option value="critical">Critical</option> <option value="high">High Priority</option> <option value="normal">Normal</option>
                         </select>
                     </div>
                 </div>
                 <ul class="deadline-list">
-                    <li class="deadline-item critical">
-                        <div class="deadline-info">
-                            <div class="deadline-title">Security Patch Implementation</div>
-                            <div class="deadline-project">Dashboard Redesign</div>
-                        </div>
-                        <div class="deadline-date">Jun 15, 2023</div>
-                    </li>
-                    <li class="deadline-item high">
-                        <div class="deadline-info">
-                            <div class="deadline-title">User Testing Completion</div>
-                            <div class="deadline-project">Mobile App Development</div>
-                        </div>
-                        <div class="deadline-date">Jun 20, 2023</div>
-                    </li>
-                    <li class="deadline-item normal">
-                        <div class="deadline-info">
-                            <div class="deadline-title">Documentation Update</div>
-                            <div class="deadline-project">API Integration</div>
-                        </div>
-                        <div class="deadline-date">Jun 25, 2023</div>
-                    </li>
-                    <li class="deadline-item high">
-                        <div class="deadline-info">
-                            <div class="deadline-title">Beta Release</div>
-                            <div class="deadline-project">Dashboard Redesign</div>
-                        </div>
-                        <div class="deadline-date">Jun 30, 2023</div>
-                    </li>
-                    <li class="deadline-item normal">
-                        <div class="deadline-info">
-                            <div class="deadline-title">Team Retrospective</div>
-                            <div class="deadline-project">All Projects</div>
-                        </div>
-                        <div class="deadline-date">Jul 5, 2023</div>
-                    </li>
+                    <li class="deadline-item critical"><div class="deadline-info"><div class="deadline-title">Security Patch Implementation</div><div class="deadline-project">Dashboard Redesign</div></div><div class="deadline-date">Jun 15, 2023</div></li>
+                    <li class="deadline-item high"><div class="deadline-info"><div class="deadline-title">User Testing Completion</div><div class="deadline-project">Mobile App Development</div></div><div class="deadline-date">Jun 20, 2023</div></li>
+                    <li class="deadline-item normal"><div class="deadline-info"><div class="deadline-title">Documentation Update</div><div class="deadline-project">API Integration</div></div><div class="deadline-date">Jun 25, 2023</div></li>
+                    <li class="deadline-item high"><div class="deadline-info"><div class="deadline-title">Beta Release</div><div class="deadline-project">Dashboard Redesign</div></div><div class="deadline-date">Jun 30, 2023</div></li>
+                    <li class="deadline-item normal"><div class="deadline-info"><div class="deadline-title">Team Retrospective</div><div class="deadline-project">All Projects</div></div><div class="deadline-date">Jul 5, 2023</div></li>
                 </ul>
             </div>
+
             <!-- Team Members Content -->
-            <div class="team-content" id="teamContent">
+            <div class="content-section team-content" id="teamContent">
                 <div class="section-header">
                     <h2 class="section-title">Team Members</h2>
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary btn-sm">
                         <i class="fas fa-plus"></i> Add Member
                     </button>
                 </div>
                 <div class="team-grid">
                     <div class="member-card">
-                        <div class="member-avatar">
-                            <div class="initials">ME</div>
-                        </div>
-                        <div class="member-name">Mohamed Elmenisy</div>
-                        <div class="member-role">Administrator</div>
-                        <div class="member-status active">Active</div>
-                        <div class="member-contact">
-                            <div class="contact-btn"><i class="fas fa-envelope"></i></div>
-                            <div class="contact-btn"><i class="fas fa-phone"></i></div>
-                            <div class="contact-btn"><i class="fas fa-comment"></i></div>
-                        </div>
+                        <div class="member-avatar"><div class="initials">ME</div></div>
+                        <div class="member-name">Mohamed Elmenisy</div><div class="member-role">Administrator</div><div class="member-status active">Active</div>
+                        <div class="member-contact"><a href="mailto:m.elsayed@thechefz.co" class="contact-btn"><i class="fas fa-envelope"></i></a><a href="#" class="contact-btn"><i class="fas fa-phone"></i></a><a href="#" class="contact-btn"><i class="fas fa-comment"></i></a></div>
                     </div>
                     <div class="member-card">
-                        <div class="member-avatar">
-                            <div class="initials">SJ</div>
-                        </div>
-                        <div class="member-name">Sarah Johnson</div>
-                        <div class="member-role">Project Manager</div>
-                        <div class="member-status active">Active</div>
-                        <div class="member-contact">
-                            <div class="contact-btn"><i class="fas fa-envelope"></i></div>
-                            <div class="contact-btn"><i class="fas fa-phone"></i></div>
-                            <div class="contact-btn"><i class="fas fa-comment"></i></div>
-                        </div>
+                        <div class="member-avatar"><div class="initials">SJ</div></div>
+                        <div class="member-name">Sarah Johnson</div><div class="member-role">Project Manager</div><div class="member-status active">Active</div>
+                        <div class="member-contact"><a href="#" class="contact-btn"><i class="fas fa-envelope"></i></a><a href="#" class="contact-btn"><i class="fas fa-phone"></i></a><a href="#" class="contact-btn"><i class="fas fa-comment"></i></a></div>
                     </div>
                     <div class="member-card">
-                        <div class="member-avatar">
-                            <div class="initials">AR</div>
-                        </div>
-                        <div class="member-name">Alex Rodriguez</div>
-                        <div class="member-role">Frontend Developer</div>
-                        <div class="member-status active">Active</div>
-                        <div class="member-contact">
-                            <div class="contact-btn"><i class="fas fa-envelope"></i></div>
-                            <div class="contact-btn"><i class="fas fa-phone"></i></div>
-                            <div class="contact-btn"><i class="fas fa-comment"></i></div>
-                        </div>
+                        <div class="member-avatar"><div class="initials">AR</div></div>
+                        <div class="member-name">Alex Rodriguez</div><div class="member-role">Frontend Dev</div><div class="member-status active">Active</div>
+                        <div class="member-contact"><a href="#" class="contact-btn"><i class="fas fa-envelope"></i></a><a href="#" class="contact-btn"><i class="fas fa-phone"></i></a><a href="#" class="contact-btn"><i class="fas fa-comment"></i></a></div>
                     </div>
                     <div class="member-card">
-                        <div class="member-avatar">
-                            <div class="initials">MK</div>
-                        </div>
-                        <div class="member-name">Michael Kim</div>
-                        <div class="member-role">Backend Developer</div>
-                        <div class="member-status active">Active</div>
-                        <div class="member-contact">
-                            <div class="contact-btn"><i class="fas fa-envelope"></i></div>
-                            <div class="contact-btn"><i class="fas fa-phone"></i></div>
-                            <div class="contact-btn"><i class="fas fa-comment"></i></div>
-                        </div>
+                        <div class="member-avatar"><div class="initials">MK</div></div>
+                        <div class="member-name">Michael Kim</div><div class="member-role">Backend Dev</div><div class="member-status active">Active</div>
+                        <div class="member-contact"><a href="#" class="contact-btn"><i class="fas fa-envelope"></i></a><a href="#" class="contact-btn"><i class="fas fa-phone"></i></a><a href="#" class="contact-btn"><i class="fas fa-comment"></i></a></div>
+                    </div>
+                     <div class="member-card">
+                        <div class="member-avatar"><div class="initials">EC</div></div>
+                        <div class="member-name">Emily Chen</div><div class="member-role">UI/UX Designer</div><div class="member-status active">Active</div>
+                        <div class="member-contact"><a href="#" class="contact-btn"><i class="fas fa-envelope"></i></a><a href="#" class="contact-btn"><i class="fas fa-phone"></i></a><a href="#" class="contact-btn"><i class="fas fa-comment"></i></a></div>
                     </div>
                     <div class="member-card">
-                        <div class="member-avatar">
-                            <div class="initials">EC</div>
-                        </div>
-                        <div class="member-name">Emily Chen</div>
-                        <div class="member-role">UI/UX Designer</div>
-                        <div class="member-status active">Active</div>
-                        <div class="member-contact">
-                            <div class="contact-btn"><i class="fas fa-envelope"></i></div>
-                            <div class="contact-btn"><i class="fas fa-phone"></i></div>
-                            <div class="contact-btn"><i class="fas fa-comment"></i></div>
-                        </div>
-                    </div>
-                    <div class="member-card">
-                        <div class="member-avatar">
-                            <div class="initials">DW</div>
-                        </div>
-                        <div class="member-name">David Wilson</div>
-                        <div class="member-role">QA Engineer</div>
-                        <div class="member-status inactive">Inactive</div>
-                        <div class="member-contact">
-                            <div class="contact-btn"><i class="fas fa-envelope"></i></div>
-                            <div class="contact-btn"><i class="fas fa-phone"></i></div>
-                            <div class="contact-btn"><i class="fas fa-comment"></i></div>
-                        </div>
+                        <div class="member-avatar"><div class="initials">DW</div></div>
+                        <div class="member-name">David Wilson</div><div class="member-role">QA Engineer</div><div class="member-status inactive">Inactive</div>
+                        <div class="member-contact"><a href="#" class="contact-btn"><i class="fas fa-envelope"></i></a><a href="#" class="contact-btn"><i class="fas fa-phone"></i></a><a href="#" class="contact-btn"><i class="fas fa-comment"></i></a></div>
                     </div>
                 </div>
             </div>
+
             <!-- Reports & Analytics Content -->
-            <div class="reports-content" id="reportsContent">
-                <div class="section-header">
+            <div class="content-section reports-content" id="reportsContent">
+                 <div class="section-header">
                     <h2 class="section-title">Reports & Analytics</h2>
                     <div class="time-filters">
-                        <div class="time-filter active">Week</div>
-                        <div class="time-filter">Month</div>
-                        <div class="time-filter">Quarter</div>
-                        <div class="time-filter">Year</div>
+                        <div class="time-filter active">Week</div> <div class="time-filter">Month</div> <div class="time-filter">Quarter</div> <div class="time-filter">Year</div>
                     </div>
                 </div>
-                <div class="chart-container">
-                    <div>Task Completion Rate Chart (Placeholder)</div>
-                </div>
-                <div class="chart-container">
-                    <div>Team Performance Metrics (Placeholder)</div>
-                </div>
-                <div class="chart-container">
-                    <div>Project Timeline Overview (Placeholder)</div>
+                <div class="reports-grid">
+                     <div class="chart-container"><div class="chart-title">Task Completion Rate</div>(Placeholder)</div>
+                     <div class="chart-container"><div class="chart-title">Team Performance</div>(Placeholder)</div>
+                     <div class="chart-container"><div class="chart-title">Project Timeline</div>(Placeholder)</div>
                 </div>
             </div>
-            <!-- Innovation Hub Content -->
-            <div class="innovation-content" id="innovationContent">
-                <div class="section-header">
+
+             <!-- Innovation Hub Content -->
+            <div class="content-section innovation-content" id="innovationContent">
+                 <div class="section-header">
                     <h2 class="section-title">Innovation Hub</h2>
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary btn-sm">
                         <i class="fas fa-plus"></i> Submit Idea
                     </button>
                 </div>
-                <div class="idea-card">
-                    <div class="idea-header">
-                        <div class="idea-title">Dark Mode Implementation</div>
-                        <div class="idea-status in-progress">In Progress</div>
+                <div class="innovation-grid">
+                    <div class="idea-card">
+                        <div class="idea-header"><div class="idea-title">Dark Mode Implementation</div><div class="idea-status in-progress">In Progress</div></div>
+                        <div class="idea-description">Implement a dark mode theme across the entire application to reduce eye strain and improve accessibility.</div>
+                        <div class="idea-meta"><div class="idea-author"><div class="idea-author-avatar">AR</div><span>Alex Rodriguez</span></div><div>Jun 10, 2023</div></div>
                     </div>
-                    <div class="idea-description">
-                        Implement a dark mode theme across the entire application to reduce eye strain and improve accessibility.
+                    <div class="idea-card">
+                        <div class="idea-header"><div class="idea-title">Mobile App Notifications</div><div class="idea-status new">New</div></div>
+                        <div class="idea-description">Add push notification support to the mobile app for important updates and deadlines.</div>
+                        <div class="idea-meta"><div class="idea-author"><div class="idea-author-avatar">EC</div><span>Emily Chen</span></div><div>Jun 5, 2023</div></div>
                     </div>
-                    <div class="idea-meta">
-                        <div class="idea-author">
-                            <div class="idea-author-avatar">AR</div>
-                            <span>Alex Rodriguez</span>
-                        </div>
-                        <div>Jun 10, 2023</div>
-                    </div>
-                </div>
-                <div class="idea-card">
-                    <div class="idea-header">
-                        <div class="idea-title">Mobile App Notifications</div>
-                        <div class="idea-status new">New</div>
-                    </div>
-                    <div class="idea-description">
-                        Add push notification support to the mobile app for important updates and deadlines.
-                    </div>
-                    <div class="idea-meta">
-                        <div class="idea-author">
-                            <div class="idea-author-avatar">EC</div>
-                            <span>Emily Chen</span>
-                        </div>
-                        <div>Jun 5, 2023</div>
-                    </div>
-                </div>
-                <div class="idea-card">
-                    <div class="idea-header">
-                        <div class="idea-title">AI-Powered Task Suggestions</div>
-                        <div class="idea-status implemented">Implemented</div>
-                    </div>
-                    <div class="idea-description">
-                        Use machine learning to analyze work patterns and suggest relevant tasks to team members.
-                    </div>
-                    <div class="idea-meta">
-                        <div class="idea-author">
-                            <div class="idea-author-avatar">MK</div>
-                            <span>Michael Kim</span>
-                        </div>
-                        <div>May 28, 2023</div>
+                     <div class="idea-card">
+                        <div class="idea-header"><div class="idea-title">AI-Powered Task Suggestions</div><div class="idea-status implemented">Implemented</div></div>
+                        <div class="idea-description">Use machine learning to analyze work patterns and suggest relevant tasks to team members.</div>
+                        <div class="idea-meta"><div class="idea-author"><div class="idea-author-avatar">MK</div><span>Michael Kim</span></div><div>May 28, 2023</div></div>
                     </div>
                 </div>
             </div>
+
             <!-- Settings Content -->
-            <div class="settings-content" id="settingsContent">
+            <div class="content-section settings-content" id="settingsContent">
                 <div class="settings-tabs">
                     <div class="settings-tab active" data-tab="general">General</div>
                     <div class="settings-tab" data-tab="notifications">Notifications</div>
                     <div class="settings-tab" data-tab="integrations">Integrations</div>
                     <div class="settings-tab" data-tab="security">Security</div>
                 </div>
+                <!-- General Settings Panel -->
                 <div class="settings-panel active" id="generalSettings">
+                     <h3 class="section-title" style="margin-bottom: 1.5rem;">General Settings</h3>
                     <div class="form-group">
                         <label for="timezone">Timezone</label>
-                        <select id="timezone" class="form-control">
-                            <option>(UTC-12:00) International Date Line West</option>
-                            <option>(UTC-05:00) Eastern Time (US & Canada)</option>
-                            <option selected>(UTC+00:00) Greenwich Mean Time</option>
-                            <option>(UTC+02:00) Cairo</option>
-                        </select>
+                        <select id="timezone" class="form-control"><option>(UTC-12:00) IDLW</option><option>(UTC-05:00) Eastern Time</option><option selected>(UTC+00:00) GMT</option><option>(UTC+02:00) Cairo</option></select>
                     </div>
                     <div class="form-group">
                         <label for="language">Language</label>
-                        <select id="language" class="form-control">
-                            <option selected>English</option>
-                            <option>Spanish</option>
-                            <option>French</option>
-                            <option>Arabic</option>
-                        </select>
+                        <select id="language" class="form-control"><option selected>English</option><option>Spanish</option><option>French</option><option>Arabic</option></select>
                     </div>
                     <div class="form-group">
                         <label for="theme">Theme</label>
-                        <select id="theme" class="form-control">
-                            <option selected>Light</option>
-                            <option>Dark</option>
-                            <option>System Default</option>
-                        </select>
+                        <select id="theme" class="form-control"><option selected>Light</option><option>Dark</option><option>System Default</option></select>
                     </div>
                     <div class="form-actions">
-                        <button type="button" class="btn btn-outline" id="cancelGeneralSettings">Cancel</button>
+                        <button type="button" class="btn btn-secondary" id="cancelGeneralSettings">Cancel</button>
                         <button type="submit" class="btn btn-primary" id="saveGeneralSettings">Save Changes</button>
                     </div>
                 </div>
+                <!-- Notification Settings Panel -->
                 <div class="settings-panel" id="notificationSettings">
+                    <h3 class="section-title" style="margin-bottom: 1.5rem;">Notification Settings</h3>
                     <div class="form-group">
-                        <label>Email Notifications</label>
-                        <div class="security-item">
-                            <div class="security-info">
-                                <div class="security-title">Task Assignments</div>
-                                <div class="security-description">Receive emails when new tasks are assigned to you</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="security-item">
-                            <div class="security-info">
-                                <div class="security-title">Task Updates</div>
-                                <div class="security-description">Receive emails when tasks you're assigned to are updated</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="security-item">
-                            <div class="security-info">
-                                <div class="security-title">Project Updates</div>
-                                <div class="security-description">Receive emails about important project updates</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
+                         <label style="font-weight:600; margin-bottom: 1rem;">Email Notifications</label>
+                        <div class="security-item"><div class="security-info"><div class="security-title">Task Assignments</div><div class="security-description">Receive emails when new tasks are assigned to you</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+                        <div class="security-item"><div class="security-info"><div class="security-title">Task Updates</div><div class="security-description">Receive emails when tasks you're assigned to are updated</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+                        <div class="security-item"><div class="security-info"><div class="security-title">Project Updates</div><div class="security-description">Receive emails about important project updates</div></div><label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label></div>
                     </div>
                     <div class="form-actions">
-                        <button type="button" class="btn btn-outline" id="cancelNotificationSettings">Cancel</button>
+                        <button type="button" class="btn btn-secondary" id="cancelNotificationSettings">Cancel</button>
                         <button type="submit" class="btn btn-primary" id="saveNotificationSettings">Save Changes</button>
                     </div>
                 </div>
+                 <!-- Integration Settings Panel -->
                 <div class="settings-panel" id="integrationSettings">
+                    <h3 class="section-title" style="margin-bottom: 1.5rem;">Integrations</h3>
                     <div class="form-group">
-                        <label>Connected Services</label>
-                        <div class="security-item">
-                            <div class="security-info">
-                                <div class="security-title">Google Workspace</div>
-                                <div class="security-description">Connect your Google Calendar and Drive</div>
-                            </div>
-                            <button class="btn btn-outline">Connect</button>
-                        </div>
-                        <div class="security-item">
-                            <div class="security-info">
-                                <div class="security-title">Slack</div>
-                                <div class="security-description">Connect to your Slack workspace</div>
-                            </div>
-                            <button class="btn btn-outline">Connect</button>
-                        </div>
-                        <div class="security-item">
-                            <div class="security-info">
-                                <div class="security-title">GitHub</div>
-                                <div class="security-description">Connect to your GitHub repositories</div>
-                            </div>
-                            <button class="btn btn-outline">Connect</button>
-                        </div>
+                        <label style="font-weight:600; margin-bottom: 1rem;">Connected Services</label>
+                        <div class="security-item"><div class="security-info"><div class="security-title">Google Workspace</div><div class="security-description">Connect your Google Calendar and Drive</div></div><button class="btn btn-outline btn-sm">Connect</button></div>
+                        <div class="security-item"><div class="security-info"><div class="security-title">Slack</div><div class="security-description">Connect to your Slack workspace</div></div><button class="btn btn-outline btn-sm">Connect</button></div>
+                        <div class="security-item"><div class="security-info"><div class="security-title">GitHub</div><div class="security-description">Connect to your GitHub repositories</div></div><button class="btn btn-outline btn-sm">Connect</button></div>
                     </div>
+                     <!-- No explicit save needed here usually, actions happen on connect -->
                 </div>
+                <!-- Security Settings Panel -->
                 <div class="settings-panel" id="securitySettings">
+                    <h3 class="section-title" style="margin-bottom: 1.5rem;">Security Settings</h3>
                     <div class="form-group">
-                        <label>Account Security</label>
-                        <div class="security-item">
-                            <div class="security-info">
-                                <div class="security-title">Two-Factor Authentication</div>
-                                <div class="security-description">Add an extra layer of security to your account</div>
-                            </div>
-                            <button class="btn btn-outline">Enable</button>
-                        </div>
-                        <div class="security-item">
-                            <div class="security-info">
-                                <div class="security-title">Password</div>
-                                <div class="security-description">Last changed 3 months ago</div>
-                            </div>
-                            <button class="btn btn-outline">Change</button>
-                        </div>
-                        <div class="security-item">
-                            <div class="security-info">
-                                <div class="security-title">Active Sessions</div>
-                                <div class="security-description">View and manage your active login sessions</div>
-                            </div>
-                            <button class="btn btn-outline">Manage</button>
-                        </div>
+                        <label style="font-weight:600; margin-bottom: 1rem;">Account Security</label>
+                        <div class="security-item"><div class="security-info"><div class="security-title">Two-Factor Authentication</div><div class="security-description">Add an extra layer of security to your account</div></div><button class="btn btn-outline btn-sm">Enable</button></div>
+                        <div class="security-item"><div class="security-info"><div class="security-title">Password</div><div class="security-description">Last changed 3 months ago</div></div><button class="btn btn-outline btn-sm">Change</button></div>
+                        <div class="security-item"><div class="security-info"><div class="security-title">Active Sessions</div><div class="security-description">View and manage your active login sessions</div></div><button class="btn btn-outline btn-sm">Manage</button></div>
                     </div>
                     <div class="form-actions">
-                        <button type="button" class="btn btn-outline" id="cancelSecuritySettings">Cancel</button>
+                        <button type="button" class="btn btn-secondary" id="cancelSecuritySettings">Cancel</button>
                         <button type="submit" class="btn btn-primary" id="saveSecuritySettings">Save Changes</button>
                     </div>
                 </div>
             </div>
-        </div>
+
+        </div> <!-- End .content-area -->
     </main>
 
     <!-- Confirmation Message -->
@@ -2805,17 +2488,20 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
+            // --- DOM Elements ---
             const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle'); // Close button inside sidebar
+            const hamburgerMenu = document.getElementById('hamburgerMenu'); // Hamburger button in top nav
+            const mainContent = document.querySelector('.main-content');
             const menuItems = document.querySelectorAll('.menu-item');
             const searchInput = document.getElementById('searchInput');
             const searchResults = document.getElementById('searchResults');
-            const notificationIcon = document.getElementById('notificationIcon');
+            const notificationIconWrapper = document.getElementById('notificationIconWrapper');
             const notificationBadge = document.getElementById('notificationBadge');
             const notificationDropdown = document.getElementById('notificationDropdown');
             const notificationList = document.getElementById('notificationList');
-            const markAllAsRead = document.getElementById('markAllAsRead');
-            const deleteAllNotifications = document.getElementById('deleteAllNotifications');
+            const markAllAsReadBtn = document.getElementById('markAllAsRead'); // Renamed variable
+            const deleteAllNotificationsBtn = document.getElementById('deleteAllNotificationsBtn'); // Unique ID
             const userAvatar = document.getElementById('userAvatar');
             const userName = document.getElementById('userName');
             const userEmail = document.getElementById('userEmail');
@@ -2824,90 +2510,46 @@
             const profileLink = document.getElementById('profileLink');
             const settingsLink = document.getElementById('settingsLink');
             const logoutLink = document.getElementById('logoutLink');
-            const backToDashboard = document.getElementById('backToDashboard');
-            const showAllActivities = document.getElementById('showAllActivities');
-            const deleteAllActivities = document.getElementById('deleteAllActivities');
+            const showAllActivitiesBtn = document.getElementById('showAllActivities'); // Renamed variable
+            const deleteAllActivitiesBtn = document.getElementById('deleteAllActivitiesBtn'); // Unique ID
             const activityList = document.getElementById('activityList');
-            
-            // Content sections
-            const dashboardContent = document.getElementById('dashboardContent');
-            const profileContent = document.getElementById('profileContent');
-            const taskManagementContent = document.getElementById('taskManagementContent');
-            const schedulingContent = document.getElementById('schedulingContent');
-            const calendarContent = document.getElementById('calendarContent');
-            const filesContent = document.getElementById('filesContent');
-            const dataContent = document.getElementById('dataContent');
-            const projectsContent = document.getElementById('projectsContent');
-            const trackingContent = document.getElementById('trackingContent');
-            const deadlineContent = document.getElementById('deadlineContent');
-            const teamContent = document.getElementById('teamContent');
-            const reportsContent = document.getElementById('reportsContent');
-            const innovationContent = document.getElementById('innovationContent');
-            const settingsContent = document.getElementById('settingsContent');
-            
+
+            // Content section elements (using querySelectorAll for easier management)
+            const contentSections = document.querySelectorAll('.content-area > .content-section, .content-area > #dashboardContent'); // Include dashboard
+
             // Settings tabs
             const settingsTabs = document.querySelectorAll('.settings-tab');
             const settingsPanels = document.querySelectorAll('.settings-panel');
-            
+
             // Profile form elements
             const profileForm = document.getElementById('profileForm');
             const profilePictureInput = document.getElementById('profilePictureInput');
             const profilePicturePreview = document.getElementById('profilePicturePreview');
             const cancelProfileBtn = document.getElementById('cancelProfileBtn');
-            
+            const backToDashboardBtnProfile = document.getElementById('backToDashboardBtnProfile'); // Profile back button
+
             // Confirmation message
             const confirmationMessage = document.getElementById('confirmationMessage');
             const confirmationText = document.getElementById('confirmationText');
-            
-            // Notification sound
+
+            // Audio elements
             const notificationSound = document.getElementById('notificationSound');
             const deleteSound = document.getElementById('deleteSound');
-            
-            // Current user data
+
+            // --- State & Data ---
             let currentUser = {
-                id: 1,
-                name: 'Mohamed Elmenisy',
-                email: 'm.elsayed@thechefz.co',
-                title: 'Administrator',
-                department: 'Management',
-                phone: '+201234567890',
-                initials: 'ME',
-                role: 'admin',
-                stats: {
-                    teamMembers: 12,
-                    tasksCompleted: 24,
-                    activeProjects: 5,
-                    upcomingDeadlines: 3
-                },
-                profilePicture: null
+                id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co',
+                title: 'Administrator', department: 'Management', phone: '+201234567890',
+                initials: 'ME', role: 'admin', profilePicture: null,
+                stats: { teamMembers: 12, tasksCompleted: 24, activeProjects: 5, upcomingDeadlines: 3 }
             };
-            
-            // Notifications data
+
             let notifications = [
-                {
-                    id: 1,
-                    icon: 'fas fa-check-circle',
-                    message: 'Task "Dashboard Design" has been completed',
-                    time: '2 hours ago',
-                    read: false
-                },
-                {
-                    id: 2,
-                    icon: 'fas fa-comment-alt',
-                    message: 'Sarah Johnson commented on "Project Timeline"',
-                    time: '5 hours ago',
-                    read: false
-                },
-                {
-                    id: 3,
-                    icon: 'fas fa-tasks',
-                    message: 'New task assigned: "User Profile Page"',
-                    time: 'Yesterday, 3:45 PM',
-                    read: true
-                }
+                { id: 1, icon: 'fas fa-check-circle', message: 'Task "Dashboard Design" has been completed', time: '2 hours ago', read: false },
+                { id: 2, icon: 'fas fa-comment-alt', message: 'Sarah Johnson commented on "Project Timeline"', time: '5 hours ago', read: false },
+                { id: 3, icon: 'fas fa-tasks', message: 'New task assigned: "User Profile Page"', time: 'Yesterday, 3:45 PM', read: true }
             ];
-            
-            // Search data
+
             const searchData = [
                 { name: 'Dashboard Redesign', type: 'Project', link: '#projects' },
                 { name: 'Mohamed Elmenisy', type: 'Team Member', link: '#team-members' },
@@ -2915,580 +2557,476 @@
                 { name: 'Team Meeting', type: 'Event', link: '#team-calendar' },
                 { name: 'Project Proposal.pdf', type: 'File', link: '#file-sharing' }
             ];
-            
-            // Initialize the dashboard
-            function initDashboard() {
-                // Set user data
-                updateUserUI();
-                
-                // Load notifications
-                updateNotifications();
-                
-                // Set active feature based on URL hash or default to dashboard
-                const hash = window.location.hash.substring(1);
-                if (hash) {
-                    setActiveFeature(hash);
-                } else {
-                    setActiveFeature('dashboard');
-                }
-                
-                // Initialize real-time updates
-                initRealTimeUpdates();
-            }
-            
+
+            // --- Functions ---
+
             // Update user UI elements
             function updateUserUI() {
                 userName.textContent = currentUser.name;
                 userEmail.textContent = currentUser.email;
                 welcomeName.textContent = currentUser.name.split(' ')[0];
                 document.querySelector('.user-info-name').textContent = currentUser.name;
-                
-                // Update role title based on user role
-                const roleTitles = {
-                    'admin': 'Administrator',
-                    'member': 'Team Member'
-                };
-                const roleTitle = roleTitles[currentUser.role] || 'Team Member';
-                document.querySelector('.user-info-title').textContent = roleTitle;
-                document.getElementById('userRoleTitle').textContent = roleTitle;
                 document.querySelector('.user-info-email span').textContent = currentUser.email;
-                
-                // Set form values
+
+                const roleTitles = { 'admin': 'Administrator', 'member': 'Team Member' };
+                const roleTitle = roleTitles[currentUser.role] || 'Team Member';
+                document.querySelector('.user-info-title').textContent = roleTitle; // For welcome section
+                document.getElementById('jobTitle').value = currentUser.title || ''; // For profile form
+                document.getElementById('userRoleTitle').textContent = roleTitle; // Also update this specific one if needed
+
                 const nameParts = currentUser.name.split(' ');
-                document.getElementById('firstName').value = nameParts[0];
-                document.getElementById('lastName').value = nameParts.slice(1).join(' ');
-                document.getElementById('jobTitle').value = currentUser.title || '';
+                document.getElementById('firstName').value = nameParts[0] || '';
+                document.getElementById('lastName').value = nameParts.slice(1).join(' ') || '';
                 document.getElementById('department').value = currentUser.department || '';
                 document.getElementById('email').value = currentUser.email;
-                document.getElementById('phone').value = currentUser.phone;
-                
-                // Set avatar
-                const initials = currentUser.initials || 'ME';
-                userAvatar.innerHTML = currentUser.profilePicture 
-                    ? `<img src="${currentUser.profilePicture}" alt="${currentUser.name}">` 
+                document.getElementById('phone').value = currentUser.phone || '';
+
+                const initials = currentUser.initials || '??';
+                const avatarHTML = currentUser.profilePicture
+                    ? `<img src="${currentUser.profilePicture}" alt="${currentUser.name}">`
                     : `<div class="initials">${initials}</div>`;
-                
-                document.getElementById('profileAvatar').innerHTML = currentUser.profilePicture 
-                    ? `<img src="${currentUser.profilePicture}" alt="${currentUser.name}">` 
-                    : `<div class="initials">${initials}</div>`;
-                
-                profilePicturePreview.innerHTML = currentUser.profilePicture 
-                    ? `<img src="${currentUser.profilePicture}" alt="${currentUser.name}">` 
-                    : `<div class="initials">${initials}</div>`;
-                
-                // Update stats
+                userAvatar.innerHTML = avatarHTML;
+                document.getElementById('profileAvatar').innerHTML = avatarHTML; // In welcome section
+                profilePicturePreview.innerHTML = avatarHTML; // In profile form
+
                 document.getElementById('teamMembersCount').textContent = currentUser.stats.teamMembers || 0;
                 document.getElementById('tasksCompleted').textContent = currentUser.stats.tasksCompleted || 0;
                 document.getElementById('activeProjects').textContent = currentUser.stats.activeProjects || 0;
                 document.getElementById('upcomingDeadlines').textContent = currentUser.stats.upcomingDeadlines || 0;
             }
-            
-            // Update notifications
-            function updateNotifications() {
-                // Clear existing notifications
-                notificationList.innerHTML = '';
-                
-                // Update badge count
+
+            // Update notifications dropdown and badge
+            function updateNotificationsUI() {
+                notificationList.innerHTML = ''; // Clear list
                 const unreadCount = notifications.filter(n => !n.read).length;
                 notificationBadge.textContent = unreadCount;
                 notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
-                
-                // Add notifications to dropdown
-                notifications.forEach(notification => {
-                    const notificationItem = document.createElement('li');
-                    notificationItem.className = `notification-item ${notification.read ? '' : 'unread'}`;
-                    notificationItem.innerHTML = `
-                        <div class="notification-icon">
-                            <i class="${notification.icon}"></i>
-                        </div>
-                        <div class="notification-content">
-                            <div class="notification-message">${notification.message}</div>
-                            <div class="notification-time">${notification.time}</div>
-                        </div>
-                        ${notification.read ? '' : '<div class="notification-dot"></div>'}
-                        <button class="notification-actions-item delete-notification" data-id="${notification.id}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    `;
-                    notificationList.appendChild(notificationItem);
-                });
-                
-                // Add event listeners to delete buttons
-                document.querySelectorAll('.delete-notification').forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const id = parseInt(this.getAttribute('data-id'));
-                        deleteNotification(id);
+
+                if (notifications.length === 0) {
+                     notificationList.innerHTML = '<li style="text-align: center; padding: 1rem; color: var(--gray);">No notifications</li>';
+                } else {
+                    notifications.forEach(notification => {
+                        const li = document.createElement('li');
+                        li.className = `notification-item ${notification.read ? '' : 'unread'}`;
+                        li.dataset.id = notification.id; // Add ID for click handling
+                        li.innerHTML = `
+                            <div class="notification-icon"><i class="${notification.icon}"></i></div>
+                            <div class="notification-content">
+                                <div class="notification-message">${notification.message}</div>
+                                <div class="notification-time">${notification.time}</div>
+                            </div>
+                            ${notification.read ? '' : '<div class="notification-dot"></div>'}
+                            <button class="notification-actions-item delete-notification" title="Delete" data-id="${notification.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        `;
+                        notificationList.appendChild(li);
                     });
+                }
+                 attachNotificationListeners(); // Re-attach listeners after updating
+            }
+
+            // Attach listeners to notification items and buttons
+            function attachNotificationListeners() {
+                // Mark as read on item click
+                notificationList.querySelectorAll('.notification-item').forEach(item => {
+                     // Remove previous listener to prevent duplicates if called multiple times
+                    item.removeEventListener('click', handleNotificationClick);
+                    item.addEventListener('click', handleNotificationClick);
                 });
-                
-                // Add click event to mark as read
-                document.querySelectorAll('.notification-item').forEach(item => {
-                    item.addEventListener('click', function() {
-                        const id = parseInt(this.querySelector('.delete-notification').getAttribute('data-id'));
-                        markNotificationAsRead(id);
-                    });
+
+                 // Delete button click
+                notificationList.querySelectorAll('.delete-notification').forEach(button => {
+                    // Remove previous listener
+                    button.removeEventListener('click', handleNotificationDelete);
+                    button.addEventListener('click', handleNotificationDelete);
                 });
             }
-            
-            // Mark notification as read
+
+             // Handler for notification item click (Mark as Read)
+            function handleNotificationClick(e) {
+                 // Don't mark as read if the delete button itself was clicked
+                 if (e.target.closest('.delete-notification')) {
+                     return;
+                 }
+                const id = parseInt(this.dataset.id);
+                markNotificationAsRead(id);
+            }
+
+             // Handler for notification delete button click
+            function handleNotificationDelete(e) {
+                e.stopPropagation(); // Prevent item click event
+                const id = parseInt(this.dataset.id);
+                deleteNotification(id);
+            }
+
+
+            // Mark a single notification as read
             function markNotificationAsRead(id) {
                 const notification = notifications.find(n => n.id === id);
                 if (notification && !notification.read) {
                     notification.read = true;
-                    updateNotifications();
+                    updateNotificationsUI(); // Update UI
                 }
             }
-            
+
             // Mark all notifications as read
             function markAllNotificationsAsRead() {
+                let changed = false;
                 notifications.forEach(notification => {
-                    notification.read = true;
+                    if (!notification.read) {
+                        notification.read = true;
+                        changed = true;
+                    }
                 });
-                updateNotifications();
+                if (changed) updateNotificationsUI();
             }
-            
-            // Delete notification
+
+            // Delete a single notification
             function deleteNotification(id) {
+                const initialLength = notifications.length;
                 notifications = notifications.filter(n => n.id !== id);
-                updateNotifications();
-                playDeleteSound();
-                showConfirmation('Notification deleted successfully!');
+                if (notifications.length < initialLength) {
+                    updateNotificationsUI();
+                    playDeleteSound();
+                    showConfirmation('Notification deleted.');
+                }
             }
-            
+
             // Delete all notifications
-            function deleteAllNotifications() {
-                notifications = [];
-                updateNotifications();
-                playDeleteSound();
-                showConfirmation('All notifications deleted!');
+            function deleteAllUserNotifications() { // Renamed to avoid conflict
+                 if (notifications.length > 0) {
+                     if (confirm('Are you sure you want to delete all notifications?')) {
+                        notifications = [];
+                        updateNotificationsUI();
+                        playDeleteSound();
+                        showConfirmation('All notifications deleted.');
+                    }
+                 }
             }
-            
-            // Add new notification
+
+            // Add a new notification (simulated)
             function addNewNotification(icon, message) {
-                const newNotification = {
-                    id: notifications.length > 0 ? Math.max(...notifications.map(n => n.id)) + 1 : 1,
-                    icon: icon,
-                    message: message,
-                    time: 'Just now',
-                    read: false
-                };
-                
-                notifications.unshift(newNotification);
-                updateNotifications();
+                const newId = notifications.length > 0 ? Math.max(...notifications.map(n => n.id)) + 1 : 1;
+                const newNotification = { id: newId, icon, message, time: 'Just now', read: false };
+                notifications.unshift(newNotification); // Add to beginning
+                updateNotificationsUI();
                 playNotificationSound();
             }
-            
-            // Show confirmation message
+
+            // Show confirmation message popup
             function showConfirmation(message) {
                 confirmationText.textContent = message;
                 confirmationMessage.classList.add('show');
-                
                 setTimeout(() => {
                     confirmationMessage.classList.remove('show');
                 }, 3000);
             }
-            
-            // Play notification sound
-            function playNotificationSound() {
-                notificationSound.currentTime = 0;
-                notificationSound.play().catch(e => console.log('Audio play failed:', e));
-            }
-            
-            // Play delete sound
-            function playDeleteSound() {
-                deleteSound.currentTime = 0;
-                deleteSound.play().catch(e => console.log('Audio play failed:', e));
-            }
-            
-            // Set active feature and update URL
-            function setActiveFeature(feature) {
-                // Update URL without reloading page
-                const newUrl = window.location.pathname + '#' + feature;
-                window.history.pushState({ feature }, '', newUrl);
-                
-                // Hide all content sections
-                dashboardContent.style.display = 'none';
-                profileContent.style.display = 'none';
-                taskManagementContent.style.display = 'none';
-                schedulingContent.style.display = 'none';
-                calendarContent.style.display = 'none';
-                filesContent.style.display = 'none';
-                dataContent.style.display = 'none';
-                projectsContent.style.display = 'none';
-                trackingContent.style.display = 'none';
-                deadlineContent.style.display = 'none';
-                teamContent.style.display = 'none';
-                reportsContent.style.display = 'none';
-                innovationContent.style.display = 'none';
-                settingsContent.style.display = 'none';
-                
-                // Remove active class from all menu items
-                menuItems.forEach(item => item.classList.remove('active'));
-                
-                // Show the selected content
-                if (feature === 'dashboard') {
-                    dashboardContent.style.display = 'block';
-                    document.querySelector('[data-feature="dashboard"]').classList.add('active');
-                } else if (feature === 'profile') {
-                    profileContent.style.display = 'block';
-                } else if (feature === 'task-management') {
-                    taskManagementContent.style.display = 'block';
-                    document.querySelector('[data-feature="task-management"]').classList.add('active');
-                } else if (feature === 'employee-scheduling') {
-                    schedulingContent.style.display = 'block';
-                    document.querySelector('[data-feature="employee-scheduling"]').classList.add('active');
-                } else if (feature === 'team-calendar') {
-                    calendarContent.style.display = 'block';
-                    document.querySelector('[data-feature="team-calendar"]').classList.add('active');
-                } else if (feature === 'file-sharing') {
-                    filesContent.style.display = 'block';
-                    document.querySelector('[data-feature="file-sharing"]').classList.add('active');
-                } else if (feature === 'data-management') {
-                    dataContent.style.display = 'block';
-                    document.querySelector('[data-feature="data-management"]').classList.add('active');
-                } else if (feature === 'projects') {
-                    projectsContent.style.display = 'block';
-                    document.querySelector('[data-feature="projects"]').classList.add('active');
-                } else if (feature === 'project-tracking') {
-                    trackingContent.style.display = 'block';
-                    document.querySelector('[data-feature="project-tracking"]').classList.add('active');
-                } else if (feature === 'deadline-tracking') {
-                    deadlineContent.style.display = 'block';
-                    document.querySelector('[data-feature="deadline-tracking"]').classList.add('active');
-                } else if (feature === 'team-members') {
-                    teamContent.style.display = 'block';
-                    document.querySelector('[data-feature="team-members"]').classList.add('active');
-                } else if (feature === 'reports') {
-                    reportsContent.style.display = 'block';
-                    document.querySelector('[data-feature="reports"]').classList.add('active');
-                } else if (feature === 'innovation-hub') {
-                    innovationContent.style.display = 'block';
-                    document.querySelector('[data-feature="innovation-hub"]').classList.add('active');
-                } else if (feature === 'settings') {
-                    settingsContent.style.display = 'block';
-                    document.querySelector('[data-feature="settings"]').classList.add('active');
+
+            // Play sound functions
+            function playNotificationSound() { notificationSound.currentTime = 0; notificationSound.play().catch(e => console.error('Audio play failed:', e)); }
+            function playDeleteSound() { deleteSound.currentTime = 0; deleteSound.play().catch(e => console.error('Audio play failed:', e)); }
+
+            // *** Navigation Logic ***
+            function setActiveFeature(featureId) {
+                featureId = featureId || 'dashboard'; // Default to dashboard
+
+                // Hide all content sections first
+                contentSections.forEach(section => section.classList.remove('active'));
+
+                // Find and show the target section
+                const targetSection = document.getElementById(featureId + 'Content');
+                if (targetSection) {
+                    targetSection.classList.add('active');
                 } else {
-                    // Default to dashboard
-                    dashboardContent.style.display = 'block';
-                    document.querySelector('[data-feature="dashboard"]').classList.add('active');
+                    // Fallback to dashboard if target not found
+                    document.getElementById('dashboardContent').classList.add('active');
+                    featureId = 'dashboard'; // Correct the ID for menu item highlighting
+                    console.warn(`Content section for "${featureId}" not found. Showing dashboard.`);
                 }
+
+                // Update active menu item
+                menuItems.forEach(item => item.classList.remove('active'));
+                const activeMenuItem = document.querySelector(`.menu-item[data-feature="${featureId}"]`);
+                if (activeMenuItem) {
+                    activeMenuItem.classList.add('active');
+                }
+
+                 // Update URL hash without reloading
+                 // Only push state if the hash is actually changing
+                 if (window.location.hash !== '#' + featureId) {
+                    try {
+                        window.history.pushState({ feature: featureId }, '', '#' + featureId);
+                    } catch (error) {
+                         console.error("Error pushing state:", error);
+                         // Fallback or simply update hash directly if pushState fails (less ideal)
+                         // window.location.hash = '#' + featureId;
+                    }
+                 }
+
+                 // Close sidebar on mobile after selection
+                 if (window.innerWidth <= 992) {
+                     sidebar.classList.remove('active');
+                     updateHamburgerIcon(); // Ensure icon resets
+                 }
             }
-            
-            // Handle search input
+
+            // Handle search input and display results
             function handleSearchInput() {
                 const query = searchInput.value.trim().toLowerCase();
                 searchResults.innerHTML = '';
-                
+
                 if (query.length === 0) {
                     searchResults.style.display = 'none';
                     return;
                 }
-                
-                const results = searchData.filter(item => 
-                    item.name.toLowerCase().includes(query) || 
+
+                const results = searchData.filter(item =>
+                    item.name.toLowerCase().includes(query) ||
                     item.type.toLowerCase().includes(query)
                 );
-                
+
                 if (results.length > 0) {
                     results.forEach(result => {
                         const resultItem = document.createElement('div');
                         resultItem.className = 'search-result-item';
-                        resultItem.innerHTML = `
-                            <div><strong>${result.name}</strong></div>
-                            <small>${result.type}</small>
-                        `;
+                        resultItem.innerHTML = `<div><strong>${result.name}</strong></div><small>${result.type}</small>`;
                         resultItem.addEventListener('click', () => {
-                            window.location.href = result.link;
+                            // Use setActiveFeature for SPA navigation
+                            const feature = result.link.substring(1); // Get 'projects' from '#projects'
+                            setActiveFeature(feature);
+                            searchInput.value = ''; // Clear search
+                            searchResults.style.display = 'none'; // Hide results
                         });
                         searchResults.appendChild(resultItem);
                     });
                     searchResults.style.display = 'block';
                 } else {
-                    searchResults.style.display = 'none';
+                     searchResults.innerHTML = '<div class="search-result-item" style="color: var(--gray);">No results found</div>';
+                     searchResults.style.display = 'block';
                 }
             }
-            
-            // Initialize real-time updates
-            function initRealTimeUpdates() {
-                // Simulate real-time updates for demo purposes
-                setInterval(() => {
-                    // Randomly update stats
-                    if (Math.random() > 0.7) {
-                        currentUser.stats.tasksCompleted += Math.floor(Math.random() * 3);
-                        currentUser.stats.teamMembers += Math.random() > 0.9 ? 1 : 0;
-                        currentUser.stats.activeProjects += Math.random() > 0.95 ? 1 : 0;
-                        updateUserUI();
-                    }
-                    
-                    // Randomly add new activity
-                    if (Math.random() > 0.8) {
-                        const activities = [
-                            { icon: 'fas fa-check-circle', message: 'Task "API Documentation" has been completed' },
-                            { icon: 'fas fa-comment-alt', message: 'Michael Kim commented on "Mobile App Design"' },
-                            { icon: 'fas fa-tasks', message: 'New task assigned: "Dark Mode Implementation"' },
-                            { icon: 'fas fa-user-plus', message: 'New team member added: ' + ['Lisa Wong', 'James Smith', 'Emma Davis'][Math.floor(Math.random() * 3)] }
-                        ];
-                        
-                        const activity = activities[Math.floor(Math.random() * activities.length)];
-                        const activityItem = document.createElement('li');
-                        activityItem.className = 'activity-item new';
-                        activityItem.innerHTML = `
-                            <div class="activity-icon">
-                                <i class="${activity.icon}"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-message">
-                                    ${activity.message}
-                                </div>
-                                <div class="activity-time">Just now</div>
-                            </div>
-                            <button class="activity-actions-btn" title="Delete">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        `;
-                        
-                        // Add delete functionality
-                        activityItem.querySelector('.activity-actions-btn').addEventListener('click', function() {
-                            activityItem.remove();
-                            playDeleteSound();
-                            showConfirmation('Activity deleted successfully!');
-                        });
-                        
-                        // Add to top of activity list
-                        activityList.insertBefore(activityItem, activityList.firstChild);
-                        
-                        // Add notification
-                        addNewNotification(activity.icon, activity.message);
-                    }
-                }, 10000); // Update every 10 seconds
-            }
-            
-            // Handle menu item clicks
+
+            // --- Event Listeners ---
+
+            // Sidebar Menu Item Clicks
             menuItems.forEach(item => {
                 item.addEventListener('click', function(e) {
-                    e.preventDefault();
+                    e.preventDefault(); // Prevent default anchor behavior
                     const feature = this.getAttribute('data-feature');
                     setActiveFeature(feature);
                 });
             });
-            
-            // User dropdown
-            userAvatar.addEventListener('click', function() {
-                userDropdown.classList.toggle('active');
-                notificationDropdown.classList.remove('active');
-            });
-            
-            userName.addEventListener('click', function() {
-                userDropdown.classList.toggle('active');
-                notificationDropdown.classList.remove('active');
-            });
-            
-            // Profile link
-            profileLink.addEventListener('click', function(e) {
+
+             // Sidebar Toggle Buttons (Hamburger and Close)
+             function updateHamburgerIcon() {
+                 if (sidebar.classList.contains('active')) {
+                     hamburgerMenu.innerHTML = '<i class="fas fa-times"></i>'; // Show close icon
+                 } else {
+                     hamburgerMenu.innerHTML = '<i class="fas fa-bars"></i>'; // Show hamburger icon
+                 }
+             }
+
+             function toggleSidebar() {
+                 sidebar.classList.toggle('active');
+                 updateHamburgerIcon();
+             }
+
+             if (hamburgerMenu) hamburgerMenu.addEventListener('click', toggleSidebar);
+             if (sidebarToggle) sidebarToggle.addEventListener('click', toggleSidebar);
+
+            // User Dropdown Toggle
+            userAvatar.addEventListener('click', (e) => { e.stopPropagation(); userDropdown.classList.toggle('active'); notificationDropdown.classList.remove('active'); });
+            userName.addEventListener('click', (e) => { e.stopPropagation(); userDropdown.classList.toggle('active'); notificationDropdown.classList.remove('active'); });
+
+            // Notification Dropdown Toggle
+            notificationIconWrapper.addEventListener('click', (e) => { e.stopPropagation(); notificationDropdown.classList.toggle('active'); userDropdown.classList.remove('active'); });
+
+            // Dropdown Links
+            profileLink.addEventListener('click', (e) => { e.preventDefault(); userDropdown.classList.remove('active'); setActiveFeature('profile'); });
+            settingsLink.addEventListener('click', (e) => { e.preventDefault(); userDropdown.classList.remove('active'); setActiveFeature('settings'); });
+            logoutLink.addEventListener('click', (e) => {
                 e.preventDefault();
-                userDropdown.classList.remove('active');
-                setActiveFeature('profile');
+                showConfirmation('Logging out...');
+                // Simulate logout and redirect (in a real app, call API)
+                setTimeout(() => { window.location.href = 'login.html'; }, 1000);
             });
-            
-            // Settings link
-            settingsLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                userDropdown.classList.remove('active');
-                setActiveFeature('settings');
-            });
-            
-            // Logout link
-            logoutLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                // Redirect to login
-                window.location.href = 'login.html';
-            });
-            
-            // Back to dashboard
-            backToDashboard.addEventListener('click', function() {
-                setActiveFeature('dashboard');
-            });
-            
-            // Notification icon
-            notificationIcon.addEventListener('click', function(e) {
-                e.stopPropagation();
-                notificationDropdown.classList.toggle('active');
-                userDropdown.classList.remove('active');
-            });
-            
-            // Mark all as read
-            markAllAsRead.addEventListener('click', function(e) {
-                e.stopPropagation();
-                markAllNotificationsAsRead();
-            });
-            
-            // Delete all notifications
-            deleteAllNotifications.addEventListener('click', function(e) {
-                e.stopPropagation();
-                if (notifications.length > 0) {
-                    if (confirm('Are you sure you want to delete all notifications?')) {
-                        deleteAllNotifications();
-                    }
-                }
-            });
-            
-            // Show all activities
-            showAllActivities.addEventListener('click', function() {
-                document.querySelectorAll('.activity-item').forEach(item => {
-                    item.style.display = 'flex';
-                });
-            });
-            
-            // Delete all activities
-            deleteAllActivities.addEventListener('click', function() {
-                if (confirm('Are you sure you want to delete all activities?')) {
-                    activityList.innerHTML = '';
+
+            // Back to Dashboard Button (Profile Page)
+            if (backToDashboardBtnProfile) {
+                backToDashboardBtnProfile.addEventListener('click', () => setActiveFeature('dashboard'));
+            }
+
+            // Notification Actions
+            markAllAsReadBtn.addEventListener('click', (e) => { e.stopPropagation(); markAllNotificationsAsRead(); });
+            deleteAllNotificationsBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteAllUserNotifications(); });
+
+             // Activity Actions
+             if (showAllActivitiesBtn) showAllActivitiesBtn.addEventListener('click', () => {
+                 // Logic to show all activities if they were hidden
+                 console.log("Show all activities clicked");
+             });
+             if (deleteAllActivitiesBtn) deleteAllActivitiesBtn.addEventListener('click', () => {
+                 if (confirm('Are you sure you want to delete all activities?')) {
+                    activityList.innerHTML = '<li style="text-align: center; padding: 1rem; color: var(--gray);">No recent activity</li>';
                     playDeleteSound();
-                    showConfirmation('All activities deleted!');
+                    showConfirmation('All activities deleted.');
+                 }
+             });
+
+            // Delegate activity delete clicks
+            activityList.addEventListener('click', function(e) {
+                if (e.target.closest('.delete-activity')) {
+                    if (confirm('Are you sure you want to delete this activity?')) {
+                        e.target.closest('.activity-item').remove();
+                        playDeleteSound();
+                        showConfirmation('Activity deleted.');
+                    }
                 }
             });
-            
-            // Activity delete buttons
-            document.querySelectorAll('.activity-actions-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    if (confirm('Are you sure you want to delete this activity?')) {
-                        this.closest('.activity-item').remove();
-                        playDeleteSound();
-                        showConfirmation('Activity deleted successfully!');
-                    }
-                });
-            });
-            
-            // Profile form
+
+
+            // Profile Form Submit
             profileForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                // Update user data
-                currentUser.name = `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`;
-                currentUser.title = document.getElementById('jobTitle').value;
-                currentUser.department = document.getElementById('department').value;
-                currentUser.phone = document.getElementById('phone').value;
-                
-                // Update UI
+                currentUser.name = `${document.getElementById('firstName').value.trim()} ${document.getElementById('lastName').value.trim()}`;
+                currentUser.title = document.getElementById('jobTitle').value.trim();
+                currentUser.department = document.getElementById('department').value.trim();
+                currentUser.phone = document.getElementById('phone').value.trim();
+                currentUser.initials = `${(document.getElementById('firstName').value[0] || '')}${(document.getElementById('lastName').value[0] || '')}`.toUpperCase();
                 updateUserUI();
-                
-                // Show confirmation
                 showConfirmation('Profile updated successfully!');
-                
-                // Go back to dashboard after a delay
-                setTimeout(() => {
-                    setActiveFeature('dashboard');
-                }, 1000);
+                setTimeout(() => { setActiveFeature('dashboard'); }, 1000); // Go back after save
             });
-            
-            // Cancel profile changes
-            cancelProfileBtn.addEventListener('click', function() {
-                // Reset form values
-                document.getElementById('firstName').value = currentUser.name.split(' ')[0];
-                document.getElementById('lastName').value = currentUser.name.split(' ').slice(1).join(' ');
-                document.getElementById('jobTitle').value = currentUser.title;
-                document.getElementById('department').value = currentUser.department;
-                document.getElementById('phone').value = currentUser.phone;
-                
-                // Go back to dashboard
-                setActiveFeature('dashboard');
+
+            // Cancel Profile Edit
+            cancelProfileBtn.addEventListener('click', () => {
+                updateUserUI(); // Reset form to current data
+                setActiveFeature('dashboard'); // Go back
             });
-            
-            // Profile picture upload
+
+            // Profile Picture Upload Change
             profilePictureInput.addEventListener('change', function(e) {
                 const file = e.target.files[0];
-                if (file) {
+                if (file && file.type.startsWith('image/')) {
                     const reader = new FileReader();
                     reader.onload = function(event) {
                         currentUser.profilePicture = event.target.result;
-                        
-                        // Update all profile picture previews
-                        document.querySelectorAll('.user-avatar, .user-info-avatar, .profile-picture-preview').forEach(el => {
-                            el.innerHTML = `<img src="${event.target.result}" alt="${currentUser.name}">`;
-                        });
+                        updateUserUI(); // Update all avatars
                     };
                     reader.readAsDataURL(file);
+                } else if (file) {
+                    alert("Please select a valid image file.");
                 }
             });
-            
-            // Settings tabs
+
+            // Settings Tabs
             settingsTabs.forEach(tab => {
                 tab.addEventListener('click', function() {
                     const tabId = this.getAttribute('data-tab');
-                    
-                    // Remove active class from all tabs and panels
                     settingsTabs.forEach(t => t.classList.remove('active'));
                     settingsPanels.forEach(p => p.classList.remove('active'));
-                    
-                    // Add active class to clicked tab and corresponding panel
                     this.classList.add('active');
-                    document.getElementById(`${tabId}Settings`).classList.add('active');
+                    const targetPanel = document.getElementById(`${tabId}Settings`);
+                    if (targetPanel) targetPanel.classList.add('active');
                 });
             });
-            
-            // Save settings buttons
-            document.getElementById('saveGeneralSettings').addEventListener('click', function() {
-                showConfirmation('General settings saved successfully!');
-            });
-            
-            document.getElementById('saveNotificationSettings').addEventListener('click', function() {
-                showConfirmation('Notification settings saved successfully!');
-            });
-            
-            document.getElementById('saveSecuritySettings').addEventListener('click', function() {
-                showConfirmation('Security settings saved successfully!');
-            });
-            
-            // Cancel settings buttons
-            document.getElementById('cancelGeneralSettings').addEventListener('click', function() {
-                // Reset form values or implement cancel logic
-                setActiveFeature('dashboard');
-            });
-            
-            document.getElementById('cancelNotificationSettings').addEventListener('click', function() {
-                // Reset form values or implement cancel logic
-                setActiveFeature('dashboard');
-            });
-            
-            document.getElementById('cancelSecuritySettings').addEventListener('click', function() {
-                // Reset form values or implement cancel logic
-                setActiveFeature('dashboard');
-            });
-            
-            // Search input
+
+             // Settings Save/Cancel Buttons (Example for General)
+             document.getElementById('saveGeneralSettings')?.addEventListener('click', () => showConfirmation('General settings saved!'));
+             document.getElementById('cancelGeneralSettings')?.addEventListener('click', () => setActiveFeature('dashboard'));
+             // Add similar listeners for other settings panels if needed
+
+            // Search Input Handling
             searchInput.addEventListener('input', handleSearchInput);
-            searchInput.addEventListener('focus', function() {
-                if (searchInput.value.trim().length > 0) {
-                    handleSearchInput();
-                }
-            });
-            
-            // Close dropdowns when clicking outside
+            searchInput.addEventListener('focus', handleSearchInput); // Show results on focus if input exists
+
+            // Global Click Listener (to close dropdowns)
             document.addEventListener('click', function(e) {
-                if (!e.target.closest('.user-profile') && !e.target.closest('.user-dropdown')) {
+                // Close user dropdown
+                if (!e.target.closest('.user-profile')) {
                     userDropdown.classList.remove('active');
                 }
-                
-                if (!e.target.closest('.notification-icon') && !e.target.closest('.notification-dropdown')) {
-                    notificationDropdown.classList.remove('active');
+                // Close notification dropdown
+                if (!e.target.closest('.notification-icon-wrapper') && !e.target.closest('.notification-dropdown')) {
+                     notificationDropdown.classList.remove('active');
                 }
-                
+                // Close search results
                 if (!e.target.closest('.search-bar')) {
                     searchResults.style.display = 'none';
                 }
+                 // Close sidebar on mobile if clicking outside
+                 if (window.innerWidth <= 992 && sidebar.classList.contains('active') && !e.target.closest('.sidebar') && !e.target.closest('#hamburgerMenu')) {
+                     toggleSidebar();
+                 }
             });
-            
-            // Handle browser back/forward buttons
+
+            // Handle Browser Back/Forward Navigation
             window.addEventListener('popstate', function(event) {
-                if (event.state && event.state.feature) {
-                    setActiveFeature(event.state.feature);
-                } else {
-                    setActiveFeature('dashboard');
-                }
+                const feature = event.state ? event.state.feature : (window.location.hash ? window.location.hash.substring(1) : 'dashboard');
+                setActiveFeature(feature);
             });
-            
-            // Initialize the dashboard
-            initDashboard();
+
+             // Adjust UI based on initial screen size
+             function handleResize() {
+                 const isMobile = window.innerWidth <= 992;
+                 hamburgerMenu.style.display = isMobile ? 'inline-block' : 'none';
+                 sidebarToggle.style.display = isMobile ? 'inline-block' : 'none'; // Show close button inside sidebar on mobile
+                 if (!isMobile) {
+                     sidebar.classList.remove('active'); // Ensure sidebar is closed on desktop view if it was open on mobile
+                     updateHamburgerIcon(); // Reset hamburger icon
+                 }
+             }
+
+            // --- Initialization ---
+            function initializeDashboard() {
+                updateUserUI();
+                updateNotificationsUI(); // Initial notification load
+
+                // Set initial active feature based on URL hash
+                const initialHash = window.location.hash ? window.location.hash.substring(1) : 'dashboard';
+                setActiveFeature(initialHash);
+
+                // Handle window resize
+                 window.addEventListener('resize', handleResize);
+                 handleResize(); // Call initially
+
+                // initRealTimeUpdates(); // Uncomment to enable simulated updates
+            }
+
+             // Simulate real-time updates (Optional)
+             function initRealTimeUpdates() {
+                 console.log("Real-time updates simulation started.");
+                 setInterval(() => {
+                     // Randomly add activity/notification
+                     if (Math.random() > 0.85) {
+                         const activities = [
+                             { icon: 'fas fa-file-alt', message: 'Document "Q3 Report" was uploaded' },
+                             { icon: 'fas fa-calendar-check', message: 'Event "Client Demo" scheduled for tomorrow' },
+                             { icon: 'fas fa-lightbulb', message: 'New idea "Gamification Badges" submitted' },
+                         ];
+                         const activity = activities[Math.floor(Math.random() * activities.length)];
+
+                          // Add to activity list
+                          const activityItem = document.createElement('li');
+                          activityItem.className = 'activity-item new';
+                          activityItem.innerHTML = `
+                              <div class="activity-icon"><i class="${activity.icon}"></i></div>
+                              <div class="activity-content">
+                                  <div class="activity-message">${activity.message}</div>
+                                  <div class="activity-time">Just now</div>
+                              </div>
+                              <button class="activity-actions-btn delete-activity" title="Delete"><i class="fas fa-trash"></i></button>
+                          `;
+                          activityList.insertBefore(activityItem, activityList.firstChild);
+
+                         addNewNotification(activity.icon, activity.message);
+                     }
+                 }, 15000); // Every 15 seconds
+             }
+
+
+            initializeDashboard(); // Run initialization
         });
     </script>
 </body>
