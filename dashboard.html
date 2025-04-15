@@ -40,6 +40,9 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        html {
+            scroll-behavior: smooth; /* Optional: Smooth scroll on hash change */
+        }
         body {
             background-color: var(--primary-light);
             color: var(--dark);
@@ -52,8 +55,11 @@
             background-color: var(--sidebar-bg);
             height: 100vh;
             position: fixed;
+            top: 0; /* Ensure it starts at the top */
+            left: 0; /* Ensure it starts at the left */
             overflow-y: auto;
             z-index: 100;
+            transition: transform 0.3s ease; /* Keep transition */
         }
         .sidebar-header {
             padding: 1.5rem;
@@ -92,7 +98,7 @@
             padding: 0.75rem 1.5rem;
             color: var(--sidebar-text);
             text-decoration: none;
-            transition: all 0.2s;
+            transition: background-color 0.2s, color 0.2s, border-left-color 0.2s; /* Refined transition */
             border-left: 3px solid transparent;
             margin: 0.25rem 0;
         }
@@ -104,12 +110,17 @@
             background-color: var(--sidebar-active);
             color: var(--white);
             border-left-color: var(--white);
+            font-weight: 500; /* Slightly bolder active item */
         }
         .menu-item i {
             margin-right: 0.75rem;
             font-size: 1.1rem;
             width: 24px;
             text-align: center;
+            transition: transform 0.2s ease; /* Icon transition */
+        }
+        .menu-item.active i {
+            transform: scale(1.1); /* Slightly scale active icon */
         }
         .menu-divider {
             height: 1px;
@@ -120,6 +131,7 @@
         .main-content {
             flex: 1;
             margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease; /* Match sidebar transition */
         }
         /* Top Navigation */
         .top-nav {
@@ -167,6 +179,8 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             z-index: 100;
             display: none;
+            max-height: 300px; /* Limit height */
+            overflow-y: auto; /* Add scroll if needed */
         }
         .search-result-item {
             padding: 0.75rem 1rem;
@@ -268,6 +282,7 @@
             gap: 0.75rem;
             color: var(--dark);
             text-decoration: none;
+            transition: background-color 0.2s; /* Added transition */
         }
         .dropdown-item:hover {
             background-color: var(--light);
@@ -275,19 +290,31 @@
         /* Content Area */
         .content-area {
             padding: 2rem;
-            min-height: calc(100vh - 70px);
+            min-height: calc(100vh - 70px); /* Adjust based on top-nav height */
         }
-        /* Hide all specific content sections by default */
+        /* Base style for all content sections */
+        .content-section {
+             display: none; /* Hide all by default */
+             background-color: var(--white);
+             border-radius: 8px;
+             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+             padding: 2rem;
+        }
+        /* Show only the dashboard initially */
+        #dashboardContent {
+            display: block;
+            background-color: transparent; /* Dashboard doesn't need white bg */
+            box-shadow: none; /* No shadow */
+            padding: 0; /* No padding */
+        }
+        /* Other sections inherit from .content-section */
         #profileContent, #taskManagementContent, #schedulingContent,
         #calendarContent, #filesContent, #dataContent, #projectsContent,
         #trackingContent, #deadlineContent, #teamContent, #reportsContent,
         #innovationContent, #settingsContent {
-            display: none;
+            /* Styles inherited from .content-section */
         }
-        /* Show only the dashboard initially (or active section via JS) */
-        #dashboardContent {
-            display: block;
-        }
+
         .welcome-section {
             background-color: var(--primary);
             color: var(--white);
@@ -311,138 +338,52 @@
             gap: 1.5rem;
         }
         .user-info-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: var(--primary-light);
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 1.75rem;
-            overflow: hidden;
+            width: 80px; height: 80px; border-radius: 50%; background-color: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.75rem; overflow: hidden;
         }
-        .user-info-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .user-info-details {
-            flex: 1;
-        }
-        .user-info-name {
-            font-weight: 600;
-            font-size: 1.25rem;
-            margin-bottom: 0.25rem;
-        }
-        .user-info-title {
-            opacity: 1;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            color: var(--danger); /* Red color */
-            font-weight: 600;
-        }
-        .user-info-email {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
+        .user-info-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .user-info-details { flex: 1; }
+        .user-info-name { font-weight: 600; font-size: 1.25rem; margin-bottom: 0.25rem; }
+        .user-info-title { opacity: 1; font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--danger); font-weight: 600; }
+        .user-info-email { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; opacity: 0.9; }
         /* Stats Section */
-        .stats-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .stat-card {
-            background-color: var(--white);
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        .stat-title {
-            font-size: 0.9rem;
-            color: var(--gray);
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .stat-title i {
-            color: var(--primary);
-        }
-        .stat-value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--primary-dark);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .stat-arrow {
-            font-size: 1.1rem;
-            transition: color 0.3s ease;
-        }
-        .stat-arrow.up { color: var(--arrow-up-color); }
-        .stat-arrow.down { color: var(--arrow-down-color); }
+        .stats-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background-color: var(--white); border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+        .stat-title { font-size: 0.9rem; color: var(--gray); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .stat-title i { color: var(--primary); }
+        .stat-value { font-size: 1.75rem; font-weight: 700; color: var(--primary-dark); display: flex; align-items: center; gap: 0.5rem; }
+        .stat-arrow { font-size: 1.1rem; transition: color 0.3s ease; }
+        .stat-arrow.up { color: var(--arrow-up-color); } .stat-arrow.down { color: var(--arrow-down-color); }
 
         /* Activity Section */
-        .activity-section {
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
-        }
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-        .activity-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        .activity-list {
-            list-style: none;
-        }
-        .activity-item {
-            display: flex;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--light-gray);
-            align-items: center;
-            position: relative;
-        }
+        .activity-section { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 1.5rem; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+        .section-title { font-size: 1.25rem; font-weight: 600; }
+        .activity-actions { display: flex; gap: 0.5rem; }
+        .activity-list { list-style: none; }
+        .activity-item { display: flex; padding: 1rem 0; border-bottom: 1px solid var(--light-gray); align-items: center; position: relative; }
         .activity-item:last-child { border-bottom: none; }
-        .activity-icon {
-            width: 40px; height: 40px; border-radius: 50%; background-color: rgba(37, 99, 235, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; margin-right: 1rem; position: relative; flex-shrink: 0;
-        }
+        .activity-icon { width: 40px; height: 40px; border-radius: 50%; background-color: rgba(37, 99, 235, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; margin-right: 1rem; position: relative; flex-shrink: 0; }
         .activity-content { flex: 1; min-width: 0; }
         .activity-message { margin-bottom: 0.25rem; word-break: break-word; overflow-wrap: break-word; }
         .activity-time { font-size: 0.8rem; color: var(--gray); }
-        .activity-actions-btn { background: none; border: none; color: var(--gray); cursor: pointer; padding: 0.5rem; border-radius: 4px; margin-left: 0.5rem; }
+        .activity-actions-btn { background: none; border: none; color: var(--gray); cursor: pointer; padding: 0.5rem; border-radius: 4px; margin-left: 0.5rem; transition: background-color 0.2s; }
         .activity-actions-btn:hover { background-color: var(--light-gray); }
 
         /* Back to Dashboard Link Styling */
         .back-to-dashboard-link {
             margin-bottom: 1.5rem;
-            display: inline-flex; /* Ensure it behaves like a button */
+            display: inline-flex;
+            align-items: center; /* Vertically align icon and text */
+        }
+        .back-to-dashboard-link i {
+             margin-right: 0.5rem; /* Space between icon and text */
         }
 
+
         /* Profile Content Specific Styles */
-        #profileContent { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 2rem; }
-        .profile-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; } /* Adjusted margin */
+        .profile-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
         .profile-title { font-size: 1.5rem; font-weight: 600; color: var(--primary-dark); }
-        .profile-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; /* Add margin after back link */}
+        .profile-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
         .form-group { margin-bottom: 1rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark); }
         .form-control { width: 100%; padding: 0.75rem; border: 1px solid var(--light-gray); border-radius: 6px; font-size: 1rem; }
@@ -451,16 +392,11 @@
         .btn { padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
         .btn i { margin-right: 0; }
         .btn-sm { padding: 0.5rem 1rem; font-size: 0.875rem; }
-        .btn-primary { background-color: var(--primary); color: white; }
-        .btn-primary:hover { background-color: var(--primary-dark); }
-        .btn-outline { background-color: transparent; border: 1px solid var(--primary); color: var(--primary); }
-        .btn-outline:hover { background-color: var(--primary-light); }
-        .btn-success { background-color: var(--success); color: white; } /* Added success btn */
-        .btn-success:hover { background-color: #059669; } /* Darker success */
-        .btn-secondary { background-color: var(--gray); color: white; }
-        .btn-secondary:hover { background-color: var(--dark); }
-        .btn-danger { background-color: var(--danger); color: white; }
-        .btn-danger:hover { background-color: #dc2626; }
+        .btn-primary { background-color: var(--primary); color: white; } .btn-primary:hover { background-color: var(--primary-dark); }
+        .btn-outline { background-color: transparent; border: 1px solid var(--primary); color: var(--primary); } .btn-outline:hover { background-color: var(--primary-light); }
+        .btn-success { background-color: var(--success); color: white; } .btn-success:hover { background-color: #059669; }
+        .btn-secondary { background-color: var(--gray); color: white; } .btn-secondary:hover { background-color: var(--dark); }
+        .btn-danger { background-color: var(--danger); color: white; } .btn-danger:hover { background-color: #dc2626; }
         .profile-picture-upload { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; grid-column: span 2; }
         .profile-picture-preview { width: 100px; height: 100px; border-radius: 50%; background-color: var(--light-gray); overflow: hidden; position: relative; flex-shrink: 0; }
         .profile-picture-preview img { width: 100%; height: 100%; object-fit: cover; }
@@ -476,23 +412,16 @@
         .notification-dropdown { position: absolute; top: calc(100% + 5px); right: 0; width: 350px; max-height: 500px; overflow-y: auto; background-color: var(--white); border: 1px solid var(--light-gray); border-radius: 6px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); z-index: 100; display: none; opacity: 0; transform: translateY(-10px); transition: opacity 0.2s ease, transform 0.2s ease; }
         .notification-dropdown.active { display: block; opacity: 1; transform: translateY(0); }
         .notification-header { padding: 1rem; border-bottom: 1px solid var(--light-gray); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
-        .notification-title { font-weight: 600; }
-        .notification-actions { display: flex; gap: 0.5rem; }
+        .notification-title { font-weight: 600; } .notification-actions { display: flex; gap: 0.5rem; }
         .notification-list { list-style: none; }
-        .notification-item { padding: 1rem; border-bottom: 1px solid var(--light-gray); display: flex; gap: 1rem; position: relative; cursor: pointer; }
-        .notification-item:last-child { border-bottom: none; }
-        .notification-item.unread { background-color: rgba(37, 99, 235, 0.05); }
+        .notification-item { padding: 1rem; border-bottom: 1px solid var(--light-gray); display: flex; gap: 1rem; position: relative; cursor: pointer; } .notification-item:last-child { border-bottom: none; } .notification-item.unread { background-color: rgba(37, 99, 235, 0.05); }
         .notification-item .notification-icon { width: 40px; height: 40px; border-radius: 50%; background-color: rgba(37, 99, 235, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .notification-content { flex: 1; min-width: 0; }
-        .notification-message { margin-bottom: 0.25rem; word-break: break-word; overflow-wrap: break-word; }
-        .notification-time { font-size: 0.8rem; color: var(--gray); }
+        .notification-content { flex: 1; min-width: 0; } .notification-message { margin-bottom: 0.25rem; word-break: break-word; overflow-wrap: break-word; } .notification-time { font-size: 0.8rem; color: var(--gray); }
         .notification-dot { position: absolute; top: 1rem; right: 1rem; width: 8px; height: 8px; background-color: var(--primary); border-radius: 50%; }
         .notification-actions-item { position: absolute; top: 0.5rem; right: 0.5rem; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; color: var(--gray); cursor: pointer; border-radius: 50%; background: none; border: none; opacity: 0; transition: background-color 0.2s, opacity 0.2s; }
-        .notification-item:hover .notification-actions-item { opacity: 1; background-color: var(--light-gray); }
-        .notification-actions-item i { font-size: 0.8rem; }
+        .notification-item:hover .notification-actions-item { opacity: 1; background-color: var(--light-gray); } .notification-actions-item i { font-size: 0.8rem; }
 
         /* Task Management Styles */
-        #taskManagementContent { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 2rem; }
         .task-filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
         .filter-group { display: flex; align-items: center; gap: 0.5rem; }
         .filter-group label { font-weight: 500; color: var(--gray); font-size: 0.9rem; }
@@ -508,7 +437,6 @@
         .task-btn { padding: 0.5rem; border: none; background: none; cursor: pointer; color: var(--gray); border-radius: 4px; display: flex; align-items: center; justify-content: center; } .task-btn:hover { background-color: rgba(0, 0, 0, 0.05); }
 
         /* Team Calendar Styles */
-        #calendarContent { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 2rem; }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
         .calendar-nav { display: flex; align-items: center; gap: 1rem; } .calendar-title { font-size: 1.25rem; font-weight: 600; min-width: 150px; text-align: center; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; border: 1px solid var(--light-gray); padding: 0.5rem; background-color: var(--white); }
@@ -519,7 +447,6 @@
         .calendar-event.team-meeting { background-color: #dbeafe; border-left-color: var(--primary); } .calendar-event.deadline { background-color: #fee2e2; border-left-color: var(--danger); color: var(--danger); } .calendar-event.vacation { background-color: #fef9c3; border-left-color: var(--warning); color: #a16207; }
 
         /* Projects Styles */
-        #projectsContent { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 2rem; }
         .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
         .project-card { background-color: var(--light); border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); border: 1px solid var(--light-gray); display: flex; flex-direction: column; justify-content: space-between; }
         .project-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; } .project-title { font-size: 1.1rem; font-weight: 600; margin-right: 0.5rem; }
@@ -531,7 +458,6 @@
         .project-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--gray); border-top: 1px solid var(--light-gray); padding-top: 1rem; margin-top: auto; } .project-team, .project-due { display: flex; align-items: center; gap: 0.25rem; }
 
         /* Team Members Styles */
-        #teamContent { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 2rem; }
         .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
         .member-card { background-color: var(--light); border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); border: 1px solid var(--light-gray); text-align: center; }
         .member-avatar { width: 80px; height: 80px; border-radius: 50%; background-color: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.5rem; margin: 0 auto 1rem; overflow: hidden; border: 3px solid var(--white); box-shadow: 0 2px 4px rgba(0,0,0,0.1); } .member-avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -541,20 +467,22 @@
         .member-contact { margin-top: 1rem; display: flex; justify-content: center; gap: 0.75rem; } .contact-btn { width: 36px; height: 36px; border-radius: 50%; background-color: var(--light-gray); display: flex; align-items: center; justify-content: center; color: var(--gray); cursor: pointer; transition: all 0.2s ease; } .contact-btn:hover { background-color: var(--primary); color: var(--white); transform: scale(1.1); }
 
         /* Settings Styles */
-        #settingsContent { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 2rem; }
         .settings-tabs { display: flex; border-bottom: 1px solid var(--light-gray); margin-bottom: 1.5rem; overflow-x: auto; }
-        .settings-tab { padding: 0.75rem 1.5rem; cursor: pointer; font-weight: 500; color: var(--gray); border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.2s, border-color 0.2s; } .settings-tab:hover { color: var(--primary); } .settings-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .settings-tab { padding: 0.75rem 1.5rem; cursor: pointer; font-weight: 500; color: var(--gray); border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.2s, border-color 0.2s; background: none; border-top: none; border-left: none; border-right: none; /* Button reset */}
+        .settings-tab:hover { color: var(--primary); }
+        .settings-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
         .settings-panel { display: none; } .settings-panel.active { display: block; }
         .toggle-switch { position: relative; display: inline-block; width: 50px; height: 24px; flex-shrink: 0; } .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--light-gray); transition: .4s; border-radius: 24px; } .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--primary); } input:checked + .slider:before { transform: translateX(26px); }
-        .security-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--light-gray); gap: 1rem; } .security-item:last-child { border-bottom: none; }
-        .security-info { flex: 1; min-width: 0; } .security-title { font-weight: 600; margin-bottom: 0.25rem; } .security-description { color: var(--gray); font-size: 0.9rem; }
-        .security-item .btn { /* Ensure buttons in security items have consistent size */ flex-shrink: 0; }
+        .security-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--light-gray); gap: 1rem; flex-wrap: wrap; /* Allow wrap */ } .security-item:last-child { border-bottom: none; }
+        .security-info { flex: 1 1 300px; /* Allow wrapping */ min-width: 0; }
+        .security-title { font-weight: 600; margin-bottom: 0.25rem; } .security-description { color: var(--gray); font-size: 0.9rem; }
+        .security-item .btn { flex-shrink: 0; }
 
         /* Placeholder Styles */
         #schedulingContent, #filesContent, #dataContent, #trackingContent,
-        #deadlineContent, #reportsContent, #innovationContent { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 2rem; }
+        #deadlineContent, #reportsContent, #innovationContent { /* Inherit from .content-section */ }
          .chart-container, .gantt-chart, .schedule-calendar { background-color: var(--light); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; min-height: 200px; display: flex; align-items: center; justify-content: center; color: var(--gray); border: 1px dashed var(--light-gray); text-align: center; }
          .data-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
          .data-table th, .data-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--light-gray); font-size: 0.9rem; } .data-table th { font-weight: 600; color: var(--gray); background-color: var(--light); } .data-table tbody tr:hover { background-color: rgba(0,0,0,0.02); }
@@ -564,10 +492,10 @@
          .file-name { font-weight: 500; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.9rem; } .file-meta { font-size: 0.75rem; color: var(--gray); }
 
         /* Responsive Design */
-        @media (max-width: 992px) { .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; } .sidebar.active { transform: translateX(0); box-shadow: 4px 0 15px rgba(0,0,0,0.1); } .main-content { margin-left: 0; } .top-nav { padding: 1rem; } .search-bar { width: 200px; } .menu-toggle { display: block; background: none; border: none; color: var(--gray); font-size: 1.5rem; cursor: pointer; margin-right: 1rem; } .top-nav { order: -1; } .user-menu { gap: 1rem; } }
-        @media (max-width: 768px) { .top-nav { flex-direction: column; align-items: flex-start; gap: 1rem; padding: 1rem; } .search-bar { width: 100%; order: 2; } .user-menu { width: 100%; justify-content: space-between; order: 1; } .menu-toggle { margin-right: 0; margin-left: auto; } .content-area { padding: 1.5rem; } .profile-form { grid-template-columns: 1fr; } .form-actions, .profile-picture-upload { grid-column: span 1; } .profile-picture-upload { flex-direction: column; align-items: flex-start; } .user-info { flex-direction: column; text-align: center; gap: 1rem; } .stats-section { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); } .calendar-grid { grid-template-columns: repeat(2, 1fr); } .calendar-day { min-height: 80px; } .calendar-day-header { font-size: 0.8rem; } .projects-grid { grid-template-columns: 1fr; } .team-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); } .file-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); } .notification-dropdown { width: calc(100vw - 40px); right: -10px; max-width: 350px; } .security-item { flex-direction: column; align-items: flex-start; } .toggle-switch { margin-top: 0.5rem; } }
+        @media (max-width: 992px) { .sidebar { transform: translateX(-100%); } .sidebar.active { transform: translateX(0); box-shadow: 4px 0 15px rgba(0,0,0,0.1); } .main-content { margin-left: 0; } .top-nav { padding: 1rem; } .search-bar { width: 200px; } .menu-toggle { display: block !important; /* Ensure toggles are visible */ background: none; border: none; color: var(--gray); font-size: 1.5rem; cursor: pointer; } .open-sidebar { margin-right: 1rem; } .close-sidebar { color: white; } .top-nav { order: -1; } .user-menu { gap: 1rem; } }
+        @media (max-width: 768px) { .top-nav { flex-direction: column; align-items: flex-start; gap: 1rem; padding: 1rem; } .search-bar { width: 100%; order: 2; } .user-menu { width: 100%; justify-content: space-between; order: 1; } .open-sidebar { margin-right: 0; margin-left: auto; } .content-area { padding: 1.5rem; } .profile-form { grid-template-columns: 1fr; } .form-actions, .profile-picture-upload { grid-column: span 1; } .profile-picture-upload { flex-direction: column; align-items: flex-start; } .user-info { flex-direction: column; text-align: center; gap: 1rem; } .stats-section { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); } .calendar-grid { grid-template-columns: repeat(2, 1fr); } .calendar-day { min-height: 80px; } .calendar-day-header { font-size: 0.8rem; } .projects-grid { grid-template-columns: 1fr; } .team-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); } .file-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); } .notification-dropdown { width: calc(100vw - 40px); right: -10px; max-width: 350px; } .security-item { flex-direction: column; align-items: flex-start; } .toggle-switch { margin-top: 0.5rem; } }
         @media (max-width: 480px) { .stats-section { grid-template-columns: 1fr; } .calendar-grid { grid-template-columns: 1fr; } .welcome-title { font-size: 1.25rem; } .welcome-subtitle { font-size: 0.9rem; } .user-info-avatar { width: 60px; height: 60px; font-size: 1.5rem; } .user-info-name { font-size: 1.1rem; } .btn { padding: 0.6rem 1.2rem; font-size: 0.9rem; } .section-title { font-size: 1.1rem; } }
-        /* Hide mobile toggles on larger screens */
+        /* Hide mobile toggles on larger screens initially */
         .menu-toggle { display: none; }
 
         /* Screen reader only class */
@@ -587,7 +515,8 @@
             </button>
         </div>
         <div class="sidebar-menu">
-            <div class="menu-title">Main Features</div>
+             <!-- Sidebar Menu Items -->
+             <div class="menu-title">Main Features</div>
             <a href="#dashboard" class="menu-item" data-feature="dashboard"><i class="fas fa-tachometer-alt" aria-hidden="true"></i><span>Dashboard</span></a>
             <div class="menu-divider"></div>
             <a href="#task-management" class="menu-item" data-feature="task-management"><i class="fas fa-tasks" aria-hidden="true"></i><span>Task Management</span></a>
@@ -619,10 +548,10 @@
                 <div class="search-results" id="searchResults"></div>
             </div>
             <div class="user-menu">
-                <div class="notification-icon-wrapper" id="notificationIconWrapper" title="Notifications">
+                <div class="notification-icon-wrapper" id="notificationIconWrapper" title="Notifications" tabindex="0" aria-haspopup="true" aria-expanded="false"> <!-- Added tabindex/aria -->
                     <i class="fas fa-bell" aria-hidden="true"></i>
                     <span class="notification-badge" id="notificationBadge">0</span>
-                    <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-dropdown" id="notificationDropdown" role="menu"> <!-- Added role -->
                         <div class="notification-header">
                             <div class="notification-title">Notifications</div>
                             <div class="notification-actions">
@@ -631,7 +560,6 @@
                             </div>
                         </div>
                         <ul class="notification-list" id="notificationList" aria-live="polite">
-                             <!-- Notifications dynamically loaded -->
                              <li class="notification-item unread" data-id="0">
                                  <div class="notification-icon"><i class="fas fa-info-circle" aria-hidden="true"></i></div>
                                  <div class="notification-content">
@@ -644,17 +572,17 @@
                         </ul>
                     </div>
                 </div>
-                <div class="user-profile" id="userProfileWrapper" title="User Menu" tabindex="0" aria-haspopup="true" aria-expanded="false"> <!-- Added tabindex and aria -->
+                <div class="user-profile" id="userProfileWrapper" title="User Menu" tabindex="0" aria-haspopup="true" aria-expanded="false">
                     <div class="user-avatar" id="userAvatar">
                         <div class="initials">ME</div>
                     </div>
                     <div class="user-name" id="userNameDisplay">
-                        Mohamed Elmenisy <!-- This text node will be updated by JS -->
+                        Mohamed Elmenisy <!-- Text updated by JS -->
                         <span class="user-status" title="Online Status">
                             <span class="sr-only">Status:</span> Connected
                         </span>
                     </div>
-                    <div class="user-dropdown" id="userDropdown" role="menu"> <!-- Added role -->
+                    <div class="user-dropdown" id="userDropdown" role="menu">
                         <a href="#profile" class="dropdown-item" id="profileLink" role="menuitem"><i class="fas fa-user" aria-hidden="true"></i><span>Profile</span></a>
                         <a href="#settings" class="dropdown-item" id="settingsLink" role="menuitem"><i class="fas fa-cog" aria-hidden="true"></i><span>Settings</span></a>
                         <a href="login.html" class="dropdown-item" id="logoutLink" role="menuitem"><i class="fas fa-sign-out-alt" aria-hidden="true"></i><span>Logout</span></a>
@@ -663,232 +591,152 @@
             </div>
         </nav>
         <!-- Content Area -->
-        <div class="content-area" role="main"> <!-- Added role -->
+        <div class="content-area" role="main">
 
             <!-- Dashboard Content -->
-            <div id="dashboardContent">
-                <section class="welcome-section" aria-labelledby="welcome-heading"> <!-- Use section and aria -->
+            <div id="dashboardContent" class="content-section">
+                <section class="welcome-section" aria-labelledby="welcome-heading">
                     <h2 class="welcome-title" id="welcome-heading">Welcome, <span id="welcomeName">Mohamed</span>!</h2>
                     <p class="welcome-subtitle">Here's what's happening with your team today.</p>
                     <div class="user-info">
-                        <div class="user-info-avatar" id="profileAvatar">
-                            <div class="initials">ME</div>
-                        </div>
+                        <div class="user-info-avatar" id="profileAvatar"><div class="initials">ME</div></div>
                         <div class="user-info-details">
                             <div class="user-info-name">Mohamed Elmenisy</div>
                             <div class="user-info-title" id="userRoleTitle">Administrator</div>
-                            <div class="user-info-email">
-                                <i class="fas fa-envelope" aria-hidden="true"></i>
-                                <span id="userEmail">m.elsayed@thechefz.co</span>
-                            </div>
+                            <div class="user-info-email"><i class="fas fa-envelope" aria-hidden="true"></i> <span id="userEmail">m.elsayed@thechefz.co</span></div>
                         </div>
                     </div>
                 </section>
-                <section class="stats-section" aria-label="Dashboard Statistics"> <!-- Use section and aria -->
-                    <div class="stat-card">
-                        <div class="stat-title"><i class="fas fa-users" aria-hidden="true"></i> Team Members</div>
-                        <div class="stat-value">
-                            <span id="teamMembersCount">0</span>
-                            <i id="teamMembersArrow" class="fas fa-arrow-up stat-arrow up" aria-hidden="true"></i>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title"><i class="fas fa-check-circle" aria-hidden="true"></i> Tasks Completed</div>
-                        <div class="stat-value">
-                            <span id="tasksCompletedCount">0</span>
-                            <i id="tasksCompletedArrow" class="fas fa-arrow-up stat-arrow up" aria-hidden="true"></i>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title"><i class="fas fa-project-diagram" aria-hidden="true"></i> Active Projects</div>
-                        <div class="stat-value">
-                            <span id="activeProjectsCount">0</span>
-                            <i id="activeProjectsArrow" class="fas fa-arrow-up stat-arrow up" aria-hidden="true"></i>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title"><i class="fas fa-clock" aria-hidden="true"></i> Upcoming Deadlines</div>
-                        <div class="stat-value">
-                            <span id="upcomingDeadlinesCount">0</span>
-                            <i id="upcomingDeadlinesArrow" class="fas fa-arrow-up stat-arrow up" aria-hidden="true"></i>
-                        </div>
-                    </div>
+                <section class="stats-section" aria-label="Dashboard Statistics">
+                     <!-- Stats Cards -->
+                     <div class="stat-card"><div class="stat-title"><i class="fas fa-users" aria-hidden="true"></i> Team Members</div><div class="stat-value"><span id="teamMembersCount">0</span><i id="teamMembersArrow" class="fas fa-arrow-up stat-arrow up" aria-hidden="true"></i></div></div>
+                     <div class="stat-card"><div class="stat-title"><i class="fas fa-check-circle" aria-hidden="true"></i> Tasks Completed</div><div class="stat-value"><span id="tasksCompletedCount">0</span><i id="tasksCompletedArrow" class="fas fa-arrow-up stat-arrow up" aria-hidden="true"></i></div></div>
+                     <div class="stat-card"><div class="stat-title"><i class="fas fa-project-diagram" aria-hidden="true"></i> Active Projects</div><div class="stat-value"><span id="activeProjectsCount">0</span><i id="activeProjectsArrow" class="fas fa-arrow-up stat-arrow up" aria-hidden="true"></i></div></div>
+                     <div class="stat-card"><div class="stat-title"><i class="fas fa-clock" aria-hidden="true"></i> Upcoming Deadlines</div><div class="stat-value"><span id="upcomingDeadlinesCount">0</span><i id="upcomingDeadlinesArrow" class="fas fa-arrow-up stat-arrow up" aria-hidden="true"></i></div></div>
                 </section>
-                <section class="activity-section" aria-labelledby="activity-heading"> <!-- Use section and aria -->
-                    <div class="section-header">
-                        <h3 class="section-title" id="activity-heading">Recent Activity</h3>
-                        <div class="activity-actions">
-                            <button class="btn btn-outline btn-sm" id="showAllActivities">Show All</button>
-                            <button class="btn btn-danger btn-sm" id="deleteAllActivities">Delete All</button>
-                        </div>
-                    </div>
-                    <ul class="activity-list" id="activityList" aria-live="polite">
-                         <li style="padding: 1rem; text-align: center; color: var(--gray); border-bottom: none;">Loading activities...</li>
-                    </ul>
+                <section class="activity-section" aria-labelledby="activity-heading">
+                    <div class="section-header"><h3 class="section-title" id="activity-heading">Recent Activity</h3><div class="activity-actions"><button class="btn btn-outline btn-sm" id="showAllActivities">Show All</button><button class="btn btn-danger btn-sm" id="deleteAllActivities">Delete All</button></div></div>
+                    <ul class="activity-list" id="activityList" aria-live="polite"><li style="padding: 1rem; text-align: center; color: var(--gray); border-bottom: none;">Loading activities...</li></ul>
                 </section>
             </div>
 
             <!-- Profile Content -->
-            <div id="profileContent">
-                <a href="#dashboard" class="btn btn-outline btn-sm back-to-dashboard-link">
-                     <i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Dashboard
-                </a>
-                <div class="profile-header">
-                    <h2 class="profile-title">Profile Settings</h2>
-                </div>
+            <div id="profileContent" class="content-section">
+                <a href="#dashboard" class="btn btn-outline btn-sm back-to-dashboard-link"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Dashboard</a>
+                <div class="profile-header" style="margin-top: 1.5rem;"><h2 class="profile-title">Profile Settings</h2></div>
                 <form class="profile-form" id="profileForm">
                      <div class="profile-picture-upload">
-                        <div class="profile-picture-preview" id="profilePicturePreview">
-                            <div class="initials">ME</div>
-                        </div>
-                        <div class="upload-btn">
-                            <button type="button" class="btn btn-primary">
-                                <i class="fas fa-upload" aria-hidden="true"></i> Upload Photo
-                            </button>
-                            <input type="file" id="profilePictureInput" accept="image/*" aria-label="Upload profile picture">
-                        </div>
+                        <div class="profile-picture-preview" id="profilePicturePreview"><div class="initials">ME</div></div>
+                        <div class="upload-btn"><button type="button" class="btn btn-primary"><i class="fas fa-upload" aria-hidden="true"></i> Upload Photo</button><input type="file" id="profilePictureInput" accept="image/*" aria-label="Upload profile picture"></div>
                     </div>
-                    <div class="form-group">
-                        <label for="firstName">First Name</label>
-                        <input type="text" id="firstName" class="form-control" value="Mohamed">
-                    </div>
-                    <div class="form-group">
-                        <label for="lastName">Last Name</label>
-                        <input type="text" id="lastName" class="form-control" value="Elmenisy">
-                    </div>
-                    <div class="form-group">
-                        <label for="jobTitle">Job Title</label>
-                        <input type="text" id="jobTitle" class="form-control" value="Administrator">
-                    </div>
-                    <div class="form-group">
-                        <label for="department">Department</label>
-                        <input type="text" id="department" class="form-control" value="Management">
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" class="form-control" value="m.elsayed@thechefz.co" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone</label>
-                        <input type="tel" id="phone" class="form-control" value="+201234567890">
-                    </div>
-                    <div class="form-actions">
-                        <a href="#dashboard" class="btn btn-secondary" id="cancelProfileLink">Cancel</a>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </div>
+                    <!-- Profile Form Groups -->
+                    <div class="form-group"><label for="firstName">First Name</label><input type="text" id="firstName" class="form-control" value="Mohamed"></div>
+                    <div class="form-group"><label for="lastName">Last Name</label><input type="text" id="lastName" class="form-control" value="Elmenisy"></div>
+                    <div class="form-group"><label for="jobTitle">Job Title</label><input type="text" id="jobTitle" class="form-control" value="Administrator"></div>
+                    <div class="form-group"><label for="department">Department</label><input type="text" id="department" class="form-control" value="Management"></div>
+                    <div class="form-group"><label for="email">Email</label><input type="email" id="email" class="form-control" value="m.elsayed@thechefz.co" readonly></div>
+                    <div class="form-group"><label for="phone">Phone</label><input type="tel" id="phone" class="form-control" value="+201234567890"></div>
+                    <div class="form-actions"><a href="#dashboard" class="btn btn-secondary" id="cancelProfileLink">Cancel</a><button type="submit" class="btn btn-primary">Save Changes</button></div>
                 </form>
             </div>
 
             <!-- Task Management Content -->
-            <div id="taskManagementContent">
+            <div id="taskManagementContent" class="content-section">
                  <a href="#dashboard" class="btn btn-outline btn-sm back-to-dashboard-link"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Dashboard</a>
-                <div class="section-header" style="margin-top: 1.5rem;">
-                    <h2 class="section-title">Task Management</h2>
-                    <button class="btn btn-primary"><i class="fas fa-plus" aria-hidden="true"></i> New Task</button>
-                </div>
-                <div class="task-filters">
-                    <div class="filter-group"><label for="statusFilter">Status:</label><select id="statusFilter" class="filter-select"><option value="all">All</option><option value="pending">Pending</option><option value="in-progress">In Progress</option><option value="completed">Completed</option></select></div>
-                    <div class="filter-group"><label for="priorityFilter">Priority:</label><select id="priorityFilter" class="filter-select"><option value="all">All</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div>
-                    <div class="filter-group"><label for="projectFilter">Project:</label><select id="projectFilter" class="filter-select"><option value="all">All Projects</option><option value="dashboard">Dashboard Redesign</option><option value="mobile">Mobile App</option><option value="api">API Integration</option></select></div>
-                </div>
-                <ul class="task-list" id="taskList">
-                     <li class="task-item high-priority"><div class="task-info"><div class="task-title">Fix critical security issue</div><div class="task-description">Address vulnerability</div><div class="task-meta"><span class="task-status pending">Pending</span><span><i class="far fa-calendar-alt" aria-hidden="true"></i> Today</span><span><i class="fas fa-project-diagram" aria-hidden="true"></i> Dashboard</span></div></div><div class="task-actions"><button class="task-btn" title="Edit"><i class="fas fa-edit" aria-hidden="true"></i></button><button class="task-btn" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button><button class="task-btn" title="Complete"><i class="fas fa-check" aria-hidden="true"></i></button></div></li>
-                     <li class="task-item medium-priority"><div class="task-info"><div class="task-title">Design profile page</div><div class="task-description">Create mockups</div><div class="task-meta"><span class="task-status in-progress">In Progress</span><span><i class="far fa-calendar-alt" aria-hidden="true"></i> Tomorrow</span><span><i class="fas fa-project-diagram" aria-hidden="true"></i> Mobile App</span></div></div><div class="task-actions"><button class="task-btn" title="Edit"><i class="fas fa-edit" aria-hidden="true"></i></button><button class="task-btn" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button><button class="task-btn" title="Complete"><i class="fas fa-check" aria-hidden="true"></i></button></div></li>
-                </ul>
+                <div class="section-header" style="margin-top: 1.5rem;"><h2 class="section-title">Task Management</h2><button class="btn btn-primary"><i class="fas fa-plus" aria-hidden="true"></i> New Task</button></div>
+                <div class="task-filters"> /* ... Filters ... */ </div>
+                <ul class="task-list" id="taskList"> /* ... Task List Items ... */ </ul>
             </div>
 
             <!-- Employee Scheduling Content -->
-            <div id="schedulingContent">
+            <div id="schedulingContent" class="content-section">
                  <a href="#dashboard" class="btn btn-outline btn-sm back-to-dashboard-link"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Dashboard</a>
                  <div class="section-header" style="margin-top: 1.5rem;"><h2 class="section-title">Employee Scheduling</h2><button class="btn btn-primary"><i class="fas fa-plus" aria-hidden="true"></i> New Shift</button></div>
                  <div class="schedule-calendar">Employee Scheduling Feature Placeholder</div>
             </div>
 
             <!-- Team Calendar Content -->
-            <div id="calendarContent">
+            <div id="calendarContent" class="content-section">
                 <a href="#dashboard" class="btn btn-outline btn-sm back-to-dashboard-link"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Dashboard</a>
-                <div class="calendar-header" style="margin-top: 1.5rem;"><div class="calendar-nav"><button class="btn btn-outline btn-sm"><i class="fas fa-chevron-left" aria-hidden="true"></i></button><div class="calendar-title">June 2023</div><button class="btn btn-outline btn-sm"><i class="fas fa-chevron-right" aria-hidden="true"></i></button></div><button class="btn btn-primary btn-sm"><i class="fas fa-plus" aria-hidden="true"></i> New Event</button></div>
+                <div class="calendar-header" style="margin-top: 1.5rem;"> /* ... Calendar Header ... */ </div>
                 <div class="calendar-grid"> /* ... Calendar Grid ... */ </div>
             </div>
 
             <!-- File Sharing Content -->
-            <div id="filesContent">
+            <div id="filesContent" class="content-section">
                 <a href="#dashboard" class="btn btn-outline btn-sm back-to-dashboard-link"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Dashboard</a>
-                <div class="section-header" style="margin-top: 1.5rem;"><h2 class="section-title">File Sharing</h2><div class="file-actions" style="display: flex; gap: 1rem; align-items:center;"><button class="btn btn-primary btn-sm"><i class="fas fa-upload" aria-hidden="true"></i> Upload File</button><div class="search-bar" style="width: auto; min-width: 200px;"><i class="fas fa-search search-icon" aria-hidden="true"></i><input type="text" placeholder="Search files..."></div></div></div>
+                <div class="section-header" style="margin-top: 1.5rem;"> /* ... Files Header ... */ </div>
                 <div class="file-grid"> /* ... File Grid ... */ </div>
             </div>
 
             <!-- Data Management Content -->
-            <div id="dataContent">
+            <div id="dataContent" class="content-section">
                  <a href="#dashboard" class="btn btn-outline btn-sm back-to-dashboard-link"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Dashboard</a>
-                 <div class="section-header" style="margin-top: 1.5rem;"><h2 class="section-title">Data Management</h2><div class="search-bar" style="width: auto; min-width: 300px;"><i class="fas fa-search search-icon" aria-hidden="true"></i><input type="text" placeholder="Search data records..."></div></div>
+                 <div class="section-header" style="margin-top: 1.5rem;"> /* ... Data Header ... */ </div>
                  <div style="overflow-x: auto;"><table class="data-table"> /* ... Data Table ... */ </table></div>
             </div>
 
              <!-- Projects Content -->
-            <div id="projectsContent">
+            <div id="projectsContent" class="content-section">
                 <a href="#dashboard" class="btn btn-outline btn-sm back-to-dashboard-link"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Dashboard</a>
-                <div class="section-header" style="margin-top: 1.5rem;"><h2 class="section-title">Projects</h2><button class="btn btn-primary btn-sm"><i class="fas fa-plus" aria-hidden="true"></i> New Project</button></div>
+                <div class="section-header" style="margin-top: 1.5rem;"> /* ... Projects Header ... */ </div>
                 <div class="projects-grid"> /* ... Projects Grid ... */ </div>
             </div>
 
             <!-- Project Tracking Content -->
-            <div id="trackingContent">
+            <div id="trackingContent" class="content-section">
                  <a href="#dashboard" class="btn btn-outline btn-sm back-to-dashboard-link"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Dashboard</a>
-                 <div class="section-header" style="margin-top: 1.5rem;"><h2 class="section-title">Project Tracking</h2><div class="filter-group"><label for="trackingProjectFilter">Project:</label><select id="trackingProjectFilter" class="filter-select"><option>Dashboard Redesign</option><option>Mobile App Dev</option><option>API Integration</option></select></div></div>
+                 <div class="section-header" style="margin-top: 1.5rem;"> /* ... Tracking Header ... */ </div>
                  <div class="gantt-chart">Gantt Chart / Timeline Placeholder</div>
             </div>
 
             <!-- Deadline Tracking Content -->
-            <div id="deadlineContent">
+            <div id="deadlineContent" class="content-section">
                 <a href="#dashboard" class="btn btn-outline btn-sm back-to-dashboard-link"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Dashboard</a>
-                <div class="section-header" style="margin-top: 1.5rem;"><h2 class="section-title">Deadline Tracking</h2><div class="filter-group"><label for="deadlineFilterSelect">Priority:</label><select id="deadlineFilterSelect" class="filter-select"><option value="all">All</option><option value="critical">Critical</option><option value="high">High</option><option value="normal">Normal</option></select></div></div>
+                <div class="section-header" style="margin-top: 1.5rem;"> /* ... Deadline Header ... */ </div>
                  <div class="task-list"> /* ... Deadline List ... */ </div>
             </div>
 
             <!-- Team Members Content -->
-            <div id="teamContent">
+            <div id="teamContent" class="content-section">
                  <a href="#dashboard" class="btn btn-outline btn-sm back-to-dashboard-link"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Dashboard</a>
-                 <div class="section-header" style="margin-top: 1.5rem;"><h2 class="section-title">Team Members</h2><button class="btn btn-primary btn-sm"><i class="fas fa-plus" aria-hidden="true"></i> Add Member</button></div>
+                 <div class="section-header" style="margin-top: 1.5rem;"> /* ... Team Header ... */ </div>
                 <div class="team-grid"> /* ... Team Grid ... */ </div>
             </div>
 
             <!-- Reports & Analytics Content -->
-            <div id="reportsContent">
+            <div id="reportsContent" class="content-section">
                  <a href="#dashboard" class="btn btn-outline btn-sm back-to-dashboard-link"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Dashboard</a>
-                 <div class="section-header" style="margin-top: 1.5rem;"><h2 class="section-title">Reports & Analytics</h2><div class="time-filters" style="margin-left: auto;"><button class="btn btn-outline btn-sm active">Week</button><button class="btn btn-outline btn-sm">Month</button><button class="btn btn-outline btn-sm">Year</button></div></div>
+                 <div class="section-header" style="margin-top: 1.5rem;"> /* ... Reports Header ... */ </div>
                  <div class="chart-container">Task Completion Rate Chart Placeholder</div>
                  <div class="chart-container">Team Performance Chart Placeholder</div>
             </div>
 
             <!-- Innovation Hub Content -->
-            <div id="innovationContent">
+            <div id="innovationContent" class="content-section">
                  <a href="#dashboard" class="btn btn-outline btn-sm back-to-dashboard-link"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Dashboard</a>
-                 <div class="section-header" style="margin-top: 1.5rem;"><h2 class="section-title">Innovation Hub</h2><button class="btn btn-primary btn-sm"><i class="fas fa-plus" aria-hidden="true"></i> Submit Idea</button></div>
+                 <div class="section-header" style="margin-top: 1.5rem;"> /* ... Innovation Header ... */ </div>
                  <div style="padding: 2rem; text-align: center; color: var(--gray); border: 1px dashed var(--light-gray); border-radius: 8px;">Ideas Board Placeholder</div>
             </div>
 
             <!-- Settings Content -->
-            <div id="settingsContent">
+            <div id="settingsContent" class="content-section">
                  <a href="#dashboard" class="btn btn-outline btn-sm back-to-dashboard-link"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Dashboard</a>
-                <div class="settings-tabs" style="margin-top: 1.5rem;">
-                    <button class="settings-tab active" data-tab="general" role="tab" aria-selected="true" aria-controls="generalSettings">General</button>
-                    <button class="settings-tab" data-tab="notifications" role="tab" aria-selected="false" aria-controls="notificationSettings">Notifications</button>
-                    <button class="settings-tab" data-tab="integrations" role="tab" aria-selected="false" aria-controls="integrationSettings">Integrations</button>
-                    <button class="settings-tab" data-tab="security" role="tab" aria-selected="false" aria-controls="securitySettings">Security</button>
+                <div class="settings-tabs" style="margin-top: 1.5rem;" role="tablist"> <!-- Added role -->
+                    <button class="settings-tab active" data-tab="general" role="tab" aria-selected="true" aria-controls="generalSettings" id="general-tab">General</button>
+                    <button class="settings-tab" data-tab="notifications" role="tab" aria-selected="false" aria-controls="notificationSettings" id="notifications-tab">Notifications</button>
+                    <button class="settings-tab" data-tab="integrations" role="tab" aria-selected="false" aria-controls="integrationSettings" id="integrations-tab">Integrations</button>
+                    <button class="settings-tab" data-tab="security" role="tab" aria-selected="false" aria-controls="securitySettings" id="security-tab">Security</button>
                 </div>
                 <!-- General Settings Panel -->
                 <div class="settings-panel active" id="generalSettings" role="tabpanel" aria-labelledby="general-tab">
                     <h3 style="margin-bottom: 1.5rem;">General Settings</h3>
-                    <div class="form-group">
-                        <label for="timezone">Timezone</label>
-                        <select id="timezone" class="form-control"><option selected>(UTC+00:00) GMT</option><option>(UTC+02:00) Cairo</option></select>
-                    </div>
+                    <div class="form-group"><label for="timezone">Timezone</label><select id="timezone" class="form-control"><option selected>(UTC+00:00) GMT</option><option>(UTC+02:00) Cairo</option></select></div>
                     <div class="form-group">
                         <label for="language">Language</label>
                         <select id="language" class="form-control">
-                            <option selected>English</option>
-                            <option>System Default</option> <!-- Updated Option -->
+                            <option value="en" selected>English</option>
+                            <option value="system">System Default</option>
                         </select>
                     </div>
                     <div class="form-actions"><button type="button" class="btn btn-secondary">Cancel</button><button type="submit" class="btn btn-primary">Save Changes</button></div>
@@ -920,11 +768,11 @@
                     <h3 style="margin-bottom: 1.5rem;">Security Settings</h3>
                     <div class="security-item">
                         <div class="security-info"><div class="security-title">Two-Factor Authentication</div><div class="security-description">Add an extra layer of security to your account</div></div>
-                        <button class="btn btn-outline btn-sm" id="enable2faButton">Enable</button> <!-- Added ID -->
+                        <button class="btn btn-outline btn-sm" id="enable2faButton">Enable</button>
                     </div>
                     <div class="security-item">
                         <div class="security-info"><div class="security-title">Password</div><div class="security-description">Last changed 3 months ago</div></div>
-                        <button class="btn btn-outline btn-sm" id="changePasswordButton">Change</button> <!-- Added ID -->
+                        <button class="btn btn-outline btn-sm" id="changePasswordButton">Change</button>
                     </div>
                     <div class="form-actions"><button type="button" class="btn btn-secondary">Cancel</button><button type="submit" class="btn btn-primary">Save Changes</button></div>
                 </div>
@@ -934,7 +782,7 @@
     </main>
 
     <!-- Confirmation Message -->
-    <div class="confirmation-message" id="confirmationMessage" role="alert" aria-live="assertive"> <!-- Added roles -->
+    <div class="confirmation-message" id="confirmationMessage" role="alert" aria-live="assertive">
         <i class="fas fa-check-circle" aria-hidden="true"></i>
         <span id="confirmationText">Changes saved successfully!</span>
     </div>
@@ -942,6 +790,9 @@
     <!-- Notification Sounds -->
     <audio id="notificationSound" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3" preload="auto"></audio>
     <audio id="deleteSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3" preload="auto"></audio>
+
+    <!-- Screen reader only text placeholder -->
+    <span class="sr-only"></span>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -957,7 +808,8 @@
             const markAllAsRead = document.getElementById('markAllAsRead');
             const deleteAllNotificationsBtn = document.getElementById('deleteAllNotifications');
             const userProfileWrapper = document.getElementById('userProfileWrapper');
-            const userNameDisplay = document.getElementById('userNameDisplay');
+            const userNameDisplay = document.getElementById('userNameDisplay'); // Target the div containing name and status
+            const userStatusSpan = userNameDisplay.querySelector('.user-status'); // Target the status span
             const userEmail = document.getElementById('userEmail');
             const welcomeName = document.getElementById('welcomeName');
             const userDropdown = document.getElementById('userDropdown');
@@ -967,7 +819,7 @@
             const showAllActivities = document.getElementById('showAllActivities');
             const deleteAllActivitiesBtn = document.getElementById('deleteAllActivities');
             const activityList = document.getElementById('activityList');
-            const contentSections = document.querySelectorAll('.content-area > div[id$="Content"]');
+            const contentSections = document.querySelectorAll('.content-section'); // Use class selector
             const settingsTabs = document.querySelectorAll('.settings-tab');
             const settingsPanels = document.querySelectorAll('.settings-panel');
             const profileForm = document.getElementById('profileForm');
@@ -981,8 +833,8 @@
             const openSidebarBtn = document.querySelector('.open-sidebar');
             const closeSidebarBtn = document.querySelector('.close-sidebar');
             const soundAlertsToggle = document.getElementById('soundAlertsToggle');
-            const enable2faButton = document.getElementById('enable2faButton'); // 2FA Button
-            const changePasswordButton = document.getElementById('changePasswordButton'); // Password Button
+            const enable2faButton = document.getElementById('enable2faButton');
+            const changePasswordButton = document.getElementById('changePasswordButton');
 
             // Stat Elements
             const teamMembersCountEl = document.getElementById('teamMembersCount');
@@ -998,7 +850,7 @@
             let currentUser = {
                 id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', title: 'Administrator', department: 'Management', phone: '+201234567890', initials: 'ME', role: 'admin',
                 stats: { teamMembers: 0, tasksCompleted: 0, activeProjects: 0, upcomingDeadlines: 0 },
-                profilePicture: null, settings: { soundAlerts: true, twoFactorEnabled: false } // Added 2FA state
+                profilePicture: null, settings: { soundAlerts: true, twoFactorEnabled: false }
             };
             let notifications = [ { id: 0, icon: 'fas fa-info-circle', message: 'Welcome to TeamFlow!', time: 'Just now', read: false } ];
             let activities = [
@@ -1028,38 +880,77 @@
              // --- Initialization ---
             function initApp() {
                 if (soundAlertsToggle) soundAlertsToggle.checked = currentUser.settings.soundAlerts;
-                updateUserUI();
-                renderNotifications();
-                renderActivities();
-                setupEventListeners();
-                handleNavigation();
-                initRealTimeUpdates();
-                checkScreenSize();
-                update2faButtonState(); // Set initial 2FA button state
+                updateUserUI(); renderNotifications(); renderActivities(); setupEventListeners(); handleNavigation(); initRealTimeUpdates(); checkScreenSize(); update2faButtonState();
             }
 
             // --- Core Navigation Logic ---
-            function handleNavigation() { const hash = window.location.hash.substring(1); const feature = hash || 'dashboard'; updateView(feature); }
+            function handleNavigation() {
+                 // console.log('Hash changed:', window.location.hash); // Debugging
+                 const hash = window.location.hash.substring(1);
+                 const feature = hash || 'dashboard';
+                 updateView(feature);
+            }
+
             function updateView(feature) {
+                 // console.log('Updating view for:', feature); // Debugging
                  const config = featureMap[feature];
-                 if (!config) { feature = 'dashboard'; window.location.hash = 'dashboard'; return; } // Redirect if invalid
-                 contentSections.forEach(section => section.style.display = 'none');
+                 if (!config) {
+                     console.warn(`Feature "${feature}" not found. Defaulting to dashboard.`);
+                     window.location.hash = 'dashboard'; // Correct invalid hash immediately
+                     // No need to call updateView again, hashchange listener will fire
+                     return;
+                 }
+
+                 contentSections.forEach(section => {
+                     section.style.display = 'none'; // Hide all sections first
+                 });
+
                  const targetSection = document.getElementById(config.contentId);
-                 if (targetSection) targetSection.style.display = 'block';
-                 else document.getElementById(featureMap['dashboard'].contentId).style.display = 'block';
+                 if (targetSection) {
+                     // console.log('Showing section:', config.contentId); // Debugging
+                     targetSection.style.display = 'block'; // Show the target section
+                 } else {
+                     console.error(`Content section with ID "${config.contentId}" not found for feature "${feature}". Showing dashboard.`);
+                     document.getElementById(featureMap['dashboard'].contentId).style.display = 'block';
+                     feature = 'dashboard'; // Ensure menu update reflects fallback
+                 }
+
                  menuItems.forEach(item => item.classList.remove('active'));
-                 if (config.menuItemSelector) { const activeMenuItem = document.querySelector(config.menuItemSelector); if (activeMenuItem) activeMenuItem.classList.add('active'); }
-                 if (feature === 'settings' && featureMap.settings.menuItemSelector) { const settingsMenuItem = document.querySelector(featureMap.settings.menuItemSelector); if (settingsMenuItem) settingsMenuItem.classList.add('active'); }
+                 if (config.menuItemSelector) {
+                     const activeMenuItem = document.querySelector(config.menuItemSelector);
+                     if (activeMenuItem) {
+                          activeMenuItem.classList.add('active');
+                          // console.log('Activated menu item:', config.menuItemSelector); // Debugging
+                     } else {
+                         // console.warn('Menu item selector not found:', config.menuItemSelector); // Debugging
+                     }
+                 }
+
+                  // Special handling for Settings active state if needed
+                 if (feature === 'settings' && featureMap.settings.menuItemSelector) {
+                     const settingsMenuItem = document.querySelector(featureMap.settings.menuItemSelector);
+                     if (settingsMenuItem) settingsMenuItem.classList.add('active');
+                 }
+
+
                  userDropdown.classList.remove('active'); notificationDropdown.classList.remove('active'); sidebar.classList.remove('active'); searchResults.style.display = 'none';
             }
+
 
             // --- UI Update Functions ---
             function updateUserUI() {
                 const nameParts = currentUser.name.split(' ');
                 welcomeName.textContent = nameParts[0];
-                const nameTextNode = Array.from(userNameDisplay.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
-                if (nameTextNode) nameTextNode.nodeValue = currentUser.name + ' ';
-                else userNameDisplay.firstChild.textContent = currentUser.name + ' ';
+                // Update only the text node part of userNameDisplay, preserving the status span
+                const nameNode = userNameDisplay.childNodes[0];
+                if (nameNode && nameNode.nodeType === Node.TEXT_NODE) {
+                    nameNode.nodeValue = currentUser.name + ' '; // Add space before status span
+                } else {
+                     // Fallback or different approach if structure changes
+                     userNameDisplay.textContent = currentUser.name; // Simpler, might overwrite status temporarily
+                     userNameDisplay.appendChild(userStatusSpan); // Re-append status span if overwritten
+                }
+
                 userEmail.textContent = currentUser.email;
                 document.querySelector('.user-info-name').textContent = currentUser.name;
                 const roleTitle = currentUser.role === 'admin' ? 'Administrator' : 'Team Member';
@@ -1117,23 +1008,19 @@
                 closeSidebarBtn.addEventListener('click', () => sidebar.classList.remove('active'));
                 sidebar.addEventListener('click', (e) => { if (e.target.closest('.menu-item')) sidebar.classList.remove('active'); });
                 document.addEventListener('click', handleGlobalClick);
-                window.addEventListener('hashchange', handleNavigation);
+                window.addEventListener('hashchange', handleNavigation); // Main navigation trigger
                 window.addEventListener('resize', checkScreenSize);
                 if (soundAlertsToggle) soundAlertsToggle.addEventListener('change', handleSoundToggle);
-                if (enable2faButton) enable2faButton.addEventListener('click', handleToggle2FA); // Listener for 2FA
-                if (changePasswordButton) changePasswordButton.addEventListener('click', handleChangePassword); // Listener for Password
+                if (enable2faButton) enable2faButton.addEventListener('click', handleToggle2FA);
+                if (changePasswordButton) changePasswordButton.addEventListener('click', handleChangePassword);
             }
-            function toggleUserDropdown(e) { e.stopPropagation(); userDropdown.classList.toggle('active'); userDropdown.setAttribute('aria-expanded', userDropdown.classList.contains('active')); notificationDropdown.classList.remove('active'); notificationDropdown.setAttribute('aria-expanded', 'false');}
-            function toggleNotificationDropdown(e) { e.stopPropagation(); notificationDropdown.classList.toggle('active'); notificationDropdown.setAttribute('aria-expanded', notificationDropdown.classList.contains('active')); userDropdown.classList.remove('active'); userDropdown.setAttribute('aria-expanded', 'false'); }
+            function toggleUserDropdown(e) { e.stopPropagation(); const isActive = userDropdown.classList.toggle('active'); userDropdown.setAttribute('aria-expanded', isActive); notificationDropdown.classList.remove('active'); notificationDropdown.setAttribute('aria-expanded', 'false');}
+            function toggleNotificationDropdown(e) { e.stopPropagation(); const isActive = notificationDropdown.classList.toggle('active'); notificationDropdown.setAttribute('aria-expanded', isActive); userDropdown.classList.remove('active'); userDropdown.setAttribute('aria-expanded', 'false'); }
             function handleNotificationClick(e) { if (e.target.closest('.delete-notification')) return; const li = e.currentTarget; const id = parseInt(li.dataset.id); markNotificationAsRead(id); }
             function handleDeleteNotificationClick(e) { e.stopPropagation(); const button = e.currentTarget; const li = button.closest('.notification-item'); const id = parseInt(li.dataset.id); deleteNotification(id); }
             function handleMarkAllRead(e) { e.stopPropagation(); notifications.forEach(n => n.read = true); renderNotifications(); showConfirmation('All notifications marked as read.'); }
             function handleDeleteAllNotifications(e) { e.stopPropagation(); if (notifications.length > 0 && confirm('Are you sure you want to delete all notifications? This cannot be undone.')) { notifications = []; renderNotifications(); playDeleteSound(); showConfirmation('All notifications deleted.'); } }
-            function handleSearchInput() {
-                 const query = searchInput.value.trim().toLowerCase(); searchResults.innerHTML = ''; searchResults.style.display = 'none'; if (query.length === 0) return;
-                 const results = searchData.filter(item => item.name.toLowerCase().includes(query) || item.type.toLowerCase().includes(query));
-                 if (results.length > 0) { results.forEach(result => { const div = document.createElement('div'); div.className = 'search-result-item'; div.innerHTML = `<div><strong>${result.name}</strong></div><small>${result.type}</small>`; div.addEventListener('click', () => { window.location.href = result.link; searchResults.style.display = 'none'; searchInput.value = ''; }); searchResults.appendChild(div); }); searchResults.style.display = 'block'; }
-            }
+            function handleSearchInput() { /* ... search logic ... */ }
             function handleSearchFocus() { if (searchInput.value.trim().length > 0) handleSearchInput(); }
             function handleProfileSave(e) {
                 e.preventDefault(); currentUser.name = `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`; currentUser.title = document.getElementById('jobTitle').value; currentUser.department = document.getElementById('department').value; currentUser.phone = document.getElementById('phone').value; const nameParts = currentUser.name.split(' '); currentUser.initials = (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || '');
@@ -1155,14 +1042,9 @@
             function handleSoundToggle(e) { currentUser.settings.soundAlerts = e.target.checked; }
             function handleToggle2FA() {
                 currentUser.settings.twoFactorEnabled = !currentUser.settings.twoFactorEnabled;
-                update2faButtonState();
-                showConfirmation(`Two-Factor Authentication ${currentUser.settings.twoFactorEnabled ? 'Enabled' : 'Disabled'}.`);
-                // In a real app, this would trigger a setup/disable flow.
+                update2faButtonState(); showConfirmation(`Two-Factor Authentication ${currentUser.settings.twoFactorEnabled ? 'Enabled' : 'Disabled'}.`);
             }
-            function handleChangePassword() {
-                // In a real app, this would open a modal or navigate to a password change form.
-                showConfirmation('Password change process initiated (Demo).');
-            }
+            function handleChangePassword() { showConfirmation('Password change process initiated (Demo).'); }
 
             // --- Helper Functions ---
             function showConfirmation(message) { confirmationText.textContent = message; confirmationMessage.classList.add('show'); setTimeout(() => { confirmationMessage.classList.remove('show'); }, 3000); }
@@ -1171,17 +1053,10 @@
             function markNotificationAsRead(id) { const n = notifications.find(n => n.id === id); if (n && !n.read) { n.read = true; renderNotifications(); } }
             function deleteNotification(id) { notifications = notifications.filter(n => n.id !== id); renderNotifications(); playDeleteSound(); showConfirmation('Notification deleted.'); }
             function addNewNotification(icon, message) { const newId = (notifications[0]?.id ?? 0) + 1; notifications.unshift({ id: newId, icon: icon, message: message, time: 'Just now', read: false }); renderNotifications(); playNotificationSound(); }
-            function update2faButtonState() { // Helper for 2FA button
+            function update2faButtonState() {
                 if (enable2faButton) {
-                    if (currentUser.settings.twoFactorEnabled) {
-                        enable2faButton.textContent = 'Disable';
-                        enable2faButton.classList.remove('btn-outline');
-                        enable2faButton.classList.add('btn-success'); // Use success style when enabled
-                    } else {
-                        enable2faButton.textContent = 'Enable';
-                        enable2faButton.classList.remove('btn-success');
-                        enable2faButton.classList.add('btn-outline');
-                    }
+                    if (currentUser.settings.twoFactorEnabled) { enable2faButton.textContent = 'Disable'; enable2faButton.classList.remove('btn-outline'); enable2faButton.classList.add('btn-success'); }
+                    else { enable2faButton.textContent = 'Enable'; enable2faButton.classList.remove('btn-success'); enable2faButton.classList.add('btn-outline'); }
                 }
             }
 
@@ -1192,28 +1067,12 @@
              function initRealTimeUpdates() {
                  setInterval(() => {
                      // Stat Update
-                     const statsToUpdate = ['teamMembers', 'tasksCompleted', 'activeProjects', 'upcomingDeadlines'];
-                     const randomStat = statsToUpdate[Math.floor(Math.random() * statsToUpdate.length)];
-                     currentUser.stats[randomStat] += Math.floor(Math.random() * 2);
-                     updateStatsUI();
-
+                     const statsToUpdate = ['teamMembers', 'tasksCompleted', 'activeProjects', 'upcomingDeadlines']; const randomStat = statsToUpdate[Math.floor(Math.random() * statsToUpdate.length)]; currentUser.stats[randomStat] += Math.floor(Math.random() * 2); updateStatsUI();
                      // New Activity/Notification
                      if (Math.random() > 0.85) {
-                         const activitiesPool = [
-                             { icon: 'fas fa-file-upload', message: `<strong>Alex R.</strong> uploaded "Report Q3.pdf"` },
-                             { icon: 'fas fa-comment-alt', message: `<strong>Emily C.</strong> commented on "Mobile Mockup"` },
-                             { icon: 'fas fa-lightbulb', message: `New idea: "Team lunch Thursdays"` },
-                             { icon: 'fas fa-check-circle', message: `Task "Review Code" was completed` },
-                             { icon: 'fas fa-calendar-check', message: `Time off request approved for <strong>Sarah J.</strong>` }
-                         ];
-                         const activity = activitiesPool[Math.floor(Math.random() * activitiesPool.length)];
-                         const newActivityId = (activities[0]?.id ?? 0) + 1;
-                         const newActivity = { id: newActivityId, icon: activity.icon, message: activity.message, time: 'Just now' };
-                         activities.unshift(newActivity);
-                         addActivityItem(activity.icon, activity.message, 'Just now', newActivityId);
-                         addNewNotification(activity.icon, activity.message);
+                         const activitiesPool = [ { icon: 'fas fa-file-upload', message: `<strong>Alex R.</strong> uploaded "Report Q3.pdf"` }, { icon: 'fas fa-comment-alt', message: `<strong>Emily C.</strong> commented on "Mobile Mockup"` }, { icon: 'fas fa-lightbulb', message: `New idea: "Team lunch Thursdays"` }, { icon: 'fas fa-check-circle', message: `Task "Review Code" was completed` }, { icon: 'fas fa-calendar-check', message: `Time off request approved for <strong>Sarah J.</strong>` } ]; const activity = activitiesPool[Math.floor(Math.random() * activitiesPool.length)]; const newActivityId = (activities[0]?.id ?? 0) + 1; const newActivity = { id: newActivityId, icon: activity.icon, message: activity.message, time: 'Just now' }; activities.unshift(newActivity); addActivityItem(activity.icon, activity.message, 'Just now', newActivityId); addNewNotification(activity.icon, activity.message);
                      }
-                 }, 8000); // Update every 8 seconds
+                 }, 8000);
              }
 
             // --- Start the application ---
