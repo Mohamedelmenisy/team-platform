@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TeamFlow | Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Favicon updated as requested -->
-    <link rel="icon" type="image/png" href="https://img.icons8.com/?size=48&id=NfQW4gjzNC47&format=png">
+    <!-- Favicon updated - Generic team/management icon -->
+    <link rel="icon" type="image/png" href="https://img.icons8.com/?size=48&id=13917&format=png">
     <style>
         :root {
             --primary: #2563eb;
             --primary-dark: #1e3a8a;
             --primary-light: #dbeafe;
             --secondary: #10b981;
-            --danger: #ef4444;
+            --danger: #ef4444; /* Red color */
             --warning: #f59e0b;
             --dark: #1e293b;
             --light: #f8fafc; /* Used for main background */
@@ -35,7 +35,38 @@
             --stat-up: #10b981; /* Green for increase */
             --stat-down: #ef4444; /* Red for decrease */
             --stat-neutral: #64748b; /* Gray for no change */
+
+            /* Stat card gradients (subtle) */
+            --stat-grad-1: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%); /* Light Blue */
+            --stat-grad-2: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); /* Light Green */
+            --stat-grad-3: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%); /* Light Yellow */
+            --stat-grad-4: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%); /* Light Pink/Purple */
         }
+        /* Dark Mode Styles */
+        body.dark-mode {
+            --primary: #3b82f6; /* Slightly brighter blue */
+            --primary-dark: #60a5fa;
+            --primary-light: #1e3a8a;
+            --secondary: #34d399;
+            --danger: #f87171;
+            --warning: #fbbf24;
+            --dark: #e5e7eb; /* Light text on dark background */
+            --light: #1f2937; /* Dark main background */
+            --gray: #9ca3af;
+            --light-gray: #374151; /* Darker shade for borders/dividers */
+            --white: #11182b; /* Very dark background for elements like cards */
+            --sidebar-bg: #11182b; /* Darker sidebar */
+            --sidebar-text: rgba(229, 231, 235, 0.9);
+            --sidebar-hover: rgba(255, 255, 255, 0.08);
+            --sidebar-active: rgba(255, 255, 255, 0.15);
+            --sidebar-divider: rgba(255, 255, 255, 0.1);
+            --stat-grad-1: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            --stat-grad-2: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+            --stat-grad-3: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+            --stat-grad-4: linear-gradient(135deg, #581c87 0%, #6b21a8 100%);
+            --stat-card-text: var(--light); /* Ensure text is light */
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -43,11 +74,11 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         body {
-            /* Improved background color */
             background-color: var(--light);
             color: var(--dark);
             display: flex;
             min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease; /* Smooth dark mode transition */
         }
         /* Sidebar Styles */
         .sidebar {
@@ -57,6 +88,7 @@
             position: fixed;
             overflow-y: auto;
             z-index: 100;
+            transition: background-color 0.3s ease; /* Smooth dark mode transition */
         }
         .sidebar-header {
             padding: 1.5rem;
@@ -68,14 +100,17 @@
         .logo {
             font-size: 1.25rem;
             font-weight: 700;
-            color: var(--white);
+            color: var(--white); /* Use white variable */
             display: flex;
             align-items: center;
             gap: 0.75rem;
             text-decoration: none; /* Added */
         }
+         body.dark-mode .logo {
+             color: var(--sidebar-text); /* Adjust logo color in dark mode if needed */
+         }
         .logo-icon {
-            color: var(--white);
+            color: inherit; /* Inherit from .logo */
             font-size: 1.5rem;
         }
         .sidebar-menu {
@@ -89,6 +124,9 @@
             color: rgba(255,255,255,0.6);
             letter-spacing: 0.5px;
         }
+         body.dark-mode .menu-title {
+              color: rgba(229, 231, 235, 0.6);
+         }
         .menu-item {
             display: flex;
             align-items: center;
@@ -101,13 +139,20 @@
         }
         .menu-item:hover {
             background-color: var(--sidebar-hover);
-            color: var(--white);
+            color: var(--white); /* Use white variable */
         }
+         body.dark-mode .menu-item:hover {
+             color: var(--sidebar-text); /* Keep text light on hover */
+         }
         .menu-item.active {
             background-color: var(--sidebar-active);
-            color: var(--white);
-            border-left-color: var(--white);
+            color: var(--white); /* Use white variable */
+            border-left-color: var(--white); /* Use white variable */
         }
+         body.dark-mode .menu-item.active {
+             color: var(--sidebar-text); /* Keep text light */
+             border-left-color: var(--primary); /* Use primary color for active border */
+         }
         .menu-item i {
             margin-right: 0.75rem;
             font-size: 1.1rem;
@@ -123,6 +168,7 @@
         .main-content {
             flex: 1;
             margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease; /* Smooth transition for sidebar toggle */
         }
         /* Top Navigation */
         .top-nav {
@@ -135,6 +181,7 @@
             position: sticky;
             top: 0;
             z-index: 90;
+             transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth dark mode transition */
         }
         .search-bar {
             position: relative;
@@ -146,12 +193,19 @@
             border: 1px solid var(--light-gray);
             border-radius: 6px;
             font-size: 0.9rem;
+            background-color: var(--light); /* Match body background */
+            color: var(--dark); /* Match body text */
+             transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
         .search-bar input:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+             background-color: var(--white); /* Use card background on focus */
         }
+         body.dark-mode .search-bar input:focus {
+              box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* Adjust shadow color */
+         }
         .search-icon {
             position: absolute;
             left: 1rem;
@@ -170,10 +224,12 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             z-index: 100;
             display: none;
+             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         .search-result-item {
             padding: 0.75rem 1rem;
             cursor: pointer;
+            color: var(--dark); /* Match body text */
         }
         .search-result-item:hover {
             background-color: var(--light);
@@ -222,6 +278,7 @@
             font-weight: 600;
             cursor: pointer;
             overflow: hidden;
+            position: relative; /* For status dot positioning */
         }
         .user-avatar img {
             width: 100%;
@@ -234,6 +291,20 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            color: var(--dark); /* Ensure text color respects theme */
+             transition: color 0.3s ease;
+        }
+        /* Connected Status Dot */
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--success); /* Green for online */
+            border-radius: 50%;
+            border: 2px solid var(--white); /* Match top-nav background */
+            display: inline-block; /* Changed from block */
+            margin-left: 5px; /* Space from name */
+            box-shadow: 0 0 3px rgba(16, 185, 129, 0.5); /* Subtle glow */
+             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         .user-dropdown {
             position: absolute;
@@ -248,7 +319,7 @@
             display: none;
             opacity: 0; /* Added for transition */
             transform: translateY(-10px); /* Added for transition */
-            transition: opacity 0.2s ease, transform 0.2s ease; /* Added transition */
+            transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.3s ease, border-color 0.3s ease; /* Added transition */
         }
         .user-dropdown.active {
             display: block;
@@ -262,6 +333,7 @@
             gap: 0.75rem;
             color: var(--dark);
             text-decoration: none;
+            transition: background-color 0.2s ease, color 0.3s ease; /* Added transition */
         }
         .dropdown-item:hover {
             background-color: var(--light);
@@ -284,12 +356,21 @@
         }
         .welcome-section {
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); /* Gradient background */
-            color: var(--white);
+            color: var(--white); /* Ensure text is white */
             padding: 2rem;
             border-radius: 8px;
             margin-bottom: 2rem;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); /* Softer shadow */
         }
+         body.dark-mode .welcome-section {
+            color: var(--dark); /* Use light text in dark mode */
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15); /* Adjust shadow */
+         }
+         body.dark-mode .user-info-name,
+         body.dark-mode .welcome-title {
+            color: #e5e7eb; /* Explicitly set light color for names/titles */
+         }
+
         .welcome-title {
             font-size: 1.5rem;
             font-weight: 700;
@@ -339,6 +420,14 @@
             color: var(--light-gray); /* Use light gray for better contrast on blue */
             font-weight: 500; /* Adjusted weight */
         }
+        /* Administrator Title Style */
+        #userRoleTitle {
+            color: var(--danger); /* Make Administrator red */
+            font-weight: 700; /* Optionally make it bolder */
+        }
+         body.dark-mode #userRoleTitle {
+             color: var(--danger); /* Ensure red is used in dark mode too */
+         }
         .user-info-email {
             display: flex;
             align-items: center;
@@ -346,7 +435,7 @@
             font-size: 0.9rem;
             opacity: 0.9;
         }
-        /* Stats Section */
+        /* --- Stats Section Styling Improvements --- */
         .stats-section {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -354,41 +443,76 @@
             margin-bottom: 2rem;
         }
         .stat-card {
-            background-color: var(--white);
-            border-radius: 8px;
+            border-radius: 10px; /* Slightly larger radius */
             padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0,0,0,0.05); /* Subtle shadow */
-            border: 1px solid var(--light-gray);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0,0,0,0.08); /* Refined shadow */
+            border: 1px solid transparent; /* Transparent border initially */
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            position: relative;
+            overflow: hidden; /* To contain gradient/pseudo-elements */
+            background-color: var(--white); /* Base background */
+            color: var(--dark); /* Default text color */
         }
+         body.dark-mode .stat-card {
+             color: var(--stat-card-text); /* Ensure text is light */
+             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0,0,0,0.3); /* Darker shadow */
+         }
+        /* Apply gradients - cycle through them */
+        .stat-card:nth-child(4n+1) { background-image: var(--stat-grad-1); }
+        .stat-card:nth-child(4n+2) { background-image: var(--stat-grad-2); }
+        .stat-card:nth-child(4n+3) { background-image: var(--stat-grad-3); }
+        .stat-card:nth-child(4n+4) { background-image: var(--stat-grad-4); }
+
         .stat-card:hover {
-             transform: translateY(-3px);
-             box-shadow: 0 4px 8px rgba(0,0,0,0.07), 0 6px 12px rgba(0,0,0,0.07);
+             transform: translateY(-5px); /* Lift effect */
+             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08), 0 3px 6px rgba(0,0,0,0.1);
+             border-color: var(--primary-light);
         }
+         body.dark-mode .stat-card:hover {
+             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.25), 0 3px 6px rgba(0,0,0,0.35);
+             border-color: var(--primary-light);
+         }
         .stat-title {
             font-size: 0.9rem;
             color: var(--gray);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem; /* Increased space */
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem; /* Increased gap */
+            position: relative; /* Ensure it's above background elements */
+            z-index: 2;
         }
         .stat-title i {
             color: var(--primary);
+            font-size: 1.1rem; /* Slightly larger icon */
+            opacity: 0.8;
         }
+         body.dark-mode .stat-title {
+            color: var(--gray); /* Use light gray in dark mode */
+         }
+         body.dark-mode .stat-title i {
+             color: var(--primary-dark); /* Use brighter primary in dark mode */
+         }
         .stat-value {
-            font-size: 1.75rem;
+            font-size: 2rem; /* Larger value */
             font-weight: 700;
             color: var(--primary-dark);
-            display: flex; /* Added for alignment */
-            align-items: center; /* Added for alignment */
+            display: flex;
+            align-items: flex-end; /* Align baseline */
             gap: 0.5rem; /* Added gap */
+            position: relative; /* Ensure it's above background elements */
+            z-index: 2;
+            line-height: 1.2; /* Adjust line height */
         }
+         body.dark-mode .stat-value {
+            color: var(--light); /* Light text color for value */
+         }
         /* Stat Arrow Styles */
         .stat-arrow {
             font-size: 1.1rem; /* Slightly smaller */
             transition: color 0.3s ease, transform 0.3s ease;
             transform-origin: center;
+             margin-bottom: 0.2rem; /* Align better with large number */
         }
         .stat-arrow.up {
             color: var(--stat-up);
@@ -402,6 +526,7 @@
             color: var(--stat-neutral);
             opacity: 0.8;
         }
+        /* --- End Stats Section Styling Improvements --- */
 
         /* Activity Section */
         .activity-section {
@@ -410,6 +535,7 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0,0,0,0.05); /* Consistent subtle shadow */
             padding: 1.5rem;
             border: 1px solid var(--light-gray);
+             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         .section-header {
             display: flex;
@@ -422,6 +548,8 @@
         .section-title {
             font-size: 1.25rem;
             font-weight: 600;
+            color: var(--dark);
+             transition: color 0.3s ease;
         }
         .activity-actions {
             display: flex;
@@ -429,17 +557,28 @@
         }
         .activity-list {
             list-style: none;
+            max-height: 400px; /* Limit height */
+            overflow-y: auto; /* Add scroll if needed */
+            padding-right: 5px; /* Space for scrollbar */
         }
         .activity-item {
             display: flex;
-            padding: 1rem 0;
+            padding: 1rem 0.5rem 1rem 0; /* Adjust padding */
             border-bottom: 1px solid var(--light-gray);
             align-items: center;
             position: relative;
+            transition: background-color 0.2s ease, opacity 0.3s ease, transform 0.3s ease; /* Added transitions */
         }
         .activity-item:last-child {
             border-bottom: none;
         }
+         .activity-item:hover {
+             background-color: rgba(0,0,0,0.02);
+         }
+         body.dark-mode .activity-item:hover {
+             background-color: rgba(255,255,255,0.04);
+         }
+
         .activity-icon {
             width: 40px;
             height: 40px;
@@ -453,15 +592,29 @@
             position: relative;
             flex-shrink: 0; /* Added */
         }
+         body.dark-mode .activity-icon {
+             background-color: rgba(59, 130, 246, 0.15);
+             color: var(--primary-dark);
+         }
         .activity-content {
             flex: 1;
             min-width: 0; /* Prevent overflow issues */
+            color: var(--dark);
+             transition: color 0.3s ease;
         }
         .activity-message {
             margin-bottom: 0.25rem;
             word-break: break-word;
             overflow-wrap: break-word;
+            line-height: 1.4; /* Improve readability */
         }
+         .activity-message strong {
+             color: var(--primary-dark);
+             font-weight: 600;
+         }
+         body.dark-mode .activity-message strong {
+              color: var(--primary-light);
+         }
         .activity-time {
             font-size: 0.8rem;
             color: var(--gray);
@@ -474,6 +627,11 @@
             padding: 0.5rem;
             border-radius: 4px;
             margin-left: 0.5rem; /* Added margin */
+            opacity: 0; /* Hide initially */
+            transition: background-color 0.2s, color 0.2s, opacity 0.2s;
+        }
+        .activity-item:hover .activity-actions-btn {
+             opacity: 1; /* Show on hover */
         }
         .activity-actions-btn:hover {
             background-color: var(--light-gray);
@@ -490,6 +648,7 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 2rem;
             border: 1px solid var(--light-gray);
+             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         .profile-header {
             display: flex;
@@ -501,6 +660,7 @@
             font-size: 1.5rem;
             font-weight: 600;
             color: var(--primary-dark);
+             transition: color 0.3s ease;
         }
         .profile-form {
             display: grid;
@@ -515,6 +675,7 @@
             margin-bottom: 0.5rem;
             font-weight: 500;
             color: var(--dark);
+             transition: color 0.3s ease;
         }
         .form-control {
             width: 100%;
@@ -522,15 +683,23 @@
             border: 1px solid var(--light-gray);
             border-radius: 6px;
             font-size: 1rem;
+            background-color: var(--light); /* Match body background */
+            color: var(--dark); /* Match body text */
+             transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background-color: var(--white); /* Use card background on focus */
         }
+         body.dark-mode .form-control:focus {
+             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* Adjust shadow color */
+         }
         .form-control[readonly] {
-            background-color: var(--light);
+            background-color: var(--light-gray); /* Slightly different for readonly */
             cursor: not-allowed;
+            opacity: 0.7;
         }
         .form-actions {
             grid-column: span 2;
@@ -539,32 +708,39 @@
             gap: 1rem;
             margin-top: 1rem;
         }
+        /* --- General Button Styles --- */
         .btn {
             padding: 0.75rem 1.5rem;
             border-radius: 6px;
             font-weight: 500;
             cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-            text-align: center; /* Ensure text is centered */
-            display: inline-flex; /* Align icon and text */
-            align-items: center; /* Align icon and text */
-            justify-content: center; /* Align icon and text */
-            gap: 0.5rem; /* Space between icon and text */
+            border: 1px solid transparent; /* Add base border */
+            transition: all 0.2s ease;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            line-height: 1.2; /* Prevent text jump */
         }
-        .btn i { /* Adjust icon margin if needed */
-           margin-right: 0;
+        .btn i {
+           margin-right: 0; /* Reset default margin */
+           line-height: 1; /* Align icon better */
         }
-        .btn-sm { /* Added size variant */
+        .btn-sm {
            padding: 0.5rem 1rem;
            font-size: 0.875rem;
         }
         .btn-primary {
             background-color: var(--primary);
             color: white;
+            border-color: var(--primary);
         }
         .btn-primary:hover {
             background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+             transform: translateY(-1px); /* Subtle lift */
+             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .btn-outline {
             background-color: transparent;
@@ -573,21 +749,43 @@
         }
         .btn-outline:hover {
             background-color: var(--primary-light);
+            color: var(--primary-dark); /* Darker text on hover */
+        }
+        body.dark-mode .btn-outline:hover {
+            background-color: rgba(59, 130, 246, 0.1); /* Primary light equivalent */
+             color: var(--primary-dark);
         }
         .btn-secondary {
             background-color: var(--gray);
             color: white;
+            border-color: var(--gray);
         }
         .btn-secondary:hover {
             background-color: var(--dark);
+            border-color: var(--dark);
         }
+         body.dark-mode .btn-secondary {
+             background-color: var(--light-gray);
+             color: var(--dark);
+             border-color: var(--light-gray);
+         }
+         body.dark-mode .btn-secondary:hover {
+             background-color: var(--gray);
+             border-color: var(--gray);
+         }
         .btn-danger {
             background-color: var(--danger);
             color: white;
+            border-color: var(--danger);
         }
         .btn-danger:hover {
-            background-color: #dc2626;
+            background-color: #dc2626; /* Darker red */
+            border-color: #dc2626;
+             transform: translateY(-1px);
+             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        /* --- End Button Styles --- */
+
         .profile-picture-upload {
             display: flex;
             align-items: center;
@@ -605,6 +803,7 @@
             flex-shrink: 0; /* Prevent shrinking */
             border: 3px solid var(--white);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: border-color 0.3s ease;
         }
         .profile-picture-preview img {
             width: 100%;
@@ -619,6 +818,7 @@
             font-size: 2rem;
             font-weight: bold;
             color: var(--primary-dark);
+            transition: color 0.3s ease;
         }
         .upload-btn {
             position: relative;
@@ -634,7 +834,7 @@
             height: 100%;
             cursor: pointer;
         }
-        /* Confirmation message (Top-Right) */
+        /* Confirmation message (Top-Right - Only for non-destructive actions now) */
         .confirmation-message {
             position: fixed;
             top: 20px;
@@ -660,34 +860,39 @@
             top: calc(100% + 10px); /* Increased gap */
             right: 0;
             width: 350px;
-            max-height: 500px;
-            overflow-y: auto;
+            max-height: 500px; /* Limit height */
+            display: flex; /* Use flex for layout */
+            flex-direction: column; /* Stack header/list/footer */
             background-color: var(--white);
             border: 1px solid var(--light-gray);
             border-radius: 6px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Slightly larger shadow */
             z-index: 100;
             display: none;
             opacity: 0; /* Added for transition */
             transform: translateY(-10px); /* Added for transition */
-            transition: opacity 0.2s ease, transform 0.2s ease; /* Added transition */
+            transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.3s ease, border-color 0.3s ease; /* Added transition */
         }
         .notification-dropdown.active {
-            display: block;
+            display: flex; /* Changed from block */
             opacity: 1;
             transform: translateY(0);
         }
         .notification-header {
-            padding: 1rem;
+            padding: 0.75rem 1rem; /* Reduced padding */
             border-bottom: 1px solid var(--light-gray);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap; /* Added wrap */
-            gap: 0.5rem; /* Added gap */
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            flex-shrink: 0; /* Prevent header shrinking */
+             transition: border-color 0.3s ease;
         }
         .notification-title {
             font-weight: 600;
+             color: var(--dark);
+             transition: color 0.3s ease;
         }
         .notification-actions {
             display: flex;
@@ -695,15 +900,19 @@
         }
         .notification-list {
             list-style: none;
+            flex-grow: 1; /* Allow list to take available space */
+            overflow-y: auto; /* Enable scrolling for the list */
+            padding: 0; /* Remove default padding */
+            margin: 0; /* Remove default margin */
         }
         .notification-item {
-            padding: 1rem;
+            padding: 0.75rem 1rem; /* Consistent padding */
             border-bottom: 1px solid var(--light-gray);
             display: flex;
             gap: 1rem;
             position: relative;
             cursor: pointer; /* Indicate clickable */
-            transition: background-color 0.2s ease;
+            transition: background-color 0.2s ease, border-color 0.3s ease;
         }
         .notification-item:last-child {
             border-bottom: none;
@@ -715,6 +924,9 @@
             background-color: rgba(37, 99, 235, 0.05);
             font-weight: 500; /* Slightly bolder unread messages */
         }
+         body.dark-mode .notification-item.unread {
+             background-color: rgba(59, 130, 246, 0.1);
+         }
         .notification-item .notification-icon { /* Target specific icon */
             width: 40px;
             height: 40px;
@@ -725,7 +937,12 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
+         body.dark-mode .notification-item .notification-icon {
+             background-color: rgba(59, 130, 246, 0.15);
+             color: var(--primary-dark);
+         }
         .notification-content {
             flex: 1;
             min-width: 0; /* Prevent overflow */
@@ -735,10 +952,15 @@
             word-break: break-word;
             overflow-wrap: break-word;
             color: var(--dark);
+            line-height: 1.4; /* Improve readability */
+            transition: color 0.3s ease;
         }
         .notification-item.unread .notification-message {
              color: var(--primary-dark); /* Darker text for unread */
         }
+         body.dark-mode .notification-item.unread .notification-message {
+             color: var(--primary-light);
+         }
         .notification-time {
             font-size: 0.8rem;
             color: var(--gray);
@@ -772,7 +994,6 @@
         }
         .notification-item:hover .notification-actions-item {
              opacity: 1; /* Show on hover */
-             background-color: var(--light-gray); /* Add hover effect */
         }
          .notification-actions-item:hover {
              background-color: rgba(239, 68, 68, 0.1); /* Reddish background on hover */
@@ -782,487 +1003,21 @@
             font-size: 0.8rem; /* Adjust icon size */
         }
 
-        /* Task Management Styles */
-        #taskManagementContent {
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            border: 1px solid var(--light-gray);
-        }
-        .task-filters {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .filter-group label {
-            font-weight: 500;
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-        .filter-select {
-            padding: 0.5rem;
-            border: 1px solid var(--light-gray);
-            border-radius: 4px;
-            font-size: 0.9rem;
-            min-width: 150px; /* Ensure minimum width */
-        }
-        .task-list {
-            list-style: none;
-        }
-        .task-item {
-            background-color: var(--light);
-            border-radius: 6px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-left: 4px solid transparent;
-            gap: 1rem; /* Added gap */
-            border: 1px solid var(--light-gray);
-            transition: box-shadow 0.2s ease;
-        }
-         .task-item:hover {
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-         }
-        .task-item.high-priority {
-            border-left-color: var(--danger);
-        }
-        .task-item.medium-priority {
-            border-left-color: var(--warning);
-        }
-        .task-item.low-priority {
-            border-left-color: var(--success);
-        }
-        .task-info {
-            flex: 1;
-            min-width: 0; /* Prevent overflow */
-        }
-        .task-title {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        .task-description {
-            color: var(--gray);
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            word-break: break-word;
-        }
-        .task-meta {
-            display: flex;
-            gap: 1rem;
-            font-size: 0.8rem;
-            color: var(--gray);
-            flex-wrap: wrap; /* Allow wrapping */
-        }
-        .task-meta span { /* Ensure meta items don't force wrapping too early */
-             white-space: nowrap;
-             display: inline-flex; /* Align icons properly */
-             align-items: center;
-             gap: 0.3rem;
-        }
-        .task-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        .task-status.pending {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
-        .task-status.in-progress {
-            background-color: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-        }
-        .task-status.completed {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-            text-decoration: line-through; /* Indicate completion */
-            opacity: 0.8;
-        }
-        .task-actions {
-            display: flex;
-            gap: 0.5rem;
-            flex-shrink: 0; /* Prevent shrinking */
-        }
-        .task-btn {
-            padding: 0.5rem;
-            border: none;
-            background: none;
-            cursor: pointer;
-            color: var(--gray);
-            border-radius: 4px;
-            display: flex; /* Align icon */
-            align-items: center; /* Align icon */
-            justify-content: center; /* Align icon */
-            transition: background-color 0.2s, color 0.2s;
-        }
-        .task-btn:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-            color: var(--primary); /* Default hover color */
-        }
-         .task-btn[title="Delete"]:hover {
-            color: var(--danger); /* Specific color for delete */
-         }
-         .task-btn[title="Complete"]:hover {
-             color: var(--success); /* Specific color for complete */
-         }
-         .task-btn[title="Reopen"]:hover {
-             color: var(--warning); /* Specific color for reopen */
-         }
-
-        /* Team Calendar Styles */
-        #calendarContent {
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            border: 1px solid var(--light-gray);
-        }
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap; /* Wrap on smaller screens */
-            gap: 1rem; /* Add gap */
-        }
-        .calendar-nav {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .calendar-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            min-width: 150px; /* Adjust width */
-            text-align: center;
-        }
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 0; /* Remove gap for seamless grid */
-            border: 1px solid var(--light-gray); /* Add border */
-            background-color: var(--white); /* Ensure background */
-            border-radius: 4px; /* Rounded corners for the whole grid */
-            overflow: hidden; /* Contain children borders */
-        }
-        .calendar-day-header {
-            text-align: center;
-            font-weight: 600;
-            padding: 0.75rem 0.5rem; /* Increased padding */
-            color: var(--gray);
-            background-color: var(--light); /* Header background */
-            border-bottom: 1px solid var(--light-gray); /* Separator */
-            font-size: 0.8rem; /* Smaller header text */
-        }
-        .calendar-day {
-            background-color: var(--white); /* Day background */
-            border-right: 1px solid var(--light-gray); /* Vertical lines */
-            border-bottom: 1px solid var(--light-gray); /* Horizontal lines */
-            min-height: 110px;
-            padding: 0.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem; /* Add gap between elements */
-            position: relative; /* For positioning day number */
-            transition: background-color 0.2s ease;
-        }
-         /* Remove right border on last column */
-        .calendar-day:nth-child(7n), .calendar-day-header:nth-child(7) {
-             border-right: none;
-        }
-         /* Remove bottom border on last row (requires knowing total days or using JS) */
-         /* A simple approach: */
-        .calendar-day:nth-last-child(-n+7) {
-             /* border-bottom: none; */ /* Might hide events near bottom */
-        }
-
-        .calendar-day.empty {
-            background-color: var(--light); /* Lighter background for empty */
-            pointer-events: none; /* Non-interactive */
-        }
-        .day-number {
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-            text-align: right;
-            font-size: 0.75rem; /* Slightly smaller number */
-            color: var(--gray);
-            position: absolute; /* Position top-right */
-            top: 0.25rem;
-            right: 0.5rem;
-        }
-        .calendar-day.today .day-number { /* Style for today */
-            background-color: var(--primary);
-            color: var(--white);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            position: static; /* Reset position */
-            margin-left: auto; /* Push right */
-            margin-bottom: 0.25rem;
-        }
-        .calendar-event {
-            background-color: var(--primary-light);
-            color: var(--primary-dark);
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.75rem; /* Smaller font */
-            margin-bottom: 0.25rem;
-            cursor: pointer;
-            overflow: hidden; /* Prevent overflow */
-            text-overflow: ellipsis; /* Add ellipsis */
-            white-space: nowrap; /* Prevent wrapping */
-            border-left: 3px solid var(--primary); /* Default border */
-            transition: background-color 0.2s ease;
-        }
-         .calendar-event:hover {
-             filter: brightness(95%);
-         }
-        .calendar-event.team-meeting {
-            background-color: #dbeafe; /* Blue */
-            border-left-color: var(--primary);
-            color: #1e40af; /* Darker blue text */
-        }
-        .calendar-event.deadline {
-            background-color: #fee2e2; /* Red */
-            border-left-color: var(--danger);
-            color: #991b1b; /* Darker red text */
-        }
-        .calendar-event.vacation {
-            background-color: #fef9c3; /* Yellow */
-            border-left-color: var(--warning);
-            color: #854d0e; /* Darker yellow text */
-        }
-        /* Projects Styles */
-        #projectsContent {
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            border: 1px solid var(--light-gray);
-        }
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-        .project-card {
-            background-color: var(--light);
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Softer shadow */
-            border: 1px solid var(--light-gray); /* Subtle border */
-            display: flex; /* Use flexbox for better layout */
-            flex-direction: column; /* Stack elements vertically */
-            justify-content: space-between; /* Push meta to bottom */
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-         .project-card:hover {
-             transform: translateY(-3px);
-             box-shadow: 0 4px 8px rgba(0,0,0,0.07);
-         }
-        .project-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-        .project-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-right: 0.5rem; /* Add space before status */
-            color: var(--primary-dark);
-        }
-        .project-status {
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            white-space: nowrap; /* Prevent wrapping */
-            flex-shrink: 0; /* Prevent shrinking */
-        }
-        .project-status.active {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-        .project-status.on-hold {
-            background-color: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-        }
-        .project-status.completed {
-            background-color: rgba(156, 163, 175, 0.1);
-            color: var(--gray);
-        }
-        .project-description {
-            margin-bottom: 1rem;
-            color: var(--gray);
-            flex-grow: 1; /* Allow description to take available space */
-            font-size: 0.9rem; /* Slightly smaller */
-            line-height: 1.5;
-        }
-        .project-progress {
-            margin-bottom: 1rem; /* Reduced margin */
-        }
-        .progress-bar {
-            height: 8px;
-            background-color: var(--light-gray);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 0.5rem;
-        }
-        .progress-fill {
-            height: 100%;
-            background-color: var(--primary);
-            border-radius: 4px;
-            transition: width 0.3s ease; /* Add animation */
-        }
-        .progress-text {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: var(--gray);
-        }
-        .project-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center; /* Align items */
-            font-size: 0.8rem;
-            color: var(--gray);
-            border-top: 1px solid var(--light-gray); /* Separator */
-            padding-top: 1rem; /* Space above meta */
-            margin-top: auto; /* Push to bottom */
-        }
-        .project-team, .project-due {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem; /* Adjusted gap */
-        }
-         .project-team i, .project-due i {
-             font-size: 0.9rem; /* Slightly larger icons */
-         }
-        /* Team Members Styles */
-        #teamContent {
-            background-color: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            border: 1px solid var(--light-gray);
-        }
-         .team-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-        .member-card {
-            background-color: var(--light);
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--light-gray);
-            text-align: center;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-         .member-card:hover {
-             transform: translateY(-3px);
-             box-shadow: 0 4px 8px rgba(0,0,0,0.07);
-         }
-        .member-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 1.5rem;
-            margin: 0 auto 1rem;
-            overflow: hidden;
-            border: 3px solid var(--white); /* Add border */
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Add shadow */
-        }
-        .member-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .member-name {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-            color: var(--primary-dark);
-        }
-        .member-role {
-            color: var(--gray);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-        .member-status {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        .member-status.active {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-        .member-status.inactive {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
-        .member-contact {
-            margin-top: 1rem;
-            display: flex;
-            justify-content: center;
-            gap: 0.75rem; /* Increased gap */
-        }
-        .contact-btn {
-            width: 36px; /* Larger button */
-            height: 36px; /* Larger button */
-            border-radius: 50%;
-            background-color: var(--light-gray);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--gray);
-            cursor: pointer;
-            transition: all 0.2s ease; /* Add transition */
-        }
-        .contact-btn:hover {
-            background-color: var(--primary);
-            color: var(--white);
-            transform: scale(1.1); /* Add scale effect */
-        }
-        /* Settings Styles */
+        /* --- Settings Section Styles --- */
         #settingsContent {
             background-color: var(--white);
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 2rem;
             border: 1px solid var(--light-gray);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         .settings-tabs {
             display: flex;
             border-bottom: 1px solid var(--light-gray);
             margin-bottom: 1.5rem;
             overflow-x: auto; /* Allow scrolling on small screens */
+            transition: border-color 0.3s ease;
         }
         .settings-tab {
             padding: 0.75rem 1.5rem;
@@ -1271,7 +1026,7 @@
             color: var(--gray);
             border-bottom: 2px solid transparent;
             white-space: nowrap; /* Prevent wrapping */
-            transition: color 0.2s, border-color 0.2s; /* Add transition */
+            transition: color 0.2s, border-color 0.2s;
             margin-bottom: -1px; /* Overlap border */
         }
         .settings-tab:hover {
@@ -1322,11 +1077,14 @@
             width: 16px;
             left: 4px;
             bottom: 4px;
-            background-color: white;
+            background-color: white; /* Keep handle white */
             transition: .4s;
             border-radius: 50%;
             box-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
+         body.dark-mode .slider {
+             background-color: var(--gray); /* Darker base */
+         }
         input:checked + .slider {
             background-color: var(--primary);
         }
@@ -1341,6 +1099,7 @@
             border-bottom: 1px solid var(--light-gray);
             gap: 1rem; /* Add gap */
             flex-wrap: wrap; /* Allow wrapping */
+            transition: border-color 0.3s ease;
         }
         .setting-item:last-child {
              border-bottom: none;
@@ -1352,10 +1111,13 @@
         .setting-title { /* Renamed from security-title */
             font-weight: 600;
             margin-bottom: 0.25rem;
+            color: var(--dark);
+            transition: color 0.3s ease;
         }
         .setting-description { /* Renamed from security-description */
             color: var(--gray);
             font-size: 0.9rem;
+            transition: color 0.3s ease;
         }
         .setting-item .btn { /* Style buttons within items */
              flex-shrink: 0;
@@ -1372,97 +1134,70 @@
          .integration-status i {
              font-size: 0.7rem; /* Smaller check icon */
          }
+        /* Style integration icons */
+        .setting-info i.fab, .setting-info i.fas {
+            width: 20px; /* Align icons */
+            text-align: center;
+        }
 
-
-        /* Placeholder Styles for other sections */
-        #schedulingContent, #filesContent, #dataContent, #trackingContent,
-        #deadlineContent, #reportsContent, #innovationContent {
+         /* --- Other Content Sections --- */
+         /* Ensure they adopt theme background/borders */
+         #taskManagementContent, #schedulingContent, #calendarContent, #filesContent,
+         #dataContent, #projectsContent, #trackingContent, #deadlineContent,
+         #teamContent, #reportsContent, #innovationContent {
             background-color: var(--white);
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 2rem;
             border: 1px solid var(--light-gray);
-        }
-
-        /* Specific Placeholders */
-         .chart-container, .gantt-chart, .schedule-calendar {
-            background-color: var(--light);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            min-height: 200px; /* Ensure min height */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--gray);
-            border: 1px dashed var(--light-gray); /* Dashed border */
-            text-align: center;
-        }
-        .data-table {
-             width: 100%;
-             border-collapse: collapse;
-             margin-top: 1rem; /* Add margin */
+            transition: background-color 0.3s ease, border-color 0.3s ease;
          }
-         .data-table th, .data-table td {
-             padding: 0.75rem 1rem; /* Adjust padding */
-             text-align: left;
-             border-bottom: 1px solid var(--light-gray);
-             font-size: 0.9rem; /* Adjust font size */
-         }
-         .data-table th {
-             font-weight: 600;
-             color: var(--gray);
-             background-color: var(--light); /* Header background */
-         }
-         .data-table tbody tr:hover {
-             background-color: rgba(0,0,0,0.02); /* Hover effect */
-         }
-         .file-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Adjust min size */
-            gap: 1rem;
-         }
-         .file-card {
+         .chart-container, .gantt-chart, .schedule-calendar,
+         .task-item, .project-card, .member-card, .file-card {
             background-color: var(--light);
             border: 1px solid var(--light-gray);
-            border-radius: 8px;
-            padding: 1rem;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            color: var(--dark);
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
          }
-         .file-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-         }
-         .file-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-         }
-        .file-icon.pdf { color: var(--danger); }
-        .file-icon.doc { color: var(--file-blue); }
-        .file-icon.xls { color: var(--file-green); }
-        .file-icon.img { color: var(--file-purple); }
-        .file-icon.zip { color: var(--file-orange); }
-         .file-name {
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 0.9rem;
-         }
-         .file-meta {
-            font-size: 0.75rem;
-            color: var(--gray);
-         }
-        /* Responsive Design */
+          .data-table th {
+              background-color: var(--light);
+              color: var(--gray);
+              transition: background-color 0.3s ease, color 0.3s ease;
+          }
+          .data-table td {
+              border-bottom: 1px solid var(--light-gray);
+              transition: border-color 0.3s ease;
+              color: var(--dark); /* Ensure text color adapts */
+          }
+          .data-table tbody tr:hover {
+              background-color: rgba(0,0,0,0.02);
+          }
+          body.dark-mode .data-table tbody tr:hover {
+              background-color: rgba(255,255,255,0.04);
+          }
+          .calendar-day {
+              background-color: var(--white);
+              border-right: 1px solid var(--light-gray);
+              border-bottom: 1px solid var(--light-gray);
+               transition: background-color 0.3s ease, border-color 0.3s ease;
+          }
+          .calendar-day.empty {
+              background-color: var(--light);
+          }
+          .calendar-day-header {
+               background-color: var(--light);
+               color: var(--gray);
+               border-bottom: 1px solid var(--light-gray);
+               transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+          }
+
+        /* Responsive Design (Keep existing, adjust if needed for new styles) */
         @media (max-width: 992px) {
             .sidebar {
                 transform: translateX(-100%);
-                transition: transform 0.3s ease; /* Add transition */
+                transition: transform 0.3s ease;
             }
-            .sidebar.active { /* Add class to show sidebar on mobile */
+            .sidebar.active {
                 transform: translateX(0);
                 box-shadow: 4px 0 15px rgba(0,0,0,0.1);
             }
@@ -1470,12 +1205,12 @@
                 margin-left: 0;
             }
             .top-nav {
-                padding: 1rem; /* Reduce padding */
+                padding: 1rem;
             }
              .search-bar {
-                width: 250px; /* Adjust width */
+                width: 250px;
             }
-            /* Add hamburger menu toggle - requires JS */
+            /* Hamburger menu toggle */
             .menu-toggle {
                 display: block; /* Show toggle */
                 background: none;
@@ -1483,95 +1218,92 @@
                 color: var(--gray);
                 font-size: 1.5rem;
                 cursor: pointer;
-                margin-right: 1rem; /* Add margin */
-                order: -1; /* Ensure toggle is first */
+                margin-right: 1rem;
+                order: -1;
+                 transition: color 0.3s ease;
             }
             .user-menu {
-                 gap: 1rem; /* Reduce gap */
+                 gap: 1rem;
             }
-             .profile-form { /* Adjust profile columns earlier */
+             .profile-form {
                 grid-template-columns: 1fr;
             }
              .form-actions, .profile-picture-upload {
                 grid-column: span 1;
             }
+             .stats-section {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Adjust for potentially taller cards */
+             }
         }
         @media (max-width: 768px) {
             .top-nav {
-                flex-wrap: wrap; /* Allow wrapping */
-                justify-content: space-between; /* Keep toggle/user menu spaced */
+                flex-wrap: wrap;
+                justify-content: space-between;
                 gap: 1rem;
                 padding: 1rem;
             }
             .search-bar {
-                width: 100%; /* Full width */
-                order: 3; /* Search below user menu */
-                margin-top: 0.5rem; /* Add space */
+                width: 100%;
+                order: 3;
+                margin-top: 0.5rem;
             }
             .user-menu {
-                /* width: 100%; */ /* Don't force full width */
-                order: 2; /* User menu second */
-                margin-left: auto; /* Push user menu right */
+                order: 2;
+                margin-left: auto;
             }
+             .user-name span:not(.status-dot) { /* Hide full name text on small screens */
+                 display: none;
+             }
+             .status-dot {
+                 margin-left: 0; /* Remove margin when name is hidden */
+             }
             .menu-toggle {
-                 margin-right: 0; /* Remove margin */
-                 order: 1; /* Ensure toggle is first */
+                 margin-right: 0;
+                 order: 1;
             }
              .content-area {
                 padding: 1.5rem;
             }
             .profile-picture-upload {
-                 flex-direction: column; /* Stack vertically */
+                 flex-direction: column;
                  align-items: flex-start;
             }
             .user-info {
                 flex-direction: column;
                 text-align: center;
-                gap: 1rem; /* Reduce gap */
+                gap: 1rem;
             }
             .stats-section {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adjust minmax */
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             }
             .calendar-grid {
-                 grid-template-columns: repeat(3, 1fr); /* Show 3 days per row */
+                 grid-template-columns: repeat(3, 1fr);
             }
-            /* Fix calendar borders on mobile */
              .calendar-day:nth-child(3n) { border-right: none; }
-             .calendar-day:nth-child(7n) { border-right: 1px solid var(--light-gray); } /* Re-add border removed by desktop style */
+             .calendar-day:nth-child(7n) { border-right: 1px solid var(--light-gray); }
              .calendar-day-header:nth-child(3) { border-right: none; }
              .calendar-day-header:nth-child(7) { border-right: 1px solid var(--light-gray); }
-
-            .calendar-day {
-                 min-height: 80px;
-            }
-            .calendar-day-header {
-                font-size: 0.8rem; /* Smaller headers */
-            }
-            .projects-grid {
-                grid-template-columns: 1fr; /* Stack projects */
-            }
-             .team-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            .calendar-day { min-height: 80px; }
+            .calendar-day-header { font-size: 0.8rem; }
+            .projects-grid, .team-grid {
+                grid-template-columns: 1fr;
             }
             .file-grid {
                 grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             }
             .notification-dropdown, .user-dropdown {
-                 width: calc(100vw - 40px); /* Almost full width */
-                 right: -10px; /* Adjust position */
-                 max-width: 350px; /* Keep max width */
+                 width: calc(100vw - 40px);
+                 right: -10px;
+                 max-width: 350px;
             }
-             .setting-item { /* Stack setting items */
+             .setting-item {
                  flex-direction: column;
                  align-items: flex-start;
-                 gap: 0.5rem; /* Reduce gap */
+                 gap: 0.5rem;
              }
-             .toggle-switch {
-                 margin-top: 0.5rem; /* Add space for toggle */
-             }
-             .setting-item .btn, .integration-status { /* Adjust button/status alignment */
-                margin-left: 0;
-                margin-top: 0.5rem;
+             .toggle-switch { margin-top: 0.5rem; }
+             .setting-item .btn, .integration-status {
+                margin-left: 0; margin-top: 0.5rem;
              }
         }
         @media (max-width: 480px) {
@@ -1579,51 +1311,32 @@
                 grid-template-columns: 1fr; /* Single column */
             }
              .calendar-grid {
-                 grid-template-columns: repeat(2, 1fr); /* Two days per row */
+                 grid-template-columns: repeat(2, 1fr);
              }
-              /* Fix calendar borders on mobile */
              .calendar-day:nth-child(2n) { border-right: none; }
-             .calendar-day:nth-child(3n) { border-right: 1px solid var(--light-gray); } /* Re-add border removed by 768px style */
+             .calendar-day:nth-child(3n) { border-right: 1px solid var(--light-gray); }
              .calendar-day-header:nth-child(2) { border-right: none; }
              .calendar-day-header:nth-child(3) { border-right: 1px solid var(--light-gray); }
-
-            .welcome-title {
-                font-size: 1.25rem; /* Smaller title */
-            }
-            .welcome-subtitle {
-                font-size: 0.9rem;
-            }
-            .user-info-avatar {
-                 width: 60px;
-                 height: 60px;
-                 font-size: 1.5rem;
-            }
-            .user-info-name {
-                font-size: 1.1rem;
-            }
-            .btn {
-                 padding: 0.6rem 1.2rem; /* Slightly smaller buttons */
-                 font-size: 0.9rem;
-            }
-            .section-title {
-                font-size: 1.1rem;
-            }
-            .search-bar {
-                 width: calc(100% - 50px); /* Adjust if needed near toggle */
-            }
+            .welcome-title { font-size: 1.25rem; }
+            .welcome-subtitle { font-size: 0.9rem; }
+            .user-info-avatar { width: 60px; height: 60px; font-size: 1.5rem; }
+            .user-info-name { font-size: 1.1rem; }
+            .btn { padding: 0.6rem 1.2rem; font-size: 0.9rem; }
+            .section-title { font-size: 1.1rem; }
         }
     </style>
 </head>
 <body>
     <!-- Sidebar Navigation -->
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
+        <!-- Sidebar content remains the same -->
+         <div class="sidebar-header">
             <a href="#dashboard" class="logo"> <!-- Make logo a link to dashboard -->
                 <i class="fas fa-users-cog logo-icon"></i>
                 <span>TeamFlow</span>
             </a>
             <!-- Add a close button for mobile -->
-            <button class="menu-toggle close-sidebar" style="display: none; color: white; background: none; border: none; font-size: 1.2rem; cursor: pointer;"> <!-- Initially hidden on desktop -->
+            <button class="menu-toggle close-sidebar" style="display: none; color: var(--sidebar-text); background: none; border: none; font-size: 1.2rem; cursor: pointer;"> <!-- Initially hidden on desktop -->
                  <i class="fas fa-times"></i>
             </button>
         </div>
@@ -1687,12 +1400,13 @@
             </a>
         </div>
     </aside>
+
     <!-- Main Content Area -->
     <main class="main-content">
         <!-- Top Navigation -->
         <nav class="top-nav">
             <!-- Hamburger Menu Toggle for Mobile -->
-            <button class="menu-toggle open-sidebar" style="display: none;"> <!-- Initially hidden on desktop -->
+            <button class="menu-toggle open-sidebar" style="display: none;">
                 <i class="fas fa-bars"></i>
             </button>
             <div class="search-bar">
@@ -1701,7 +1415,7 @@
                 <div class="search-results" id="searchResults"></div>
             </div>
             <div class="user-menu">
-                <div class="notification-icon-wrapper" id="notificationIconWrapper"> <!-- Use wrapper ID -->
+                <div class="notification-icon-wrapper" id="notificationIconWrapper">
                     <i class="fas fa-bell"></i>
                     <span class="notification-badge" id="notificationBadge">0</span>
                     <div class="notification-dropdown" id="notificationDropdown">
@@ -1709,41 +1423,35 @@
                             <div class="notification-title">Notifications</div>
                             <div class="notification-actions">
                                 <button class="btn btn-secondary btn-sm" id="markAllAsRead">Mark All as Read</button>
-                                <button class="btn btn-danger btn-sm" id="deleteAllNotifications">Delete All</button>
+                                <!-- Removed Delete All Notifications button as per delete confirmation change -->
+                                <!-- <button class="btn btn-danger btn-sm" id="deleteAllNotifications">Delete All</button> -->
                             </div>
                         </div>
                         <ul class="notification-list" id="notificationList">
                             <!-- Notifications dynamically added -->
-                             <li class="notification-item unread" data-id="0">
-                                 <div class="notification-icon"><i class="fas fa-info-circle"></i></div>
-                                 <div class="notification-content">
-                                     <div class="notification-message">Welcome to TeamFlow! Explore the dashboard.</div>
-                                     <div class="notification-time">Just now</div>
-                                 </div>
-                                 <div class="notification-dot"></div>
-                                 <button class="notification-actions-item delete-notification" title="Delete notification"><i class="fas fa-times"></i></button>
-                             </li>
-                             <!-- More notifications will be added by JS -->
+                            <li style="padding: 1rem; text-align: center; color: var(--gray);">Loading notifications...</li>
                         </ul>
                     </div>
                 </div>
-                <div class="user-profile" id="userProfileWrapper"> <!-- Use wrapper ID -->
+                <div class="user-profile" id="userProfileWrapper">
                     <div class="user-avatar" id="userAvatar">
                         <!-- Content dynamically set by JS -->
                         <div class="initials">ME</div>
                     </div>
-                    <!-- Name element updated - removed duplicate -->
-                    <div class="user-name" id="userNameDisplay">Mohamed Elmenisy</div>
+                    <div class="user-name" id="userNameDisplay">
+                        <span>Mohamed Elmenisy</span> <!-- Span for name text -->
+                        <span class="status-dot" title="Online"></span> <!-- Status Dot -->
+                    </div>
                     <div class="user-dropdown" id="userDropdown">
-                        <a href="#profile" class="dropdown-item" id="profileLink"> <!-- Keep ID for JS -->
+                        <a href="#profile" class="dropdown-item" id="profileLink">
                             <i class="fas fa-user"></i>
                             <span>Profile</span>
                         </a>
-                        <a href="#settings" class="dropdown-item" id="settingsLink"> <!-- Keep ID for JS -->
+                        <a href="#settings" class="dropdown-item" id="settingsLink">
                             <i class="fas fa-cog"></i>
                             <span>Settings</span>
                         </a>
-                        <a href="login.html" class="dropdown-item" id="logoutLink"> <!-- Keep ID for JS -->
+                        <a href="#" class="dropdown-item" id="logoutLink"> <!-- Changed href to # for JS handling -->
                             <i class="fas fa-sign-out-alt"></i>
                             <span>Logout</span>
                         </a>
@@ -1751,22 +1459,23 @@
                 </div>
             </div>
         </nav>
+
         <!-- Content Area -->
         <div class="content-area">
 
-            <!-- Dashboard Content (No Back Button Here) -->
+            <!-- Dashboard Content -->
             <div id="dashboardContent">
                 <!-- Welcome Section -->
                 <div class="welcome-section">
                     <h2 class="welcome-title">Welcome, <span id="welcomeName">Mohamed</span>!</h2>
-                    <p class="welcome-subtitle">Here's what's happening with your team today.</p> <!-- Added subtitle -->
+                    <p class="welcome-subtitle">Here's what's happening with your team today.</p>
                     <div class="user-info">
                         <div class="user-info-avatar" id="profileAvatar">
-                             <!-- Content dynamically set by JS -->
                             <div class="initials">ME</div>
                         </div>
                         <div class="user-info-details">
                             <div class="user-info-name">Mohamed Elmenisy</div>
+                            <!-- ID added here for specific styling -->
                             <div class="user-info-title" id="userRoleTitle">Administrator</div>
                             <div class="user-info-email">
                                 <i class="fas fa-envelope"></i>
@@ -1775,46 +1484,34 @@
                         </div>
                     </div>
                 </div>
-                <!-- Stats Section -->
+                <!-- Stats Section (Structure remains same, styling handled by CSS) -->
                 <div class="stats-section">
                     <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-users"></i>
-                            Team Members
-                        </div>
+                        <div class="stat-title"><i class="fas fa-users"></i> Team Members</div>
                         <div class="stat-value">
-                            <span id="teamMembersCount">12</span> <!-- Populated by JS -->
-                            <i id="teamMembersArrow" class="fas fa-minus stat-arrow neutral"></i> <!-- Updated by JS -->
+                            <span id="teamMembersCount">12</span>
+                            <i id="teamMembersArrow" class="fas fa-minus stat-arrow neutral"></i>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-check-circle"></i>
-                            Tasks Completed (Week) <!-- Added context -->
-                        </div>
+                        <div class="stat-title"><i class="fas fa-check-circle"></i> Tasks Completed (Week)</div>
                         <div class="stat-value">
-                            <span id="tasksCompleted">24</span> <!-- Populated by JS -->
-                             <i id="tasksCompletedArrow" class="fas fa-minus stat-arrow neutral"></i> <!-- Updated by JS -->
+                            <span id="tasksCompleted">24</span>
+                            <i id="tasksCompletedArrow" class="fas fa-minus stat-arrow neutral"></i>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-project-diagram"></i>
-                            Active Projects
-                        </div>
+                        <div class="stat-title"><i class="fas fa-project-diagram"></i> Active Projects</div>
                         <div class="stat-value">
-                            <span id="activeProjects">5</span> <!-- Populated by JS -->
-                             <i id="activeProjectsArrow" class="fas fa-minus stat-arrow neutral"></i> <!-- Updated by JS -->
+                            <span id="activeProjects">5</span>
+                            <i id="activeProjectsArrow" class="fas fa-minus stat-arrow neutral"></i>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-title">
-                            <i class="fas fa-clock"></i>
-                            Upcoming Deadlines (7d) <!-- Added context -->
-                        </div>
+                        <div class="stat-title"><i class="fas fa-clock"></i> Upcoming Deadlines (7d)</div>
                         <div class="stat-value">
-                            <span id="upcomingDeadlines">3</span> <!-- Populated by JS -->
-                             <i id="upcomingDeadlinesArrow" class="fas fa-minus stat-arrow neutral"></i> <!-- Updated by JS -->
+                            <span id="upcomingDeadlines">3</span>
+                            <i id="upcomingDeadlinesArrow" class="fas fa-minus stat-arrow neutral"></i>
                         </div>
                     </div>
                 </div>
@@ -1823,31 +1520,22 @@
                     <div class="section-header">
                         <h3 class="section-title">Recent Activity</h3>
                         <div class="activity-actions">
-                            <button class="btn btn-outline btn-sm" id="showAllActivities">Show All</button>
-                            <button class="btn btn-danger btn-sm" id="deleteAllActivities">Delete All</button>
+                            <!-- Removed Show All / Delete All for simplicity with live feed -->
+                            <!-- <button class="btn btn-outline btn-sm" id="showAllActivities">Show All</button> -->
+                            <!-- <button class="btn btn-danger btn-sm" id="deleteAllActivities">Delete All</button> -->
                         </div>
                     </div>
                     <ul class="activity-list" id="activityList">
-                        <!-- Activity items dynamically added or static -->
-                         <li class="activity-item">
-                            <div class="activity-icon"><i class="fas fa-check-circle"></i></div>
-                            <div class="activity-content"><div class="activity-message"><strong>You</strong> completed task <strong>Dashboard Design</strong></div><div class="activity-time">2 hours ago</div></div>
-                            <button class="activity-actions-btn" title="Delete"><i class="fas fa-trash"></i></button>
-                        </li>
-                        <li class="activity-item">
-                            <div class="activity-icon"><i class="fas fa-comment-alt"></i></div>
-                            <div class="activity-content"><div class="activity-message"><strong>Sarah Johnson</strong> commented on <strong>Project Timeline</strong></div><div class="activity-time">5 hours ago</div></div>
-                            <button class="activity-actions-btn" title="Delete"><i class="fas fa-trash"></i></button>
-                        </li>
-                         <!-- More activity items can be added here or via JS -->
+                         <li style="padding: 1rem; text-align: center; color: var(--gray);">Loading activities...</li>
+                         <!-- Activity items dynamically added -->
                     </ul>
                 </div>
             </div>
 
-            <!-- Profile Content -->
+             <!-- Profile Content -->
             <div id="profileContent">
                  <div class="back-to-dashboard">
-                    <a href="#dashboard" class="btn btn-outline btn-sm"> <!-- Use link for navigation -->
+                    <a href="#dashboard" class="btn btn-outline btn-sm">
                         <i class="fas fa-arrow-left"></i> Back to Dashboard
                     </a>
                 </div>
@@ -1857,7 +1545,6 @@
                 <form class="profile-form" id="profileForm">
                      <div class="profile-picture-upload">
                         <div class="profile-picture-preview" id="profilePicturePreview">
-                             <!-- Content dynamically set by JS -->
                             <div class="initials">ME</div>
                         </div>
                         <div class="upload-btn">
@@ -1892,13 +1579,13 @@
                         <input type="tel" id="phone" class="form-control" value="+201234567890">
                     </div>
                     <div class="form-actions">
-                        <a href="#dashboard" class="btn btn-secondary" id="cancelProfileLink">Cancel</a> <!-- Changed to link -->
+                        <a href="#dashboard" class="btn btn-secondary" id="cancelProfileLink">Cancel</a>
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>
                 </form>
             </div>
 
-            <!-- Task Management Content -->
+            <!-- Task Management Content (Remains the same) -->
             <div id="taskManagementContent">
                  <div class="back-to-dashboard">
                     <a href="#dashboard" class="btn btn-outline btn-sm">
@@ -1989,105 +1676,48 @@
                             <button class="task-btn" title="Reopen"><i class="fas fa-redo"></i></button>
                         </div>
                     </li>
+                     <!-- More tasks -->
                 </ul>
             </div>
 
-            <!-- Employee Scheduling Content -->
+            <!-- Employee Scheduling Content (Remains the same placeholder) -->
             <div id="schedulingContent">
-                 <div class="back-to-dashboard">
-                    <a href="#dashboard" class="btn btn-outline btn-sm">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
-                </div>
-                 <div class="section-header">
-                    <h2 class="section-title">Employee Scheduling</h2>
-                    <button class="btn btn-primary">
-                        <i class="fas fa-plus"></i> New Shift
-                    </button>
-                 </div>
-                 <div class="schedule-calendar">
-                     <i class="fas fa-calendar-check fa-3x" style="margin-bottom: 1rem; color: var(--light-gray);"></i>
-                     Employee Scheduling Feature Placeholder
-                 </div>
+                 <div class="back-to-dashboard"><a href="#dashboard" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back to Dashboard</a></div>
+                 <div class="section-header"><h2 class="section-title">Employee Scheduling</h2><button class="btn btn-primary"><i class="fas fa-plus"></i> New Shift</button></div>
+                 <div class="schedule-calendar"><i class="fas fa-calendar-check fa-3x" style="margin-bottom: 1rem; color: var(--light-gray);"></i> Employee Scheduling Feature Placeholder</div>
             </div>
 
-            <!-- Team Calendar Content -->
+            <!-- Team Calendar Content (Remains the same static example) -->
             <div id="calendarContent">
-                 <div class="back-to-dashboard">
-                    <a href="#dashboard" class="btn btn-outline btn-sm">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
-                </div>
+                 <div class="back-to-dashboard"><a href="#dashboard" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back to Dashboard</a></div>
                 <div class="calendar-header">
                     <div class="calendar-nav">
                         <button class="btn btn-outline btn-sm"><i class="fas fa-chevron-left"></i></button>
-                        <div class="calendar-title">June 2023</div>
+                        <div class="calendar-title">July 2024</div>
                         <button class="btn btn-outline btn-sm"><i class="fas fa-chevron-right"></i></button>
                     </div>
-                    <button class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus"></i> New Event
-                    </button>
+                    <button class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> New Event</button>
                 </div>
                 <div class="calendar-grid">
-                    <div class="calendar-day-header">Sun</div>
-                    <div class="calendar-day-header">Mon</div>
-                    <div class="calendar-day-header">Tue</div>
-                    <div class="calendar-day-header">Wed</div>
-                    <div class="calendar-day-header">Thu</div>
-                    <div class="calendar-day-header">Fri</div>
-                    <div class="calendar-day-header">Sat</div>
-                    <!-- Static Calendar Days - Added 'today' class example -->
-                    <div class="calendar-day empty"></div><div class="calendar-day empty"></div><div class="calendar-day empty"></div>
-                    <div class="calendar-day"><div class="day-number">1</div></div>
-                    <div class="calendar-day"><div class="day-number">2</div></div>
-                    <div class="calendar-day"><div class="day-number">3</div></div>
-                    <div class="calendar-day"><div class="day-number">4</div></div>
-
-                    <div class="calendar-day"><div class="day-number">5</div><div class="calendar-event team-meeting">Team Meeting</div></div>
-                    <div class="calendar-day"><div class="day-number">6</div></div>
-                    <div class="calendar-day today"><div class="day-number">7</div></div> <!-- Example 'today' -->
-                    <div class="calendar-day"><div class="day-number">8</div><div class="calendar-event deadline">Proj Deadline</div></div>
-                    <div class="calendar-day"><div class="day-number">9</div></div>
-                    <div class="calendar-day"><div class="day-number">10</div></div>
-                    <div class="calendar-day"><div class="day-number">11</div></div>
-                     <div class="calendar-day"><div class="day-number">12</div><div class="calendar-event team-meeting">Sprint Plan</div></div>
-                    <div class="calendar-day"><div class="day-number">13</div></div>
-                    <div class="calendar-day"><div class="day-number">14</div></div>
-                    <div class="calendar-day"><div class="day-number">15</div><div class="calendar-event vacation">Alex OOO</div></div>
-                    <div class="calendar-day"><div class="day-number">16</div></div>
-                    <div class="calendar-day"><div class="day-number">17</div></div>
-                    <div class="calendar-day"><div class="day-number">18</div></div>
-                     <div class="calendar-day"><div class="day-number">19</div><div class="calendar-event vacation">Sarah OOO</div></div>
-                    <div class="calendar-day"><div class="day-number">20</div></div>
-                    <div class="calendar-day"><div class="day-number">21</div></div>
-                    <div class="calendar-day"><div class="day-number">22</div></div>
-                    <div class="calendar-day"><div class="day-number">23</div></div>
-                    <div class="calendar-day"><div class="day-number">24</div></div>
-                    <div class="calendar-day"><div class="day-number">25</div></div>
-                     <!-- Add more days as needed -->
-                     <div class="calendar-day"><div class="day-number">26</div></div>
-                     <div class="calendar-day"><div class="day-number">27</div></div>
-                     <div class="calendar-day"><div class="day-number">28</div></div>
-                     <div class="calendar-day"><div class="day-number">29</div></div>
-                     <div class="calendar-day"><div class="day-number">30</div></div>
-                     <div class="calendar-day empty"></div><div class="calendar-day empty"></div>
+                    <!-- Static Calendar Days Example -->
+                     <div class="calendar-day-header">Sun</div><div class="calendar-day-header">Mon</div><div class="calendar-day-header">Tue</div><div class="calendar-day-header">Wed</div><div class="calendar-day-header">Thu</div><div class="calendar-day-header">Fri</div><div class="calendar-day-header">Sat</div>
+                     <div class="calendar-day empty"></div><div class="calendar-day"><div class="day-number">1</div></div><div class="calendar-day"><div class="day-number">2</div></div><div class="calendar-day"><div class="day-number">3</div></div><div class="calendar-day"><div class="day-number">4</div></div><div class="calendar-day"><div class="day-number">5</div></div><div class="calendar-day"><div class="day-number">6</div></div>
+                     <div class="calendar-day"><div class="day-number">7</div></div><div class="calendar-day"><div class="day-number">8</div><div class="calendar-event team-meeting">Team Sync</div></div><div class="calendar-day"><div class="day-number">9</div></div><div class="calendar-day"><div class="day-number">10</div></div><div class="calendar-day today"><div class="day-number">11</div></div><div class="calendar-day"><div class="day-number">12</div><div class="calendar-event deadline">Report Due</div></div><div class="calendar-day"><div class="day-number">13</div></div>
+                     <!-- ... more days ... -->
+                     <div class="calendar-day"><div class="day-number">14</div></div><div class="calendar-day"><div class="day-number">15</div><div class="calendar-event vacation">Alex OOO</div></div><div class="calendar-day"><div class="day-number">16</div></div><div class="calendar-day"><div class="day-number">17</div></div><div class="calendar-day"><div class="day-number">18</div></div><div class="calendar-day"><div class="day-number">19</div></div><div class="calendar-day"><div class="day-number">20</div></div>
+                     <div class="calendar-day"><div class="day-number">21</div></div><div class="calendar-day"><div class="day-number">22</div></div><div class="calendar-day"><div class="day-number">23</div></div><div class="calendar-day"><div class="day-number">24</div></div><div class="calendar-day"><div class="day-number">25</div></div><div class="calendar-day"><div class="day-number">26</div></div><div class="calendar-day"><div class="day-number">27</div></div>
+                     <div class="calendar-day"><div class="day-number">28</div></div><div class="calendar-day"><div class="day-number">29</div></div><div class="calendar-day"><div class="day-number">30</div></div><div class="calendar-day"><div class="day-number">31</div></div><div class="calendar-day empty"></div><div class="calendar-day empty"></div><div class="calendar-day empty"></div>
                 </div>
             </div>
 
-            <!-- File Sharing Content -->
+            <!-- File Sharing Content (Remains the same) -->
             <div id="filesContent">
-                 <div class="back-to-dashboard">
-                    <a href="#dashboard" class="btn btn-outline btn-sm">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
-                </div>
+                <div class="back-to-dashboard"><a href="#dashboard" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back to Dashboard</a></div>
                 <div class="section-header">
                     <h2 class="section-title">File Sharing</h2>
-                    <div class="file-actions" style="display: flex; gap: 1rem; align-items:center;"> <!-- Inline style for demo -->
-                        <button class="btn btn-primary btn-sm">
-                            <i class="fas fa-upload"></i> Upload File
-                        </button>
-                        <div class="search-bar" style="width: auto; min-width: 200px;"> <!-- Adjusted search -->
+                    <div class="file-actions" style="display: flex; gap: 1rem; align-items:center;">
+                        <button class="btn btn-primary btn-sm"><i class="fas fa-upload"></i> Upload File</button>
+                        <div class="search-bar" style="width: auto; min-width: 200px;">
                             <i class="fas fa-search search-icon"></i>
                             <input type="text" placeholder="Search files...">
                         </div>
@@ -2098,198 +1728,126 @@
                     <div class="file-card"><div class="file-icon doc"><i class="fas fa-file-word"></i></div><div class="file-name">Requirements_Final.docx</div><div class="file-meta">1.8 MB</div></div>
                     <div class="file-card"><div class="file-icon xls"><i class="fas fa-file-excel"></i></div><div class="file-name">Project_Budget_Q3.xlsx</div><div class="file-meta">3.2 MB</div></div>
                     <div class="file-card"><div class="file-icon img"><i class="fas fa-file-image"></i></div><div class="file-name">Dashboard_Mockup_rev3.png</div><div class="file-meta">4.1 MB</div></div>
-                    <div class="file-card"><div class="file-icon zip"><i class="fas fa-file-archive"></i></div><div class="file-name">Design_Assets_2023.zip</div><div class="file-meta">12.7 MB</div></div>
-                     <!-- Add more file examples -->
-                    <div class="file-card"><div class="file-icon pdf"><i class="fas fa-file-pdf"></i></div><div class="file-name">User_Manual.pdf</div><div class="file-meta">0.9 MB</div></div>
-                    <div class="file-card"><div class="file-icon img"><i class="fas fa-file-image"></i></div><div class="file-name">Logo_Concept.jpg</div><div class="file-meta">0.5 MB</div></div>
+                     <!-- More files -->
                 </div>
             </div>
 
-            <!-- Data Management Content -->
+            <!-- Data Management Content (Remains the same) -->
             <div id="dataContent">
-                 <div class="back-to-dashboard">
-                    <a href="#dashboard" class="btn btn-outline btn-sm">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
-                </div>
+                 <div class="back-to-dashboard"><a href="#dashboard" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back to Dashboard</a></div>
                  <div class="section-header">
                     <h2 class="section-title">Data Management</h2>
                      <div class="search-bar" style="width: auto; min-width: 300px;">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text" placeholder="Search data records...">
+                        <i class="fas fa-search search-icon"></i><input type="text" placeholder="Search data records...">
                      </div>
                  </div>
-                 <div style="overflow-x: auto;"> <!-- Add horizontal scroll for table -->
+                 <div style="overflow-x: auto;">
                      <table class="data-table">
                         <thead><tr><th>Name</th><th>Type</th><th>Modified</th><th>Size</th><th>Access</th><th>Actions</th></tr></thead>
                         <tbody>
-                            <tr><td>Customer Database</td><td>SQL</td><td>Jun 14, 2023</td><td>45.2 MB</td><td>Admin Only</td><td><button class="btn btn-outline btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td></tr>
-                            <tr><td>Sales Records Q2</td><td>CSV</td><td>Jun 12, 2023</td><td>8.7 MB</td><td>Sales Team</td><td><button class="btn btn-outline btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td></tr>
-                            <tr><td>Product Catalog</td><td>JSON API</td><td>Jun 10, 2023</td><td>N/A</td><td>Public</td><td><button class="btn btn-outline btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td></tr>
-                            <tr><td>Employee Records</td><td>Encrypted DB</td><td>Jun 8, 2023</td><td>12.5 MB</td><td>HR & Admin</td><td><button class="btn btn-outline btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td></tr>
-                             <!-- Add more data examples -->
-                             <tr><td>Archived Projects</td><td>ZIP</td><td>May 20, 2023</td><td>1.2 GB</td><td>Admin Only</td><td><button class="btn btn-outline btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td></tr>
+                            <tr><td>Customer Database</td><td>SQL</td><td>Jul 10, 2024</td><td>46.1 MB</td><td>Admin Only</td><td><button class="btn btn-outline btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td></tr>
+                            <tr><td>Sales Records Q2</td><td>CSV</td><td>Jul 08, 2024</td><td>9.2 MB</td><td>Sales Team</td><td><button class="btn btn-outline btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td></tr>
+                            <!-- More data -->
                         </tbody>
                      </table>
                  </div>
             </div>
 
-             <!-- Projects Content -->
+            <!-- Projects Content (Remains the same) -->
             <div id="projectsContent">
-                 <div class="back-to-dashboard">
-                    <a href="#dashboard" class="btn btn-outline btn-sm">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
-                </div>
+                <div class="back-to-dashboard"><a href="#dashboard" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back to Dashboard</a></div>
                 <div class="section-header">
                     <h2 class="section-title">Projects</h2>
-                    <button class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus"></i> New Project
-                    </button>
+                    <button class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> New Project</button>
                 </div>
                 <div class="projects-grid">
                     <div class="project-card">
                         <div class="project-header"><div class="project-title">Dashboard Redesign</div><div class="project-status active">Active</div></div>
                         <div class="project-description">Complete redesign with new analytics features, improved UI, and accessibility compliance.</div>
-                        <div class="project-progress"><div class="progress-bar"><div class="progress-fill" style="width: 75%"></div></div><div class="progress-text"><span>Progress</span><span>75%</span></div></div>
-                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 5 Members</div><div class="project-due"><i class="far fa-calendar-alt"></i> Jun 30</div></div>
+                        <div class="project-progress"><div class="progress-bar"><div class="progress-fill" style="width: 85%"></div></div><div class="progress-text"><span>Progress</span><span>85%</span></div></div>
+                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 5 Members</div><div class="project-due"><i class="far fa-calendar-alt"></i> Jul 30</div></div>
                     </div>
                      <div class="project-card">
                         <div class="project-header"><div class="project-title">Mobile App Dev</div><div class="project-status active">Active</div></div>
                         <div class="project-description">Native mobile application development for both iOS and Android platforms targeting Q3 launch.</div>
-                        <div class="project-progress"><div class="progress-bar"><div class="progress-fill" style="width: 45%"></div></div><div class="progress-text"><span>Progress</span><span>45%</span></div></div>
-                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 8 Members</div><div class="project-due"><i class="far fa-calendar-alt"></i> Aug 15</div></div>
+                        <div class="project-progress"><div class="progress-bar"><div class="progress-fill" style="width: 55%"></div></div><div class="progress-text"><span>Progress</span><span>55%</span></div></div>
+                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 8 Members</div><div class="project-due"><i class="far fa-calendar-alt"></i> Sep 15</div></div>
                     </div>
-                    <div class="project-card">
-                        <div class="project-header"><div class="project-title">API Integration</div><div class="project-status on-hold">On Hold</div></div>
-                        <div class="project-description">Integrate third-party payment gateway API. Currently paused pending vendor documentation update.</div>
-                        <div class="project-progress"><div class="progress-bar"><div class="progress-fill" style="width: 20%; background-color: var(--warning);"></div></div><div class="progress-text"><span>Progress</span><span>20%</span></div></div>
-                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 3 Members</div><div class="project-due"><i class="far fa-calendar-alt"></i> TBD</div></div>
-                    </div>
-                    <div class="project-card">
-                         <div class="project-header"><div class="project-title">Database Migration</div><div class="project-status completed">Completed</div></div>
-                        <div class="project-description">Successfully migrated legacy customer database to the new cloud infrastructure solution ahead of schedule.</div>
-                        <div class="project-progress"><div class="progress-bar"><div class="progress-fill" style="width: 100%; background-color: var(--success);"></div></div><div class="progress-text"><span>Progress</span><span>100%</span></div></div>
-                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 4 Members</div><div class="project-due"><i class="far fa-check-circle"></i> May 10</div></div>
-                    </div>
+                    <!-- More projects -->
                 </div>
             </div>
 
-            <!-- Project Tracking Content -->
+            <!-- Project Tracking Content (Remains the same placeholder) -->
             <div id="trackingContent">
-                 <div class="back-to-dashboard">
-                    <a href="#dashboard" class="btn btn-outline btn-sm">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
-                </div>
+                <div class="back-to-dashboard"><a href="#dashboard" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back to Dashboard</a></div>
                  <div class="section-header">
                      <h2 class="section-title">Project Tracking</h2>
                       <div class="filter-group">
                         <label for="trackingProjectFilter">Select Project:</label>
                         <select id="trackingProjectFilter" class="filter-select">
-                            <option>Dashboard Redesign</option>
-                            <option>Mobile App Dev</option>
-                            <option>API Integration</option>
+                            <option>Dashboard Redesign</option><option>Mobile App Dev</option><option>API Integration</option>
                         </select>
                     </div>
                  </div>
-                 <div class="gantt-chart">
-                     <i class="fas fa-tasks fa-3x" style="margin-bottom: 1rem; color: var(--light-gray);"></i>
-                     Gantt Chart / Project Timeline Placeholder
-                 </div>
+                 <div class="gantt-chart"><i class="fas fa-tasks fa-3x" style="margin-bottom: 1rem; color: var(--light-gray);"></i> Gantt Chart / Project Timeline Placeholder</div>
             </div>
 
-            <!-- Deadline Tracking Content -->
+            <!-- Deadline Tracking Content (Remains the same) -->
             <div id="deadlineContent">
-                 <div class="back-to-dashboard">
-                    <a href="#dashboard" class="btn btn-outline btn-sm">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
-                </div>
+                 <div class="back-to-dashboard"><a href="#dashboard" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back to Dashboard</a></div>
                 <div class="section-header">
                     <h2 class="section-title">Deadline Tracking</h2>
                      <div class="filter-group">
                         <label for="deadlineFilterSelect">Filter by Priority:</label>
                         <select id="deadlineFilterSelect" class="filter-select">
-                            <option value="all">All</option>
-                            <option value="critical">Critical (< 2 days)</option>
-                            <option value="high">High (< 7 days)</option>
-                            <option value="normal">Normal (7+ days)</option>
+                            <option value="all">All</option><option value="critical">Critical (< 2 days)</option><option value="high">High (< 7 days)</option><option value="normal">Normal (7+ days)</option>
                         </select>
                     </div>
                 </div>
-                 <div class="task-list"> <!-- Reuse task list style -->
-                     <li class="task-item high-priority"><div class="task-info"><div class="task-title">Security Patch Deployment</div><div class="task-description">Project: Dashboard Redesign</div></div><div class="task-meta"><span><i class="far fa-calendar-times"></i> Due: Jun 15 (Tomorrow!)</span></div></li>
-                     <li class="task-item medium-priority"><div class="task-info"><div class="task-title">User Acceptance Testing Phase 1</div><div class="task-description">Project: Mobile App Dev</div></div><div class="task-meta"><span><i class="far fa-calendar-alt"></i> Due: Jun 20</span></div></li>
-                     <li class="task-item low-priority"><div class="task-info"><div class="task-title">API Documentation Update</div><div class="task-description">Project: API Integration</div></div><div class="task-meta"><span><i class="far fa-calendar-alt"></i> Due: Jun 25</span></div></li>
-                     <li class="task-item medium-priority"><div class="task-info"><div class="task-title">Final Mockup Review</div><div class="task-description">Project: Dashboard Redesign</div></div><div class="task-meta"><span><i class="far fa-calendar-alt"></i> Due: Jun 18</span></div></li>
+                 <div class="task-list">
+                     <li class="task-item high-priority"><div class="task-info"><div class="task-title">Final UI Polish</div><div class="task-description">Project: Dashboard Redesign</div></div><div class="task-meta"><span><i class="far fa-calendar-times"></i> Due: Jul 15 (4 days)</span></div></li>
+                     <li class="task-item medium-priority"><div class="task-info"><div class="task-title">Beta Testing Feedback Review</div><div class="task-description">Project: Mobile App Dev</div></div><div class="task-meta"><span><i class="far fa-calendar-alt"></i> Due: Jul 22</span></div></li>
+                     <!-- More deadlines -->
                  </div>
             </div>
 
-            <!-- Team Members Content -->
+            <!-- Team Members Content (Remains the same) -->
             <div id="teamContent">
-                 <div class="back-to-dashboard">
-                    <a href="#dashboard" class="btn btn-outline btn-sm">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
-                </div>
+                 <div class="back-to-dashboard"><a href="#dashboard" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back to Dashboard</a></div>
                  <div class="section-header">
                     <h2 class="section-title">Team Members</h2>
-                    <button class="btn btn-primary btn-sm">
-                        <i class="fas fa-user-plus"></i> Add Member
-                    </button>
+                    <button class="btn btn-primary btn-sm"><i class="fas fa-user-plus"></i> Add Member</button>
                 </div>
                 <div class="team-grid">
                     <div class="member-card"><div class="member-avatar"><div class="initials">ME</div></div><div class="member-name">Mohamed Elmenisy</div><div class="member-role">Administrator</div><div class="member-status active">Active</div><div class="member-contact"><a href="mailto:m.elsayed@thechefz.co" class="contact-btn" title="Email"><i class="fas fa-envelope"></i></a><button class="contact-btn" title="Chat"><i class="fas fa-comment"></i></button></div></div>
                     <div class="member-card"><div class="member-avatar"><div class="initials">SJ</div></div><div class="member-name">Sarah Johnson</div><div class="member-role">Project Manager</div><div class="member-status active">Active</div><div class="member-contact"><a href="#" class="contact-btn" title="Email"><i class="fas fa-envelope"></i></a><button class="contact-btn" title="Chat"><i class="fas fa-comment"></i></button></div></div>
-                    <div class="member-card"><div class="member-avatar"><div class="initials">AR</div></div><div class="member-name">Alex Rodriguez</div><div class="member-role">Lead Developer</div><div class="member-status active">Active</div><div class="member-contact"><a href="#" class="contact-btn" title="Email"><i class="fas fa-envelope"></i></a><button class="contact-btn" title="Chat"><i class="fas fa-comment"></i></button></div></div>
-                    <div class="member-card"><div class="member-avatar"><div class="initials">EC</div></div><div class="member-name">Emily Chen</div><div class="member-role">UI/UX Designer</div><div class="member-status active">Active</div><div class="member-contact"><a href="#" class="contact-btn" title="Email"><i class="fas fa-envelope"></i></a><button class="contact-btn" title="Chat"><i class="fas fa-comment"></i></button></div></div>
-                    <div class="member-card"><div class="member-avatar"><div class="initials">DW</div></div><div class="member-name">David Williams</div><div class="member-role">QA Tester</div><div class="member-status inactive">Inactive</div><div class="member-contact"><a href="#" class="contact-btn" title="Email"><i class="fas fa-envelope"></i></a><button class="contact-btn" title="Chat" disabled style="cursor:not-allowed;"><i class="fas fa-comment"></i></button></div></div>
+                     <!-- More members -->
                  </div>
             </div>
 
-            <!-- Reports & Analytics Content -->
+            <!-- Reports & Analytics Content (Remains the same placeholder) -->
             <div id="reportsContent">
-                 <div class="back-to-dashboard">
-                    <a href="#dashboard" class="btn btn-outline btn-sm">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
-                </div>
+                 <div class="back-to-dashboard"><a href="#dashboard" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back to Dashboard</a></div>
                  <div class="section-header">
                     <h2 class="section-title">Reports & Analytics</h2>
-                     <div class="time-filters" style="margin-left: auto; display: flex; gap: 0.5rem;"> <!-- Move filters right -->
-                        <button class="btn btn-outline btn-sm active">Week</button>
-                        <button class="btn btn-outline btn-sm">Month</button>
-                        <button class="btn btn-outline btn-sm">Year</button>
+                     <div class="time-filters" style="margin-left: auto; display: flex; gap: 0.5rem;">
+                        <button class="btn btn-outline btn-sm active">Week</button><button class="btn btn-outline btn-sm">Month</button><button class="btn btn-outline btn-sm">Year</button>
                         <button class="btn btn-primary btn-sm"><i class="fas fa-download"></i> Export</button>
                     </div>
                  </div>
-                 <div class="chart-container">
-                     <i class="fas fa-chart-line fa-3x" style="margin-bottom: 1rem; color: var(--light-gray);"></i>
-                     Task Completion Rate Chart Placeholder
-                 </div>
-                 <div class="chart-container">
-                     <i class="fas fa-chart-pie fa-3x" style="margin-bottom: 1rem; color: var(--light-gray);"></i>
-                     Team Performance / Workload Distribution Chart Placeholder
-                 </div>
+                 <div class="chart-container"><i class="fas fa-chart-line fa-3x" style="margin-bottom: 1rem; color: var(--light-gray);"></i> Task Completion Rate Chart Placeholder</div>
+                 <div class="chart-container"><i class="fas fa-chart-pie fa-3x" style="margin-bottom: 1rem; color: var(--light-gray);"></i> Team Performance Chart Placeholder</div>
             </div>
 
-            <!-- Innovation Hub Content -->
+            <!-- Innovation Hub Content (Remains the same placeholder) -->
             <div id="innovationContent">
-                 <div class="back-to-dashboard">
-                    <a href="#dashboard" class="btn btn-outline btn-sm">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
-                </div>
+                 <div class="back-to-dashboard"><a href="#dashboard" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back to Dashboard</a></div>
                  <div class="section-header">
                     <h2 class="section-title">Innovation Hub</h2>
-                    <button class="btn btn-primary btn-sm">
-                        <i class="fas fa-lightbulb"></i> Submit Idea
-                    </button>
+                    <button class="btn btn-primary btn-sm"><i class="fas fa-lightbulb"></i> Submit Idea</button>
                  </div>
-                 <div style="padding: 2rem; text-align: center; color: var(--gray); border: 1px dashed var(--light-gray); border-radius: 8px; background-color: var(--light);">
-                     <i class="fas fa-brain fa-3x" style="margin-bottom: 1rem; color: var(--light-gray);"></i><br>
-                     Share your brilliant ideas with the team! <br> (Ideas Board Placeholder)
+                 <div style="padding: 2rem; text-align: center; color: var(--gray); border: 1px dashed var(--light-gray); border-radius: 8px; background-color: var(--light); transition: background-color 0.3s ease, border-color 0.3s ease;">
+                     <i class="fas fa-brain fa-3x" style="margin-bottom: 1rem; color: var(--light-gray);"></i><br> Share your brilliant ideas! (Ideas Board Placeholder)
                  </div>
             </div>
 
@@ -2306,59 +1864,62 @@
                     <div class="settings-tab" data-tab="integrations">Integrations</div>
                     <div class="settings-tab" data-tab="security">Security</div>
                 </div>
+
                 <!-- General Settings Panel -->
-                <div class="settings-panel active" id="generalSettings">
+                <form class="settings-panel active" id="generalSettings">
                     <h3 style="margin-bottom: 1.5rem;">General Settings</h3>
                     <div class="form-group">
                         <label for="timezone">Timezone</label>
-                        <select id="timezone" class="form-control"><option>(UTC+00:00) GMT</option><option selected>(UTC+02:00) Cairo</option><option>(UTC+03:00) Riyadh</option></select>
+                        <select id="timezone" class="form-control"><option value="utc-0">(UTC+00:00) GMT</option><option value="utc+2">(UTC+02:00) Cairo</option><option value="utc+3">(UTC+03:00) Riyadh</option></select>
                     </div>
                      <div class="form-group">
                         <label for="language">Language</label>
                         <select id="language" class="form-control">
-                            <option selected>English</option>
-                            <option>Arabic</option>
+                            <option value="en">English</option>
+                            <option value="ar">Arabic</option>
                             <option value="system">System Default</option>
                         </select>
                     </div>
                     <div class="setting-item">
-                        <div class="setting-info"><div class="setting-title">Dark Mode</div><div class="setting-description">Toggle dark theme across the application (Requires implementation).</div></div>
-                        <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
+                        <div class="setting-info"><div class="setting-title">Dark Mode</div><div class="setting-description">Toggle dark theme across the application.</div></div>
+                        <label class="toggle-switch"><input type="checkbox" id="darkModeToggle"><span class="slider"></span></label>
                     </div>
                      <div class="form-actions">
-                        <button type="button" class="btn btn-secondary">Cancel</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetGeneralSettings()">Cancel</button>
                         <button type="submit" class="btn btn-primary">Save General Settings</button>
                     </div>
-                </div>
+                </form>
+
                 <!-- Notification Settings Panel -->
-                <div class="settings-panel" id="notificationSettings">
+                <form class="settings-panel" id="notificationSettings">
                     <h3 style="margin-bottom: 1.5rem;">Notification Settings</h3>
                      <div class="setting-item">
                          <div class="setting-info"><div class="setting-title">Task Assignments</div><div class="setting-description">Notify me (In-App & Email) when new tasks are assigned to me.</div></div>
-                         <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                         <label class="toggle-switch"><input type="checkbox" id="notifyTaskAssign" data-setting="notifyTaskAssign" checked><span class="slider"></span></label>
                      </div>
                      <div class="setting-item">
                          <div class="setting-info"><div class="setting-title">Project Updates</div><div class="setting-description">Send email for critical project updates (e.g., status change, deadline approaching).</div></div>
-                         <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
+                         <label class="toggle-switch"><input type="checkbox" id="notifyProjectUpdate" data-setting="notifyProjectUpdate"><span class="slider"></span></label>
                      </div>
                       <div class="setting-item">
                          <div class="setting-info"><div class="setting-title">Comments on My Tasks</div><div class="setting-description">Receive In-App notifications for comments on tasks I own or follow.</div></div>
-                         <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                         <label class="toggle-switch"><input type="checkbox" id="notifyComments" data-setting="notifyComments" checked><span class="slider"></span></label>
                      </div>
                      <div class="setting-item">
                          <div class="setting-info"><div class="setting-title">Team Announcements</div><div class="setting-description">Notify me (In-App) about general team or company announcements.</div></div>
-                         <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                         <label class="toggle-switch"><input type="checkbox" id="notifyAnnouncements" data-setting="notifyAnnouncements" checked><span class="slider"></span></label>
                      </div>
                      <div class="setting-item">
                          <div class="setting-info"><div class="setting-title">Daily Summary Email</div><div class="setting-description">Get a daily email summarizing your tasks due today and overdue items.</div></div>
-                         <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
+                         <label class="toggle-switch"><input type="checkbox" id="notifyDailySummary" data-setting="notifyDailySummary"><span class="slider"></span></label>
                      </div>
                      <div class="form-actions">
-                        <button type="button" class="btn btn-secondary">Cancel</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetNotificationSettings()">Cancel</button>
                         <button type="submit" class="btn btn-primary">Save Notification Settings</button>
                     </div>
-                </div>
-                <!-- Integrations Settings Panel (Updated with more options) -->
+                </form>
+
+                <!-- Integrations Settings Panel (Structure Same) -->
                 <div class="settings-panel" id="integrationSettings">
                     <h3 style="margin-bottom: 1.5rem;">Integrations</h3>
                      <div class="setting-item">
@@ -2379,46 +1940,34 @@
                              <button class="btn btn-danger btn-sm">Disconnect</button>
                          </div>
                      </div>
-                     <div class="setting-item">
-                         <div class="setting-info"><i class="fab fa-jira" style="color: #0052CC; font-size: 1.2rem; margin-right: 0.5rem;"></i><div class="setting-title">Jira</div><div class="setting-description">Sync issues and project status with your Jira instance.</div></div>
-                         <button class="btn btn-outline btn-sm">Connect</button>
-                     </div>
-                     <div class="setting-item">
-                        <div class="setting-info"><i class="fas fa-video" style="color: #2D8CFF; font-size: 1.2rem; margin-right: 0.5rem;"></i><div class="setting-title">Zoom</div><div class="setting-description">Schedule and join Zoom meetings directly from calendar events.</div></div>
-                        <button class="btn btn-outline btn-sm">Connect</button>
-                    </div>
-                     <div class="setting-item">
-                        <div class="setting-info"><i class="fab fa-microsoft" style="color: #0078D4; font-size: 1.2rem; margin-right: 0.5rem;"></i><div class="setting-title">Microsoft 365</div><div class="setting-description">Sync Outlook Calendar and access OneDrive files.</div></div>
-                        <button class="btn btn-outline btn-sm">Connect</button>
-                    </div>
+                    <!-- More integrations -->
                 </div>
+
                 <!-- Security Settings Panel -->
-                <div class="settings-panel" id="securitySettings">
+                <form class="settings-panel" id="securitySettings">
                     <h3 style="margin-bottom: 1.5rem;">Security Settings</h3>
                     <div class="setting-item">
                         <div class="setting-info"><div class="setting-title">Two-Factor Authentication (2FA)</div><div class="setting-description">Add an extra layer of security using an authenticator app or SMS.</div></div>
-                        <button class="btn btn-outline btn-sm" id="enable2faBtn">Enable</button> <!-- JS handles text/style -->
+                        <!-- Button logic handled by JS, initial state set by JS on load -->
+                        <button type="button" class="btn btn-outline btn-sm" id="enable2faBtn">Enable 2FA</button>
                     </div>
                     <div class="setting-item">
                         <div class="setting-info"><div class="setting-title">Password</div><div class="setting-description">Last changed: 3 months ago. Recommended to change periodically.</div></div>
-                        <button class="btn btn-outline btn-sm" id="changePasswordBtn">Change Password</button>
+                        <button type="button" class="btn btn-outline btn-sm" id="changePasswordBtn">Change Password</button>
                     </div>
                      <div class="setting-item">
                         <div class="setting-info"><div class="setting-title">Active Sessions</div><div class="setting-description">Manage devices currently logged into your account.</div></div>
-                        <button class="btn btn-outline btn-sm" id="manageSessionsBtn">View Sessions</button>
+                        <button type="button" class="btn btn-outline btn-sm" id="manageSessionsBtn">View Sessions</button>
                     </div>
-                     <!-- Actions might not be needed here, or could apply to specific settings like password policy -->
-                     <!-- <div class="form-actions">
-                         <button type="button" class="btn btn-secondary">Cancel</button>
-                         <button type="submit" class="btn btn-primary">Save Security Settings</button>
-                     </div> -->
-                </div>
+                    <!-- No explicit save needed here as actions are immediate or open modals -->
+                    <!-- <div class="form-actions"> ... </div> -->
+                </form>
             </div>
 
         </div> <!-- End Content Area -->
     </main>
 
-    <!-- Confirmation Message (Top-Right - Kept for non-deletion feedback) -->
+    <!-- Confirmation Message (Top-Right - For non-destructive actions) -->
     <div class="confirmation-message" id="confirmationMessage">
         <i class="fas fa-check-circle"></i>
         <span id="confirmationText">Changes saved successfully!</span>
@@ -2440,16 +1989,16 @@
             const notificationDropdown = document.getElementById('notificationDropdown');
             const notificationList = document.getElementById('notificationList');
             const markAllAsRead = document.getElementById('markAllAsRead');
-            const deleteAllNotificationsBtn = document.getElementById('deleteAllNotifications');
+            // const deleteAllNotificationsBtn = document.getElementById('deleteAllNotifications'); // Removed
             const userProfileWrapper = document.getElementById('userProfileWrapper');
-            const userNameDisplay = document.getElementById('userNameDisplay'); // Updated target
+            const userNameDisplay = document.getElementById('userNameDisplay').querySelector('span'); // Target the name span directly
             const userEmail = document.getElementById('userEmail');
             const welcomeName = document.getElementById('welcomeName');
             const userDropdown = document.getElementById('userDropdown');
             const profileLink = document.getElementById('profileLink');
             const settingsLink = document.getElementById('settingsLink');
             const logoutLink = document.getElementById('logoutLink');
-            const deleteAllActivitiesBtn = document.getElementById('deleteAllActivities');
+            // const deleteAllActivitiesBtn = document.getElementById('deleteAllActivities'); // Removed
             const activityList = document.getElementById('activityList');
             const contentSections = document.querySelectorAll('.content-area > div[id$="Content"]');
             const settingsTabs = document.querySelectorAll('.settings-tab');
@@ -2464,9 +2013,18 @@
             const deleteSound = document.getElementById('deleteSound');
             const openSidebarBtn = document.querySelector('.open-sidebar');
             const closeSidebarBtn = document.querySelector('.close-sidebar');
+
+            // Settings Elements
+            const generalSettingsForm = document.getElementById('generalSettings');
+            const notificationSettingsForm = document.getElementById('notificationSettings');
+            const securitySettingsPanel = document.getElementById('securitySettings'); // Panel, not form
+            const timezoneSelect = document.getElementById('timezone');
+            const languageSelect = document.getElementById('language');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const notificationToggles = notificationSettingsForm.querySelectorAll('input[type="checkbox"]');
             const enable2faBtn = document.getElementById('enable2faBtn');
             const changePasswordBtn = document.getElementById('changePasswordBtn');
-            const manageSessionsBtn = document.getElementById('manageSessionsBtn'); // Added
+            const manageSessionsBtn = document.getElementById('manageSessionsBtn');
 
             // Stat Elements
             const teamMembersCountEl = document.getElementById('teamMembersCount');
@@ -2479,48 +2037,62 @@
             const upcomingDeadlinesArrowEl = document.getElementById('upcomingDeadlinesArrow');
 
             // --- Data ---
-            let currentUser = {
+            let currentUser = { // Default values
                 id: 1,
                 name: 'Mohamed Elmenisy',
                 email: 'm.elsayed@thechefz.co',
                 title: 'Administrator',
                 department: 'Management',
                 phone: '+201234567890',
-                initials: 'ME',
-                role: 'admin',
-                stats: { // Initial stats
-                    teamMembers: 12,
-                    tasksCompleted: 24, // Example: Tasks completed this week
-                    activeProjects: 5,
-                    upcomingDeadlines: 3 // Example: Deadlines in next 7 days
-                },
-                profilePicture: null, // Can be set to an image URL
-                twoFactorEnabled: false
+                profilePicture: null,
+                // Stats will be loaded or default
+                stats: { teamMembers: 12, tasksCompleted: 24, activeProjects: 5, upcomingDeadlines: 3 },
+                // Settings will be loaded or default
+                settings: {
+                    timezone: 'utc+2',
+                    language: 'en',
+                    darkMode: false,
+                    twoFactorEnabled: false,
+                    notifyTaskAssign: true,
+                    notifyProjectUpdate: false,
+                    notifyComments: true,
+                    notifyAnnouncements: true,
+                    notifyDailySummary: false
+                }
             };
-             // Store previous stats for comparison - Initialize identical to current
-            let previousStats = { ...currentUser.stats };
+             let previousStats = { ...currentUser.stats }; // For stat arrow comparison
 
-            // Updated Notifications array
-            let notifications = [
-                 { id: 0, icon: 'fas fa-info-circle', message: 'Welcome to TeamFlow! Explore the dashboard and features.', time: 'Just now', read: false },
-                 { id: 1, icon: 'fas fa-check-circle', message: 'Task "Deploy Security Patch" completed by Alex R.', time: '1 hour ago', read: false },
-                 { id: 2, icon: 'fas fa-comment-alt', message: '<strong>Sarah Johnson</strong> commented on <strong>Project Alpha Timeline</strong>: "Need updated estimates"', time: '3 hours ago', read: false },
+             // Updated Notifications array
+             let notifications = [
+                 { id: 0, icon: 'fas fa-info-circle', message: 'Welcome to TeamFlow! Explore the dashboard.', time: 'Just now', read: false },
+                 { id: 1, icon: 'fas fa-check-circle', message: 'Task "Deploy Security Patch" completed by <strong>Alex R</strong>.', time: '1h ago', read: false },
+                 { id: 2, icon: 'fas fa-comment-alt', message: '<strong>Sarah J</strong> commented on <strong>Project Alpha</strong>: "Need updated estimates"', time: '3h ago', read: false },
                  { id: 3, icon: 'fas fa-tasks', message: 'New task assigned: "Review Q3 Marketing Plan"', time: 'Yesterday', read: true },
-                 { id: 4, icon: 'fas fa-exclamation-triangle', message: 'Project "Mobile App Dev" deadline approaching (Aug 15)', time: '2 days ago', read: true },
-                 { id: 5, icon: 'fas fa-file-upload', message: '<strong>Emily Chen</strong> uploaded "Final_Mockups.zip" to Files', time: '3 days ago', read: true }
-            ];
+                 { id: 4, icon: 'fas fa-exclamation-triangle', message: 'Project "Mobile App Dev" deadline approaching (Sep 15)', time: '2 days ago', read: true },
+                 { id: 5, icon: 'fas fa-file-upload', message: '<strong>Emily C</strong> uploaded "Final_Mockups.zip" to Files', time: '3 days ago', read: true }
+             ];
 
-            const searchData = [
+             // Sample Recent Activities for Simulation
+             const sampleActivities = [
+                { icon: 'fas fa-check-circle', message: '<strong>You</strong> completed task <strong>Update Dependencies</strong>', user: 'You'},
+                { icon: 'fas fa-comment-alt', message: '<strong>Sarah J</strong> commented on <strong>Sprint Planning</strong>', user: 'Sarah J'},
+                { icon: 'fas fa-file-upload', message: '<strong>Alex R</strong> uploaded <strong>API_Docs_v3.pdf</strong>', user: 'Alex R'},
+                { icon: 'fas fa-project-diagram', message: 'New project <strong>"Client Portal"</strong> created', user: 'Admin'},
+                { icon: 'fas fa-user-plus', message: '<strong>Emily C</strong> was added to the <strong>Design Team</strong>', user: 'Admin'},
+                { icon: 'fas fa-clock', message: 'Deadline for <strong>"Mobile App Testing"</strong> updated', user: 'Sarah J'}
+             ];
+             let activityIntervalId = null;
+             const MAX_ACTIVITIES = 15; // Max activities to show
+
+             const searchData = [ // Keep search data simple
                  { name: 'Dashboard Redesign', type: 'Project', link: '#projects' },
                  { name: 'Mohamed Elmenisy', type: 'Member', link: '#team-members' },
                  { name: 'Profile Page', type: 'Task', link: '#task-management' },
-                 { name: 'Team Meeting', type: 'Event', link: '#team-calendar' },
-                 { name: 'Proposal_v2.pdf', type: 'File', link: '#file-sharing' },
                  { name: 'Settings', type: 'Area', link: '#settings' },
                  { name: 'Reports', type: 'Area', link: '#reports' }
-            ];
+             ];
 
-            // Feature Map for routing
+            // Feature Map (remains the same)
             const featureMap = {
                 'dashboard': { contentId: 'dashboardContent', menuItemSelector: '[data-feature="dashboard"]' },
                 'task-management': { contentId: 'taskManagementContent', menuItemSelector: '[data-feature="task-management"]' },
@@ -2538,36 +2110,35 @@
                 'profile': { contentId: 'profileContent', menuItemSelector: null } // No direct sidebar link
             };
 
+
             // --- Initialization ---
             function initApp() {
-                updateUserUI(); // Includes initial stat display
+                loadSettings(); // Load settings first to apply dark mode etc.
+                updateUserUI();
                 renderNotifications();
                 setupEventListeners();
-                handleNavigation(); // Handles initial view based on hash
+                handleNavigation();
                 checkScreenSize();
-                updateSecurityButtonsUI();
-                simulateStatUpdates(); // Start simulating stat changes
-                restoreSettingsTab(); // Restore active settings tab on load
+                // updateSecurityButtonsUI(); // Called within updateUserUI now
+                simulateStatUpdates();
+                startLiveActivityFeed(); // Start the activity feed
+                activityList.innerHTML = ''; // Clear loading message
             }
 
-            // --- Core Navigation Logic ---
+            // --- Core Navigation Logic (remains mostly the same) ---
             function handleNavigation() {
                 const hash = window.location.hash.substring(1);
-                const feature = hash || 'dashboard';
+                const feature = featureMap[hash] ? hash : 'dashboard'; // Default to dashboard if hash invalid
                 updateView(feature);
-                 // If navigating to settings, restore the last active tab
-                 if (feature === 'settings') {
-                     restoreSettingsTab();
-                 }
             }
 
             function updateView(feature) {
                 const config = featureMap[feature];
 
-                if (!config) {
-                    console.warn(`Feature "${feature}" not found. Redirecting to dashboard.`);
-                    window.location.hash = 'dashboard';
-                    return; // The hashchange listener will handle the redirect
+                if (!config) { // Should not happen due to default above, but good practice
+                    console.warn(`Feature "${feature}" config not found. Redirecting to dashboard.`);
+                    window.location.hash = 'dashboard'; // Trigger hashchange for dashboard
+                    return;
                 }
 
                 // Hide all content sections
@@ -2577,114 +2148,102 @@
                 const targetSection = document.getElementById(config.contentId);
                 if (targetSection) {
                     targetSection.style.display = 'block';
-                     // If it's the dashboard, update stats immediately
-                     if (feature === 'dashboard') {
-                         updateStatDisplay();
-                     }
+                    if (feature === 'dashboard') {
+                        updateStatDisplay(); // Update stats when dashboard is shown
+                    }
+                    if (feature === 'settings') {
+                        restoreSettingsTab(); // Ensure correct tab is active if navigating to settings
+                    }
                 } else {
-                    console.error(`Content section with ID "${config.contentId}" not found for feature "${feature}".`);
-                    document.getElementById(featureMap['dashboard'].contentId).style.display = 'block';
-                    feature = 'dashboard'; // Ensure menu highlights dashboard
-                    config = featureMap['dashboard']; // Update config for menu highlighting
-                    updateStatDisplay(); // Update stats for dashboard fallback
+                    console.error(`Content section ID "${config.contentId}" not found.`);
+                    window.location.hash = 'dashboard'; // Fallback safely
+                    return;
                 }
 
                 // Update active menu item
                 menuItems.forEach(item => item.classList.remove('active'));
                 if (config.menuItemSelector) {
                     const activeMenuItem = document.querySelector(config.menuItemSelector);
-                    if (activeMenuItem) {
-                        activeMenuItem.classList.add('active');
-                    }
+                    if (activeMenuItem) activeMenuItem.classList.add('active');
                 }
 
-                 // Special case: If viewing settings, ensure settings item is active
-                 if (feature === 'settings' && featureMap.settings.menuItemSelector) {
-                     const settingsMenuItem = document.querySelector(featureMap.settings.menuItemSelector);
-                     if (settingsMenuItem) settingsMenuItem.classList.add('active');
-                 } else if (feature === 'profile') {
-                     // No sidebar item active for profile
-                 }
+                 // Close dropdowns and sidebar
+                 userDropdown.classList.remove('active');
+                 notificationDropdown.classList.remove('active');
+                 sidebar.classList.remove('active');
+                 searchResults.style.display = 'none';
 
-                // Close dropdowns and sidebar on navigation
-                userDropdown.classList.remove('active');
-                notificationDropdown.classList.remove('active');
-                sidebar.classList.remove('active');
-                searchResults.style.display = 'none';
-
-                window.scrollTo(0, 0);
+                 window.scrollTo(0, 0); // Scroll to top
             }
 
 
             // --- UI Update Functions ---
             function updateUserUI() {
+                // Load potentially updated user data from localStorage if implemented
+                // For now, uses the 'currentUser' object directly
+
                 const nameParts = currentUser.name.split(' ');
-                welcomeName.textContent = nameParts[0];
-                // Update user name in top nav
-                if (userNameDisplay) {
-                    userNameDisplay.textContent = currentUser.name;
-                }
+                const firstName = nameParts[0] || '';
+                const lastName = nameParts.slice(1).join(' ') || '';
+
+                welcomeName.textContent = firstName;
+                userNameDisplay.textContent = currentUser.name; // Update full name in nav
                 userEmail.textContent = currentUser.email;
                 document.querySelector('.user-info-name').textContent = currentUser.name;
                 document.getElementById('userRoleTitle').textContent = currentUser.title || 'Team Member';
-                document.querySelector('.user-info-title').textContent = currentUser.title || 'Team Member';
+                // document.querySelector('.user-info-title').textContent = currentUser.title || 'Team Member'; // Redundant with ID
 
                 // Update Profile Form Fields
-                document.getElementById('firstName').value = nameParts[0] || '';
-                document.getElementById('lastName').value = nameParts.slice(1).join(' ') || '';
+                document.getElementById('firstName').value = firstName;
+                document.getElementById('lastName').value = lastName;
                 document.getElementById('jobTitle').value = currentUser.title || '';
                 document.getElementById('department').value = currentUser.department || '';
                 document.getElementById('email').value = currentUser.email;
                 document.getElementById('phone').value = currentUser.phone || '';
 
                 // Update Avatars
-                const initials = (nameParts[0]?.[0] || '') + (nameParts.slice(-1)[0]?.[0] || ''); // First and Last initial
-                currentUser.initials = initials.toUpperCase();
+                const initials = (firstName[0] || '') + (lastName[0] || '');
                 const avatarHtml = currentUser.profilePicture
                     ? `<img src="${currentUser.profilePicture}" alt="${currentUser.name}">`
-                    : `<div class="initials">${currentUser.initials || '??'}</div>`;
+                    : `<div class="initials">${initials.toUpperCase() || '??'}</div>`;
+
                 userAvatar.innerHTML = avatarHtml;
-                document.getElementById('profileAvatar').innerHTML = avatarHtml;
-                profilePicturePreview.innerHTML = avatarHtml;
+                const profileAvatar = document.getElementById('profileAvatar');
+                if (profileAvatar) profileAvatar.innerHTML = avatarHtml; // Check existence
+                if (profilePicturePreview) profilePicturePreview.innerHTML = avatarHtml; // Check existence
 
-                // Update Dashboard Stats (Called separately by updateStatDisplay now)
-                // updateStatDisplay(); // Call moved to init and view updates
+                // Update Security Button UI based on loaded/current settings
+                updateSecurityButtonsUI();
 
-                 // Update security button states
-                 updateSecurityButtonsUI();
+                // Update settings form fields based on loaded/current settings
+                updateSettingsForms();
+
+                 // Apply Dark Mode class based on loaded/current settings
+                 applyDarkMode(currentUser.settings.darkMode);
             }
 
-            // Function specifically for updating the dashboard stats display
              function updateStatDisplay() {
                  updateStatUI('teamMembers', teamMembersCountEl, teamMembersArrowEl);
                  updateStatUI('tasksCompleted', tasksCompletedEl, tasksCompletedArrowEl);
                  updateStatUI('activeProjects', activeProjectsEl, activeProjectsArrowEl);
                  updateStatUI('upcomingDeadlines', upcomingDeadlinesEl, upcomingDeadlinesArrowEl);
-                 // Store current stats as previous for next update *after* displaying
-                 previousStats = { ...currentUser.stats };
+                 previousStats = { ...currentUser.stats }; // Store current as previous for next comparison
              }
 
-            // Helper to update a single stat and its arrow
-            function updateStatUI(statKey, valueEl, arrowEl) {
-                if (!valueEl || !arrowEl) return; // Check if elements exist
-
-                const currentValue = currentUser.stats[statKey];
-                const previousValue = previousStats[statKey];
-                valueEl.textContent = currentValue;
-
-                arrowEl.className = 'fas stat-arrow'; // Reset classes
-                if (currentValue > previousValue) {
-                    arrowEl.classList.add('fa-arrow-up', 'up');
-                } else if (currentValue < previousValue) {
-                    arrowEl.classList.add('fa-arrow-down', 'down');
-                } else {
-                    arrowEl.classList.add('fa-minus', 'neutral'); // Use minus for neutral
-                }
-            }
+             function updateStatUI(statKey, valueEl, arrowEl) {
+                 if (!valueEl || !arrowEl) return;
+                 const currentValue = currentUser.stats[statKey];
+                 const previousValue = previousStats[statKey];
+                 valueEl.textContent = currentValue;
+                 arrowEl.className = 'fas stat-arrow'; // Reset
+                 if (currentValue > previousValue) arrowEl.classList.add('fa-arrow-up', 'up');
+                 else if (currentValue < previousValue) arrowEl.classList.add('fa-arrow-down', 'down');
+                 else arrowEl.classList.add('fa-minus', 'neutral');
+             }
 
 
             function renderNotifications() {
-                notificationList.innerHTML = ''; // Clear existing
+                notificationList.innerHTML = '';
                 const unreadCount = notifications.filter(n => !n.read).length;
                 notificationBadge.textContent = unreadCount;
                 notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
@@ -2711,34 +2270,105 @@
                             <i class="fas fa-times"></i>
                         </button>
                     `;
-                    // Event listeners for interaction
                     li.addEventListener('click', handleNotificationClick);
                     li.querySelector('.delete-notification').addEventListener('click', handleDeleteNotificationClick);
                     notificationList.appendChild(li);
                 });
             }
 
-             // --- Event Handlers ---
+            // --- Live Activity Feed ---
+            function startLiveActivityFeed() {
+                if (activityIntervalId) clearInterval(activityIntervalId); // Clear existing interval if any
+
+                 // Add initial few activities without sound
+                 addSimulatedActivity(getRandomActivity(), false);
+                 setTimeout(() => addSimulatedActivity(getRandomActivity(), false), 1000); // Stagger initial ones
+
+                activityIntervalId = setInterval(() => {
+                    addSimulatedActivity(getRandomActivity(), true); // Add new activity with sound
+                }, 10000 + Math.random() * 10000); // Add activity every 10-20 seconds
+            }
+
+            function getRandomActivity() {
+                 return sampleActivities[Math.floor(Math.random() * sampleActivities.length)];
+            }
+
+            function addSimulatedActivity(activityData, playSound = false) {
+                const li = document.createElement('li');
+                li.className = 'activity-item';
+                // Simple time formatting
+                const now = new Date();
+                const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                li.innerHTML = `
+                    <div class="activity-icon"><i class="${activityData.icon}"></i></div>
+                    <div class="activity-content">
+                        <div class="activity-message">${activityData.message}</div>
+                        <div class="activity-time">${timeString}</div>
+                    </div>
+                    <button class="activity-actions-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                `;
+                 // Add delete listener
+                 const deleteBtn = li.querySelector('.activity-actions-btn');
+                 if (deleteBtn) {
+                     deleteBtn.addEventListener('click', handleActivityDeleteClick);
+                 }
+
+                // Prepend and manage list size
+                activityList.prepend(li);
+                 if (activityList.children.length > MAX_ACTIVITIES) {
+                    activityList.lastElementChild.remove();
+                 }
+
+                 // Remove "No activity" message if present
+                 const noActivityMsg = activityList.querySelector('li[style*="text-align: center"]');
+                 if (noActivityMsg) noActivityMsg.remove();
+
+                if (playSound) {
+                    playNotificationSound(); // Play sound for new activities
+                }
+            }
+
+             function handleActivityDeleteClick(e) {
+                 e.stopPropagation();
+                 const item = e.target.closest('.activity-item');
+                 const messageContent = item.querySelector('.activity-message').textContent.trim();
+                 const shortMessage = messageContent.length > 60 ? messageContent.substring(0, 60) + "..." : messageContent;
+
+                 // Use confirm dialog
+                 if (item && confirm(`Delete this activity?\n\n"${shortMessage}"\n\nThis action cannot be undone.`)) {
+                     item.style.transition = 'opacity 0.3s ease, transform 0.3s ease, height 0.3s ease, margin 0.3s ease, padding 0.3s ease';
+                     item.style.opacity = '0';
+                     item.style.transform = 'translateX(-20px)';
+                     item.style.height = '0px'; // Collapse height
+                     item.style.margin = '0';
+                     item.style.padding = '0';
+                     item.style.border = 'none';
+
+                     setTimeout(() => {
+                         item.remove();
+                         playDeleteSound();
+                         // Check if list is empty after deletion
+                         if (activityList.children.length === 0) {
+                              activityList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--gray);">No recent activity</li>';
+                         }
+                     }, 300); // Wait for animation
+                 }
+             }
+
+
+            // --- Event Handlers ---
             function setupEventListeners() {
                 // Dropdowns
                 userProfileWrapper.addEventListener('click', toggleUserDropdown);
                 notificationIconWrapper.addEventListener('click', toggleNotificationDropdown);
 
-                // Links using hashchange handled by handleNavigation
-                profileLink.addEventListener('click', () => userDropdown.classList.remove('active'));
-                settingsLink.addEventListener('click', () => userDropdown.classList.remove('active'));
-                logoutLink.addEventListener('click', (e) => {
-                     e.preventDefault();
-                     // Use professional confirmation message for logout
-                     if (confirm('Are you sure you want to logout?')) {
-                         console.log("Logout confirmed");
-                         window.location.href = 'login.html'; // Redirect to a login page
-                     }
-                 });
+                // Links (using hashchange)
+                logoutLink.addEventListener('click', handleLogout);
 
                 // Notifications
                 markAllAsRead.addEventListener('click', handleMarkAllRead);
-                deleteAllNotificationsBtn.addEventListener('click', handleDeleteAllNotifications);
+                // Delete All button removed
 
                 // Search
                 searchInput.addEventListener('input', handleSearchInput);
@@ -2751,22 +2381,24 @@
                 // Settings Tabs
                 settingsTabs.forEach(tab => tab.addEventListener('click', handleSettingsTabClick));
 
-                // Settings Buttons
+                // Settings Forms & Buttons
+                generalSettingsForm.addEventListener('submit', handleGeneralSettingsSave);
+                notificationSettingsForm.addEventListener('submit', handleNotificationSettingsSave);
+                darkModeToggle.addEventListener('change', () => applyDarkMode(darkModeToggle.checked)); // Apply immediately on toggle
                 enable2faBtn.addEventListener('click', handleToggle2FA);
                 changePasswordBtn.addEventListener('click', handleChangePassword);
-                 if(manageSessionsBtn) manageSessionsBtn.addEventListener('click', handleManageSessions); // Added
+                manageSessionsBtn.addEventListener('click', handleManageSessions);
 
-                // Activity List Actions (using event delegation)
-                activityList.addEventListener('click', handleActivityListActions);
-                deleteAllActivitiesBtn.addEventListener('click', handleDeleteAllActivities);
+                // Activity List Actions (Delegated in addSimulatedActivity now)
+                // deleteAllActivitiesBtn removed
 
                 // Mobile Menu
                 openSidebarBtn.addEventListener('click', () => sidebar.classList.add('active'));
                 closeSidebarBtn.addEventListener('click', () => sidebar.classList.remove('active'));
                 sidebar.addEventListener('click', (e) => {
-                     if (e.target.closest('.menu-item')) {
-                         sidebar.classList.remove('active');
-                     }
+                    if (e.target.closest('.menu-item')) {
+                        sidebar.classList.remove('active');
+                    }
                 });
 
                 // Global Click Listener
@@ -2781,32 +2413,43 @@
                  e.stopPropagation();
                  userDropdown.classList.toggle('active');
                  notificationDropdown.classList.remove('active');
-                 searchResults.style.display = 'none'; // Close search results
+                 searchResults.style.display = 'none';
              }
 
              function toggleNotificationDropdown(e) {
                  e.stopPropagation();
                  notificationDropdown.classList.toggle('active');
                  userDropdown.classList.remove('active');
-                 searchResults.style.display = 'none'; // Close search results
+                 searchResults.style.display = 'none';
+             }
+
+             function handleLogout(e) {
+                 e.preventDefault();
+                 if (confirm('Are you sure you want to logout?')) {
+                     // Clear sensitive local storage if needed
+                     // localStorage.removeItem('userToken');
+                     console.log("Logout confirmed");
+                     window.location.href = 'login.html'; // Or clear state and show login UI
+                 }
              }
 
              function handleNotificationClick(e) {
-                 if (e.target.closest('.delete-notification')) return; // Don't mark read if delete was clicked
+                 if (e.target.closest('.delete-notification')) return;
                  const li = e.currentTarget;
                  const id = parseInt(li.dataset.id);
                  markNotificationAsRead(id);
-                  // Optional: Close dropdown after clicking an item
-                 // notificationDropdown.classList.remove('active');
              }
 
              function handleDeleteNotificationClick(e) {
-                 e.stopPropagation(); // Prevent triggering li click
+                 e.stopPropagation();
                  const button = e.currentTarget;
                  const li = button.closest('.notification-item');
                  const id = parseInt(li.dataset.id);
-                  // Use improved confirmation message
-                 if (confirm(`Are you sure you want to permanently delete this notification?\n\n"${li.querySelector('.notification-message').textContent.substring(0, 50)}..."\n\nThis action cannot be undone.`)) {
+                 const messageContent = li.querySelector('.notification-message').textContent.trim();
+                 const shortMessage = messageContent.length > 60 ? messageContent.substring(0, 60) + "..." : messageContent;
+
+                 // Use confirm dialog
+                 if (confirm(`Delete this notification?\n\n"${shortMessage}"\n\nThis action cannot be undone.`)) {
                     deleteNotification(id);
                  }
              }
@@ -2816,47 +2459,28 @@
                  const unreadCount = notifications.filter(n => !n.read).length;
                  if (unreadCount > 0) {
                      notifications.forEach(n => n.read = true);
-                     renderNotifications();
-                     showConfirmation('All notifications marked as read.');
+                     renderNotifications(); // Re-render the list
+                     showConfirmation('All notifications marked as read.'); // Use top confirmation
                  }
-                 notificationDropdown.classList.remove('active'); // Close dropdown
+                 // Optionally close dropdown
+                 // notificationDropdown.classList.remove('active');
              }
 
-             function handleDeleteAllNotifications(e) {
-                 e.stopPropagation();
-                 if (notifications.length > 0) {
-                      // Use improved confirmation message
-                     if (confirm(`Delete all ${notifications.length} notifications? This action cannot be undone.`)) {
-                         notifications = [];
-                         renderNotifications();
-                         playDeleteSound();
-                         showConfirmation('All notifications deleted.');
-                     }
-                 }
-                 notificationDropdown.classList.remove('active'); // Close dropdown
-             }
-
+            // handleSearchInput, handleSearchFocus (remain the same)
             function handleSearchInput() {
                 const query = searchInput.value.trim().toLowerCase();
                 searchResults.innerHTML = '';
                 searchResults.style.display = 'none';
-
                 if (query.length === 0) return;
-
-                const results = searchData.filter(item =>
-                    item.name.toLowerCase().includes(query) ||
-                    item.type.toLowerCase().includes(query)
-                );
-
+                const results = searchData.filter(item => item.name.toLowerCase().includes(query) || item.type.toLowerCase().includes(query));
                 if (results.length > 0) {
-                    results.slice(0, 6).forEach(result => { // Limit results shown
+                    results.slice(0, 6).forEach(result => {
                         const div = document.createElement('div');
                         div.className = 'search-result-item';
-                        // Highlight matching text (simple implementation)
                         const nameHtml = result.name.replace(new RegExp(query, 'gi'), (match) => `<strong>${match}</strong>`);
                         div.innerHTML = `<div>${nameHtml}</div><small style="color: var(--gray);">${result.type}</small>`;
                         div.addEventListener('click', () => {
-                            window.location.href = result.link; // Navigate on click
+                            window.location.href = result.link;
                             searchResults.style.display = 'none';
                             searchInput.value = '';
                         });
@@ -2864,51 +2488,36 @@
                     });
                     searchResults.style.display = 'block';
                 } else {
-                    const div = document.createElement('div');
-                    div.className = 'search-result-item';
-                    div.style.color = 'var(--gray)';
-                    div.textContent = 'No results found.';
-                    searchResults.appendChild(div);
+                    searchResults.innerHTML = '<div class="search-result-item" style="color: var(--gray);">No results found.</div>';
                     searchResults.style.display = 'block';
                 }
             }
-
             function handleSearchFocus() {
-                 // Show results on focus only if there's already text
-                 if (searchInput.value.trim().length > 0) {
-                     handleSearchInput();
-                 }
+                 if (searchInput.value.trim().length > 0) { handleSearchInput(); }
             }
 
              function handleProfileSave(e) {
                  e.preventDefault();
-                 // Update user object
                  currentUser.name = `${document.getElementById('firstName').value.trim()} ${document.getElementById('lastName').value.trim()}`;
                  currentUser.title = document.getElementById('jobTitle').value.trim();
                  currentUser.department = document.getElementById('department').value.trim();
                  currentUser.phone = document.getElementById('phone').value.trim();
-                 // Recalculate initials based on potentially changed name
-                 const nameParts = currentUser.name.split(' ');
-                 const firstInitial = nameParts[0]?.[0] || '';
-                 const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1]?.[0] : '';
-                 currentUser.initials = (firstInitial + lastInitial).toUpperCase();
-
-                 updateUserUI(); // Refresh UI with new data
+                 // Save profile changes (e.g., to localStorage or backend)
+                 saveUserData(); // Example function to save user data
+                 updateUserUI();
                  showConfirmation('Profile updated successfully!');
-                 // Optional: Navigate back to dashboard after save
-                 // window.location.hash = 'dashboard';
              }
 
              function handleProfilePictureChange(e) {
                 const file = e.target.files[0];
                 if (file && file.type.startsWith('image/')) {
-                     if (file.size > 2 * 1024 * 1024) { // Limit size to 2MB
-                         alert('Image size should not exceed 2MB.');
-                         return;
+                     if (file.size > 2 * 1024 * 1024) {
+                         alert('Image size should not exceed 2MB.'); return;
                      }
                     const reader = new FileReader();
                     reader.onload = (event) => {
                         currentUser.profilePicture = event.target.result;
+                        saveUserData(); // Save updated picture data
                         updateUserUI();
                         showConfirmation('Profile picture updated.');
                     }
@@ -2927,17 +2536,153 @@
 
                 clickedTab.classList.add('active');
                 const targetPanel = document.getElementById(`${tabId}Settings`);
-                if (targetPanel) {
-                    targetPanel.classList.add('active');
-                }
-                 // Save active tab to localStorage
-                 localStorage.setItem('activeSettingsTab', tabId);
+                if (targetPanel) targetPanel.classList.add('active');
+
+                localStorage.setItem('activeSettingsTab', tabId); // Save active tab
             }
 
-            // Function to restore active settings tab from localStorage
-            function restoreSettingsTab() {
+             // --- Settings Save/Load ---
+             function handleGeneralSettingsSave(e) {
+                e.preventDefault();
+                currentUser.settings.timezone = timezoneSelect.value;
+                currentUser.settings.language = languageSelect.value;
+                currentUser.settings.darkMode = darkModeToggle.checked;
+                saveSettings();
+                showConfirmation('General settings saved.');
+                // Apply dark mode immediately if changed
+                applyDarkMode(currentUser.settings.darkMode);
+                // Potentially update language display dynamically if implemented
+             }
+
+             function handleNotificationSettingsSave(e) {
+                 e.preventDefault();
+                 notificationToggles.forEach(toggle => {
+                     const settingKey = toggle.dataset.setting;
+                     if (settingKey) {
+                         currentUser.settings[settingKey] = toggle.checked;
+                     }
+                 });
+                 saveSettings();
+                 showConfirmation('Notification settings saved.');
+             }
+
+            function handleToggle2FA() {
+                 currentUser.settings.twoFactorEnabled = !currentUser.settings.twoFactorEnabled;
+                 saveSettings(); // Save the change immediately
+                 updateSecurityButtonsUI(); // Update button appearance
+                 const message = currentUser.settings.twoFactorEnabled ? 'Two-Factor Authentication enabled.' : 'Two-Factor Authentication disabled.';
+                 showConfirmation(message);
+            }
+
+            function handleChangePassword() {
+                 alert('Password change functionality requires backend integration.');
+            }
+            function handleManageSessions() {
+                 alert('Session management requires backend integration.');
+            }
+
+             function loadSettings() {
+                const savedSettings = localStorage.getItem('userSettings');
+                if (savedSettings) {
+                    try {
+                        const parsedSettings = JSON.parse(savedSettings);
+                        // Merge saved settings with defaults, prioritizing saved values
+                        currentUser.settings = { ...currentUser.settings, ...parsedSettings };
+                    } catch (e) {
+                        console.error("Error parsing saved settings:", e);
+                        // Use default settings if parsing fails
+                    }
+                }
+                // Load user profile data if saved separately
+                const savedUserData = localStorage.getItem('userData');
+                 if (savedUserData) {
+                     try {
+                         const parsedUserData = JSON.parse(savedUserData);
+                         currentUser.name = parsedUserData.name || currentUser.name;
+                         currentUser.title = parsedUserData.title || currentUser.title;
+                         currentUser.department = parsedUserData.department || currentUser.department;
+                         currentUser.phone = parsedUserData.phone || currentUser.phone;
+                         currentUser.profilePicture = parsedUserData.profilePicture || currentUser.profilePicture;
+                         // Don't load stats/email from here, assume they come from backend or are static
+                     } catch (e) {
+                         console.error("Error parsing saved user data:", e);
+                     }
+                 }
+
+                // Initial application of settings after loading
+                applyDarkMode(currentUser.settings.darkMode);
+                updateSettingsForms(); // Update forms *after* loading settings
+             }
+
+             function saveSettings() {
+                localStorage.setItem('userSettings', JSON.stringify(currentUser.settings));
+             }
+
+            // Function to save basic user profile data (excluding settings)
+            function saveUserData() {
+                const dataToSave = {
+                    name: currentUser.name,
+                    title: currentUser.title,
+                    department: currentUser.department,
+                    phone: currentUser.phone,
+                    profilePicture: currentUser.profilePicture
+                };
+                localStorage.setItem('userData', JSON.stringify(dataToSave));
+            }
+
+
+             function updateSettingsForms() {
+                // General
+                timezoneSelect.value = currentUser.settings.timezone || 'utc+2';
+                languageSelect.value = currentUser.settings.language || 'en';
+                darkModeToggle.checked = currentUser.settings.darkMode || false;
+
+                // Notifications
+                notificationToggles.forEach(toggle => {
+                    const settingKey = toggle.dataset.setting;
+                    if (settingKey) {
+                        toggle.checked = currentUser.settings[settingKey] === true; // Ensure boolean comparison
+                    }
+                });
+             }
+
+            // Functions to reset forms to currently saved values (Cancel buttons)
+            window.resetGeneralSettings = function() {
+                updateSettingsForms(); // Reloads saved values into the form
+                applyDarkMode(currentUser.settings.darkMode); // Re-apply dark mode state
+            }
+            window.resetNotificationSettings = function() {
+                updateSettingsForms(); // Reloads saved values into the form
+            }
+
+
+             function updateSecurityButtonsUI() {
+                 if (!enable2faBtn) return; // Guard clause
+                 if (currentUser.settings.twoFactorEnabled) {
+                    enable2faBtn.textContent = 'Disable 2FA';
+                    enable2faBtn.classList.remove('btn-outline', 'btn-primary');
+                    enable2faBtn.classList.add('btn-danger');
+                 } else {
+                    enable2faBtn.textContent = 'Enable 2FA';
+                    enable2faBtn.classList.remove('btn-danger');
+                    enable2faBtn.classList.add('btn-outline', 'btn-primary');
+                 }
+             }
+
+             function applyDarkMode(isDark) {
+                 if (isDark) {
+                     document.body.classList.add('dark-mode');
+                 } else {
+                     document.body.classList.remove('dark-mode');
+                 }
+             }
+
+             function restoreSettingsTab() {
                 const savedTabId = localStorage.getItem('activeSettingsTab');
-                if (savedTabId && window.location.hash === '#settings') {
+                const currentHash = window.location.hash.substring(1);
+
+                 // Only restore if we are actually on the settings page
+                 if (currentHash === 'settings' && savedTabId) {
                      const targetTab = document.querySelector(`.settings-tab[data-tab="${savedTabId}"]`);
                      const targetPanel = document.getElementById(`${savedTabId}Settings`);
                      if (targetTab && targetPanel) {
@@ -2945,134 +2690,48 @@
                          settingsPanels.forEach(panel => panel.classList.remove('active'));
                          targetTab.classList.add('active');
                          targetPanel.classList.add('active');
-                     } else { // Fallback if saved tab/panel doesn't exist
-                          localStorage.removeItem('activeSettingsTab'); // Clear invalid saved state
-                          activateDefaultSettingsTab();
+                         return; // Successfully restored
                      }
-                 } else {
-                    // Default to general tab if none saved or not on settings page initially
-                    activateDefaultSettingsTab();
                  }
-            }
+                 // Default to 'general' tab if no saved tab or not on settings page initially
+                 activateDefaultSettingsTab();
+             }
 
-            function activateDefaultSettingsTab() {
-                settingsTabs.forEach((tab, index) => tab.classList.toggle('active', index === 0));
-                settingsPanels.forEach((panel, index) => panel.classList.toggle('active', index === 0));
-            }
-
-            function handleToggle2FA() {
-                 currentUser.twoFactorEnabled = !currentUser.twoFactorEnabled;
-                 updateSecurityButtonsUI();
-                 const message = currentUser.twoFactorEnabled
-                    ? 'Two-Factor Authentication enabled (Demo - requires server setup).'
-                    : 'Two-Factor Authentication disabled (Demo).';
-                 showConfirmation(message);
-            }
-
-            function handleChangePassword() {
-                 // In a real app, this would open a modal or redirect to a password change form
-                 alert('Password change functionality demonstration. Requires backend integration.');
-                 console.log('Change password button clicked');
-            }
-
-            function handleManageSessions() {
-                 // In a real app, this would show a list of active sessions
-                 alert('Session management demonstration. Requires backend integration.');
-                 console.log('Manage sessions button clicked');
-            }
-
-            function updateSecurityButtonsUI() {
-                 if (currentUser.twoFactorEnabled) {
-                    enable2faBtn.textContent = 'Disable 2FA';
-                    enable2faBtn.classList.remove('btn-outline');
-                    enable2faBtn.classList.remove('btn-primary'); // Ensure outline isn't kept
-                    enable2faBtn.classList.add('btn-danger');
-                 } else {
-                    enable2faBtn.textContent = 'Enable 2FA';
-                    enable2faBtn.classList.remove('btn-danger');
-                    enable2faBtn.classList.add('btn-outline'); // Re-add outline
-                    enable2faBtn.classList.add('btn-primary'); // Make it primary outline
-                 }
-            }
-
-            // Use event delegation for activity list actions
-            function handleActivityListActions(e) {
-                const deleteButton = e.target.closest('.activity-actions-btn');
-                if (deleteButton) {
-                     const item = deleteButton.closest('.activity-item');
-                     // Use improved confirmation message
-                     if (item && confirm(`Are you sure you want to delete this activity record?\n\n"${item.querySelector('.activity-message').textContent.substring(0, 60)}..."\n\nThis action cannot be undone.`)) {
-                         item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                         item.style.opacity = '0';
-                         item.style.transform = 'translateX(-20px)';
-                         setTimeout(() => {
-                             item.remove();
-                             playDeleteSound();
-                             // No confirmation message needed here as the item removal is visual feedback
-                             if (activityList.children.length === 0) {
-                                  activityList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--gray);">No recent activity</li>';
-                             }
-                         }, 300); // Wait for animation
-                     }
-                }
-            }
-
-            function handleDeleteAllActivities() {
-                  if (activityList.children.length > 0 && activityList.children[0].textContent !== 'No recent activity') {
-                       // Use improved confirmation message
-                       if (confirm(`Delete all ${activityList.children.length} activity records? This action cannot be undone.`)) {
-                            activityList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--gray);">No recent activity</li>';
-                            playDeleteSound();
-                            showConfirmation('All activity records deleted.'); // Use top confirmation for bulk action
-                       }
-                  }
+             function activateDefaultSettingsTab() {
+                 const defaultTabId = 'general';
+                 settingsTabs.forEach(tab => tab.classList.toggle('active', tab.dataset.tab === defaultTabId));
+                 settingsPanels.forEach(panel => panel.classList.toggle('active', panel.id === `${defaultTabId}Settings`));
              }
 
 
             function handleGlobalClick(e) {
-                // Close user dropdown if click is outside
-                if (userDropdown.classList.contains('active') && !userProfileWrapper.contains(e.target)) {
-                    userDropdown.classList.remove('active');
-                }
-                 // Close notification dropdown if click is outside
-                 if (notificationDropdown.classList.contains('active') && !notificationIconWrapper.contains(e.target)) {
-                    notificationDropdown.classList.remove('active');
-                }
-                // Close search results if click is outside search bar/results
-                if (searchResults.style.display === 'block' && !e.target.closest('.search-bar')) {
-                    searchResults.style.display = 'none';
-                }
-                 // Close mobile sidebar if click is outside
-                 if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && !openSidebarBtn.contains(e.target)) {
-                    sidebar.classList.remove('active');
-                 }
+                // Close dropdowns
+                if (userDropdown.classList.contains('active') && !userProfileWrapper.contains(e.target)) userDropdown.classList.remove('active');
+                if (notificationDropdown.classList.contains('active') && !notificationIconWrapper.contains(e.target)) notificationDropdown.classList.remove('active');
+                if (searchResults.style.display === 'block' && !e.target.closest('.search-bar')) searchResults.style.display = 'none';
+                if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && !openSidebarBtn.contains(e.target)) sidebar.classList.remove('active');
             }
 
             // --- Helper Functions ---
             function showConfirmation(message) {
                 confirmationText.textContent = message;
                 confirmationMessage.classList.add('show');
-                // Clear previous timeout if exists
-                if (window.confirmationTimeout) {
-                    clearTimeout(window.confirmationTimeout);
-                }
-                // Set new timeout
+                if (window.confirmationTimeout) clearTimeout(window.confirmationTimeout);
                 window.confirmationTimeout = setTimeout(() => {
                     confirmationMessage.classList.remove('show');
-                    window.confirmationTimeout = null; // Clear the stored timeout ID
-                }, 3500); // Slightly longer duration
+                }, 3500);
             }
 
             function playNotificationSound() {
-                notificationSound.volume = 0.5; // Adjust volume if needed
+                notificationSound.volume = 0.4;
                 notificationSound.currentTime = 0;
-                notificationSound.play().catch(e => console.warn('Notification sound play failed:', e));
+                notificationSound.play().catch(e => console.warn('Sound play failed:', e));
             }
 
             function playDeleteSound() {
-                deleteSound.volume = 0.4; // Adjust volume if needed
+                deleteSound.volume = 0.3;
                 deleteSound.currentTime = 0;
-                deleteSound.play().catch(e => console.warn('Delete sound play failed:', e));
+                deleteSound.play().catch(e => console.warn('Sound play failed:', e));
             }
 
             function markNotificationAsRead(id) {
@@ -3085,39 +2744,20 @@
                         const dot = listItem.querySelector('.notification-dot');
                         if(dot) dot.remove();
                     }
-                    // Update badge count without full re-render for performance
                     const unreadCount = notifications.filter(n => !n.read).length;
                     notificationBadge.textContent = unreadCount;
                     notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
+                    // Could potentially save read status to localStorage/backend here
                 }
             }
 
             function deleteNotification(id) {
+                 const initialLength = notifications.length;
                  notifications = notifications.filter(n => n.id !== id);
-                 const listItem = notificationList.querySelector(`li[data-id="${id}"]`);
-                 if (listItem) {
-                     listItem.style.transition = 'opacity 0.3s ease, height 0.3s ease, margin 0.3s ease, padding 0.3s ease';
-                     listItem.style.opacity = '0';
-                     listItem.style.height = '0';
-                     listItem.style.margin = '0';
-                     listItem.style.padding = '0';
-                     listItem.style.border = 'none';
-                     setTimeout(() => {
-                         listItem.remove();
-                         playDeleteSound();
-                         // No confirmation message here, visual feedback is enough
-                         if (notifications.length === 0) {
-                             notificationList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--gray);">No new notifications</li>';
-                         }
-                         // Update badge count
-                        const unreadCount = notifications.filter(n => !n.read).length;
-                        notificationBadge.textContent = unreadCount;
-                        notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
-                     }, 300); // Wait for animation
-                 } else {
-                     // Fallback if element not found (e.g., already removed)
-                     renderNotifications();
+                 if (notifications.length < initialLength) { // Check if something was actually deleted
                      playDeleteSound();
+                     renderNotifications(); // Re-render the list fully after deletion
+                     // Could potentially save updated notifications array to localStorage/backend
                  }
             }
 
@@ -3126,37 +2766,28 @@
                 const isMobile = window.innerWidth <= 992;
                 openSidebarBtn.style.display = isMobile ? 'block' : 'none';
                 closeSidebarBtn.style.display = isMobile ? 'block' : 'none';
-                 if (!isMobile) {
-                     sidebar.classList.remove('active'); // Ensure sidebar is closed on resize to desktop
+                 if (!isMobile && sidebar.classList.contains('active')) {
+                     sidebar.classList.remove('active');
                  }
             }
 
-             // --- Stat Simulation ---
+             // --- Stat Simulation (remains the same) ---
              function simulateStatUpdates() {
                  setInterval(() => {
-                     // Simulate changes - slightly random adjustments
                      const teamChange = (Math.random() > 0.8 ? (Math.random() > 0.5 ? 1 : -1) : 0);
-                     const tasksChange = Math.floor(Math.random() * 3); // 0, 1, or 2 new tasks done
+                     const tasksChange = Math.floor(Math.random() * 3);
                      const projectsChange = (Math.random() > 0.9 ? (Math.random() > 0.6 ? 1 : -1) : 0);
                      const deadlinesChange = (Math.random() > 0.7 ? (Math.random() > 0.4 ? 1 : -1) : 0);
 
-                     currentUser.stats.teamMembers += teamChange;
-                     currentUser.stats.tasksCompleted += tasksChange;
-                     currentUser.stats.activeProjects += projectsChange;
-                     currentUser.stats.upcomingDeadlines += deadlinesChange;
+                     currentUser.stats.teamMembers = Math.max(5, currentUser.stats.teamMembers + teamChange);
+                     currentUser.stats.tasksCompleted = Math.max(0, currentUser.stats.tasksCompleted + tasksChange);
+                     currentUser.stats.activeProjects = Math.max(1, currentUser.stats.activeProjects + projectsChange);
+                     currentUser.stats.upcomingDeadlines = Math.max(0, currentUser.stats.upcomingDeadlines + deadlinesChange);
 
-                      // Ensure stats don't go below zero
-                      currentUser.stats.teamMembers = Math.max(5, currentUser.stats.teamMembers); // Keep a minimum team size
-                      currentUser.stats.tasksCompleted = Math.max(0, currentUser.stats.tasksCompleted);
-                      currentUser.stats.activeProjects = Math.max(1, currentUser.stats.activeProjects); // Keep at least one project
-                      currentUser.stats.upcomingDeadlines = Math.max(0, currentUser.stats.upcomingDeadlines);
-
-
-                     // Update UI only if dashboard is visible
                      if (document.getElementById('dashboardContent').style.display !== 'none') {
                          updateStatDisplay();
                      }
-                 }, 6000); // Update every 6 seconds
+                 }, 7000); // Update every 7 seconds
              }
 
             // --- Start the application ---
