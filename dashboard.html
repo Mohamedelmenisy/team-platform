@@ -17,12 +17,12 @@
             --danger: #ef4444;
             --warning: #f59e0b;
             --dark: #1e293b;
-            --light: #f8fafc;
+            --light: #f8fafc; /* Used for main background */
             --gray: #64748b;
             --light-gray: #e2e8f0;
             --white: #ffffff;
             --sidebar-width: 280px;
-            --sidebar-bg: #1e3a8a;
+            --sidebar-bg: #1e3a8a; /* Dark blue sidebar */
             --sidebar-text: rgba(255,255,255,0.9);
             --sidebar-hover: rgba(255,255,255,0.1);
             --sidebar-active: rgba(255,255,255,0.2);
@@ -32,6 +32,9 @@
             --file-green: #10b981;
             --file-purple: #8b5cf6;
             --file-orange: #f97316;
+            --stat-up: #10b981; /* Green for increase */
+            --stat-down: #ef4444; /* Red for decrease */
+            --stat-neutral: #64748b; /* Gray for no change */
         }
         * {
             margin: 0;
@@ -40,7 +43,8 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         body {
-            background-color: var(--primary-light);
+            /* Improved background color */
+            background-color: var(--light);
             color: var(--dark);
             display: flex;
             min-height: 100vh;
@@ -231,7 +235,6 @@
             align-items: center;
             gap: 0.5rem;
         }
-        /* .user-status removed */
         .user-dropdown {
             position: absolute;
             top: calc(100% + 10px); /* Increased gap */
@@ -280,11 +283,12 @@
             display: block;
         }
         .welcome-section {
-            background-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); /* Gradient background */
             color: var(--white);
             padding: 2rem;
             border-radius: 8px;
             margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); /* Softer shadow */
         }
         .welcome-title {
             font-size: 1.5rem;
@@ -313,6 +317,7 @@
             font-weight: 600;
             font-size: 1.75rem;
             overflow: hidden;
+            border: 3px solid rgba(255,255,255,0.5); /* Add border */
         }
         .user-info-avatar img {
             width: 100%;
@@ -331,8 +336,8 @@
             opacity: 0.9;
             font-size: 0.9rem;
             margin-bottom: 0.5rem;
-            color: var(--danger); /* Changed color to red as requested */
-            font-weight: 600; /* Made slightly bolder */
+            color: var(--light-gray); /* Use light gray for better contrast on blue */
+            font-weight: 500; /* Adjusted weight */
         }
         .user-info-email {
             display: flex;
@@ -352,7 +357,13 @@
             background-color: var(--white);
             border-radius: 8px;
             padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0,0,0,0.05); /* Subtle shadow */
+            border: 1px solid var(--light-gray);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .stat-card:hover {
+             transform: translateY(-3px);
+             box-shadow: 0 4px 8px rgba(0,0,0,0.07), 0 6px 12px rgba(0,0,0,0.07);
         }
         .stat-title {
             font-size: 0.9rem;
@@ -373,20 +384,32 @@
             align-items: center; /* Added for alignment */
             gap: 0.5rem; /* Added gap */
         }
-        .stat-arrow { /* Style for the arrow */
-            font-size: 1.2rem; /* Adjust size */
-            /* Color set dynamically by JS */
+        /* Stat Arrow Styles */
+        .stat-arrow {
+            font-size: 1.1rem; /* Slightly smaller */
+            transition: color 0.3s ease, transform 0.3s ease;
+            transform-origin: center;
         }
-        .stat-arrow.up { color: var(--success); }
-        .stat-arrow.down { color: var(--danger); }
-        .stat-arrow.neutral { color: var(--gray); opacity: 0.7; } /* Neutral style */
+        .stat-arrow.up {
+            color: var(--stat-up);
+            transform: translateY(-1px); /* Subtle lift */
+        }
+        .stat-arrow.down {
+            color: var(--stat-down);
+            transform: translateY(1px); /* Subtle dip */
+        }
+        .stat-arrow.neutral {
+            color: var(--stat-neutral);
+            opacity: 0.8;
+        }
 
         /* Activity Section */
         .activity-section {
             background-color: var(--white);
             border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0,0,0,0.05); /* Consistent subtle shadow */
             padding: 1.5rem;
+            border: 1px solid var(--light-gray);
         }
         .section-header {
             display: flex;
@@ -454,6 +477,7 @@
         }
         .activity-actions-btn:hover {
             background-color: var(--light-gray);
+            color: var(--danger); /* Hint deletion */
         }
         /* Back to Dashboard Button Style */
         .back-to-dashboard {
@@ -465,6 +489,7 @@
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 2rem;
+            border: 1px solid var(--light-gray);
         }
         .profile-header {
             display: flex;
@@ -502,6 +527,10 @@
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .form-control[readonly] {
+            background-color: var(--light);
+            cursor: not-allowed;
         }
         .form-actions {
             grid-column: span 2;
@@ -574,6 +603,8 @@
             overflow: hidden;
             position: relative;
             flex-shrink: 0; /* Prevent shrinking */
+            border: 3px solid var(--white);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .profile-picture-preview img {
             width: 100%;
@@ -603,7 +634,7 @@
             height: 100%;
             cursor: pointer;
         }
-        /* Confirmation message */
+        /* Confirmation message (Top-Right) */
         .confirmation-message {
             position: fixed;
             top: 20px;
@@ -618,7 +649,7 @@
             gap: 0.5rem;
             z-index: 1000;
             transform: translateX(150%);
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease-out; /* Smoother transition */
         }
         .confirmation-message.show {
             transform: translateX(0);
@@ -672,12 +703,17 @@
             gap: 1rem;
             position: relative;
             cursor: pointer; /* Indicate clickable */
+            transition: background-color 0.2s ease;
         }
         .notification-item:last-child {
             border-bottom: none;
         }
+        .notification-item:hover {
+            background-color: var(--light);
+        }
         .notification-item.unread {
             background-color: rgba(37, 99, 235, 0.05);
+            font-weight: 500; /* Slightly bolder unread messages */
         }
         .notification-item .notification-icon { /* Target specific icon */
             width: 40px;
@@ -698,6 +734,10 @@
             margin-bottom: 0.25rem;
             word-break: break-word;
             overflow-wrap: break-word;
+            color: var(--dark);
+        }
+        .notification-item.unread .notification-message {
+             color: var(--primary-dark); /* Darker text for unread */
         }
         .notification-time {
             font-size: 0.8rem;
@@ -728,12 +768,16 @@
             background: none; /* Remove background */
             border: none; /* Remove border */
             opacity: 0; /* Hide by default */
-            transition: background-color 0.2s, opacity 0.2s;
+            transition: background-color 0.2s, opacity 0.2s, color 0.2s;
         }
         .notification-item:hover .notification-actions-item {
              opacity: 1; /* Show on hover */
              background-color: var(--light-gray); /* Add hover effect */
         }
+         .notification-actions-item:hover {
+             background-color: rgba(239, 68, 68, 0.1); /* Reddish background on hover */
+             color: var(--danger); /* Red icon on hover */
+         }
         .notification-actions-item i {
             font-size: 0.8rem; /* Adjust icon size */
         }
@@ -744,6 +788,7 @@
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 2rem;
+            border: 1px solid var(--light-gray);
         }
         .task-filters {
             display: flex;
@@ -781,7 +826,12 @@
             justify-content: space-between;
             border-left: 4px solid transparent;
             gap: 1rem; /* Added gap */
+            border: 1px solid var(--light-gray);
+            transition: box-shadow 0.2s ease;
         }
+         .task-item:hover {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+         }
         .task-item.high-priority {
             border-left-color: var(--danger);
         }
@@ -814,6 +864,9 @@
         }
         .task-meta span { /* Ensure meta items don't force wrapping too early */
              white-space: nowrap;
+             display: inline-flex; /* Align icons properly */
+             align-items: center;
+             gap: 0.3rem;
         }
         .task-status {
             display: inline-flex;
@@ -835,6 +888,8 @@
         .task-status.completed {
             background-color: rgba(16, 185, 129, 0.1);
             color: var(--success);
+            text-decoration: line-through; /* Indicate completion */
+            opacity: 0.8;
         }
         .task-actions {
             display: flex;
@@ -851,16 +906,29 @@
             display: flex; /* Align icon */
             align-items: center; /* Align icon */
             justify-content: center; /* Align icon */
+            transition: background-color 0.2s, color 0.2s;
         }
         .task-btn:hover {
             background-color: rgba(0, 0, 0, 0.05);
+            color: var(--primary); /* Default hover color */
         }
+         .task-btn[title="Delete"]:hover {
+            color: var(--danger); /* Specific color for delete */
+         }
+         .task-btn[title="Complete"]:hover {
+             color: var(--success); /* Specific color for complete */
+         }
+         .task-btn[title="Reopen"]:hover {
+             color: var(--warning); /* Specific color for reopen */
+         }
+
         /* Team Calendar Styles */
         #calendarContent {
             background-color: var(--white);
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 2rem;
+            border: 1px solid var(--light-gray);
         }
         .calendar-header {
             display: flex;
@@ -884,38 +952,69 @@
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 0.5rem;
+            gap: 0; /* Remove gap for seamless grid */
             border: 1px solid var(--light-gray); /* Add border */
-            padding: 0.5rem; /* Add padding */
             background-color: var(--white); /* Ensure background */
+            border-radius: 4px; /* Rounded corners for the whole grid */
+            overflow: hidden; /* Contain children borders */
         }
         .calendar-day-header {
             text-align: center;
             font-weight: 600;
-            padding: 0.5rem;
+            padding: 0.75rem 0.5rem; /* Increased padding */
             color: var(--gray);
             background-color: var(--light); /* Header background */
-            border-radius: 4px; /* Rounded corners */
+            border-bottom: 1px solid var(--light-gray); /* Separator */
+            font-size: 0.8rem; /* Smaller header text */
         }
         .calendar-day {
-            background-color: var(--light);
-            border: 1px solid var(--light-gray); /* Add border */
-            border-radius: 4px;
-            min-height: 100px;
+            background-color: var(--white); /* Day background */
+            border-right: 1px solid var(--light-gray); /* Vertical lines */
+            border-bottom: 1px solid var(--light-gray); /* Horizontal lines */
+            min-height: 110px;
             padding: 0.5rem;
             display: flex;
             flex-direction: column;
             gap: 0.25rem; /* Add gap between elements */
+            position: relative; /* For positioning day number */
+            transition: background-color 0.2s ease;
         }
+         /* Remove right border on last column */
+        .calendar-day:nth-child(7n), .calendar-day-header:nth-child(7) {
+             border-right: none;
+        }
+         /* Remove bottom border on last row (requires knowing total days or using JS) */
+         /* A simple approach: */
+        .calendar-day:nth-last-child(-n+7) {
+             /* border-bottom: none; */ /* Might hide events near bottom */
+        }
+
         .calendar-day.empty {
-            background-color: transparent;
-            border: none; /* Remove border for empty days */
+            background-color: var(--light); /* Lighter background for empty */
+            pointer-events: none; /* Non-interactive */
         }
         .day-number {
-            font-weight: 600;
-            margin-bottom: 0.25rem; /* Reduced margin */
-            text-align: right; /* Align number to right */
-            font-size: 0.8rem; /* Slightly smaller number */
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            text-align: right;
+            font-size: 0.75rem; /* Slightly smaller number */
+            color: var(--gray);
+            position: absolute; /* Position top-right */
+            top: 0.25rem;
+            right: 0.5rem;
+        }
+        .calendar-day.today .day-number { /* Style for today */
+            background-color: var(--primary);
+            color: var(--white);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: static; /* Reset position */
+            margin-left: auto; /* Push right */
+            margin-bottom: 0.25rem;
         }
         .calendar-event {
             background-color: var(--primary-light);
@@ -929,20 +1028,25 @@
             text-overflow: ellipsis; /* Add ellipsis */
             white-space: nowrap; /* Prevent wrapping */
             border-left: 3px solid var(--primary); /* Default border */
+            transition: background-color 0.2s ease;
         }
+         .calendar-event:hover {
+             filter: brightness(95%);
+         }
         .calendar-event.team-meeting {
             background-color: #dbeafe; /* Blue */
             border-left-color: var(--primary);
+            color: #1e40af; /* Darker blue text */
         }
         .calendar-event.deadline {
             background-color: #fee2e2; /* Red */
             border-left-color: var(--danger);
-            color: var(--danger);
+            color: #991b1b; /* Darker red text */
         }
         .calendar-event.vacation {
             background-color: #fef9c3; /* Yellow */
             border-left-color: var(--warning);
-            color: #a16207; /* Dark yellow */
+            color: #854d0e; /* Darker yellow text */
         }
         /* Projects Styles */
         #projectsContent {
@@ -950,6 +1054,7 @@
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 2rem;
+            border: 1px solid var(--light-gray);
         }
         .projects-grid {
             display: grid;
@@ -965,7 +1070,12 @@
             display: flex; /* Use flexbox for better layout */
             flex-direction: column; /* Stack elements vertically */
             justify-content: space-between; /* Push meta to bottom */
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+         .project-card:hover {
+             transform: translateY(-3px);
+             box-shadow: 0 4px 8px rgba(0,0,0,0.07);
+         }
         .project-header {
             display: flex;
             justify-content: space-between;
@@ -976,6 +1086,7 @@
             font-size: 1.1rem;
             font-weight: 600;
             margin-right: 0.5rem; /* Add space before status */
+            color: var(--primary-dark);
         }
         .project-status {
             padding: 0.25rem 0.5rem;
@@ -1002,6 +1113,7 @@
             color: var(--gray);
             flex-grow: 1; /* Allow description to take available space */
             font-size: 0.9rem; /* Slightly smaller */
+            line-height: 1.5;
         }
         .project-progress {
             margin-bottom: 1rem; /* Reduced margin */
@@ -1038,14 +1150,18 @@
         .project-team, .project-due {
             display: flex;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.35rem; /* Adjusted gap */
         }
+         .project-team i, .project-due i {
+             font-size: 0.9rem; /* Slightly larger icons */
+         }
         /* Team Members Styles */
         #teamContent {
             background-color: var(--white);
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 2rem;
+            border: 1px solid var(--light-gray);
         }
          .team-grid {
             display: grid;
@@ -1059,7 +1175,12 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             border: 1px solid var(--light-gray);
             text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+         .member-card:hover {
+             transform: translateY(-3px);
+             box-shadow: 0 4px 8px rgba(0,0,0,0.07);
+         }
         .member-avatar {
             width: 80px;
             height: 80px;
@@ -1084,6 +1205,7 @@
         .member-name {
             font-weight: 600;
             margin-bottom: 0.25rem;
+            color: var(--primary-dark);
         }
         .member-role {
             color: var(--gray);
@@ -1134,6 +1256,7 @@
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 2rem;
+            border: 1px solid var(--light-gray);
         }
         .settings-tabs {
             display: flex;
@@ -1149,6 +1272,7 @@
             border-bottom: 2px solid transparent;
             white-space: nowrap; /* Prevent wrapping */
             transition: color 0.2s, border-color 0.2s; /* Add transition */
+            margin-bottom: -1px; /* Overlap border */
         }
         .settings-tab:hover {
              color: var(--primary);
@@ -1159,6 +1283,11 @@
         }
         .settings-panel {
             display: none; /* Hide panels by default */
+            animation: fadeIn 0.3s ease; /* Add fade-in */
+        }
+        @keyframes fadeIn {
+             from { opacity: 0; transform: translateY(10px); }
+             to { opacity: 1; transform: translateY(0); }
         }
         .settings-panel.active {
             display: block; /* Show active panel */
@@ -1196,6 +1325,7 @@
             background-color: white;
             transition: .4s;
             border-radius: 50%;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         input:checked + .slider {
             background-color: var(--primary);
@@ -1251,6 +1381,7 @@
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 2rem;
+            border: 1px solid var(--light-gray);
         }
 
         /* Specific Placeholders */
@@ -1404,6 +1535,12 @@
             .calendar-grid {
                  grid-template-columns: repeat(3, 1fr); /* Show 3 days per row */
             }
+            /* Fix calendar borders on mobile */
+             .calendar-day:nth-child(3n) { border-right: none; }
+             .calendar-day:nth-child(7n) { border-right: 1px solid var(--light-gray); } /* Re-add border removed by desktop style */
+             .calendar-day-header:nth-child(3) { border-right: none; }
+             .calendar-day-header:nth-child(7) { border-right: 1px solid var(--light-gray); }
+
             .calendar-day {
                  min-height: 80px;
             }
@@ -1444,6 +1581,12 @@
              .calendar-grid {
                  grid-template-columns: repeat(2, 1fr); /* Two days per row */
              }
+              /* Fix calendar borders on mobile */
+             .calendar-day:nth-child(2n) { border-right: none; }
+             .calendar-day:nth-child(3n) { border-right: 1px solid var(--light-gray); } /* Re-add border removed by 768px style */
+             .calendar-day-header:nth-child(2) { border-right: none; }
+             .calendar-day-header:nth-child(3) { border-right: 1px solid var(--light-gray); }
+
             .welcome-title {
                 font-size: 1.25rem; /* Smaller title */
             }
@@ -1574,12 +1717,13 @@
                              <li class="notification-item unread" data-id="0">
                                  <div class="notification-icon"><i class="fas fa-info-circle"></i></div>
                                  <div class="notification-content">
-                                     <div class="notification-message">Welcome to TeamFlow!</div>
+                                     <div class="notification-message">Welcome to TeamFlow! Explore the dashboard.</div>
                                      <div class="notification-time">Just now</div>
                                  </div>
                                  <div class="notification-dot"></div>
-                                 <button class="notification-actions-item delete-notification"><i class="fas fa-times"></i></button>
+                                 <button class="notification-actions-item delete-notification" title="Delete notification"><i class="fas fa-times"></i></button>
                              </li>
+                             <!-- More notifications will be added by JS -->
                         </ul>
                     </div>
                 </div>
@@ -1588,9 +1732,8 @@
                         <!-- Content dynamically set by JS -->
                         <div class="initials">ME</div>
                     </div>
-                    <div class="user-name" id="userNameDisplay"> <!-- Updated ID -->
-                        Mohamed Elmenisy <!-- Removed duplicate name -->
-                    </div>
+                    <!-- Name element updated - removed duplicate -->
+                    <div class="user-name" id="userNameDisplay">Mohamed Elmenisy</div>
                     <div class="user-dropdown" id="userDropdown">
                         <a href="#profile" class="dropdown-item" id="profileLink"> <!-- Keep ID for JS -->
                             <i class="fas fa-user"></i>
@@ -1640,18 +1783,18 @@
                             Team Members
                         </div>
                         <div class="stat-value">
-                            <span id="teamMembersCount"></span> <!-- Populated by JS -->
-                            <i id="teamMembersArrow" class="fas stat-arrow neutral"></i> <!-- Updated by JS -->
+                            <span id="teamMembersCount">12</span> <!-- Populated by JS -->
+                            <i id="teamMembersArrow" class="fas fa-minus stat-arrow neutral"></i> <!-- Updated by JS -->
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-title">
                             <i class="fas fa-check-circle"></i>
-                            Tasks Completed
+                            Tasks Completed (Week) <!-- Added context -->
                         </div>
                         <div class="stat-value">
-                            <span id="tasksCompleted"></span> <!-- Populated by JS -->
-                             <i id="tasksCompletedArrow" class="fas stat-arrow neutral"></i> <!-- Updated by JS -->
+                            <span id="tasksCompleted">24</span> <!-- Populated by JS -->
+                             <i id="tasksCompletedArrow" class="fas fa-minus stat-arrow neutral"></i> <!-- Updated by JS -->
                         </div>
                     </div>
                     <div class="stat-card">
@@ -1660,18 +1803,18 @@
                             Active Projects
                         </div>
                         <div class="stat-value">
-                            <span id="activeProjects"></span> <!-- Populated by JS -->
-                             <i id="activeProjectsArrow" class="fas stat-arrow neutral"></i> <!-- Updated by JS -->
+                            <span id="activeProjects">5</span> <!-- Populated by JS -->
+                             <i id="activeProjectsArrow" class="fas fa-minus stat-arrow neutral"></i> <!-- Updated by JS -->
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-title">
                             <i class="fas fa-clock"></i>
-                            Upcoming Deadlines
+                            Upcoming Deadlines (7d) <!-- Added context -->
                         </div>
                         <div class="stat-value">
-                            <span id="upcomingDeadlines"></span> <!-- Populated by JS -->
-                             <i id="upcomingDeadlinesArrow" class="fas stat-arrow neutral"></i> <!-- Updated by JS -->
+                            <span id="upcomingDeadlines">3</span> <!-- Populated by JS -->
+                             <i id="upcomingDeadlinesArrow" class="fas fa-minus stat-arrow neutral"></i> <!-- Updated by JS -->
                         </div>
                     </div>
                 </div>
@@ -1696,6 +1839,7 @@
                             <div class="activity-content"><div class="activity-message"><strong>Sarah Johnson</strong> commented on <strong>Project Timeline</strong></div><div class="activity-time">5 hours ago</div></div>
                             <button class="activity-actions-btn" title="Delete"><i class="fas fa-trash"></i></button>
                         </li>
+                         <!-- More activity items can be added here or via JS -->
                     </ul>
                 </div>
             </div>
@@ -1829,13 +1973,13 @@
                             <button class="task-btn" title="Complete"><i class="fas fa-check"></i></button>
                         </div>
                     </li>
-                     <li class="task-item completed">
+                     <li class="task-item low-priority completed"> <!-- Added low-priority class for variety -->
                         <div class="task-info">
                             <div class="task-title">Implement dashboard charts</div>
                             <div class="task-description">Add analytics charts to the admin dashboard</div>
                             <div class="task-meta">
                                 <span class="task-status completed">Completed</span>
-                                <span><i class="far fa-calendar-alt"></i> Completed: Yesterday</span>
+                                <span><i class="far fa-calendar-check"></i> Completed: Yesterday</span> <!-- Changed icon -->
                                 <span><i class="fas fa-project-diagram"></i> Dashboard Redesign</span>
                             </div>
                         </div>
@@ -1862,6 +2006,7 @@
                     </button>
                  </div>
                  <div class="schedule-calendar">
+                     <i class="fas fa-calendar-check fa-3x" style="margin-bottom: 1rem; color: var(--light-gray);"></i>
                      Employee Scheduling Feature Placeholder
                  </div>
             </div>
@@ -1891,7 +2036,7 @@
                     <div class="calendar-day-header">Thu</div>
                     <div class="calendar-day-header">Fri</div>
                     <div class="calendar-day-header">Sat</div>
-                    <!-- Static Calendar Days -->
+                    <!-- Static Calendar Days - Added 'today' class example -->
                     <div class="calendar-day empty"></div><div class="calendar-day empty"></div><div class="calendar-day empty"></div>
                     <div class="calendar-day"><div class="day-number">1</div></div>
                     <div class="calendar-day"><div class="day-number">2</div></div>
@@ -1900,7 +2045,7 @@
 
                     <div class="calendar-day"><div class="day-number">5</div><div class="calendar-event team-meeting">Team Meeting</div></div>
                     <div class="calendar-day"><div class="day-number">6</div></div>
-                    <div class="calendar-day"><div class="day-number">7</div></div>
+                    <div class="calendar-day today"><div class="day-number">7</div></div> <!-- Example 'today' -->
                     <div class="calendar-day"><div class="day-number">8</div><div class="calendar-event deadline">Proj Deadline</div></div>
                     <div class="calendar-day"><div class="day-number">9</div></div>
                     <div class="calendar-day"><div class="day-number">10</div></div>
@@ -1919,6 +2064,13 @@
                     <div class="calendar-day"><div class="day-number">23</div></div>
                     <div class="calendar-day"><div class="day-number">24</div></div>
                     <div class="calendar-day"><div class="day-number">25</div></div>
+                     <!-- Add more days as needed -->
+                     <div class="calendar-day"><div class="day-number">26</div></div>
+                     <div class="calendar-day"><div class="day-number">27</div></div>
+                     <div class="calendar-day"><div class="day-number">28</div></div>
+                     <div class="calendar-day"><div class="day-number">29</div></div>
+                     <div class="calendar-day"><div class="day-number">30</div></div>
+                     <div class="calendar-day empty"></div><div class="calendar-day empty"></div>
                 </div>
             </div>
 
@@ -1942,11 +2094,14 @@
                     </div>
                 </div>
                 <div class="file-grid">
-                    <div class="file-card"><div class="file-icon pdf"><i class="fas fa-file-pdf"></i></div><div class="file-name">Proposal.pdf</div><div class="file-meta">2.4 MB</div></div>
-                    <div class="file-card"><div class="file-icon doc"><i class="fas fa-file-word"></i></div><div class="file-name">Reqs.docx</div><div class="file-meta">1.8 MB</div></div>
-                    <div class="file-card"><div class="file-icon xls"><i class="fas fa-file-excel"></i></div><div class="file-name">Budget.xlsx</div><div class="file-meta">3.2 MB</div></div>
-                    <div class="file-card"><div class="file-icon img"><i class="fas fa-file-image"></i></div><div class="file-name">Mockup.png</div><div class="file-meta">4.1 MB</div></div>
-                    <div class="file-card"><div class="file-icon zip"><i class="fas fa-file-archive"></i></div><div class="file-name">Assets.zip</div><div class="file-meta">12.7 MB</div></div>
+                    <div class="file-card"><div class="file-icon pdf"><i class="fas fa-file-pdf"></i></div><div class="file-name">Proposal_v2.pdf</div><div class="file-meta">2.4 MB</div></div>
+                    <div class="file-card"><div class="file-icon doc"><i class="fas fa-file-word"></i></div><div class="file-name">Requirements_Final.docx</div><div class="file-meta">1.8 MB</div></div>
+                    <div class="file-card"><div class="file-icon xls"><i class="fas fa-file-excel"></i></div><div class="file-name">Project_Budget_Q3.xlsx</div><div class="file-meta">3.2 MB</div></div>
+                    <div class="file-card"><div class="file-icon img"><i class="fas fa-file-image"></i></div><div class="file-name">Dashboard_Mockup_rev3.png</div><div class="file-meta">4.1 MB</div></div>
+                    <div class="file-card"><div class="file-icon zip"><i class="fas fa-file-archive"></i></div><div class="file-name">Design_Assets_2023.zip</div><div class="file-meta">12.7 MB</div></div>
+                     <!-- Add more file examples -->
+                    <div class="file-card"><div class="file-icon pdf"><i class="fas fa-file-pdf"></i></div><div class="file-name">User_Manual.pdf</div><div class="file-meta">0.9 MB</div></div>
+                    <div class="file-card"><div class="file-icon img"><i class="fas fa-file-image"></i></div><div class="file-name">Logo_Concept.jpg</div><div class="file-meta">0.5 MB</div></div>
                 </div>
             </div>
 
@@ -1966,12 +2121,14 @@
                  </div>
                  <div style="overflow-x: auto;"> <!-- Add horizontal scroll for table -->
                      <table class="data-table">
-                        <thead><tr><th>Name</th><th>Type</th><th>Modified</th><th>Size</th><th>Access</th></tr></thead>
+                        <thead><tr><th>Name</th><th>Type</th><th>Modified</th><th>Size</th><th>Access</th><th>Actions</th></tr></thead>
                         <tbody>
-                            <tr><td>Customer DB</td><td>SQL</td><td>Jun 14</td><td>45.2MB</td><td>Admin</td></tr>
-                            <tr><td>Sales Recs</td><td>CSV</td><td>Jun 12</td><td>8.7MB</td><td>Team</td></tr>
-                            <tr><td>Products</td><td>JSON</td><td>Jun 10</td><td>3.2MB</td><td>Public</td></tr>
-                            <tr><td>Employees</td><td>SQL</td><td>Jun 8</td><td>12.5MB</td><td>HR</td></tr>
+                            <tr><td>Customer Database</td><td>SQL</td><td>Jun 14, 2023</td><td>45.2 MB</td><td>Admin Only</td><td><button class="btn btn-outline btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td></tr>
+                            <tr><td>Sales Records Q2</td><td>CSV</td><td>Jun 12, 2023</td><td>8.7 MB</td><td>Sales Team</td><td><button class="btn btn-outline btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td></tr>
+                            <tr><td>Product Catalog</td><td>JSON API</td><td>Jun 10, 2023</td><td>N/A</td><td>Public</td><td><button class="btn btn-outline btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td></tr>
+                            <tr><td>Employee Records</td><td>Encrypted DB</td><td>Jun 8, 2023</td><td>12.5 MB</td><td>HR & Admin</td><td><button class="btn btn-outline btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td></tr>
+                             <!-- Add more data examples -->
+                             <tr><td>Archived Projects</td><td>ZIP</td><td>May 20, 2023</td><td>1.2 GB</td><td>Admin Only</td><td><button class="btn btn-outline btn-sm"><i class="fas fa-edit"></i></button> <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td></tr>
                         </tbody>
                      </table>
                  </div>
@@ -1993,21 +2150,27 @@
                 <div class="projects-grid">
                     <div class="project-card">
                         <div class="project-header"><div class="project-title">Dashboard Redesign</div><div class="project-status active">Active</div></div>
-                        <div class="project-description">Complete redesign with new analytics features and improved UI.</div>
+                        <div class="project-description">Complete redesign with new analytics features, improved UI, and accessibility compliance.</div>
                         <div class="project-progress"><div class="progress-bar"><div class="progress-fill" style="width: 75%"></div></div><div class="progress-text"><span>Progress</span><span>75%</span></div></div>
-                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 5</div><div class="project-due"><i class="far fa-calendar-alt"></i> Jun 30</div></div>
+                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 5 Members</div><div class="project-due"><i class="far fa-calendar-alt"></i> Jun 30</div></div>
                     </div>
                      <div class="project-card">
                         <div class="project-header"><div class="project-title">Mobile App Dev</div><div class="project-status active">Active</div></div>
-                        <div class="project-description">New mobile app for iOS and Android platforms.</div>
+                        <div class="project-description">Native mobile application development for both iOS and Android platforms targeting Q3 launch.</div>
                         <div class="project-progress"><div class="progress-bar"><div class="progress-fill" style="width: 45%"></div></div><div class="progress-text"><span>Progress</span><span>45%</span></div></div>
-                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 8</div><div class="project-due"><i class="far fa-calendar-alt"></i> Aug 15</div></div>
+                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 8 Members</div><div class="project-due"><i class="far fa-calendar-alt"></i> Aug 15</div></div>
                     </div>
                     <div class="project-card">
-                         <div class="project-header"><div class="project-title">DB Migration</div><div class="project-status completed">Completed</div></div>
-                        <div class="project-description">Migrated legacy database to new cloud solution.</div>
-                        <div class="project-progress"><div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div><div class="progress-text"><span>Progress</span><span>100%</span></div></div>
-                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 4</div><div class="project-due"><i class="far fa-check-circle"></i> May 10</div></div>
+                        <div class="project-header"><div class="project-title">API Integration</div><div class="project-status on-hold">On Hold</div></div>
+                        <div class="project-description">Integrate third-party payment gateway API. Currently paused pending vendor documentation update.</div>
+                        <div class="project-progress"><div class="progress-bar"><div class="progress-fill" style="width: 20%; background-color: var(--warning);"></div></div><div class="progress-text"><span>Progress</span><span>20%</span></div></div>
+                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 3 Members</div><div class="project-due"><i class="far fa-calendar-alt"></i> TBD</div></div>
+                    </div>
+                    <div class="project-card">
+                         <div class="project-header"><div class="project-title">Database Migration</div><div class="project-status completed">Completed</div></div>
+                        <div class="project-description">Successfully migrated legacy customer database to the new cloud infrastructure solution ahead of schedule.</div>
+                        <div class="project-progress"><div class="progress-bar"><div class="progress-fill" style="width: 100%; background-color: var(--success);"></div></div><div class="progress-text"><span>Progress</span><span>100%</span></div></div>
+                        <div class="project-meta"><div class="project-team"><i class="fas fa-users"></i> 4 Members</div><div class="project-due"><i class="far fa-check-circle"></i> May 10</div></div>
                     </div>
                 </div>
             </div>
@@ -2022,7 +2185,7 @@
                  <div class="section-header">
                      <h2 class="section-title">Project Tracking</h2>
                       <div class="filter-group">
-                        <label for="trackingProjectFilter">Project:</label>
+                        <label for="trackingProjectFilter">Select Project:</label>
                         <select id="trackingProjectFilter" class="filter-select">
                             <option>Dashboard Redesign</option>
                             <option>Mobile App Dev</option>
@@ -2031,7 +2194,8 @@
                     </div>
                  </div>
                  <div class="gantt-chart">
-                     Gantt Chart / Timeline Placeholder
+                     <i class="fas fa-tasks fa-3x" style="margin-bottom: 1rem; color: var(--light-gray);"></i>
+                     Gantt Chart / Project Timeline Placeholder
                  </div>
             </div>
 
@@ -2045,19 +2209,20 @@
                 <div class="section-header">
                     <h2 class="section-title">Deadline Tracking</h2>
                      <div class="filter-group">
-                        <label for="deadlineFilterSelect">Priority:</label>
+                        <label for="deadlineFilterSelect">Filter by Priority:</label>
                         <select id="deadlineFilterSelect" class="filter-select">
                             <option value="all">All</option>
-                            <option value="critical">Critical</option>
-                            <option value="high">High</option>
-                            <option value="normal">Normal</option>
+                            <option value="critical">Critical (< 2 days)</option>
+                            <option value="high">High (< 7 days)</option>
+                            <option value="normal">Normal (7+ days)</option>
                         </select>
                     </div>
                 </div>
                  <div class="task-list"> <!-- Reuse task list style -->
-                     <li class="task-item high-priority"><div class="task-info"><div class="task-title">Security Patch</div><div class="task-description">Dashboard Redesign</div></div><div class="task-meta"><span>Due: Jun 15</span></div></li>
-                     <li class="task-item medium-priority"><div class="task-info"><div class="task-title">User Testing</div><div class="task-description">Mobile App Dev</div></div><div class="task-meta"><span>Due: Jun 20</span></div></li>
-                     <li class="task-item low-priority"><div class="task-info"><div class="task-title">Docs Update</div><div class="task-description">API Integration</div></div><div class="task-meta"><span>Due: Jun 25</span></div></li>
+                     <li class="task-item high-priority"><div class="task-info"><div class="task-title">Security Patch Deployment</div><div class="task-description">Project: Dashboard Redesign</div></div><div class="task-meta"><span><i class="far fa-calendar-times"></i> Due: Jun 15 (Tomorrow!)</span></div></li>
+                     <li class="task-item medium-priority"><div class="task-info"><div class="task-title">User Acceptance Testing Phase 1</div><div class="task-description">Project: Mobile App Dev</div></div><div class="task-meta"><span><i class="far fa-calendar-alt"></i> Due: Jun 20</span></div></li>
+                     <li class="task-item low-priority"><div class="task-info"><div class="task-title">API Documentation Update</div><div class="task-description">Project: API Integration</div></div><div class="task-meta"><span><i class="far fa-calendar-alt"></i> Due: Jun 25</span></div></li>
+                     <li class="task-item medium-priority"><div class="task-info"><div class="task-title">Final Mockup Review</div><div class="task-description">Project: Dashboard Redesign</div></div><div class="task-meta"><span><i class="far fa-calendar-alt"></i> Due: Jun 18</span></div></li>
                  </div>
             </div>
 
@@ -2071,14 +2236,15 @@
                  <div class="section-header">
                     <h2 class="section-title">Team Members</h2>
                     <button class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus"></i> Add Member
+                        <i class="fas fa-user-plus"></i> Add Member
                     </button>
                 </div>
                 <div class="team-grid">
-                    <div class="member-card"><div class="member-avatar"><div class="initials">ME</div></div><div class="member-name">Mohamed Elmenisy</div><div class="member-role">Admin</div><div class="member-status active">Active</div><div class="member-contact"><div class="contact-btn"><i class="fas fa-envelope"></i></div><div class="contact-btn"><i class="fas fa-comment"></i></div></div></div>
-                    <div class="member-card"><div class="member-avatar"><div class="initials">SJ</div></div><div class="member-name">Sarah Johnson</div><div class="member-role">Manager</div><div class="member-status active">Active</div><div class="member-contact"><div class="contact-btn"><i class="fas fa-envelope"></i></div><div class="contact-btn"><i class="fas fa-comment"></i></div></div></div>
-                    <div class="member-card"><div class="member-avatar"><div class="initials">AR</div></div><div class="member-name">Alex Rodriguez</div><div class="member-role">Developer</div><div class="member-status active">Active</div><div class="member-contact"><div class="contact-btn"><i class="fas fa-envelope"></i></div><div class="contact-btn"><i class="fas fa-comment"></i></div></div></div>
-                    <div class="member-card"><div class="member-avatar"><div class="initials">EC</div></div><div class="member-name">Emily Chen</div><div class="member-role">Designer</div><div class="member-status active">Active</div><div class="member-contact"><div class="contact-btn"><i class="fas fa-envelope"></i></div><div class="contact-btn"><i class="fas fa-comment"></i></div></div></div>
+                    <div class="member-card"><div class="member-avatar"><div class="initials">ME</div></div><div class="member-name">Mohamed Elmenisy</div><div class="member-role">Administrator</div><div class="member-status active">Active</div><div class="member-contact"><a href="mailto:m.elsayed@thechefz.co" class="contact-btn" title="Email"><i class="fas fa-envelope"></i></a><button class="contact-btn" title="Chat"><i class="fas fa-comment"></i></button></div></div>
+                    <div class="member-card"><div class="member-avatar"><div class="initials">SJ</div></div><div class="member-name">Sarah Johnson</div><div class="member-role">Project Manager</div><div class="member-status active">Active</div><div class="member-contact"><a href="#" class="contact-btn" title="Email"><i class="fas fa-envelope"></i></a><button class="contact-btn" title="Chat"><i class="fas fa-comment"></i></button></div></div>
+                    <div class="member-card"><div class="member-avatar"><div class="initials">AR</div></div><div class="member-name">Alex Rodriguez</div><div class="member-role">Lead Developer</div><div class="member-status active">Active</div><div class="member-contact"><a href="#" class="contact-btn" title="Email"><i class="fas fa-envelope"></i></a><button class="contact-btn" title="Chat"><i class="fas fa-comment"></i></button></div></div>
+                    <div class="member-card"><div class="member-avatar"><div class="initials">EC</div></div><div class="member-name">Emily Chen</div><div class="member-role">UI/UX Designer</div><div class="member-status active">Active</div><div class="member-contact"><a href="#" class="contact-btn" title="Email"><i class="fas fa-envelope"></i></a><button class="contact-btn" title="Chat"><i class="fas fa-comment"></i></button></div></div>
+                    <div class="member-card"><div class="member-avatar"><div class="initials">DW</div></div><div class="member-name">David Williams</div><div class="member-role">QA Tester</div><div class="member-status inactive">Inactive</div><div class="member-contact"><a href="#" class="contact-btn" title="Email"><i class="fas fa-envelope"></i></a><button class="contact-btn" title="Chat" disabled style="cursor:not-allowed;"><i class="fas fa-comment"></i></button></div></div>
                  </div>
             </div>
 
@@ -2091,14 +2257,21 @@
                 </div>
                  <div class="section-header">
                     <h2 class="section-title">Reports & Analytics</h2>
-                     <div class="time-filters" style="margin-left: auto;"> <!-- Move filters right -->
+                     <div class="time-filters" style="margin-left: auto; display: flex; gap: 0.5rem;"> <!-- Move filters right -->
                         <button class="btn btn-outline btn-sm active">Week</button>
                         <button class="btn btn-outline btn-sm">Month</button>
                         <button class="btn btn-outline btn-sm">Year</button>
+                        <button class="btn btn-primary btn-sm"><i class="fas fa-download"></i> Export</button>
                     </div>
                  </div>
-                 <div class="chart-container">Task Completion Rate Chart Placeholder</div>
-                 <div class="chart-container">Team Performance Chart Placeholder</div>
+                 <div class="chart-container">
+                     <i class="fas fa-chart-line fa-3x" style="margin-bottom: 1rem; color: var(--light-gray);"></i>
+                     Task Completion Rate Chart Placeholder
+                 </div>
+                 <div class="chart-container">
+                     <i class="fas fa-chart-pie fa-3x" style="margin-bottom: 1rem; color: var(--light-gray);"></i>
+                     Team Performance / Workload Distribution Chart Placeholder
+                 </div>
             </div>
 
             <!-- Innovation Hub Content -->
@@ -2111,11 +2284,12 @@
                  <div class="section-header">
                     <h2 class="section-title">Innovation Hub</h2>
                     <button class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus"></i> Submit Idea
+                        <i class="fas fa-lightbulb"></i> Submit Idea
                     </button>
                  </div>
-                 <div style="padding: 2rem; text-align: center; color: var(--gray); border: 1px dashed var(--light-gray); border-radius: 8px;">
-                     Ideas Board Placeholder
+                 <div style="padding: 2rem; text-align: center; color: var(--gray); border: 1px dashed var(--light-gray); border-radius: 8px; background-color: var(--light);">
+                     <i class="fas fa-brain fa-3x" style="margin-bottom: 1rem; color: var(--light-gray);"></i><br>
+                     Share your brilliant ideas with the team! <br> (Ideas Board Placeholder)
                  </div>
             </div>
 
@@ -2137,7 +2311,7 @@
                     <h3 style="margin-bottom: 1.5rem;">General Settings</h3>
                     <div class="form-group">
                         <label for="timezone">Timezone</label>
-                        <select id="timezone" class="form-control"><option selected>(UTC+00:00) GMT</option><option>(UTC+02:00) Cairo</option><option>(UTC+03:00) Riyadh</option></select>
+                        <select id="timezone" class="form-control"><option>(UTC+00:00) GMT</option><option selected>(UTC+02:00) Cairo</option><option>(UTC+03:00) Riyadh</option></select>
                     </div>
                      <div class="form-group">
                         <label for="language">Language</label>
@@ -2147,63 +2321,74 @@
                             <option value="system">System Default</option>
                         </select>
                     </div>
+                    <div class="setting-item">
+                        <div class="setting-info"><div class="setting-title">Dark Mode</div><div class="setting-description">Toggle dark theme across the application (Requires implementation).</div></div>
+                        <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
+                    </div>
                      <div class="form-actions">
                         <button type="button" class="btn btn-secondary">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="submit" class="btn btn-primary">Save General Settings</button>
                     </div>
                 </div>
                 <!-- Notification Settings Panel -->
                 <div class="settings-panel" id="notificationSettings">
                     <h3 style="margin-bottom: 1.5rem;">Notification Settings</h3>
                      <div class="setting-item">
-                         <div class="setting-info"><div class="setting-title">Task Assignments</div><div class="setting-description">Email and In-App notification when new tasks are assigned to you.</div></div>
+                         <div class="setting-info"><div class="setting-title">Task Assignments</div><div class="setting-description">Notify me (In-App & Email) when new tasks are assigned to me.</div></div>
                          <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
                      </div>
                      <div class="setting-item">
-                         <div class="setting-info"><div class="setting-title">Project Updates</div><div class="setting-description">Email for important project updates (e.g., status change, deadline near).</div></div>
+                         <div class="setting-info"><div class="setting-title">Project Updates</div><div class="setting-description">Send email for critical project updates (e.g., status change, deadline approaching).</div></div>
                          <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
                      </div>
                       <div class="setting-item">
-                         <div class="setting-info"><div class="setting-title">Comments on My Tasks</div><div class="setting-description">Receive In-App notification for comments on tasks assigned to you.</div></div>
+                         <div class="setting-info"><div class="setting-title">Comments on My Tasks</div><div class="setting-description">Receive In-App notifications for comments on tasks I own or follow.</div></div>
                          <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
                      </div>
                      <div class="setting-item">
-                         <div class="setting-info"><div class="setting-title">Team Announcements</div><div class="setting-description">Notify me (In-App) about general team announcements.</div></div>
+                         <div class="setting-info"><div class="setting-title">Team Announcements</div><div class="setting-description">Notify me (In-App) about general team or company announcements.</div></div>
                          <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
                      </div>
                      <div class="setting-item">
-                         <div class="setting-info"><div class="setting-title">Daily Summary Email</div><div class="setting-description">Get an email summarizing your tasks due today and overdue tasks.</div></div>
+                         <div class="setting-info"><div class="setting-title">Daily Summary Email</div><div class="setting-description">Get a daily email summarizing your tasks due today and overdue items.</div></div>
                          <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
                      </div>
                      <div class="form-actions">
                         <button type="button" class="btn btn-secondary">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="submit" class="btn btn-primary">Save Notification Settings</button>
                     </div>
                 </div>
-                <!-- Integrations Settings Panel -->
+                <!-- Integrations Settings Panel (Updated with more options) -->
                 <div class="settings-panel" id="integrationSettings">
                     <h3 style="margin-bottom: 1.5rem;">Integrations</h3>
                      <div class="setting-item">
-                        <div class="setting-info"><div class="setting-title">Slack</div><div class="setting-description">Connect to your Slack workspace for notifications and commands.</div></div>
+                        <div class="setting-info"><i class="fab fa-slack" style="color: #4A154B; font-size: 1.2rem; margin-right: 0.5rem;"></i><div class="setting-title">Slack</div><div class="setting-description">Connect to your Slack workspace for notifications and commands.</div></div>
                         <button class="btn btn-outline btn-sm">Connect</button>
                     </div>
                      <div class="setting-item">
-                        <div class="setting-info"><div class="setting-title">Google Workspace</div><div class="setting-description">Sync Google Calendar & access Google Drive files.</div></div>
+                         <div class="setting-info"><i class="fab fa-google" style="color: #DB4437; font-size: 1.2rem; margin-right: 0.5rem;"></i><div class="setting-title">Google Workspace</div><div class="setting-description">Sync Google Calendar events & access Google Drive files.</div></div>
                          <div style="display: flex; align-items: center;">
                              <span class="integration-status"><i class="fas fa-check-circle"></i> Connected</span>
                              <button class="btn btn-danger btn-sm">Disconnect</button>
                          </div>
                     </div>
                      <div class="setting-item">
-                        <div class="setting-info"><div class="setting-title">GitHub</div><div class="setting-description">Link repositories and track commits related to projects.</div></div>
-                        <button class="btn btn-outline btn-sm">Connect</button>
+                        <div class="setting-info"><i class="fab fa-github" style="color: #181717; font-size: 1.2rem; margin-right: 0.5rem;"></i><div class="setting-title">GitHub</div><div class="setting-description">Link repositories and track commits related to projects.</div></div>
+                         <div style="display: flex; align-items: center;">
+                             <span class="integration-status"><i class="fas fa-check-circle"></i> Connected</span>
+                             <button class="btn btn-danger btn-sm">Disconnect</button>
+                         </div>
                      </div>
                      <div class="setting-item">
-                         <div class="setting-info"><div class="setting-title">Jira</div><div class="setting-description">Sync issues and project status with your Jira instance.</div></div>
+                         <div class="setting-info"><i class="fab fa-jira" style="color: #0052CC; font-size: 1.2rem; margin-right: 0.5rem;"></i><div class="setting-title">Jira</div><div class="setting-description">Sync issues and project status with your Jira instance.</div></div>
                          <button class="btn btn-outline btn-sm">Connect</button>
                      </div>
                      <div class="setting-item">
-                        <div class="setting-info"><div class="setting-title">Zoom</div><div class="setting-description">Schedule and join Zoom meetings directly from calendar events.</div></div>
+                        <div class="setting-info"><i class="fas fa-video" style="color: #2D8CFF; font-size: 1.2rem; margin-right: 0.5rem;"></i><div class="setting-title">Zoom</div><div class="setting-description">Schedule and join Zoom meetings directly from calendar events.</div></div>
+                        <button class="btn btn-outline btn-sm">Connect</button>
+                    </div>
+                     <div class="setting-item">
+                        <div class="setting-info"><i class="fab fa-microsoft" style="color: #0078D4; font-size: 1.2rem; margin-right: 0.5rem;"></i><div class="setting-title">Microsoft 365</div><div class="setting-description">Sync Outlook Calendar and access OneDrive files.</div></div>
                         <button class="btn btn-outline btn-sm">Connect</button>
                     </div>
                 </div>
@@ -2211,24 +2396,29 @@
                 <div class="settings-panel" id="securitySettings">
                     <h3 style="margin-bottom: 1.5rem;">Security Settings</h3>
                     <div class="setting-item">
-                        <div class="setting-info"><div class="setting-title">Two-Factor Authentication (2FA)</div><div class="setting-description">Add an extra layer of security to your account sign-in.</div></div>
+                        <div class="setting-info"><div class="setting-title">Two-Factor Authentication (2FA)</div><div class="setting-description">Add an extra layer of security using an authenticator app or SMS.</div></div>
                         <button class="btn btn-outline btn-sm" id="enable2faBtn">Enable</button> <!-- JS handles text/style -->
                     </div>
                     <div class="setting-item">
-                        <div class="setting-info"><div class="setting-title">Password</div><div class="setting-description">It's recommended to change your password periodically.</div></div>
+                        <div class="setting-info"><div class="setting-title">Password</div><div class="setting-description">Last changed: 3 months ago. Recommended to change periodically.</div></div>
                         <button class="btn btn-outline btn-sm" id="changePasswordBtn">Change Password</button>
                     </div>
-                     <div class="form-actions">
+                     <div class="setting-item">
+                        <div class="setting-info"><div class="setting-title">Active Sessions</div><div class="setting-description">Manage devices currently logged into your account.</div></div>
+                        <button class="btn btn-outline btn-sm" id="manageSessionsBtn">View Sessions</button>
+                    </div>
+                     <!-- Actions might not be needed here, or could apply to specific settings like password policy -->
+                     <!-- <div class="form-actions">
                          <button type="button" class="btn btn-secondary">Cancel</button>
-                         <button type="submit" class="btn btn-primary">Save Changes</button> <!-- This might not apply here -->
-                     </div>
+                         <button type="submit" class="btn btn-primary">Save Security Settings</button>
+                     </div> -->
                 </div>
             </div>
 
         </div> <!-- End Content Area -->
     </main>
 
-    <!-- Confirmation Message -->
+    <!-- Confirmation Message (Top-Right - Kept for non-deletion feedback) -->
     <div class="confirmation-message" id="confirmationMessage">
         <i class="fas fa-check-circle"></i>
         <span id="confirmationText">Changes saved successfully!</span>
@@ -2252,7 +2442,7 @@
             const markAllAsRead = document.getElementById('markAllAsRead');
             const deleteAllNotificationsBtn = document.getElementById('deleteAllNotifications');
             const userProfileWrapper = document.getElementById('userProfileWrapper');
-            const userNameDisplay = document.getElementById('userNameDisplay');
+            const userNameDisplay = document.getElementById('userNameDisplay'); // Updated target
             const userEmail = document.getElementById('userEmail');
             const welcomeName = document.getElementById('welcomeName');
             const userDropdown = document.getElementById('userDropdown');
@@ -2276,6 +2466,7 @@
             const closeSidebarBtn = document.querySelector('.close-sidebar');
             const enable2faBtn = document.getElementById('enable2faBtn');
             const changePasswordBtn = document.getElementById('changePasswordBtn');
+            const manageSessionsBtn = document.getElementById('manageSessionsBtn'); // Added
 
             // Stat Elements
             const teamMembersCountEl = document.getElementById('teamMembersCount');
@@ -2297,23 +2488,26 @@
                 phone: '+201234567890',
                 initials: 'ME',
                 role: 'admin',
-                stats: { // Initial stats, will be updated
+                stats: { // Initial stats
                     teamMembers: 12,
-                    tasksCompleted: 24,
+                    tasksCompleted: 24, // Example: Tasks completed this week
                     activeProjects: 5,
-                    upcomingDeadlines: 3
+                    upcomingDeadlines: 3 // Example: Deadlines in next 7 days
                 },
-                profilePicture: null,
+                profilePicture: null, // Can be set to an image URL
                 twoFactorEnabled: false
             };
-             // Store previous stats for comparison
+             // Store previous stats for comparison - Initialize identical to current
             let previousStats = { ...currentUser.stats };
 
+            // Updated Notifications array
             let notifications = [
-                 { id: 0, icon: 'fas fa-info-circle', message: 'Welcome to TeamFlow!', time: 'Just now', read: false },
-                 { id: 1, icon: 'fas fa-check-circle', message: 'Task "Dashboard Design" completed', time: '2 hours ago', read: false },
-                 { id: 2, icon: 'fas fa-comment-alt', message: 'Sarah Johnson commented on "Project Timeline"', time: '5 hours ago', read: false },
-                 { id: 3, icon: 'fas fa-tasks', message: 'New task assigned: "Profile Page"', time: 'Yesterday', read: true }
+                 { id: 0, icon: 'fas fa-info-circle', message: 'Welcome to TeamFlow! Explore the dashboard and features.', time: 'Just now', read: false },
+                 { id: 1, icon: 'fas fa-check-circle', message: 'Task "Deploy Security Patch" completed by Alex R.', time: '1 hour ago', read: false },
+                 { id: 2, icon: 'fas fa-comment-alt', message: '<strong>Sarah Johnson</strong> commented on <strong>Project Alpha Timeline</strong>: "Need updated estimates"', time: '3 hours ago', read: false },
+                 { id: 3, icon: 'fas fa-tasks', message: 'New task assigned: "Review Q3 Marketing Plan"', time: 'Yesterday', read: true },
+                 { id: 4, icon: 'fas fa-exclamation-triangle', message: 'Project "Mobile App Dev" deadline approaching (Aug 15)', time: '2 days ago', read: true },
+                 { id: 5, icon: 'fas fa-file-upload', message: '<strong>Emily Chen</strong> uploaded "Final_Mockups.zip" to Files', time: '3 days ago', read: true }
             ];
 
             const searchData = [
@@ -2321,7 +2515,9 @@
                  { name: 'Mohamed Elmenisy', type: 'Member', link: '#team-members' },
                  { name: 'Profile Page', type: 'Task', link: '#task-management' },
                  { name: 'Team Meeting', type: 'Event', link: '#team-calendar' },
-                 { name: 'Proposal.pdf', type: 'File', link: '#file-sharing' }
+                 { name: 'Proposal_v2.pdf', type: 'File', link: '#file-sharing' },
+                 { name: 'Settings', type: 'Area', link: '#settings' },
+                 { name: 'Reports', type: 'Area', link: '#reports' }
             ];
 
             // Feature Map for routing
@@ -2344,7 +2540,7 @@
 
             // --- Initialization ---
             function initApp() {
-                updateUserUI();
+                updateUserUI(); // Includes initial stat display
                 renderNotifications();
                 setupEventListeners();
                 handleNavigation(); // Handles initial view based on hash
@@ -2381,11 +2577,16 @@
                 const targetSection = document.getElementById(config.contentId);
                 if (targetSection) {
                     targetSection.style.display = 'block';
+                     // If it's the dashboard, update stats immediately
+                     if (feature === 'dashboard') {
+                         updateStatDisplay();
+                     }
                 } else {
                     console.error(`Content section with ID "${config.contentId}" not found for feature "${feature}".`);
                     document.getElementById(featureMap['dashboard'].contentId).style.display = 'block';
                     feature = 'dashboard'; // Ensure menu highlights dashboard
                     config = featureMap['dashboard']; // Update config for menu highlighting
+                    updateStatDisplay(); // Update stats for dashboard fallback
                 }
 
                 // Update active menu item
@@ -2419,12 +2620,10 @@
             function updateUserUI() {
                 const nameParts = currentUser.name.split(' ');
                 welcomeName.textContent = nameParts[0];
-                 // Update user name in top nav (check if element exists)
-                 if (userNameDisplay && userNameDisplay.childNodes.length > 0 && userNameDisplay.childNodes[0].nodeType === Node.TEXT_NODE) {
-                    userNameDisplay.childNodes[0].nodeValue = currentUser.name + ' ';
-                 } else if (userNameDisplay) {
-                     userNameDisplay.textContent = currentUser.name; // Fallback if structure changed
-                 }
+                // Update user name in top nav
+                if (userNameDisplay) {
+                    userNameDisplay.textContent = currentUser.name;
+                }
                 userEmail.textContent = currentUser.email;
                 document.querySelector('.user-info-name').textContent = currentUser.name;
                 document.getElementById('userRoleTitle').textContent = currentUser.title || 'Team Member';
@@ -2439,23 +2638,31 @@
                 document.getElementById('phone').value = currentUser.phone || '';
 
                 // Update Avatars
-                const initials = currentUser.initials || '??';
+                const initials = (nameParts[0]?.[0] || '') + (nameParts.slice(-1)[0]?.[0] || ''); // First and Last initial
+                currentUser.initials = initials.toUpperCase();
                 const avatarHtml = currentUser.profilePicture
                     ? `<img src="${currentUser.profilePicture}" alt="${currentUser.name}">`
-                    : `<div class="initials">${initials}</div>`;
+                    : `<div class="initials">${currentUser.initials || '??'}</div>`;
                 userAvatar.innerHTML = avatarHtml;
                 document.getElementById('profileAvatar').innerHTML = avatarHtml;
                 profilePicturePreview.innerHTML = avatarHtml;
 
-                // Update Dashboard Stats Dynamically
-                updateStatUI('teamMembers', teamMembersCountEl, teamMembersArrowEl);
-                updateStatUI('tasksCompleted', tasksCompletedEl, tasksCompletedArrowEl);
-                updateStatUI('activeProjects', activeProjectsEl, activeProjectsArrowEl);
-                updateStatUI('upcomingDeadlines', upcomingDeadlinesEl, upcomingDeadlinesArrowEl);
+                // Update Dashboard Stats (Called separately by updateStatDisplay now)
+                // updateStatDisplay(); // Call moved to init and view updates
 
-                 // Store current stats as previous for next update
-                 previousStats = { ...currentUser.stats };
+                 // Update security button states
+                 updateSecurityButtonsUI();
             }
+
+            // Function specifically for updating the dashboard stats display
+             function updateStatDisplay() {
+                 updateStatUI('teamMembers', teamMembersCountEl, teamMembersArrowEl);
+                 updateStatUI('tasksCompleted', tasksCompletedEl, tasksCompletedArrowEl);
+                 updateStatUI('activeProjects', activeProjectsEl, activeProjectsArrowEl);
+                 updateStatUI('upcomingDeadlines', upcomingDeadlinesEl, upcomingDeadlinesArrowEl);
+                 // Store current stats as previous for next update *after* displaying
+                 previousStats = { ...currentUser.stats };
+             }
 
             // Helper to update a single stat and its arrow
             function updateStatUI(statKey, valueEl, arrowEl) {
@@ -2483,16 +2690,18 @@
                 notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
 
                 if (notifications.length === 0) {
-                    notificationList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--gray);">No notifications</li>';
+                    notificationList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--gray);">No new notifications</li>';
                     return;
                 }
+
+                notifications.sort((a, b) => b.id - a.id); // Show newest first
 
                 notifications.forEach(n => {
                     const li = document.createElement('li');
                     li.className = `notification-item ${n.read ? '' : 'unread'}`;
                     li.dataset.id = n.id;
                     li.innerHTML = `
-                        <div class="notification-icon"><i class="${n.icon}"></i></div>
+                        <div class="notification-icon"><i class="${n.icon || 'fas fa-info-circle'}"></i></div>
                         <div class="notification-content">
                             <div class="notification-message">${n.message}</div>
                             <div class="notification-time">${n.time}</div>
@@ -2502,7 +2711,7 @@
                             <i class="fas fa-times"></i>
                         </button>
                     `;
-                    // Event delegation is better for dynamically added items, but adding here for simplicity
+                    // Event listeners for interaction
                     li.addEventListener('click', handleNotificationClick);
                     li.querySelector('.delete-notification').addEventListener('click', handleDeleteNotificationClick);
                     notificationList.appendChild(li);
@@ -2520,8 +2729,11 @@
                 settingsLink.addEventListener('click', () => userDropdown.classList.remove('active'));
                 logoutLink.addEventListener('click', (e) => {
                      e.preventDefault();
-                     console.log("Logout");
-                     window.location.href = 'login.html';
+                     // Use professional confirmation message for logout
+                     if (confirm('Are you sure you want to logout?')) {
+                         console.log("Logout confirmed");
+                         window.location.href = 'login.html'; // Redirect to a login page
+                     }
                  });
 
                 // Notifications
@@ -2542,6 +2754,7 @@
                 // Settings Buttons
                 enable2faBtn.addEventListener('click', handleToggle2FA);
                 changePasswordBtn.addEventListener('click', handleChangePassword);
+                 if(manageSessionsBtn) manageSessionsBtn.addEventListener('click', handleManageSessions); // Added
 
                 // Activity List Actions (using event delegation)
                 activityList.addEventListener('click', handleActivityListActions);
@@ -2568,48 +2781,59 @@
                  e.stopPropagation();
                  userDropdown.classList.toggle('active');
                  notificationDropdown.classList.remove('active');
+                 searchResults.style.display = 'none'; // Close search results
              }
 
              function toggleNotificationDropdown(e) {
                  e.stopPropagation();
                  notificationDropdown.classList.toggle('active');
                  userDropdown.classList.remove('active');
+                 searchResults.style.display = 'none'; // Close search results
              }
 
              function handleNotificationClick(e) {
-                 if (e.target.closest('.delete-notification')) return;
+                 if (e.target.closest('.delete-notification')) return; // Don't mark read if delete was clicked
                  const li = e.currentTarget;
                  const id = parseInt(li.dataset.id);
                  markNotificationAsRead(id);
+                  // Optional: Close dropdown after clicking an item
+                 // notificationDropdown.classList.remove('active');
              }
 
              function handleDeleteNotificationClick(e) {
-                 e.stopPropagation();
+                 e.stopPropagation(); // Prevent triggering li click
                  const button = e.currentTarget;
                  const li = button.closest('.notification-item');
                  const id = parseInt(li.dataset.id);
-                  // Use professional confirmation message
-                 if (confirm('Please confirm if you wish to permanently delete this notification.')) {
+                  // Use improved confirmation message
+                 if (confirm(`Are you sure you want to permanently delete this notification?\n\n"${li.querySelector('.notification-message').textContent.substring(0, 50)}..."\n\nThis action cannot be undone.`)) {
                     deleteNotification(id);
                  }
              }
 
              function handleMarkAllRead(e) {
                  e.stopPropagation();
-                 notifications.forEach(n => n.read = true);
-                 renderNotifications();
-                 showConfirmation('All notifications marked as read.');
+                 const unreadCount = notifications.filter(n => !n.read).length;
+                 if (unreadCount > 0) {
+                     notifications.forEach(n => n.read = true);
+                     renderNotifications();
+                     showConfirmation('All notifications marked as read.');
+                 }
+                 notificationDropdown.classList.remove('active'); // Close dropdown
              }
 
              function handleDeleteAllNotifications(e) {
                  e.stopPropagation();
-                 // Use professional confirmation message
-                 if (notifications.length > 0 && confirm('Delete all notifications? This action cannot be undone.')) {
-                     notifications = [];
-                     renderNotifications();
-                     playDeleteSound();
-                     showConfirmation('All notifications deleted.');
+                 if (notifications.length > 0) {
+                      // Use improved confirmation message
+                     if (confirm(`Delete all ${notifications.length} notifications? This action cannot be undone.`)) {
+                         notifications = [];
+                         renderNotifications();
+                         playDeleteSound();
+                         showConfirmation('All notifications deleted.');
+                     }
                  }
+                 notificationDropdown.classList.remove('active'); // Close dropdown
              }
 
             function handleSearchInput() {
@@ -2625,10 +2849,12 @@
                 );
 
                 if (results.length > 0) {
-                    results.forEach(result => {
+                    results.slice(0, 6).forEach(result => { // Limit results shown
                         const div = document.createElement('div');
                         div.className = 'search-result-item';
-                        div.innerHTML = `<div><strong>${result.name}</strong></div><small>${result.type}</small>`;
+                        // Highlight matching text (simple implementation)
+                        const nameHtml = result.name.replace(new RegExp(query, 'gi'), (match) => `<strong>${match}</strong>`);
+                        div.innerHTML = `<div>${nameHtml}</div><small style="color: var(--gray);">${result.type}</small>`;
                         div.addEventListener('click', () => {
                             window.location.href = result.link; // Navigate on click
                             searchResults.style.display = 'none';
@@ -2637,10 +2863,18 @@
                         searchResults.appendChild(div);
                     });
                     searchResults.style.display = 'block';
+                } else {
+                    const div = document.createElement('div');
+                    div.className = 'search-result-item';
+                    div.style.color = 'var(--gray)';
+                    div.textContent = 'No results found.';
+                    searchResults.appendChild(div);
+                    searchResults.style.display = 'block';
                 }
             }
 
             function handleSearchFocus() {
+                 // Show results on focus only if there's already text
                  if (searchInput.value.trim().length > 0) {
                      handleSearchInput();
                  }
@@ -2648,19 +2882,30 @@
 
              function handleProfileSave(e) {
                  e.preventDefault();
-                 currentUser.name = `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`;
-                 currentUser.title = document.getElementById('jobTitle').value;
-                 currentUser.department = document.getElementById('department').value;
-                 currentUser.phone = document.getElementById('phone').value;
+                 // Update user object
+                 currentUser.name = `${document.getElementById('firstName').value.trim()} ${document.getElementById('lastName').value.trim()}`;
+                 currentUser.title = document.getElementById('jobTitle').value.trim();
+                 currentUser.department = document.getElementById('department').value.trim();
+                 currentUser.phone = document.getElementById('phone').value.trim();
+                 // Recalculate initials based on potentially changed name
                  const nameParts = currentUser.name.split(' ');
-                 currentUser.initials = (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || '');
-                 updateUserUI();
+                 const firstInitial = nameParts[0]?.[0] || '';
+                 const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1]?.[0] : '';
+                 currentUser.initials = (firstInitial + lastInitial).toUpperCase();
+
+                 updateUserUI(); // Refresh UI with new data
                  showConfirmation('Profile updated successfully!');
+                 // Optional: Navigate back to dashboard after save
+                 // window.location.hash = 'dashboard';
              }
 
              function handleProfilePictureChange(e) {
                 const file = e.target.files[0];
                 if (file && file.type.startsWith('image/')) {
+                     if (file.size > 2 * 1024 * 1024) { // Limit size to 2MB
+                         alert('Image size should not exceed 2MB.');
+                         return;
+                     }
                     const reader = new FileReader();
                     reader.onload = (event) => {
                         currentUser.profilePicture = event.target.result;
@@ -2669,9 +2914,9 @@
                     }
                     reader.readAsDataURL(file);
                 } else if (file) {
-                    alert('Please select a valid image file.');
+                    alert('Please select a valid image file (e.g., JPG, PNG, GIF).');
                 }
-            }
+             }
 
             function handleSettingsTabClick(e) {
                 const clickedTab = e.currentTarget;
@@ -2693,40 +2938,60 @@
             function restoreSettingsTab() {
                 const savedTabId = localStorage.getItem('activeSettingsTab');
                 if (savedTabId && window.location.hash === '#settings') {
-                     settingsTabs.forEach(tab => {
-                        tab.classList.toggle('active', tab.getAttribute('data-tab') === savedTabId);
-                     });
-                     settingsPanels.forEach(panel => {
-                         panel.classList.toggle('active', panel.id === `${savedTabId}Settings`);
-                     });
+                     const targetTab = document.querySelector(`.settings-tab[data-tab="${savedTabId}"]`);
+                     const targetPanel = document.getElementById(`${savedTabId}Settings`);
+                     if (targetTab && targetPanel) {
+                         settingsTabs.forEach(tab => tab.classList.remove('active'));
+                         settingsPanels.forEach(panel => panel.classList.remove('active'));
+                         targetTab.classList.add('active');
+                         targetPanel.classList.add('active');
+                     } else { // Fallback if saved tab/panel doesn't exist
+                          localStorage.removeItem('activeSettingsTab'); // Clear invalid saved state
+                          activateDefaultSettingsTab();
+                     }
                  } else {
                     // Default to general tab if none saved or not on settings page initially
-                    settingsTabs.forEach((tab, index) => tab.classList.toggle('active', index === 0));
-                    settingsPanels.forEach((panel, index) => panel.classList.toggle('active', index === 0));
+                    activateDefaultSettingsTab();
                  }
+            }
+
+            function activateDefaultSettingsTab() {
+                settingsTabs.forEach((tab, index) => tab.classList.toggle('active', index === 0));
+                settingsPanels.forEach((panel, index) => panel.classList.toggle('active', index === 0));
             }
 
             function handleToggle2FA() {
                  currentUser.twoFactorEnabled = !currentUser.twoFactorEnabled;
                  updateSecurityButtonsUI();
-                 const message = currentUser.twoFactorEnabled ? 'Two-Factor Authentication enabled (Demo).' : 'Two-Factor Authentication disabled (Demo).';
+                 const message = currentUser.twoFactorEnabled
+                    ? 'Two-Factor Authentication enabled (Demo - requires server setup).'
+                    : 'Two-Factor Authentication disabled (Demo).';
                  showConfirmation(message);
             }
 
             function handleChangePassword() {
-                 alert('Password change functionality requires backend integration. (Demo)');
+                 // In a real app, this would open a modal or redirect to a password change form
+                 alert('Password change functionality demonstration. Requires backend integration.');
                  console.log('Change password button clicked');
+            }
+
+            function handleManageSessions() {
+                 // In a real app, this would show a list of active sessions
+                 alert('Session management demonstration. Requires backend integration.');
+                 console.log('Manage sessions button clicked');
             }
 
             function updateSecurityButtonsUI() {
                  if (currentUser.twoFactorEnabled) {
                     enable2faBtn.textContent = 'Disable 2FA';
                     enable2faBtn.classList.remove('btn-outline');
+                    enable2faBtn.classList.remove('btn-primary'); // Ensure outline isn't kept
                     enable2faBtn.classList.add('btn-danger');
                  } else {
                     enable2faBtn.textContent = 'Enable 2FA';
-                    enable2faBtn.classList.add('btn-outline');
                     enable2faBtn.classList.remove('btn-danger');
+                    enable2faBtn.classList.add('btn-outline'); // Re-add outline
+                    enable2faBtn.classList.add('btn-primary'); // Make it primary outline
                  }
             }
 
@@ -2735,38 +3000,49 @@
                 const deleteButton = e.target.closest('.activity-actions-btn');
                 if (deleteButton) {
                      const item = deleteButton.closest('.activity-item');
-                     // Use professional confirmation message
-                     if (item && confirm('Please confirm if you wish to permanently delete this activity record. This action cannot be undone.')) {
-                         item.remove();
-                         playDeleteSound();
-                         showConfirmation('Activity record deleted.');
-                         if (activityList.children.length === 0) {
-                              activityList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--gray);">No recent activity</li>';
-                         }
+                     // Use improved confirmation message
+                     if (item && confirm(`Are you sure you want to delete this activity record?\n\n"${item.querySelector('.activity-message').textContent.substring(0, 60)}..."\n\nThis action cannot be undone.`)) {
+                         item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                         item.style.opacity = '0';
+                         item.style.transform = 'translateX(-20px)';
+                         setTimeout(() => {
+                             item.remove();
+                             playDeleteSound();
+                             // No confirmation message needed here as the item removal is visual feedback
+                             if (activityList.children.length === 0) {
+                                  activityList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--gray);">No recent activity</li>';
+                             }
+                         }, 300); // Wait for animation
                      }
                 }
             }
 
             function handleDeleteAllActivities() {
-                  // Use professional confirmation message
-                  if (activityList.children.length > 0 && confirm('Delete all activity records? This action cannot be undone.')) {
-                      activityList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--gray);">No recent activity</li>';
-                      playDeleteSound();
-                      showConfirmation('All activity records deleted.');
+                  if (activityList.children.length > 0 && activityList.children[0].textContent !== 'No recent activity') {
+                       // Use improved confirmation message
+                       if (confirm(`Delete all ${activityList.children.length} activity records? This action cannot be undone.`)) {
+                            activityList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--gray);">No recent activity</li>';
+                            playDeleteSound();
+                            showConfirmation('All activity records deleted.'); // Use top confirmation for bulk action
+                       }
                   }
              }
 
 
             function handleGlobalClick(e) {
-                if (!userProfileWrapper.contains(e.target)) {
+                // Close user dropdown if click is outside
+                if (userDropdown.classList.contains('active') && !userProfileWrapper.contains(e.target)) {
                     userDropdown.classList.remove('active');
                 }
-                 if (!notificationIconWrapper.contains(e.target)) {
+                 // Close notification dropdown if click is outside
+                 if (notificationDropdown.classList.contains('active') && !notificationIconWrapper.contains(e.target)) {
                     notificationDropdown.classList.remove('active');
                 }
-                if (!e.target.closest('.search-bar')) {
+                // Close search results if click is outside search bar/results
+                if (searchResults.style.display === 'block' && !e.target.closest('.search-bar')) {
                     searchResults.style.display = 'none';
                 }
+                 // Close mobile sidebar if click is outside
                  if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && !openSidebarBtn.contains(e.target)) {
                     sidebar.classList.remove('active');
                  }
@@ -2776,38 +3052,73 @@
             function showConfirmation(message) {
                 confirmationText.textContent = message;
                 confirmationMessage.classList.add('show');
+                // Clear previous timeout if exists
                 if (window.confirmationTimeout) {
                     clearTimeout(window.confirmationTimeout);
                 }
+                // Set new timeout
                 window.confirmationTimeout = setTimeout(() => {
                     confirmationMessage.classList.remove('show');
-                    window.confirmationTimeout = null;
-                }, 3000);
+                    window.confirmationTimeout = null; // Clear the stored timeout ID
+                }, 3500); // Slightly longer duration
             }
 
             function playNotificationSound() {
+                notificationSound.volume = 0.5; // Adjust volume if needed
                 notificationSound.currentTime = 0;
-                notificationSound.play().catch(e => console.warn('Audio play failed:', e));
+                notificationSound.play().catch(e => console.warn('Notification sound play failed:', e));
             }
 
             function playDeleteSound() {
+                deleteSound.volume = 0.4; // Adjust volume if needed
                 deleteSound.currentTime = 0;
-                deleteSound.play().catch(e => console.warn('Audio play failed:', e));
+                deleteSound.play().catch(e => console.warn('Delete sound play failed:', e));
             }
 
             function markNotificationAsRead(id) {
                 const notification = notifications.find(n => n.id === id);
                 if (notification && !notification.read) {
                     notification.read = true;
-                    renderNotifications();
+                    const listItem = notificationList.querySelector(`li[data-id="${id}"]`);
+                    if(listItem) {
+                        listItem.classList.remove('unread');
+                        const dot = listItem.querySelector('.notification-dot');
+                        if(dot) dot.remove();
+                    }
+                    // Update badge count without full re-render for performance
+                    const unreadCount = notifications.filter(n => !n.read).length;
+                    notificationBadge.textContent = unreadCount;
+                    notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
                 }
             }
 
             function deleteNotification(id) {
                  notifications = notifications.filter(n => n.id !== id);
-                 renderNotifications();
-                 playDeleteSound();
-                 showConfirmation('Notification deleted.');
+                 const listItem = notificationList.querySelector(`li[data-id="${id}"]`);
+                 if (listItem) {
+                     listItem.style.transition = 'opacity 0.3s ease, height 0.3s ease, margin 0.3s ease, padding 0.3s ease';
+                     listItem.style.opacity = '0';
+                     listItem.style.height = '0';
+                     listItem.style.margin = '0';
+                     listItem.style.padding = '0';
+                     listItem.style.border = 'none';
+                     setTimeout(() => {
+                         listItem.remove();
+                         playDeleteSound();
+                         // No confirmation message here, visual feedback is enough
+                         if (notifications.length === 0) {
+                             notificationList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--gray);">No new notifications</li>';
+                         }
+                         // Update badge count
+                        const unreadCount = notifications.filter(n => !n.read).length;
+                        notificationBadge.textContent = unreadCount;
+                        notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
+                     }, 300); // Wait for animation
+                 } else {
+                     // Fallback if element not found (e.g., already removed)
+                     renderNotifications();
+                     playDeleteSound();
+                 }
             }
 
              // --- Responsive Handling ---
@@ -2816,7 +3127,7 @@
                 openSidebarBtn.style.display = isMobile ? 'block' : 'none';
                 closeSidebarBtn.style.display = isMobile ? 'block' : 'none';
                  if (!isMobile) {
-                     sidebar.classList.remove('active');
+                     sidebar.classList.remove('active'); // Ensure sidebar is closed on resize to desktop
                  }
             }
 
@@ -2824,23 +3135,28 @@
              function simulateStatUpdates() {
                  setInterval(() => {
                      // Simulate changes - slightly random adjustments
-                     currentUser.stats.teamMembers += (Math.random() > 0.7 ? (Math.random() > 0.5 ? 1 : -1) : 0);
-                     currentUser.stats.tasksCompleted += (Math.random() > 0.5 ? 1 : 0); // Mostly increase
-                     currentUser.stats.activeProjects += (Math.random() > 0.8 ? (Math.random() > 0.5 ? 1 : -1) : 0);
-                     currentUser.stats.upcomingDeadlines += (Math.random() > 0.6 ? (Math.random() > 0.5 ? 1 : -1) : 0);
+                     const teamChange = (Math.random() > 0.8 ? (Math.random() > 0.5 ? 1 : -1) : 0);
+                     const tasksChange = Math.floor(Math.random() * 3); // 0, 1, or 2 new tasks done
+                     const projectsChange = (Math.random() > 0.9 ? (Math.random() > 0.6 ? 1 : -1) : 0);
+                     const deadlinesChange = (Math.random() > 0.7 ? (Math.random() > 0.4 ? 1 : -1) : 0);
+
+                     currentUser.stats.teamMembers += teamChange;
+                     currentUser.stats.tasksCompleted += tasksChange;
+                     currentUser.stats.activeProjects += projectsChange;
+                     currentUser.stats.upcomingDeadlines += deadlinesChange;
 
                       // Ensure stats don't go below zero
-                      currentUser.stats.teamMembers = Math.max(0, currentUser.stats.teamMembers);
+                      currentUser.stats.teamMembers = Math.max(5, currentUser.stats.teamMembers); // Keep a minimum team size
                       currentUser.stats.tasksCompleted = Math.max(0, currentUser.stats.tasksCompleted);
-                      currentUser.stats.activeProjects = Math.max(0, currentUser.stats.activeProjects);
+                      currentUser.stats.activeProjects = Math.max(1, currentUser.stats.activeProjects); // Keep at least one project
                       currentUser.stats.upcomingDeadlines = Math.max(0, currentUser.stats.upcomingDeadlines);
 
 
                      // Update UI only if dashboard is visible
                      if (document.getElementById('dashboardContent').style.display !== 'none') {
-                         updateUserUI();
+                         updateStatDisplay();
                      }
-                 }, 5000); // Update every 5 seconds
+                 }, 6000); // Update every 6 seconds
              }
 
             // --- Start the application ---
