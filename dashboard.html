@@ -152,6 +152,25 @@
             transform: translateY(-50%);
             color: var(--gray);
         }
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 0 0 6px 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            display: none;
+        }
+        .search-result-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+        }
+        .search-result-item:hover {
+            background-color: var(--light);
+        }
         .user-menu {
             display: flex;
             align-items: center;
@@ -194,6 +213,12 @@
             justify-content: center;
             font-weight: 600;
             cursor: pointer;
+            overflow: hidden;
+        }
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .user-name {
             font-weight: 500;
@@ -259,6 +284,12 @@
             justify-content: center;
             font-weight: 600;
             font-size: 1.75rem;
+            overflow: hidden;
+        }
+        .user-info-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .user-info-details {
             flex: 1;
@@ -328,6 +359,10 @@
             font-size: 1.25rem;
             font-weight: 600;
         }
+        .activity-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
         .activity-list {
             list-style: none;
         }
@@ -336,9 +371,13 @@
             padding: 1rem 0;
             border-bottom: 1px solid var(--light-gray);
             align-items: center;
+            position: relative;
         }
         .activity-item:last-child {
             border-bottom: none;
+        }
+        .activity-item.new {
+            background-color: rgba(16, 185, 129, 0.05);
         }
         .activity-icon {
             width: 40px;
@@ -350,6 +389,22 @@
             align-items: center;
             justify-content: center;
             margin-right: 1rem;
+            position: relative;
+        }
+        .activity-icon::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            background-color: var(--success);
+            border-radius: 50%;
+            border: 2px solid var(--white);
+            display: none;
+        }
+        .activity-item.new .activity-icon::after {
+            display: block;
         }
         .activity-content {
             flex: 1;
@@ -360,6 +415,20 @@
         .activity-time {
             font-size: 0.8rem;
             color: var(--gray);
+        }
+        .activity-actions-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+        .activity-actions-btn:hover {
+            background-color: var(--light-gray);
+        }
+        .back-to-dashboard {
+            margin-bottom: 1rem;
         }
         /* Profile Content */
         .profile-content {
@@ -422,15 +491,188 @@
             font-weight: 500;
             cursor: pointer;
             border: none;
+            transition: all 0.2s;
         }
         .btn-primary {
             background-color: var(--primary);
             color: white;
         }
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
         .btn-outline {
             background-color: transparent;
             border: 1px solid var(--primary);
             color: var(--primary);
+        }
+        .btn-outline:hover {
+            background-color: var(--primary-light);
+        }
+        .btn-secondary {
+            background-color: var(--gray);
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: var(--dark);
+        }
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        .profile-picture-upload {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .profile-picture-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: var(--light-gray);
+            overflow: hidden;
+            position: relative;
+        }
+        .profile-picture-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-picture-preview .initials {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+        .upload-btn {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .upload-btn input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        /* Confirmation message */
+        .confirmation-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--success);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        .confirmation-message.show {
+            transform: translateX(0);
+        }
+        /* Notification dropdown */
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 350px;
+            max-height: 500px;
+            overflow-y: auto;
+            background-color: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            display: none;
+        }
+        .notification-dropdown.active {
+            display: block;
+        }
+        .notification-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .notification-title {
+            font-weight: 600;
+        }
+        .notification-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .notification-list {
+            list-style: none;
+        }
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            gap: 1rem;
+            position: relative;
+        }
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        .notification-item.unread {
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-message {
+            margin-bottom: 0.25rem;
+        }
+        .notification-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        .notification-dot {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            border-radius: 50%;
+        }
+        .notification-actions-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            color: var(--gray);
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .notification-actions-item:hover {
+            background-color: var(--light-gray);
         }
         /* Task Management Styles */
         .task-management-content {
@@ -738,6 +980,12 @@
             font-weight: 600;
             font-size: 1.5rem;
             margin: 0 auto 1rem;
+            overflow: hidden;
+        }
+        .member-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .member-name {
             font-weight: 600;
@@ -1237,6 +1485,9 @@
             .schedule-sidebar {
                 width: 100%;
             }
+            .notification-dropdown {
+                width: 300px;
+            }
         }
         @media (max-width: 768px) {
             .top-nav {
@@ -1275,6 +1526,10 @@
             }
             .file-grid {
                 grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            .notification-dropdown {
+                width: 100%;
+                right: -20px;
             }
         }
     </style>
@@ -1354,14 +1609,29 @@
             <div class="search-bar">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" placeholder="Search employees, projects, tasks..." id="searchInput">
+                <div class="search-results" id="searchResults"></div>
             </div>
             <div class="user-menu">
                 <div class="notification-icon" id="notificationIcon">
                     <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
+                    <span class="notification-badge" id="notificationBadge">0</span>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">
+                            <div class="notification-title">Notifications</div>
+                            <div class="notification-actions">
+                                <button class="btn btn-secondary btn-sm" id="markAllAsRead">Mark All as Read</button>
+                                <button class="btn btn-danger btn-sm" id="deleteAllNotifications">Delete All</button>
+                            </div>
+                        </div>
+                        <ul class="notification-list" id="notificationList">
+                            <!-- Notifications will be added here dynamically -->
+                        </ul>
+                    </div>
                 </div>
                 <div class="user-profile">
-                    <div class="user-avatar" id="userAvatar">ME</div>
+                    <div class="user-avatar" id="userAvatar">
+                        <div class="initials">ME</div>
+                    </div>
                     <div class="user-name" id="userName">Mohamed Elmenisy</div>
                     <div class="user-dropdown" id="userDropdown">
                         <a href="#profile" class="dropdown-item" id="profileLink">
@@ -1386,9 +1656,11 @@
             <div id="dashboardContent">
                 <!-- Welcome Section -->
                 <div class="welcome-section">
-                    <h2 class="welcome-title">Welcome, <span id="welcomeName">Mohamed</span>!</h2>
+                    <h2 class="welcome-title">Welcome, <span id="welcomeName">Mohamed</span>! Here's what's happening with your team today.</h2>
                     <div class="user-info">
-                        <div class="user-info-avatar" id="profileAvatar">ME</div>
+                        <div class="user-info-avatar" id="profileAvatar">
+                            <div class="initials">ME</div>
+                        </div>
                         <div class="user-info-details">
                             <div class="user-info-name">Mohamed Elmenisy</div>
                             <div class="user-info-title" id="userRoleTitle">Administrator</div>
@@ -1442,9 +1714,13 @@
                 <div class="activity-section">
                     <div class="section-header">
                         <h3 class="section-title">Recent Activity</h3>
+                        <div class="activity-actions">
+                            <button class="btn btn-outline" id="showAllActivities">Show All</button>
+                            <button class="btn btn-danger" id="deleteAllActivities">Delete All</button>
+                        </div>
                     </div>
                     <ul class="activity-list" id="activityList">
-                        <li class="activity-item">
+                        <li class="activity-item new">
                             <div class="activity-icon">
                                 <i class="fas fa-check-circle"></i>
                             </div>
@@ -1454,8 +1730,11 @@
                                 </div>
                                 <div class="activity-time">2 hours ago</div>
                             </div>
+                            <button class="activity-actions-btn" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </li>
-                        <li class="activity-item">
+                        <li class="activity-item new">
                             <div class="activity-icon">
                                 <i class="fas fa-comment-alt"></i>
                             </div>
@@ -1465,6 +1744,9 @@
                                 </div>
                                 <div class="activity-time">5 hours ago</div>
                             </div>
+                            <button class="activity-actions-btn" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </li>
                         <li class="activity-item">
                             <div class="activity-icon">
@@ -1476,6 +1758,9 @@
                                 </div>
                                 <div class="activity-time">Yesterday, 3:45 PM</div>
                             </div>
+                            <button class="activity-actions-btn" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </li>
                         <li class="activity-item">
                             <div class="activity-icon">
@@ -1487,6 +1772,9 @@
                                 </div>
                                 <div class="activity-time">Yesterday, 10:30 AM</div>
                             </div>
+                            <button class="activity-actions-btn" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </li>
                     </ul>
                 </div>
@@ -1496,7 +1784,23 @@
                 <div class="profile-header">
                     <h2 class="profile-title">Profile Settings</h2>
                 </div>
+                <div class="back-to-dashboard">
+                    <button class="btn btn-outline" id="backToDashboard">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </button>
+                </div>
                 <form class="profile-form" id="profileForm">
+                    <div class="profile-picture-upload">
+                        <div class="profile-picture-preview" id="profilePicturePreview">
+                            <div class="initials">ME</div>
+                        </div>
+                        <div class="upload-btn">
+                            <button type="button" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> Upload Photo
+                            </button>
+                            <input type="file" id="profilePictureInput" accept="image/*">
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label for="firstName">First Name</label>
                         <input type="text" id="firstName" class="form-control" value="Mohamed">
@@ -2193,7 +2497,9 @@
                 </div>
                 <div class="team-grid">
                     <div class="member-card">
-                        <div class="member-avatar">ME</div>
+                        <div class="member-avatar">
+                            <div class="initials">ME</div>
+                        </div>
                         <div class="member-name">Mohamed Elmenisy</div>
                         <div class="member-role">Administrator</div>
                         <div class="member-status active">Active</div>
@@ -2204,7 +2510,9 @@
                         </div>
                     </div>
                     <div class="member-card">
-                        <div class="member-avatar">SJ</div>
+                        <div class="member-avatar">
+                            <div class="initials">SJ</div>
+                        </div>
                         <div class="member-name">Sarah Johnson</div>
                         <div class="member-role">Project Manager</div>
                         <div class="member-status active">Active</div>
@@ -2215,7 +2523,9 @@
                         </div>
                     </div>
                     <div class="member-card">
-                        <div class="member-avatar">AR</div>
+                        <div class="member-avatar">
+                            <div class="initials">AR</div>
+                        </div>
                         <div class="member-name">Alex Rodriguez</div>
                         <div class="member-role">Frontend Developer</div>
                         <div class="member-status active">Active</div>
@@ -2226,7 +2536,9 @@
                         </div>
                     </div>
                     <div class="member-card">
-                        <div class="member-avatar">MK</div>
+                        <div class="member-avatar">
+                            <div class="initials">MK</div>
+                        </div>
                         <div class="member-name">Michael Kim</div>
                         <div class="member-role">Backend Developer</div>
                         <div class="member-status active">Active</div>
@@ -2237,7 +2549,9 @@
                         </div>
                     </div>
                     <div class="member-card">
-                        <div class="member-avatar">EC</div>
+                        <div class="member-avatar">
+                            <div class="initials">EC</div>
+                        </div>
                         <div class="member-name">Emily Chen</div>
                         <div class="member-role">UI/UX Designer</div>
                         <div class="member-status active">Active</div>
@@ -2248,7 +2562,9 @@
                         </div>
                     </div>
                     <div class="member-card">
-                        <div class="member-avatar">DW</div>
+                        <div class="member-avatar">
+                            <div class="initials">DW</div>
+                        </div>
                         <div class="member-name">David Wilson</div>
                         <div class="member-role">QA Engineer</div>
                         <div class="member-status inactive">Inactive</div>
@@ -2374,8 +2690,8 @@
                         </select>
                     </div>
                     <div class="form-actions">
-                        <button type="button" class="btn btn-outline">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-outline" id="cancelGeneralSettings">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="saveGeneralSettings">Save Changes</button>
                     </div>
                 </div>
                 <div class="settings-panel" id="notificationSettings">
@@ -2413,8 +2729,8 @@
                         </div>
                     </div>
                     <div class="form-actions">
-                        <button type="button" class="btn btn-outline">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-outline" id="cancelNotificationSettings">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="saveNotificationSettings">Save Changes</button>
                     </div>
                 </div>
                 <div class="settings-panel" id="integrationSettings">
@@ -2469,20 +2785,37 @@
                         </div>
                     </div>
                     <div class="form-actions">
-                        <button type="button" class="btn btn-outline">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-outline" id="cancelSecuritySettings">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="saveSecuritySettings">Save Changes</button>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- Confirmation Message -->
+    <div class="confirmation-message" id="confirmationMessage">
+        <i class="fas fa-check-circle"></i>
+        <span id="confirmationText">Changes saved successfully!</span>
+    </div>
+
+    <!-- Notification Sound -->
+    <audio id="notificationSound" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3" preload="auto"></audio>
+    <audio id="deleteSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3" preload="auto"></audio>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // DOM Elements
             const sidebar = document.getElementById('sidebar');
             const menuItems = document.querySelectorAll('.menu-item');
             const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
             const notificationIcon = document.getElementById('notificationIcon');
+            const notificationBadge = document.getElementById('notificationBadge');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const notificationList = document.getElementById('notificationList');
+            const markAllAsRead = document.getElementById('markAllAsRead');
+            const deleteAllNotifications = document.getElementById('deleteAllNotifications');
             const userAvatar = document.getElementById('userAvatar');
             const userName = document.getElementById('userName');
             const userEmail = document.getElementById('userEmail');
@@ -2491,6 +2824,10 @@
             const profileLink = document.getElementById('profileLink');
             const settingsLink = document.getElementById('settingsLink');
             const logoutLink = document.getElementById('logoutLink');
+            const backToDashboard = document.getElementById('backToDashboard');
+            const showAllActivities = document.getElementById('showAllActivities');
+            const deleteAllActivities = document.getElementById('deleteAllActivities');
+            const activityList = document.getElementById('activityList');
             
             // Content sections
             const dashboardContent = document.getElementById('dashboardContent');
@@ -2512,6 +2849,20 @@
             const settingsTabs = document.querySelectorAll('.settings-tab');
             const settingsPanels = document.querySelectorAll('.settings-panel');
             
+            // Profile form elements
+            const profileForm = document.getElementById('profileForm');
+            const profilePictureInput = document.getElementById('profilePictureInput');
+            const profilePicturePreview = document.getElementById('profilePicturePreview');
+            const cancelProfileBtn = document.getElementById('cancelProfileBtn');
+            
+            // Confirmation message
+            const confirmationMessage = document.getElementById('confirmationMessage');
+            const confirmationText = document.getElementById('confirmationText');
+            
+            // Notification sound
+            const notificationSound = document.getElementById('notificationSound');
+            const deleteSound = document.getElementById('deleteSound');
+            
             // Current user data
             let currentUser = {
                 id: 1,
@@ -2527,13 +2878,51 @@
                     tasksCompleted: 24,
                     activeProjects: 5,
                     upcomingDeadlines: 3
-                }
+                },
+                profilePicture: null
             };
+            
+            // Notifications data
+            let notifications = [
+                {
+                    id: 1,
+                    icon: 'fas fa-check-circle',
+                    message: 'Task "Dashboard Design" has been completed',
+                    time: '2 hours ago',
+                    read: false
+                },
+                {
+                    id: 2,
+                    icon: 'fas fa-comment-alt',
+                    message: 'Sarah Johnson commented on "Project Timeline"',
+                    time: '5 hours ago',
+                    read: false
+                },
+                {
+                    id: 3,
+                    icon: 'fas fa-tasks',
+                    message: 'New task assigned: "User Profile Page"',
+                    time: 'Yesterday, 3:45 PM',
+                    read: true
+                }
+            ];
+            
+            // Search data
+            const searchData = [
+                { name: 'Dashboard Redesign', type: 'Project', link: '#projects' },
+                { name: 'Mohamed Elmenisy', type: 'Team Member', link: '#team-members' },
+                { name: 'User Profile Page', type: 'Task', link: '#task-management' },
+                { name: 'Team Meeting', type: 'Event', link: '#team-calendar' },
+                { name: 'Project Proposal.pdf', type: 'File', link: '#file-sharing' }
+            ];
             
             // Initialize the dashboard
             function initDashboard() {
                 // Set user data
                 updateUserUI();
+                
+                // Load notifications
+                updateNotifications();
                 
                 // Set active feature based on URL hash or default to dashboard
                 const hash = window.location.hash.substring(1);
@@ -2542,6 +2931,9 @@
                 } else {
                     setActiveFeature('dashboard');
                 }
+                
+                // Initialize real-time updates
+                initRealTimeUpdates();
             }
             
             // Update user UI elements
@@ -2571,14 +2963,142 @@
                 document.getElementById('phone').value = currentUser.phone;
                 
                 // Set avatar
-                userAvatar.textContent = currentUser.initials || 'ME';
-                document.getElementById('profileAvatar').textContent = currentUser.initials || 'ME';
+                const initials = currentUser.initials || 'ME';
+                userAvatar.innerHTML = currentUser.profilePicture 
+                    ? `<img src="${currentUser.profilePicture}" alt="${currentUser.name}">` 
+                    : `<div class="initials">${initials}</div>`;
+                
+                document.getElementById('profileAvatar').innerHTML = currentUser.profilePicture 
+                    ? `<img src="${currentUser.profilePicture}" alt="${currentUser.name}">` 
+                    : `<div class="initials">${initials}</div>`;
+                
+                profilePicturePreview.innerHTML = currentUser.profilePicture 
+                    ? `<img src="${currentUser.profilePicture}" alt="${currentUser.name}">` 
+                    : `<div class="initials">${initials}</div>`;
                 
                 // Update stats
                 document.getElementById('teamMembersCount').textContent = currentUser.stats.teamMembers || 0;
                 document.getElementById('tasksCompleted').textContent = currentUser.stats.tasksCompleted || 0;
                 document.getElementById('activeProjects').textContent = currentUser.stats.activeProjects || 0;
                 document.getElementById('upcomingDeadlines').textContent = currentUser.stats.upcomingDeadlines || 0;
+            }
+            
+            // Update notifications
+            function updateNotifications() {
+                // Clear existing notifications
+                notificationList.innerHTML = '';
+                
+                // Update badge count
+                const unreadCount = notifications.filter(n => !n.read).length;
+                notificationBadge.textContent = unreadCount;
+                notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
+                
+                // Add notifications to dropdown
+                notifications.forEach(notification => {
+                    const notificationItem = document.createElement('li');
+                    notificationItem.className = `notification-item ${notification.read ? '' : 'unread'}`;
+                    notificationItem.innerHTML = `
+                        <div class="notification-icon">
+                            <i class="${notification.icon}"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-message">${notification.message}</div>
+                            <div class="notification-time">${notification.time}</div>
+                        </div>
+                        ${notification.read ? '' : '<div class="notification-dot"></div>'}
+                        <button class="notification-actions-item delete-notification" data-id="${notification.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    notificationList.appendChild(notificationItem);
+                });
+                
+                // Add event listeners to delete buttons
+                document.querySelectorAll('.delete-notification').forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const id = parseInt(this.getAttribute('data-id'));
+                        deleteNotification(id);
+                    });
+                });
+                
+                // Add click event to mark as read
+                document.querySelectorAll('.notification-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const id = parseInt(this.querySelector('.delete-notification').getAttribute('data-id'));
+                        markNotificationAsRead(id);
+                    });
+                });
+            }
+            
+            // Mark notification as read
+            function markNotificationAsRead(id) {
+                const notification = notifications.find(n => n.id === id);
+                if (notification && !notification.read) {
+                    notification.read = true;
+                    updateNotifications();
+                }
+            }
+            
+            // Mark all notifications as read
+            function markAllNotificationsAsRead() {
+                notifications.forEach(notification => {
+                    notification.read = true;
+                });
+                updateNotifications();
+            }
+            
+            // Delete notification
+            function deleteNotification(id) {
+                notifications = notifications.filter(n => n.id !== id);
+                updateNotifications();
+                playDeleteSound();
+                showConfirmation('Notification deleted successfully!');
+            }
+            
+            // Delete all notifications
+            function deleteAllNotifications() {
+                notifications = [];
+                updateNotifications();
+                playDeleteSound();
+                showConfirmation('All notifications deleted!');
+            }
+            
+            // Add new notification
+            function addNewNotification(icon, message) {
+                const newNotification = {
+                    id: notifications.length > 0 ? Math.max(...notifications.map(n => n.id)) + 1 : 1,
+                    icon: icon,
+                    message: message,
+                    time: 'Just now',
+                    read: false
+                };
+                
+                notifications.unshift(newNotification);
+                updateNotifications();
+                playNotificationSound();
+            }
+            
+            // Show confirmation message
+            function showConfirmation(message) {
+                confirmationText.textContent = message;
+                confirmationMessage.classList.add('show');
+                
+                setTimeout(() => {
+                    confirmationMessage.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Play notification sound
+            function playNotificationSound() {
+                notificationSound.currentTime = 0;
+                notificationSound.play().catch(e => console.log('Audio play failed:', e));
+            }
+            
+            // Play delete sound
+            function playDeleteSound() {
+                deleteSound.currentTime = 0;
+                deleteSound.play().catch(e => console.log('Audio play failed:', e));
             }
             
             // Set active feature and update URL
@@ -2655,6 +3175,95 @@
                 }
             }
             
+            // Handle search input
+            function handleSearchInput() {
+                const query = searchInput.value.trim().toLowerCase();
+                searchResults.innerHTML = '';
+                
+                if (query.length === 0) {
+                    searchResults.style.display = 'none';
+                    return;
+                }
+                
+                const results = searchData.filter(item => 
+                    item.name.toLowerCase().includes(query) || 
+                    item.type.toLowerCase().includes(query)
+                );
+                
+                if (results.length > 0) {
+                    results.forEach(result => {
+                        const resultItem = document.createElement('div');
+                        resultItem.className = 'search-result-item';
+                        resultItem.innerHTML = `
+                            <div><strong>${result.name}</strong></div>
+                            <small>${result.type}</small>
+                        `;
+                        resultItem.addEventListener('click', () => {
+                            window.location.href = result.link;
+                        });
+                        searchResults.appendChild(resultItem);
+                    });
+                    searchResults.style.display = 'block';
+                } else {
+                    searchResults.style.display = 'none';
+                }
+            }
+            
+            // Initialize real-time updates
+            function initRealTimeUpdates() {
+                // Simulate real-time updates for demo purposes
+                setInterval(() => {
+                    // Randomly update stats
+                    if (Math.random() > 0.7) {
+                        currentUser.stats.tasksCompleted += Math.floor(Math.random() * 3);
+                        currentUser.stats.teamMembers += Math.random() > 0.9 ? 1 : 0;
+                        currentUser.stats.activeProjects += Math.random() > 0.95 ? 1 : 0;
+                        updateUserUI();
+                    }
+                    
+                    // Randomly add new activity
+                    if (Math.random() > 0.8) {
+                        const activities = [
+                            { icon: 'fas fa-check-circle', message: 'Task "API Documentation" has been completed' },
+                            { icon: 'fas fa-comment-alt', message: 'Michael Kim commented on "Mobile App Design"' },
+                            { icon: 'fas fa-tasks', message: 'New task assigned: "Dark Mode Implementation"' },
+                            { icon: 'fas fa-user-plus', message: 'New team member added: ' + ['Lisa Wong', 'James Smith', 'Emma Davis'][Math.floor(Math.random() * 3)] }
+                        ];
+                        
+                        const activity = activities[Math.floor(Math.random() * activities.length)];
+                        const activityItem = document.createElement('li');
+                        activityItem.className = 'activity-item new';
+                        activityItem.innerHTML = `
+                            <div class="activity-icon">
+                                <i class="${activity.icon}"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-message">
+                                    ${activity.message}
+                                </div>
+                                <div class="activity-time">Just now</div>
+                            </div>
+                            <button class="activity-actions-btn" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        `;
+                        
+                        // Add delete functionality
+                        activityItem.querySelector('.activity-actions-btn').addEventListener('click', function() {
+                            activityItem.remove();
+                            playDeleteSound();
+                            showConfirmation('Activity deleted successfully!');
+                        });
+                        
+                        // Add to top of activity list
+                        activityList.insertBefore(activityItem, activityList.firstChild);
+                        
+                        // Add notification
+                        addNewNotification(activity.icon, activity.message);
+                    }
+                }, 10000); // Update every 10 seconds
+            }
+            
             // Handle menu item clicks
             menuItems.forEach(item => {
                 item.addEventListener('click', function(e) {
@@ -2667,10 +3276,12 @@
             // User dropdown
             userAvatar.addEventListener('click', function() {
                 userDropdown.classList.toggle('active');
+                notificationDropdown.classList.remove('active');
             });
             
             userName.addEventListener('click', function() {
                 userDropdown.classList.toggle('active');
+                notificationDropdown.classList.remove('active');
             });
             
             // Profile link
@@ -2694,8 +3305,63 @@
                 window.location.href = 'login.html';
             });
             
+            // Back to dashboard
+            backToDashboard.addEventListener('click', function() {
+                setActiveFeature('dashboard');
+            });
+            
+            // Notification icon
+            notificationIcon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                notificationDropdown.classList.toggle('active');
+                userDropdown.classList.remove('active');
+            });
+            
+            // Mark all as read
+            markAllAsRead.addEventListener('click', function(e) {
+                e.stopPropagation();
+                markAllNotificationsAsRead();
+            });
+            
+            // Delete all notifications
+            deleteAllNotifications.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (notifications.length > 0) {
+                    if (confirm('Are you sure you want to delete all notifications?')) {
+                        deleteAllNotifications();
+                    }
+                }
+            });
+            
+            // Show all activities
+            showAllActivities.addEventListener('click', function() {
+                document.querySelectorAll('.activity-item').forEach(item => {
+                    item.style.display = 'flex';
+                });
+            });
+            
+            // Delete all activities
+            deleteAllActivities.addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete all activities?')) {
+                    activityList.innerHTML = '';
+                    playDeleteSound();
+                    showConfirmation('All activities deleted!');
+                }
+            });
+            
+            // Activity delete buttons
+            document.querySelectorAll('.activity-actions-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (confirm('Are you sure you want to delete this activity?')) {
+                        this.closest('.activity-item').remove();
+                        playDeleteSound();
+                        showConfirmation('Activity deleted successfully!');
+                    }
+                });
+            });
+            
             // Profile form
-            document.getElementById('profileForm').addEventListener('submit', function(e) {
+            profileForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 // Update user data
                 currentUser.name = `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`;
@@ -2706,13 +3372,43 @@
                 // Update UI
                 updateUserUI();
                 
+                // Show confirmation
+                showConfirmation('Profile updated successfully!');
+                
+                // Go back to dashboard after a delay
+                setTimeout(() => {
+                    setActiveFeature('dashboard');
+                }, 1000);
+            });
+            
+            // Cancel profile changes
+            cancelProfileBtn.addEventListener('click', function() {
+                // Reset form values
+                document.getElementById('firstName').value = currentUser.name.split(' ')[0];
+                document.getElementById('lastName').value = currentUser.name.split(' ').slice(1).join(' ');
+                document.getElementById('jobTitle').value = currentUser.title;
+                document.getElementById('department').value = currentUser.department;
+                document.getElementById('phone').value = currentUser.phone;
+                
                 // Go back to dashboard
                 setActiveFeature('dashboard');
             });
             
-            document.getElementById('cancelProfileBtn').addEventListener('click', function() {
-                // Go back to dashboard
-                setActiveFeature('dashboard');
+            // Profile picture upload
+            profilePictureInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        currentUser.profilePicture = event.target.result;
+                        
+                        // Update all profile picture previews
+                        document.querySelectorAll('.user-avatar, .user-info-avatar, .profile-picture-preview').forEach(el => {
+                            el.innerHTML = `<img src="${event.target.result}" alt="${currentUser.name}">`;
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
             });
             
             // Settings tabs
@@ -2730,10 +3426,55 @@
                 });
             });
             
-            // Close dropdown when clicking outside
+            // Save settings buttons
+            document.getElementById('saveGeneralSettings').addEventListener('click', function() {
+                showConfirmation('General settings saved successfully!');
+            });
+            
+            document.getElementById('saveNotificationSettings').addEventListener('click', function() {
+                showConfirmation('Notification settings saved successfully!');
+            });
+            
+            document.getElementById('saveSecuritySettings').addEventListener('click', function() {
+                showConfirmation('Security settings saved successfully!');
+            });
+            
+            // Cancel settings buttons
+            document.getElementById('cancelGeneralSettings').addEventListener('click', function() {
+                // Reset form values or implement cancel logic
+                setActiveFeature('dashboard');
+            });
+            
+            document.getElementById('cancelNotificationSettings').addEventListener('click', function() {
+                // Reset form values or implement cancel logic
+                setActiveFeature('dashboard');
+            });
+            
+            document.getElementById('cancelSecuritySettings').addEventListener('click', function() {
+                // Reset form values or implement cancel logic
+                setActiveFeature('dashboard');
+            });
+            
+            // Search input
+            searchInput.addEventListener('input', handleSearchInput);
+            searchInput.addEventListener('focus', function() {
+                if (searchInput.value.trim().length > 0) {
+                    handleSearchInput();
+                }
+            });
+            
+            // Close dropdowns when clicking outside
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.user-profile') && !e.target.closest('.user-dropdown')) {
                     userDropdown.classList.remove('active');
+                }
+                
+                if (!e.target.closest('.notification-icon') && !e.target.closest('.notification-dropdown')) {
+                    notificationDropdown.classList.remove('active');
+                }
+                
+                if (!e.target.closest('.search-bar')) {
+                    searchResults.style.display = 'none';
                 }
             });
             
