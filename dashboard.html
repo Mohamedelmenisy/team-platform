@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,6 +27,7 @@
             --sidebar-active: rgba(255,255,255,0.2);
             --sidebar-divider: rgba(255,255,255,0.1);
             --success: #10b981; /* Secondary */
+            --info: #3b82f6; /* Different Blue */
             --file-blue: #3b82f6;
             --file-green: #10b981;
             --file-purple: #8b5cf6;
@@ -354,28 +356,19 @@
             display: block;
         }
         .welcome-section {
-            background-color: var(--primary);
+            /* UPDATED Background */
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 70%, var(--info) 100%);
             color: var(--white);
             padding: 2rem;
             border-radius: 8px;
             margin-bottom: 2rem;
-            position: relative; /* For potential background elements */
-            overflow: hidden; /* Keep pseudo-elements contained */
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2); /* Subtle shadow */
         }
-        /* Optional: Subtle background pattern */
-        .welcome-section::before {
-             content: '';
-             position: absolute;
-             top: 0;
-             left: 0;
-             right: 0;
-             bottom: 0;
-             background-image: linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.05) 75%, transparent 75%, transparent);
-             background-size: 30px 30px;
-             opacity: 0.5;
-             z-index: 0;
-        }
-         .welcome-section > * { /* Ensure content is above pseudo-element */
+
+        /* Removed old ::before pattern */
+        .welcome-section > * { /* Ensure content is above pseudo-element */
             position: relative;
             z-index: 1;
         }
@@ -393,14 +386,13 @@
             display: flex;
             align-items: center;
             gap: 1.5rem;
-            /* margin-top: 1.5rem; */ /* Removed margin-top */
         }
         .user-info-avatar {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background-color: var(--primary-light);
-            color: var(--primary);
+            background-color: var(--primary-light); /* Kept light contrast for avatar bg */
+            color: var(--primary-dark); /* Darker text on light bg */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -422,7 +414,7 @@
             transform: translate(-50%, -50%);
             font-size: 1.75rem;
             font-weight: bold;
-            color: var(--primary-dark);
+            color: var(--primary-dark); /* Ensure contrast */
         }
         .user-info-details {
             flex: 1;
@@ -437,8 +429,9 @@
             opacity: 0.9;
             font-size: 0.9rem;
             margin-bottom: 0.5rem;
-            color: var(--danger); /* CHANGED: Role color to red */
-            font-weight: 600; /* CHANGED: Made bold */
+            /* CHANGED BACK - Role color to light yellow for better contrast on dark blue */
+            color: #fef9c3; /* Light Yellow */
+            font-weight: 600; /* Made bold */
         }
         .user-info-email {
             display: flex;
@@ -456,13 +449,15 @@
             margin-bottom: 2rem;
         }
         .stat-card {
-            background: linear-gradient(135deg, var(--white) 0%, var(--light) 100%); /* Subtle gradient */
+             /* UPDATED Gradient */
+            background: linear-gradient(145deg, var(--white) 0%, #f0f9ff 100%); /* Lighter blueish gradient */
             border-radius: 8px;
             padding: 1.5rem;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08); /* Slightly enhanced shadow */
             position: relative; /* For trend icon positioning */
              transition: transform 0.2s ease, box-shadow 0.2s ease;
              overflow: hidden;
+             border-left: 4px solid var(--primary); /* Accent border */
         }
          .stat-card:hover {
             transform: translateY(-3px);
@@ -477,7 +472,7 @@
             gap: 0.5rem;
         }
         .stat-title i {
-            color: var(--primary);
+            color: var(--primary); /* Keep icon color */
         }
         .stat-value {
             font-size: 1.75rem;
@@ -544,13 +539,14 @@
             padding: 1rem 0;
             border-bottom: 1px solid var(--light-gray);
             align-items: center;
-            position: relative;
+            position: relative; /* Needed for inline confirm */
         }
         .activity-item:last-child {
             border-bottom: none;
         }
         .activity-item.new {
             background-color: rgba(16, 185, 129, 0.05);
+            transition: background-color 0.5s ease;
         }
         .activity-icon {
             width: 40px;
@@ -565,8 +561,6 @@
             position: relative;
             flex-shrink: 0;
         }
-        /* REMOVED: Green dot
-        .activity-icon::after { ... } */
         .activity-content {
             flex: 1;
             min-width: 0;
@@ -580,6 +574,10 @@
             font-size: 0.8rem;
             color: var(--gray);
         }
+        .activity-actions-wrapper { /* Wrapper for button and potential confirm */
+            position: relative;
+            margin-left: 0.5rem;
+        }
         .activity-actions-btn {
             background: none;
             border: none;
@@ -587,14 +585,50 @@
             cursor: pointer;
             padding: 0.5rem;
             border-radius: 4px;
-            margin-left: 0.5rem;
         }
         .activity-actions-btn:hover {
             background-color: var(--light-gray);
         }
-        .back-to-dashboard {
-            margin-bottom: 1rem;
+
+        /* NEW: Inline Confirmation Box Styles */
+        .inline-confirm {
+            position: absolute;
+            right: 100%; /* Position to the left of the button wrapper */
+            top: 50%;
+            transform: translateY(-50%) translateX(-10px); /* Adjust spacing */
+            background-color: var(--dark);
+            color: var(--white);
+            padding: 0.75rem;
+            border-radius: 6px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 10; /* Ensure it's above list items */
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
         }
+        .inline-confirm.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .inline-confirm span {
+             font-size: 0.85rem;
+        }
+        .inline-confirm .btn {
+            padding: 0.3rem 0.6rem; /* Smaller buttons */
+            font-size: 0.75rem;
+            min-width: 60px; /* Ensure minimum width */
+        }
+
+        /* Back to Dashboard Button */
+        .back-to-dashboard {
+            margin-bottom: 1.5rem; /* More space */
+            display: block; /* Ensure it takes space */
+        }
+
         /* Profile Content Specific Styles */
         #profileContent {
             background-color: var(--white);
@@ -606,7 +640,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem; /* Adjusted margin */
         }
         .profile-title {
             font-size: 1.5rem;
@@ -646,6 +680,8 @@
             justify-content: flex-end;
             gap: 1rem;
             margin-top: 1rem;
+            padding-top: 1.5rem; /* Add padding above buttons */
+            border-top: 1px solid var(--light-gray); /* Add separator line */
         }
         .btn {
             padding: 0.75rem 1.5rem;
@@ -696,6 +732,22 @@
         .btn-danger:hover {
             background-color: #dc2626;
         }
+         .btn-confirm { /* Style for confirmation confirm button */
+             background-color: var(--danger);
+             color: white;
+             border: 1px solid var(--danger);
+         }
+         .btn-confirm:hover {
+             background-color: #dc2626;
+         }
+         .btn-cancel { /* Style for confirmation cancel button */
+             background-color: var(--gray);
+             color: white;
+             border: 1px solid var(--gray);
+         }
+         .btn-cancel:hover {
+              background-color: var(--dark);
+         }
         .profile-picture-upload {
             display: flex;
             align-items: center;
@@ -815,7 +867,7 @@
             border-bottom: 1px solid var(--light-gray);
             display: flex;
             gap: 1rem;
-            position: relative;
+            position: relative; /* Needed for dot, actions, confirm */
             cursor: pointer;
         }
         .notification-item:last-child {
@@ -877,6 +929,7 @@
             border: none;
             opacity: 0;
             transition: background-color 0.2s, opacity 0.2s;
+            z-index: 5; /* Above hover background */
         }
         .notification-item:hover .notification-actions-item {
              opacity: 1;
@@ -884,6 +937,13 @@
         }
         .notification-actions-item i {
             font-size: 0.8rem;
+        }
+        .notification-item .inline-confirm { /* Adjust position for notification items */
+             right: 35px; /* Position next to the action button */
+             top: 0.5rem;
+             transform: translateY(0) translateX(10px); /* Adjust for right positioning */
+             /* Ensure it's on top */
+             z-index: 11;
         }
 
         /* Task Management Styles */
@@ -1289,6 +1349,7 @@
             color: var(--gray);
             cursor: pointer;
             transition: all 0.2s ease;
+            text-decoration: none; /* Ensure links look like buttons */
         }
         .contact-btn:hover {
             background-color: var(--primary);
@@ -1352,6 +1413,13 @@
             margin-bottom: 1rem;
             line-height: 1.5;
         }
+         /* NEW: Style for default/recommended text */
+         .settings-default-info {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+            font-style: italic;
+         }
         .toggle-switch {
             position: relative;
             display: inline-block;
@@ -1485,6 +1553,24 @@
          .danger-zone .btn-outline:hover {
              background-color: #fee2e2; /* Light red */
          }
+        .browser-notification-status { /* Style for browser notification status */
+            font-size: 0.9rem;
+            color: var(--warning);
+            font-weight: 500;
+            margin-left: auto; /* Push to the right */
+            align-self: center;
+        }
+        .mobile-notification-example { /* Style for mobile example */
+            background-color: var(--light);
+            border: 1px dashed var(--light-gray);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 0.5rem;
+            font-style: italic;
+            color: var(--gray);
+            text-align: center;
+            font-size: 0.9rem;
+        }
 
 
         /* Placeholder Styles for other sections */
@@ -1612,6 +1698,16 @@
             .user-name span:not(.user-status) { /* Hide full name text on mobile */
                  display: none;
             }
+             .inline-confirm { /* Adjust confirm box position on smaller screens */
+                 right: auto;
+                 left: 100%;
+                 transform: translateY(-50%) translateX(10px);
+             }
+             .notification-item .inline-confirm {
+                 right: auto;
+                 left: auto; /* Let it be positioned relative to button */
+                 transform: translateY(-50%) translateX(-10px); /* Back to left */
+             }
         }
         @media (max-width: 768px) {
              .top-nav {
@@ -1693,6 +1789,19 @@
              .appearance-options {
                  flex-direction: column; /* Stack appearance options */
              }
+             .inline-confirm { /* Make confirm box appear above on mobile */
+                left: 50%;
+                top: auto;
+                bottom: 110%; /* Position above the button */
+                transform: translateX(-50%) translateY(-5px);
+             }
+             .notification-item .inline-confirm {
+                left: 50%;
+                top: auto;
+                bottom: 100%;
+                transform: translateX(-50%) translateY(-5px);
+                right: auto;
+             }
         }
         @media (max-width: 480px) {
             .stats-section {
@@ -1752,6 +1861,13 @@
              }
              .stat-trend-icon {
                  font-size: 1rem;
+             }
+             .inline-confirm {
+                 width: 90%; /* Make it wider on very small screens */
+                 justify-content: center;
+             }
+             .inline-confirm span {
+                 display: none; /* Hide text to save space */
              }
         }
     </style>
@@ -1860,15 +1976,7 @@
                         </div>
                         <ul class="notification-list" id="notificationList">
                             <!-- Notifications will be added here dynamically -->
-                             <li class="notification-item unread" data-id="0"> <!-- Add data-id -->
-                                 <div class="notification-icon"><i class="fas fa-info-circle"></i></div>
-                                 <div class="notification-content">
-                                     <div class="notification-message">Welcome to TeamFlow! Explore the features.</div>
-                                     <div class="notification-time" data-timestamp="0">Just now</div> <!-- Added timestamp -->
-                                 </div>
-                                 <div class="notification-dot"></div>
-                                 <button class="notification-actions-item delete-notification"><i class="fas fa-times"></i></button> <!-- No data-id needed here -->
-                             </li>
+                             <!-- Initial welcome notification removed, will be added by JS if list is empty -->
                         </ul>
                     </div>
                 </div>
@@ -1905,14 +2013,14 @@
                 <!-- Welcome Section -->
                 <div class="welcome-section">
                     <h2 class="welcome-title">Welcome, <span id="welcomeName">Mohamed</span>!</h2>
-                    <p class="welcome-subtitle">Here's what's happening with your team today.</p> <!-- Moved subtitle -->
+                    <p class="welcome-subtitle">Here's what's happening with your team today.</p>
                     <div class="user-info">
                         <div class="user-info-avatar" id="profileAvatar">
                             <div class="initials">ME</div>
                         </div>
                         <div class="user-info-details">
-                            <!-- Removed duplicate name, JS will populate -->
-                            <div class="user-info-name"></div>
+                            <!-- REMOVED duplicate name here -->
+                            <div class="user-info-name"></div> <!-- Populated by JS -->
                             <div class="user-info-title" id="userRoleTitle">Administrator</div>
                             <div class="user-info-email">
                                 <i class="fas fa-envelope"></i>
@@ -1929,8 +2037,8 @@
                             Team Members
                         </div>
                         <div class="stat-value">
-                            <span id="teamMembersCount">12</span>
-                            <i class="fas fa-minus stat-trend-icon trend-neutral"></i> <!-- Added Trend Icon -->
+                            <span id="teamMembersCount">0</span> <!-- Start at 0 -->
+                            <i class="fas fa-minus stat-trend-icon trend-neutral"></i>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -1939,8 +2047,8 @@
                             Tasks Completed
                         </div>
                         <div class="stat-value">
-                            <span id="tasksCompleted">24</span>
-                             <i class="fas fa-arrow-up stat-trend-icon trend-up"></i> <!-- Added Trend Icon -->
+                            <span id="tasksCompleted">0</span> <!-- Start at 0 -->
+                             <i class="fas fa-minus stat-trend-icon trend-neutral"></i>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -1949,8 +2057,8 @@
                             Active Projects
                         </div>
                         <div class="stat-value">
-                            <span id="activeProjects">5</span>
-                             <i class="fas fa-minus stat-trend-icon trend-neutral"></i> <!-- Added Trend Icon -->
+                            <span id="activeProjects">0</span> <!-- Start at 0 -->
+                             <i class="fas fa-minus stat-trend-icon trend-neutral"></i>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -1959,41 +2067,40 @@
                             Upcoming Deadlines
                         </div>
                         <div class="stat-value">
-                            <span id="upcomingDeadlines">3</span>
-                             <i class="fas fa-arrow-down stat-trend-icon trend-down"></i> <!-- Added Trend Icon -->
+                            <span id="upcomingDeadlines">0</span> <!-- Start at 0 -->
+                             <i class="fas fa-minus stat-trend-icon trend-neutral"></i>
                         </div>
                     </div>
                 </div>
                 <!-- Activity Section -->
                 <div class="activity-section">
                     <div class="section-header">
-                        <h3 class="section-title">Recent Activity <span class="live-indicator">Live</span></h3> <!-- Added Live indicator -->
+                        <h3 class="section-title">Recent Activity <span class="live-indicator">Live</span></h3>
                         <div class="activity-actions">
                             <button class="btn btn-outline btn-sm" id="showAllActivities">Show All</button>
                             <button class="btn btn-danger btn-sm" id="deleteAllActivities">Delete All</button>
                         </div>
                     </div>
                     <ul class="activity-list" id="activityList">
-                        <!-- Removed static items, JS will populate -->
+                        <!-- Activity items loaded by JS -->
                     </ul>
                 </div>
             </div>
 
             <!-- Profile Content -->
             <div id="profileContent">
+                 <div class="back-to-dashboard">
+                    <a href="#dashboard" class="btn btn-outline btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
                 <div class="profile-header">
                     <h2 class="profile-title">My Profile</h2>
                     <span class="settings-section-description" style="margin-bottom: 0;">Your personal information and account security settings.</span>
                 </div>
-                <div class="back-to-dashboard">
-                    <a href="#dashboard" class="btn btn-outline btn-sm"> <!-- Use link for navigation -->
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
-                </div>
                 <form class="profile-form" id="profileForm">
                      <div class="profile-picture-upload">
                         <div class="profile-picture-preview" id="profilePicturePreview">
-                            <!-- Image or initials added by JS -->
                             <div class="initials">ME</div>
                         </div>
                         <div class="upload-btn">
@@ -2027,7 +2134,6 @@
                         <label for="phone">Phone</label>
                         <input type="tel" id="phone" class="form-control" value="+201234567890">
                     </div>
-                    <!-- Moved Password & 2FA to Security Settings -->
                     <div class="form-actions">
                         <a href="#dashboard" class="btn btn-secondary" id="cancelProfileLink">Cancel</a>
                         <button type="submit" class="btn btn-primary">Save Profile Changes</button>
@@ -2037,6 +2143,11 @@
 
             <!-- Task Management Content -->
             <div id="taskManagementContent">
+                 <div class="back-to-dashboard">
+                    <a href="#dashboard" class="btn btn-outline btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
                 <div class="section-header">
                     <h2 class="section-title">Task Management</h2>
                     <button class="btn btn-primary">
@@ -2142,6 +2253,11 @@
 
             <!-- Employee Scheduling Content -->
             <div id="schedulingContent">
+                 <div class="back-to-dashboard">
+                    <a href="#dashboard" class="btn btn-outline btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
                  <div class="section-header">
                     <h2 class="section-title">Employee Scheduling</h2>
                     <button class="btn btn-primary">
@@ -2155,6 +2271,11 @@
 
             <!-- Team Calendar Content -->
             <div id="calendarContent">
+                 <div class="back-to-dashboard">
+                    <a href="#dashboard" class="btn btn-outline btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
                 <div class="calendar-header">
                     <div class="calendar-nav">
                         <button class="btn btn-outline btn-sm"><i class="fas fa-chevron-left"></i></button>
@@ -2218,6 +2339,11 @@
 
             <!-- File Sharing Content -->
             <div id="filesContent">
+                 <div class="back-to-dashboard">
+                    <a href="#dashboard" class="btn btn-outline btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
                 <div class="section-header">
                     <h2 class="section-title">File Sharing</h2>
                     <div class="file-actions" style="display: flex; gap: 1rem; align-items:center;"> <!-- Inline style for demo -->
@@ -2244,6 +2370,11 @@
 
             <!-- Data Management Content -->
             <div id="dataContent">
+                 <div class="back-to-dashboard">
+                    <a href="#dashboard" class="btn btn-outline btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
                  <div class="section-header">
                     <h2 class="section-title">Data Management</h2>
                      <div class="search-bar" style="width: auto; min-width: 300px;">
@@ -2267,6 +2398,11 @@
 
              <!-- Projects Content -->
             <div id="projectsContent">
+                 <div class="back-to-dashboard">
+                    <a href="#dashboard" class="btn btn-outline btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
                 <div class="section-header">
                     <h2 class="section-title">Projects</h2>
                     <button class="btn btn-primary btn-sm">
@@ -2303,6 +2439,11 @@
 
             <!-- Project Tracking Content -->
             <div id="trackingContent">
+                 <div class="back-to-dashboard">
+                    <a href="#dashboard" class="btn btn-outline btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
                  <div class="section-header">
                      <h2 class="section-title">Project Tracking</h2>
                       <div class="filter-group">
@@ -2325,6 +2466,11 @@
 
             <!-- Deadline Tracking Content -->
             <div id="deadlineContent">
+                 <div class="back-to-dashboard">
+                    <a href="#dashboard" class="btn btn-outline btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
                 <div class="section-header">
                     <h2 class="section-title">Deadline Tracking</h2>
                      <div class="filter-group">
@@ -2348,6 +2494,11 @@
 
             <!-- Team Members Content -->
             <div id="teamContent">
+                 <div class="back-to-dashboard">
+                    <a href="#dashboard" class="btn btn-outline btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
                  <div class="section-header">
                     <h2 class="section-title">Team Members</h2>
                     <button class="btn btn-primary btn-sm">
@@ -2366,6 +2517,11 @@
 
             <!-- Reports & Analytics Content -->
             <div id="reportsContent">
+                 <div class="back-to-dashboard">
+                    <a href="#dashboard" class="btn btn-outline btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
                  <div class="section-header">
                     <h2 class="section-title">Reports & Analytics</h2>
                      <div class="time-filters" style="margin-left: auto; display: flex; gap: 0.5rem;"> <!-- Move filters right -->
@@ -2382,6 +2538,11 @@
 
             <!-- Innovation Hub Content -->
             <div id="innovationContent">
+                 <div class="back-to-dashboard">
+                    <a href="#dashboard" class="btn btn-outline btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
                  <div class="section-header">
                     <h2 class="section-title">Innovation Hub</h2>
                     <button class="btn btn-primary btn-sm">
@@ -2396,6 +2557,11 @@
 
             <!-- Settings Content -->
             <div id="settingsContent">
+                 <div class="back-to-dashboard">
+                    <a href="#dashboard" class="btn btn-outline btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
                 <div class="settings-tabs">
                     <div class="settings-tab active" data-tab="general">My Settings</div>
                     <div class="settings-tab" data-tab="notifications">Notifications</div>
@@ -2540,19 +2706,35 @@
                              <h3 class="settings-section-title">Inbox Notifications</h3>
                              <p class="settings-section-description">Control which updates appear in your TeamFlow inbox (top-right bell icon).</p>
                               <div class="settings-item">
-                                <div class="settings-info"><div class="settings-title">Task Assignments</div><div class="settings-description">Notify me when I'm assigned a new task.</div></div>
+                                <div class="settings-info">
+                                    <div class="settings-title">Task Assignments</div>
+                                    <div class="settings-description">Notify me when I'm assigned a new task.</div>
+                                    <div class="settings-default-info">Default: ON (Recommended)</div>
+                                </div>
                                 <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
                             </div>
                              <div class="settings-item">
-                                <div class="settings-info"><div class="settings-title">Comments & Mentions</div><div class="settings-description">Notify me when someone mentions me or comments on tasks I follow.</div></div>
+                                <div class="settings-info">
+                                    <div class="settings-title">Comments & Mentions</div>
+                                    <div class="settings-description">Notify me when someone mentions me or comments on tasks I follow.</div>
+                                     <div class="settings-default-info">Default: ON (Recommended)</div>
+                                </div>
                                 <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
                             </div>
                             <div class="settings-item">
-                                <div class="settings-info"><div class="settings-title">Task Status Changes</div><div class="settings-description">Notify me when the status of a task I follow changes.</div></div>
+                                <div class="settings-info">
+                                    <div class="settings-title">Task Status Changes</div>
+                                    <div class="settings-description">Notify me when the status of a task I follow changes.</div>
+                                    <div class="settings-default-info">Default: OFF</div>
+                                </div>
                                 <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
                             </div>
                              <div class="settings-item">
-                                <div class="settings-info"><div class="settings-title">Upcoming Deadlines</div><div class="settings-description">Remind me about tasks due soon.</div></div>
+                                <div class="settings-info">
+                                    <div class="settings-title">Upcoming Deadlines</div>
+                                    <div class="settings-description">Remind me about tasks due soon.</div>
+                                    <div class="settings-default-info">Default: ON (Recommended)</div>
+                                </div>
                                 <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
                             </div>
                          </div>
@@ -2561,15 +2743,27 @@
                              <h3 class="settings-section-title">Email Notifications</h3>
                              <p class="settings-section-description">Choose which notifications you want to receive via email.</p>
                               <div class="settings-item">
-                                <div class="settings-info"><div class="settings-title">Daily Summary</div><div class="settings-description">Receive a daily digest of your tasks and notifications.</div></div>
+                                <div class="settings-info">
+                                    <div class="settings-title">Daily Summary</div>
+                                    <div class="settings-description">Receive a daily digest of your tasks and notifications.</div>
+                                    <div class="settings-default-info">Default: ON</div>
+                                </div>
                                 <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
                             </div>
                             <div class="settings-item">
-                                <div class="settings-info"><div class="settings-title">Mentions & Direct Messages</div><div class="settings-description">Send an email immediately when someone mentions you or sends a direct message.</div></div>
-                                <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
+                                <div class="settings-info">
+                                    <div class="settings-title">Mentions & Direct Messages</div>
+                                    <div class="settings-description">Send an email immediately when someone mentions you or sends a direct message.</div>
+                                    <div class="settings-default-info">Default: ON (Recommended)</div>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
                             </div>
                              <div class="settings-item">
-                                <div class="settings-info"><div class="settings-title">Project Updates</div><div class="settings-description">Email for important project updates (e.g., new members, status changes).</div></div>
+                                <div class="settings-info">
+                                    <div class="settings-title">Project Updates</div>
+                                    <div class="settings-description">Email for important project updates (e.g., new members, status changes).</div>
+                                    <div class="settings-default-info">Default: OFF</div>
+                                </div>
                                 <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
                              </div>
                          </div>
@@ -2578,9 +2772,13 @@
                              <h3 class="settings-section-title">Browser Notifications</h3>
                              <p class="settings-section-description">Receive push notifications directly in your web browser (requires browser permission).</p>
                               <div class="settings-item">
-                                <div class="settings-info"><div class="settings-title">Enable Browser Notifications</div><div class="settings-description">Allows TeamFlow to send notifications via your browser.</div></div>
-                                <button type="button" class="btn btn-outline btn-sm" id="enableBrowserNotifications">Enable Notifications</button>
-                                <!-- JS would change this button state -->
+                                <div class="settings-info">
+                                    <div class="settings-title">Enable Browser Notifications</div>
+                                    <div class="settings-description">Allows TeamFlow to send notifications via your browser.</div>
+                                </div>
+                                <!-- Status indicator added -->
+                                <span class="browser-notification-status" id="browserNotificationStatus">Notifications are disabled</span>
+                                <button type="button" class="btn btn-outline btn-sm" id="enableBrowserNotifications">Enable</button>
                             </div>
                          </div>
 
@@ -2588,13 +2786,25 @@
                              <h3 class="settings-section-title">Mobile Push Notifications</h3>
                              <p class="settings-section-description">Control notifications sent to the TeamFlow mobile app.</p>
                              <div class="settings-item">
-                                <div class="settings-info"><div class="settings-title">All Inbox Notifications</div><div class="settings-description">Mirror your inbox notifications on mobile.</div></div>
+                                <div class="settings-info">
+                                    <div class="settings-title">All Inbox Notifications</div>
+                                    <div class="settings-description">Mirror your inbox notifications on mobile.</div>
+                                    <div class="settings-default-info">Default: ON (Recommended)</div>
+                                </div>
                                 <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
                             </div>
                               <div class="settings-item">
-                                <div class="settings-info"><div class="settings-title">Only Mentions & Direct Messages</div><div class="settings-description">Only receive push notifications for direct interactions.</div></div>
+                                <div class="settings-info">
+                                    <div class="settings-title">Only Mentions & Direct Messages</div>
+                                    <div class="settings-description">Only receive push notifications for direct interactions.</div>
+                                     <div class="settings-default-info">Default: OFF</div>
+                                </div>
                                 <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
                             </div>
+                             <!-- Example Mobile Notification Placeholder -->
+                             <div class="mobile-notification-example">
+                                 <i class="fas fa-mobile-alt"></i> Example: "[User Name] mentioned you in [Task Name]"
+                             </div>
                          </div>
 
                          <div class="form-actions" style="grid-column: span 1; justify-content: flex-start; padding-top: 1rem; border-top: 1px solid var(--light-gray);">
@@ -2612,7 +2822,7 @@
                              <div class="settings-item">
                                 <div class="settings-info">
                                     <div class="settings-title"><i class="fab fa-slack" style="color: #E01E5A; margin-right: 0.5rem;"></i>Slack</div>
-                                    <div class="settings-description">Sync activity, get notifications, and create tasks directly from Slack.</div>
+                                    <div class="settings-description">Sync activity that occurs in Spaces, Folders, or Lists to Slack channels of your choice. Get notifications, create tasks, and more directly from Slack.</div>
                                 </div>
                                 <button type="button" class="btn btn-primary btn-sm">Connect Account</button>
                              </div>
@@ -2652,6 +2862,7 @@
                                 <div class="settings-info">
                                     <div class="settings-title">Auto watch tasks I am involved in</div>
                                     <div class="settings-description">Automatically follow tasks when you create, edit, or comment on them.</div>
+                                     <div class="settings-default-info">Default: ON (Recommended)</div>
                                 </div>
                                 <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
                             </div>
@@ -2810,6 +3021,10 @@
             const openSidebarBtn = document.querySelector('.open-sidebar');
             const closeSidebarBtn = document.querySelector('.close-sidebar');
 
+             // Settings elements for Browser Notifications
+             const enableBrowserNotificationsBtn = document.getElementById('enableBrowserNotifications');
+             const browserNotificationStatus = document.getElementById('browserNotificationStatus');
+
             // --- Data ---
             let currentUser = {
                 id: 1,
@@ -2820,7 +3035,7 @@
                 department: 'Management',
                 phone: '+201234567890',
                 role: 'admin', // 'admin' or 'member'
-                stats: {
+                stats: { // Start stats from values that can be loaded or default to 0
                     teamMembers: 12,
                     tasksCompleted: 24,
                     activeProjects: 5,
@@ -2829,23 +3044,43 @@
                 profilePicture: null // URL or null
             };
             // Store previous stats for trend calculation
-            let previousStats = { ...currentUser.stats };
+            let previousStats = { teamMembers: 0, tasksCompleted: 0, activeProjects: 0, upcomingDeadlines: 0 }; // Initialize previous differently
 
+            // --- Data Loading/Initialization ---
+            // Load activities from localStorage or use defaults
+            let activities = JSON.parse(localStorage.getItem('teamflowActivities')) || [
+                // Provide some initial defaults if localStorage is empty
+                { id: 1, icon: 'fas fa-check-circle', message: '<strong>You</strong> completed the task <strong>Dashboard Design</strong>', time: '2 hours ago', timestamp: Date.now() - 2 * 60 * 60 * 1000 },
+                { id: 2, icon: 'fas fa-comment-alt', message: '<strong>Sarah Johnson</strong> commented on <strong>Project Timeline</strong>', time: '5 hours ago', timestamp: Date.now() - 5 * 60 * 60 * 1000 },
+            ];
 
-            let notifications = [
-                 { id: 0, icon: 'fas fa-info-circle', message: 'Welcome to TeamFlow! Explore the features.', time: 'Just now', read: false, timestamp: Date.now() },
+            // Load notifications similarly (optional persistence for notifications)
+             let notifications = JSON.parse(localStorage.getItem('teamflowNotifications')) || [
                  { id: 1, icon: 'fas fa-check-circle', message: 'Task "Dashboard Design" completed by You', time: '2 hours ago', read: false, timestamp: Date.now() - 2 * 60 * 60 * 1000 },
                  { id: 2, icon: 'fas fa-comment-alt', message: 'Sarah Johnson commented on "Project Timeline"', time: '5 hours ago', read: false, timestamp: Date.now() - 5 * 60 * 60 * 1000 },
                  { id: 3, icon: 'fas fa-tasks', message: 'New task assigned: "Profile Page Implementation"', time: 'Yesterday', read: true, timestamp: Date.now() - 24 * 60 * 60 * 1000 },
                  { id: 4, icon: 'fas fa-user-plus', message: 'Alex Rodriguez joined the team', time: '2 days ago', read: true, timestamp: Date.now() - 2 * 24 * 60 * 60 * 1000 }
             ];
+             // Add initial welcome message if no notifications exist after load
+            if (notifications.length === 0) {
+                notifications.push({ id: 0, icon: 'fas fa-info-circle', message: 'Welcome to TeamFlow! Explore the features.', time: 'Just now', read: false, timestamp: Date.now() });
+            }
 
-            let activities = [ // Initial set of activities for display
-                { id: 1, icon: 'fas fa-check-circle', message: '<strong>You</strong> completed the task <strong>Dashboard Design</strong>', time: '2 hours ago', timestamp: Date.now() - 2 * 60 * 60 * 1000 },
-                { id: 2, icon: 'fas fa-comment-alt', message: '<strong>Sarah Johnson</strong> commented on <strong>Project Timeline</strong>', time: '5 hours ago', timestamp: Date.now() - 5 * 60 * 60 * 1000 },
-                { id: 3, icon: 'fas fa-tasks', message: '<strong>New task</strong> assigned to you: <strong>User Profile Page</strong>', time: 'Yesterday', timestamp: Date.now() - 24 * 60 * 60 * 1000 },
-                { id: 4, icon: 'fas fa-user-plus', message: '<strong>New team member</strong> added: <strong>Alex Rodriguez</strong>', time: 'Yesterday', timestamp: Date.now() - 24 * 60 * 60 * 1000 - (2*60*60*1000) }, // Slightly different time yesterday
-            ];
+            // Load user data (example: could load from localStorage too)
+            // For simplicity, we'll use the default currentUser object but store previous stats
+             const storedStats = JSON.parse(localStorage.getItem('teamflowUserStats'));
+             if (storedStats) {
+                 currentUser.stats = storedStats;
+                 // Initialize previous stats to current loaded stats on first load
+                 previousStats = { ...currentUser.stats };
+             } else {
+                // If no stored stats, start from 0 and use defaults defined above for current
+                // (HTML already starts display at 0)
+                currentUser.stats = { teamMembers: 12, tasksCompleted: 24, activeProjects: 5, upcomingDeadlines: 3}; // Default values
+                previousStats = { teamMembers: 0, tasksCompleted: 0, activeProjects: 0, upcomingDeadlines: 0 }; // Set previous to 0
+                localStorage.setItem('teamflowUserStats', JSON.stringify(currentUser.stats)); // Save initial stats
+             }
+
 
             const searchData = [
                  { name: 'Dashboard Redesign', type: 'Project', link: '#projects' },
@@ -2860,7 +3095,7 @@
                  { name: 'Profile', type: 'Page', link: '#profile' },
             ];
 
-            // Feature map (ensure profile is included)
+            // Feature map
             const featureMap = {
                 'dashboard': { contentId: 'dashboardContent', menuItemSelector: '[data-feature="dashboard"]' },
                 'task-management': { contentId: 'taskManagementContent', menuItemSelector: '[data-feature="task-management"]' },
@@ -2875,19 +3110,21 @@
                 'reports': { contentId: 'reportsContent', menuItemSelector: '[data-feature="reports"]' },
                 'innovation-hub': { contentId: 'innovationContent', menuItemSelector: '[data-feature="innovation-hub"]' },
                 'settings': { contentId: 'settingsContent', menuItemSelector: '[data-feature="settings"]' },
-                'profile': { contentId: 'profileContent', menuItemSelector: '[data-feature="profile"]' } // Link profile content to sidebar item
+                'profile': { contentId: 'profileContent', menuItemSelector: '[data-feature="profile"]' }
             };
 
             // --- Initialization ---
             function initApp() {
-                updateUserUI();
-                renderNotifications();
-                renderActivities(); // Render initial activities
                 setupEventListeners();
+                updateUserUI(true); // Initial UI update, show trends based on loaded/default vs 0
+                renderNotifications();
+                renderActivities();
                 handleNavigation(); // Initial view based on hash or default
+                initSettingsTabState(); // Restore active settings tab
                 initRealTimeUpdates(); // Start simulated updates
                 setInterval(updateTimes, 60000); // Update relative times every minute
                 checkScreenSize(); // Set initial mobile menu visibility
+                updateBrowserNotificationStatus(); // Check initial browser notification permission
             }
 
             // --- Core Navigation Logic ---
@@ -2903,8 +3140,7 @@
                 if (!config) {
                     console.warn(`Feature "${feature}" not found. Redirecting to dashboard.`);
                     window.location.hash = '#dashboard'; // Correct invalid hash by setting it
-                    // The hashchange listener will then call updateView again with 'dashboard'
-                    return; // Exit this call as hashchange will trigger the correct update
+                    return;
                 }
 
                 // Hide all content sections
@@ -2916,36 +3152,32 @@
                     targetSection.style.display = 'block';
                 } else {
                     console.error(`Content section with ID "${config.contentId}" not found for feature "${feature}". Defaulting to dashboard.`);
-                    // Ensure dashboard config exists before accessing its properties
                     const dashboardConfig = featureMap['dashboard'];
                     if (dashboardConfig && document.getElementById(dashboardConfig.contentId)) {
                         document.getElementById(dashboardConfig.contentId).style.display = 'block';
                     } else {
                          console.error("Dashboard content section not found either!");
-                         // Handle this critical error, maybe show an error message div
                          return;
                     }
                 }
 
                 // Update active menu item
                 menuItems.forEach(item => item.classList.remove('active'));
-                 // Find the new active menu item based on the current feature config
                 const activeMenuItem = document.querySelector(config.menuItemSelector);
                 if (activeMenuItem) {
                     activeMenuItem.classList.add('active');
                 }
 
-
                 // Close dropdowns and sidebar on navigation
                 userDropdown.classList.remove('active');
                 notificationDropdown.classList.remove('active');
-                if (sidebar.classList.contains('active')) { // Only close if open on mobile
+                removeInlineConfirmations(); // Close any open inline confirmations
+                if (sidebar.classList.contains('active')) {
                      sidebar.classList.remove('active');
                 }
-                searchResults.style.display = 'none'; // Close search results
+                searchResults.style.display = 'none';
 
-                // Scroll to top unless it's just a hash change within the same logical page (e.g., settings tabs)
-                // Basic scroll to top works for general navigation. More complex logic could be added if needed.
+                // Scroll to top
                 window.scrollTo(0, 0);
             }
 
@@ -2955,18 +3187,17 @@
                  return ((firstName?.[0] || '') + (lastName?.[0] || '')).toUpperCase();
             }
 
-            function updateUserUI(statChange = false) { // Added flag to know if stats changed
+            function updateUserUI(statChange = false) {
                 const fullName = `${currentUser.firstName} ${currentUser.lastName}`;
                 const initials = getInitials(currentUser.firstName, currentUser.lastName);
 
                 welcomeName.textContent = currentUser.firstName;
-                // Update top nav display name (only text part)
-                userNameDisplay.childNodes[0].nodeValue = fullName + ' '; // Update text node
-                userEmailDisplay.textContent = currentUser.email; // Dashboard email
-                dashboardUserInfoName.textContent = fullName; // Dashboard name
+                userNameDisplay.childNodes[0].nodeValue = fullName + ' ';
+                userEmailDisplay.textContent = currentUser.email;
+                dashboardUserInfoName.textContent = fullName;
 
                 const roleTitle = currentUser.role === 'admin' ? 'Administrator' : (currentUser.title || 'Team Member');
-                dashboardUserRoleTitle.textContent = roleTitle; // Dashboard title
+                dashboardUserRoleTitle.textContent = roleTitle;
 
                 // Update profile form fields
                 document.getElementById('firstName').value = currentUser.firstName;
@@ -2976,32 +3207,33 @@
                 document.getElementById('email').value = currentUser.email;
                 document.getElementById('phone').value = currentUser.phone || '';
 
-                // Update all avatar displays
-                 const avatarHtml = currentUser.profilePicture
+                const avatarHtml = currentUser.profilePicture
                     ? `<img src="${currentUser.profilePicture}" alt="${fullName}">`
                     : `<div class="initials">${initials}</div>`;
 
-                userAvatar.innerHTML = avatarHtml; // Top nav avatar
-                profileAvatarDashboard.innerHTML = avatarHtml; // Dashboard avatar
-                profilePicturePreview.innerHTML = avatarHtml; // Profile page avatar preview
+                userAvatar.innerHTML = avatarHtml;
+                profileAvatarDashboard.innerHTML = avatarHtml;
+                profilePicturePreview.innerHTML = avatarHtml;
 
-                // --- Update dashboard stats and trend icons ---
+                // Update dashboard stats and trend icons
                 teamMembersCountEl.textContent = currentUser.stats.teamMembers;
                 tasksCompletedEl.textContent = currentUser.stats.tasksCompleted;
                 activeProjectsEl.textContent = currentUser.stats.activeProjects;
                 upcomingDeadlinesEl.textContent = currentUser.stats.upcomingDeadlines;
 
-                 // Update trend icons ONLY if stats actually changed
                  if (statChange) {
                      updateTrendIcon(teamMembersTrendEl, currentUser.stats.teamMembers, previousStats.teamMembers);
                      updateTrendIcon(tasksCompletedTrendEl, currentUser.stats.tasksCompleted, previousStats.tasksCompleted);
                      updateTrendIcon(activeProjectsTrendEl, currentUser.stats.activeProjects, previousStats.activeProjects);
                      updateTrendIcon(upcomingDeadlinesTrendEl, currentUser.stats.upcomingDeadlines, previousStats.upcomingDeadlines);
+                     // Save updated stats to localStorage
+                     localStorage.setItem('teamflowUserStats', JSON.stringify(currentUser.stats));
+                     // Update previous stats *after* comparison
+                     previousStats = { ...currentUser.stats };
                  }
 
-
-                // Update team member card for the current user (example)
-                 const currentUserCard = document.querySelector('#teamContent .member-card:first-child'); // Target the first card specifically
+                 // Update team member card
+                 const currentUserCard = document.querySelector('#teamContent .member-card:first-child');
                  if (currentUserCard) {
                      const currentUserCardAvatar = currentUserCard.querySelector('.member-avatar');
                      const currentUserCardName = currentUserCard.querySelector('.member-name');
@@ -3015,12 +3247,7 @@
                      if(currentUserCardName) currentUserCardName.textContent = fullName;
                      if(currentUserCardRole) {
                          currentUserCardRole.textContent = roleTitle;
-                         // Ensure admin class is applied correctly
-                         if (currentUser.role === 'admin') {
-                             currentUserCardRole.classList.add('admin');
-                         } else {
-                              currentUserCardRole.classList.remove('admin');
-                         }
+                         currentUserCardRole.classList.toggle('admin', currentUser.role === 'admin');
                      }
                  }
             }
@@ -3052,7 +3279,7 @@
                 notifications.forEach(n => {
                     const li = document.createElement('li');
                     li.className = `notification-item ${n.read ? '' : 'unread'}`;
-                    li.dataset.id = n.id; // Add ID for easier access
+                    li.dataset.id = n.id;
                     li.innerHTML = `
                         <div class="notification-icon"><i class="${n.icon}"></i></div>
                         <div class="notification-content">
@@ -3060,69 +3287,67 @@
                             <div class="notification-time" data-timestamp="${n.timestamp}">${formatTimeAgo(n.timestamp)}</div>
                         </div>
                         ${n.read ? '' : '<div class="notification-dot"></div>'}
-                        <button class="notification-actions-item delete-notification" title="Delete notification">
-                            <i class="fas fa-times"></i>
-                        </button>
+                         <div class="notification-actions-wrapper"> <!-- Wrapper for button -->
+                            <button class="notification-actions-item delete-notification" title="Delete notification">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <!-- Inline confirm will be added here -->
+                         </div>
                     `;
                     notificationList.appendChild(li);
                 });
+                 // Optional: Save notifications state after rendering
+                 // localStorage.setItem('teamflowNotifications', JSON.stringify(notifications));
             }
 
              function renderActivities() {
-                activityList.innerHTML = ''; // Clear existing
-                if (activities.length === 0) {
-                    activityList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--gray);">No recent activity</li>';
-                    return;
-                }
+                 activityList.innerHTML = ''; // Clear existing
+                 removeInlineConfirmations(); // Clear any stray confirmations
+
+                 if (activities.length === 0) {
+                     activityList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--gray);">No recent activity</li>';
+                     return;
+                 }
 
                  activities.sort((a, b) => b.timestamp - a.timestamp); // Show newest first
 
                  activities.forEach(activity => {
                      const activityItem = document.createElement('li');
-                     activityItem.className = 'activity-item'; // Add 'new' class if needed later
-                     activityItem.dataset.id = activity.id; // Add ID
+                     activityItem.className = 'activity-item';
+                     activityItem.dataset.id = activity.id;
                      activityItem.innerHTML = `
                          <div class="activity-icon"><i class="${activity.icon}"></i></div>
                          <div class="activity-content">
                              <div class="activity-message">${activity.message}</div>
                              <div class="activity-time" data-timestamp="${activity.timestamp}">${formatTimeAgo(activity.timestamp)}</div>
                          </div>
-                         <button class="activity-actions-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                         <div class="activity-actions-wrapper"> <!-- Wrapper for button and confirm -->
+                             <button class="activity-actions-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                             <!-- Inline confirm will be added here by JS -->
+                         </div>
                      `;
                      activityList.appendChild(activityItem);
                  });
+                 // Save activities to localStorage after rendering
+                 localStorage.setItem('teamflowActivities', JSON.stringify(activities));
              }
 
 
              // --- Event Handlers ---
             function setupEventListeners() {
-                // Navigation handled by hashchange
+                // Navigation
+                window.addEventListener('hashchange', handleNavigation);
 
                 // Dropdowns
                 userProfileWrapper.addEventListener('click', toggleUserDropdown);
                 notificationIconWrapper.addEventListener('click', toggleNotificationDropdown);
 
                 // Dropdown Links
-                 profileLink.addEventListener('click', (e) => {
-                     // Allow default href behavior (#profile) which triggers hashchange
-                     userDropdown.classList.remove('active'); // Close dropdown
-                 });
-                 settingsLink.addEventListener('click', (e) => {
-                      // Allow default href behavior (#settings) which triggers hashchange
-                     userDropdown.classList.remove('active'); // Close dropdown
-                 });
-                 logoutLink.addEventListener('click', (e) => {
-                     e.preventDefault(); // Prevent default link behavior (important!)
-                     userDropdown.classList.remove('active'); // Close dropdown
-                     console.log("Logout action triggered");
-                     showConfirmation("Logging out...");
-                     // Add actual logout logic here (e.g., clear session, redirect)
-                     setTimeout(() => {
-                         window.location.href = 'login.html'; // Simulate redirect after a delay
-                     }, 1500);
-                 });
+                 profileLink.addEventListener('click', handleDropdownLink);
+                 settingsLink.addEventListener('click', handleDropdownLink);
+                 logoutLink.addEventListener('click', handleLogout);
 
-                // Notifications (Event delegation on the list)
+                // Notifications (Event delegation)
                 notificationList.addEventListener('click', handleNotificationListClick);
                 markAllAsRead.addEventListener('click', handleMarkAllRead);
                 deleteAllNotificationsBtn.addEventListener('click', handleDeleteAllNotifications);
@@ -3134,104 +3359,193 @@
                 // Profile Form
                 profileForm.addEventListener('submit', handleProfileSave);
                 profilePictureInput.addEventListener('change', handleProfilePictureChange);
-                // cancelProfileLink uses href="#dashboard" which triggers hashchange
 
-                // Settings Tabs
+                // Settings Tabs & Browser Notifications Button
                 settingsTabs.forEach(tab => tab.addEventListener('click', handleSettingsTabClick));
+                 if(enableBrowserNotificationsBtn) {
+                    enableBrowserNotificationsBtn.addEventListener('click', requestBrowserNotificationPermission);
+                 }
 
                 // Activity List Actions (Event delegation)
                 activityList.addEventListener('click', handleActivityListClick);
-                showAllActivities.addEventListener('click', () => {
-                    console.log("Show all activities clicked");
-                    // Add logic here if activities are paginated or hidden
-                    // For now, just logs a message
-                });
+                showAllActivities.addEventListener('click', () => console.log("Show all activities clicked"));
                 deleteAllActivitiesBtn.addEventListener('click', handleDeleteAllActivities);
-
 
                 // Mobile Menu
                 openSidebarBtn.addEventListener('click', () => sidebar.classList.add('active'));
                 closeSidebarBtn.addEventListener('click', () => sidebar.classList.remove('active'));
-                // Close sidebar when clicking a menu item on mobile
                 sidebar.addEventListener('click', (e) => {
                      if (e.target.closest('.menu-item')) {
                          sidebar.classList.remove('active');
-                         // Allow hashchange to handle navigation
                      }
                 });
 
-                // Global Click Listener (for closing dropdowns/search)
+                // Global Click Listener
                 document.addEventListener('click', handleGlobalClick);
 
                 // Window Events
-                window.addEventListener('hashchange', handleNavigation);
                 window.addEventListener('resize', checkScreenSize);
             }
 
+             function handleDropdownLink(e) {
+                 // No preventDefault needed, allows hash change
+                 userDropdown.classList.remove('active');
+                 notificationDropdown.classList.remove('active');
+             }
+
+             function handleLogout(e) {
+                 e.preventDefault();
+                 userDropdown.classList.remove('active');
+                 showConfirmation("Logging out...");
+                 // Add actual logout logic (clear localStorage, tokens, etc.)
+                 localStorage.removeItem('teamflowActivities');
+                 localStorage.removeItem('teamflowUserStats');
+                 localStorage.removeItem('teamflowNotifications');
+                 localStorage.removeItem('activeSettingsTab');
+                 setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+             }
+
              function toggleUserDropdown(e) {
-                 e.stopPropagation(); // Prevent global click handler closing it immediately
+                 e.stopPropagation();
                  userDropdown.classList.toggle('active');
-                 notificationDropdown.classList.remove('active'); // Close other dropdown
+                 notificationDropdown.classList.remove('active');
+                 removeInlineConfirmations(); // Close confirms
              }
 
              function toggleNotificationDropdown(e) {
                  e.stopPropagation();
                  notificationDropdown.classList.toggle('active');
-                 userDropdown.classList.remove('active'); // Close other dropdown
+                 userDropdown.classList.remove('active');
+                 removeInlineConfirmations(); // Close confirms
              }
 
-             // Use event delegation for notification list items
-            function handleNotificationListClick(e) {
+             function handleNotificationListClick(e) {
                  const target = e.target;
                  const notificationItem = target.closest('.notification-item');
-
-                 if (!notificationItem) return; // Clicked outside an item
+                 if (!notificationItem) return;
 
                  const notificationId = parseInt(notificationItem.dataset.id);
+                 const deleteButton = target.closest('.delete-notification');
+                 const confirmWrapper = notificationItem.querySelector('.notification-actions-wrapper'); // Target the wrapper
 
-                 if (target.closest('.delete-notification')) {
-                     // Clicked the delete button
-                     e.stopPropagation(); // Prevent the item click handler
-                     deleteNotification(notificationId);
-                 } else {
-                     // Clicked the notification item itself
+                 if (deleteButton && confirmWrapper) {
+                      e.stopPropagation(); // Prevent item click handler
+                      showInlineConfirmation(confirmWrapper, 'notification', notificationId);
+                 } else if (!target.closest('.inline-confirm')) { // Don't trigger on confirm box click
                      markNotificationAsRead(notificationId);
-                     // Optional: Navigate to related content if notifications have links
                      console.log(`Notification ${notificationId} clicked.`);
-                      // Example: Close dropdown after clicking an item
-                      notificationDropdown.classList.remove('active');
+                     notificationDropdown.classList.remove('active');
+                     removeInlineConfirmations();
                  }
              }
 
-
              function handleMarkAllRead(e) {
-                 e.stopPropagation(); // Prevent dropdown close
+                 e.stopPropagation();
                  let marked = 0;
-                 notifications.forEach(n => {
-                     if (!n.read) {
-                         n.read = true;
-                         marked++;
-                     }
-                 });
-                 if (marked > 0) {
-                    renderNotifications();
-                    showConfirmation('All notifications marked as read.');
-                 }
+                 notifications.forEach(n => { if (!n.read) { n.read = true; marked++; } });
+                 if (marked > 0) { renderNotifications(); showConfirmation('All notifications marked as read.'); }
              }
 
              function handleDeleteAllNotifications(e) {
-                 e.stopPropagation(); // Prevent dropdown close
-                 if (notifications.length > 0 && confirm('Are you sure you want to delete ALL notifications? This cannot be undone.')) {
-                     notifications = [];
-                     renderNotifications();
-                     playDeleteSound();
-                     showConfirmation('All notifications deleted.');
+                e.stopPropagation();
+                // Use inline confirm for "Delete All" as well (optional, could stick to alert)
+                 showInlineConfirmation(deleteAllNotificationsBtn.parentElement, 'all-notifications');
+             }
+
+             function handleActivityListClick(e) {
+                 const target = e.target;
+                 const activityItem = target.closest('.activity-item');
+                 if (!activityItem) return;
+
+                 const activityId = parseInt(activityItem.dataset.id);
+                 const deleteButton = target.closest('.activity-actions-btn');
+                 const confirmWrapper = activityItem.querySelector('.activity-actions-wrapper');
+
+                  if (deleteButton && confirmWrapper) {
+                       e.stopPropagation();
+                       showInlineConfirmation(confirmWrapper, 'activity', activityId);
+                  }
+                  // Handle clicks on the item itself if needed (e.g., navigate)
+                  // else if (!target.closest('.inline-confirm')) { ... }
+             }
+
+             function handleDeleteAllActivities() {
+                // Use inline confirm for "Delete All" activities
+                showInlineConfirmation(deleteAllActivitiesBtn.parentElement, 'all-activities');
+             }
+
+             // --- NEW: Inline Confirmation Logic ---
+            function showInlineConfirmation(parentWrapper, type, itemId = null) {
+                removeInlineConfirmations(); // Remove any existing ones first
+
+                const confirmDiv = document.createElement('div');
+                confirmDiv.className = 'inline-confirm';
+                confirmDiv.innerHTML = `
+                    <span>Delete?</span>
+                    <button class="btn btn-confirm btn-sm confirm-delete-btn">Confirm</button>
+                    <button class="btn btn-cancel btn-sm cancel-delete-btn">Cancel</button>
+                `;
+                parentWrapper.appendChild(confirmDiv);
+
+                // Add event listeners to the new buttons
+                confirmDiv.querySelector('.confirm-delete-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    handleConfirmDelete(type, itemId);
+                    removeInlineConfirmations();
+                });
+                confirmDiv.querySelector('.cancel-delete-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removeInlineConfirmations();
+                });
+
+                // Make it visible after appending
+                requestAnimationFrame(() => {
+                     confirmDiv.classList.add('show');
+                });
+            }
+
+             function handleConfirmDelete(type, itemId) {
+                 playDeleteSound();
+                 switch(type) {
+                     case 'activity':
+                         if (itemId !== null) {
+                             activities = activities.filter(act => act.id !== itemId);
+                             renderActivities(); // Will also update localStorage
+                             showConfirmation('Activity deleted.');
+                         }
+                         break;
+                     case 'notification':
+                         if (itemId !== null) {
+                            deleteNotification(itemId); // Already handles render & message
+                         }
+                         break;
+                     case 'all-activities':
+                         if (activities.length > 0) {
+                             activities = [];
+                             renderActivities(); // Will update localStorage
+                             showConfirmation('All activities deleted.');
+                         }
+                         break;
+                     case 'all-notifications':
+                          if (notifications.length > 0) {
+                            notifications = [];
+                            renderNotifications();
+                            showConfirmation('All notifications deleted.');
+                            // Optional: Update localStorage for notifications if persisting them
+                            // localStorage.setItem('teamflowNotifications', JSON.stringify(notifications));
+                          }
+                         break;
                  }
              }
 
+            function removeInlineConfirmations() {
+                document.querySelectorAll('.inline-confirm').forEach(box => box.remove());
+            }
+            // --- End Inline Confirmation Logic ---
+
             function handleSearchInput() {
                 const query = searchInput.value.trim().toLowerCase();
-                searchResults.innerHTML = ''; // Clear previous results
+                searchResults.innerHTML = '';
 
                 if (query.length === 0) {
                     searchResults.style.display = 'none';
@@ -3241,22 +3555,21 @@
                 const results = searchData.filter(item =>
                     item.name.toLowerCase().includes(query) ||
                     item.type.toLowerCase().includes(query)
-                ).slice(0, 10); // Limit results shown
+                ).slice(0, 10);
 
                 if (results.length > 0) {
                     results.forEach(result => {
                         const div = document.createElement('div');
                         div.className = 'search-result-item';
-                        // Highlight query in name (simple example)
                         const highlightedName = result.name.replace(
-                            new RegExp(query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'gi'), // Escape special chars
+                            new RegExp(query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'gi'),
                             (match) => `<strong>${match}</strong>`
                         );
                         div.innerHTML = `<div>${highlightedName}</div><small>${result.type}</small>`;
                         div.addEventListener('click', () => {
-                            window.location.href = result.link; // Navigate on click (triggers hashchange)
-                            searchResults.style.display = 'none'; // Hide results
-                            searchInput.value = ''; // Clear input
+                            window.location.href = result.link;
+                            searchResults.style.display = 'none';
+                            searchInput.value = '';
                         });
                         searchResults.appendChild(div);
                     });
@@ -3268,9 +3581,8 @@
             }
 
             function handleSearchFocus() {
-                 // Show results on focus only if there's text and results exist
                  if (searchInput.value.trim().length > 0 && searchResults.children.length > 0 && searchResults.style.display !== 'block') {
-                     handleSearchInput(); // Re-run search logic in case data changed
+                     handleSearchInput();
                  }
             }
 
@@ -3281,12 +3593,10 @@
                  currentUser.title = document.getElementById('jobTitle').value;
                  currentUser.department = document.getElementById('department').value;
                  currentUser.phone = document.getElementById('phone').value;
-                 // Note: Email is readonly, no need to update from form
 
-                 updateUserUI(); // Reflect changes everywhere
+                 updateUserUI();
                  showConfirmation('Profile updated successfully!');
-                 // Optionally navigate back after save
-                 // setTimeout(() => { window.location.hash = '#dashboard'; }, 1500);
+                 // Optionally save currentUser to localStorage here
              }
 
              function handleProfilePictureChange(e) {
@@ -3294,22 +3604,22 @@
                 if (file && file.type.startsWith('image/')) {
                     const reader = new FileReader();
                     reader.onload = (event) => {
-                        // Simulate upload and update
                         showConfirmation('Uploading picture...');
                         setTimeout(() => {
                              currentUser.profilePicture = event.target.result;
-                             updateUserUI(); // Update avatar previews
+                             updateUserUI();
                              showConfirmation('Profile picture updated.');
-                        }, 1000); // Simulate network delay
+                              // Optionally save updated currentUser (with picture data URL)
+                        }, 1000);
                     }
                     reader.readAsDataURL(file);
                 } else if (file) {
-                    alert('Please select a valid image file (e.g., JPG, PNG, GIF).');
-                     e.target.value = null; // Reset file input
+                    alert('Please select a valid image file.');
+                     e.target.value = null;
                 }
             }
 
-            function handleSettingsTabClick(e) {
+             function handleSettingsTabClick(e) {
                 const clickedTab = e.currentTarget;
                 const tabId = clickedTab.getAttribute('data-tab');
 
