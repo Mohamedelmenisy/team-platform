@@ -142,7 +142,7 @@
         .menu-title { padding: 0.75rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: rgba(255,255,255,0.6); letter-spacing: 0.5px; }
         .menu-item { display: flex; align-items: center; padding: 0.75rem 1.5rem; color: var(--sidebar-text); text-decoration: none; transition: all 0.2s; border-left: 3px solid transparent; margin: 0.25rem 0; }
         .menu-item:hover { background-color: var(--sidebar-hover); color: var(--white); text-decoration: none; }
-        .menu-item.active { background-color: var(--sidebar-active); color: var(--white); border-left-color: var(--white); text-decoration: none; }
+        .menu-item.active { background-color: var(--sidebar-active); color: var(--white); border-left-color: var(--white); text-decoration: none; font-weight: 600; } /* Added font-weight */
         .menu-item i { margin-right: 0.75rem; font-size: 1.1rem; width: 24px; text-align: center; }
         .menu-divider { height: 1px; background-color: var(--sidebar-divider); margin: 1rem 1.5rem; }
 
@@ -195,8 +195,11 @@
         .dropdown-item:hover { background-color: var(--placeholder-bg); text-decoration: none; }
         /* Content Area */
         .content-area { padding: 2rem; min-height: calc(100vh - 70px); /* Adjust based on actual top-nav height */ }
-        #profileContent, #taskManagementContent, #schedulingContent, #calendarContent, #filesContent, #dataContent, #projectsContent, #trackingContent, #deadlineContent, #teamContent, #reportsContent, #innovationContent, #settingsContent { display: none; } /* Hide all by default */
-        #dashboardContent { display: block; } /* Show dashboard initially */
+        /* Hides all content sections initially */
+        #profileContent, #taskManagementContent, #schedulingContent, #calendarContent, #filesContent, #dataContent, #projectsContent, #trackingContent, #deadlineContent, #teamContent, #reportsContent, #innovationContent, #settingsContent, #dashboardContent {
+            display: none;
+        }
+        /* Dashboard visible by default handled by JS */
 
         /* Welcome Section */
         .welcome-section { background: linear-gradient(135deg, var(--theme-primary-dark) 0%, var(--theme-primary) 100%); color: var(--white); padding: 2rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); transition: background 0.3s ease; }
@@ -1406,7 +1409,7 @@
             const deleteAllNotificationsBtn = document.getElementById('deleteAllNotifications');
             const userProfileWrapper = document.getElementById('userProfileWrapper');
             const userNameDisplay = document.getElementById('userNameDisplay');
-            const userEmail = document.getElementById('userEmail');
+            const userEmailEl = document.getElementById('userEmail'); // Renamed for consistency
             const welcomeName = document.getElementById('welcomeName');
             const userDropdown = document.getElementById('userDropdown');
             const profileLink = document.getElementById('profileLink');
@@ -1430,8 +1433,14 @@
             const closeSidebarBtn = document.querySelector('.close-sidebar');
             const userAvatarEl = document.getElementById('userAvatar');
             const profileAvatarEl = document.getElementById('profileAvatar');
+            const userInfoNameEl = document.querySelector('.user-info-name'); // Welcome section name
             const userRoleTitleEl = document.getElementById('userRoleTitle');
             const jobTitleInput = document.getElementById('jobTitle'); // Original profile page job title
+            const firstNameInput = document.getElementById('firstName'); // Original profile page first name
+            const lastNameInput = document.getElementById('lastName'); // Original profile page last name
+            const departmentInput = document.getElementById('department'); // Original profile page department
+            const emailInput = document.getElementById('email'); // Original profile page email
+            const phoneInput = document.getElementById('phone'); // Original profile page phone
 
             // Settings Page Elements (New Structure)
             const settingsForm = document.getElementById('settingsForm');
@@ -1476,10 +1485,12 @@
                 id: 1,
                 name: 'Mohamed Elmenisy',
                 email: 'm.elsayed@thechefz.co',
-                title: 'Administrator', // Make sure this matches for the red color
+                title: 'Administrator',
+                role: 'Administrator', // Added for clarity, ensure it matches title for role-admin class usage
                 department: 'Management',
                 phone: '+201234567890',
                 profilePicture: null, // Or a URL 'https://via.placeholder.com/100'
+                initials: 'ME',
                 stats: { teamMembers: 12, tasksCompleted: 24, activeProjects: 5, upcomingDeadlines: 3 }
             };
             let previousStats = { ...currentUser.stats };
@@ -1692,38 +1703,59 @@
             }
 
             // --- Core Navigation Logic ---
-            // --- Core Navigation Logic ---
             function handleNavigation() {
-                const hash = window.location.hash.substring(1);
-                const feature = hash || 'dashboard'; // Default to dashboard
+                // Get the feature name from the hash, removing the '#'
+                let hash = window.location.hash.substring(1);
+                // Default to 'dashboard' if hash is empty or invalid
+                const feature = featureMap[hash] ? hash : 'dashboard';
+
+                // If the hash was invalid and we defaulted, update the URL
+                if (hash !== feature && hash !== '') { // Avoid infinite loop if hash was already empty
+                     console.warn(`Invalid hash "#${hash}", navigating to dashboard.`);
+                     window.location.hash = 'dashboard';
+                     // The hashchange event will fire again, and handleNavigation will run with 'dashboard'
+                     return;
+                 }
+
+                console.log(`Navigating to feature: ${feature}`);
                 updateView(feature);
             }
 
             function updateView(feature) {
-                const config = featureMap[feature];
+                let config = featureMap[feature];
 
+                // Double-check config exists (should always be true due to handleNavigation logic)
                 if (!config) {
-                    console.warn(`Feature "${feature}" not found. Redirecting to dashboard.`);
-                    window.location.hash = 'dashboard'; // Correct invalid hash
-                    // The hashchange listener will call updateView again with 'dashboard'
-                    return;
+                    console.error(`Feature "${feature}" configuration not found in featureMap. Defaulting to dashboard.`);
+                    feature = 'dashboard'; // Reset feature name
+                    config = featureMap[feature]; // Get dashboard config
                 }
 
                 // Hide all content sections
-                contentSections.forEach(section => section.style.display = 'none');
+                contentSections.forEach(section => {
+                    if (section) { // Check if section exists before styling
+                        section.style.display = 'none';
+                    } else {
+                        console.warn("Found a null/undefined content section during hide loop.");
+                    }
+                });
 
                 // Show the target content section
                 const targetSection = document.getElementById(config.contentId);
                 if (targetSection) {
-                    targetSection.style.display = 'block'; // Or 'grid', 'flex' as needed
+                    targetSection.style.display = 'block'; // Or 'grid', 'flex' if needed for layout
+                    console.log(`Showing content section: ${config.contentId}`);
                 } else {
-                    console.error(`Content section with ID "${config.contentId}" not found for feature "${feature}".`);
-                    // Fallback to dashboard display might be needed here
-                    document.getElementById(featureMap['dashboard'].contentId).style.display = 'block';
-                    feature = 'dashboard'; // Ensure menu highlights dashboard
-                    config = featureMap['dashboard'];
+                    console.error(`Content section with ID "${config.contentId}" not found for feature "${feature}". Falling back to dashboard display.`);
+                    // Attempt to show dashboard content as a fallback
+                    const dashboardSection = document.getElementById(featureMap['dashboard'].contentId);
+                    if (dashboardSection) {
+                        dashboardSection.style.display = 'block';
+                    }
+                    // Ensure the feature and config reflect the fallback state for menu highlighting
+                    feature = 'dashboard';
+                    config = featureMap[feature];
                 }
-
 
                 // Update active menu item
                 menuItems.forEach(item => item.classList.remove('active'));
@@ -1731,23 +1763,22 @@
                     const activeMenuItem = document.querySelector(config.menuItemSelector);
                     if (activeMenuItem) {
                         activeMenuItem.classList.add('active');
+                        console.log(`Activating menu item: ${config.menuItemSelector}`);
+                    } else {
+                         console.warn(`Menu item selector "${config.menuItemSelector}" not found for feature "${feature}".`);
                     }
+                } else {
+                    // Handle cases like 'profile' which don't have a direct sidebar link
+                    console.log(`No menu item selector defined for feature "${feature}".`);
                 }
 
-                 // Special case: If viewing profile, keep no sidebar item active,
-                 // but if viewing settings, ensure settings item is active.
-                 if (feature === 'settings' && featureMap.settings.menuItemSelector) {
-                      const settingsMenuItem = document.querySelector(featureMap.settings.menuItemSelector);
-                      if (settingsMenuItem) settingsMenuItem.classList.add('active');
-                 }
+                // Close dropdowns and sidebar on navigation (especially important on mobile)
+                if (userDropdown) userDropdown.classList.remove('active');
+                if (notificationDropdown) notificationDropdown.classList.remove('active');
+                if (sidebar) sidebar.classList.remove('active');
+                if (searchResults) searchResults.style.display = 'none'; // Close search results
 
-                // Close dropdowns and sidebar on navigation
-                userDropdown.classList.remove('active');
-                notificationDropdown.classList.remove('active');
-                sidebar.classList.remove('active'); // Close sidebar on mobile nav
-                searchResults.style.display = 'none'; // Close search results
-
-                // Scroll to top
+                // Scroll to top of the page
                 window.scrollTo(0, 0);
             }
 
