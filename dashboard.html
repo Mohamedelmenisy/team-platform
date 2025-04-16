@@ -53,6 +53,7 @@
             --nav-bg: var(--white);
             --nav-border: var(--light-gray);
             --placeholder-bg: var(--light);
+            --link-color: var(--theme-primary); /* Added Link Color */
         }
 
         /* Light Mode (Default) */
@@ -66,6 +67,7 @@
             --nav-bg: var(--white);
             --nav-border: var(--light-gray);
             --placeholder-bg: var(--light);
+            --link-color: var(--theme-primary);
         }
 
         /* Dark Mode */
@@ -83,6 +85,7 @@
             --primary-dark: #60a5fa; /* Lighter primary dark for contrast */
             --primary-light: #1e3a8a; /* Darker primary light */
             --placeholder-bg: #1e293b;
+            --link-color: #93c5fd; /* Lighter link color for dark mode */
         }
 
         /* High Contrast Text/Borders */
@@ -100,8 +103,7 @@
             --card-bg: #ffffff !important;
             --nav-bg: #ffffff !important;
             --input-bg: #ffffff !important;
-
-            /* Adjust dark mode high contrast */
+            --link-color: #0000EE !important; /* Standard high contrast link blue */
         }
          body.dark-mode.high-contrast {
             --text-color: #ffffff !important; /* Enforce white text */
@@ -114,10 +116,14 @@
             --card-bg: #000000 !important;
             --nav-bg: #000000 !important;
             --input-bg: #000000 !important;
+            --link-color: #FFFF00 !important; /* Standard high contrast link yellow */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-color); display: flex; min-height: 100vh; transition: background-color 0.3s ease, color 0.3s ease; }
+        a { color: var(--link-color); text-decoration: none; } /* Default link styling */
+        a:hover { text-decoration: underline; }
+
         /* Sidebar Styles */
         .sidebar {
             width: var(--sidebar-width);
@@ -135,25 +141,41 @@
         .sidebar-menu { padding: 1rem 0; }
         .menu-title { padding: 0.75rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: rgba(255,255,255,0.6); letter-spacing: 0.5px; }
         .menu-item { display: flex; align-items: center; padding: 0.75rem 1.5rem; color: var(--sidebar-text); text-decoration: none; transition: all 0.2s; border-left: 3px solid transparent; margin: 0.25rem 0; }
-        .menu-item:hover { background-color: var(--sidebar-hover); color: var(--white); }
-        .menu-item.active { background-color: var(--sidebar-active); color: var(--white); border-left-color: var(--white); }
+        .menu-item:hover { background-color: var(--sidebar-hover); color: var(--white); text-decoration: none; }
+        .menu-item.active { background-color: var(--sidebar-active); color: var(--white); border-left-color: var(--white); text-decoration: none; }
         .menu-item i { margin-right: 0.75rem; font-size: 1.1rem; width: 24px; text-align: center; }
         .menu-divider { height: 1px; background-color: var(--sidebar-divider); margin: 1rem 1.5rem; }
+
+        /* Role Specific Colors */
+        .role-admin {
+            color: var(--admin-color) !important; /* Use important to override potential conflicts */
+            font-weight: 600 !important;
+        }
+
         /* Main Content */
         .main-content { flex: 1; margin-left: var(--sidebar-width); transition: margin-left 0.3s ease; /* Add transition */ }
         /* Top Navigation */
         .top-nav { background-color: var(--nav-bg); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--nav-border); position: sticky; top: 0; z-index: 90; transition: background-color 0.3s ease, border-color 0.3s ease; }
+        .menu-toggle { /* Base style for toggle buttons */
+             display: none; /* Hidden by default */
+             background: none;
+             border: none;
+             color: var(--gray);
+             font-size: 1.5rem;
+             cursor: pointer;
+             padding: 0.5rem; /* Make it easier to click */
+        }
         .search-bar { position: relative; width: 400px; }
         .search-bar input { width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 1px solid var(--input-border); border-radius: 6px; font-size: 0.9rem; background-color: var(--input-bg); color: var(--text-color); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
-        .search-bar input:focus { outline: none; border-color: var(--theme-primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .search-bar input:focus { outline: none; border-color: var(--theme-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-primary) 10%, transparent); }
         .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gray); }
         .search-results { position: absolute; top: 100%; left: 0; width: 100%; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 0 0 6px 6px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); z-index: 100; display: none; max-height: 300px; overflow-y: auto; }
         .search-result-item { padding: 0.75rem 1rem; cursor: pointer; }
         .search-result-item:hover { background-color: var(--placeholder-bg); }
         .user-menu { display: flex; align-items: center; gap: 1.5rem; }
-        .notification-icon-wrapper { position: relative; color: var(--gray); cursor: pointer; }
-        .notification-badge { position: absolute; top: -5px; right: -5px; background-color: var(--danger); color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600; }
-        .user-profile { display: flex; align-items: center; gap: 0.75rem; position: relative; cursor: pointer; }
+        .notification-icon-wrapper { position: relative; color: var(--gray); cursor: pointer; padding: 0.5rem; }
+        .notification-badge { position: absolute; top: 0px; right: 0px; background-color: var(--danger); color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600; }
+        .user-profile { display: flex; align-items: center; gap: 0.75rem; position: relative; cursor: pointer; padding: 0.5rem; }
         .user-avatar { width: 36px; height: 36px; border-radius: 50%; background-color: var(--theme-primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer; overflow: hidden; transition: background-color 0.3s ease; }
         .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .user-name { font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
@@ -170,11 +192,12 @@
         .user-dropdown { position: absolute; top: calc(100% + 10px); right: 0; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); width: 200px; z-index: 100; display: none; opacity: 0; transform: translateY(-10px); transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.3s ease, border-color 0.3s ease; }
         .user-dropdown.active { display: block; opacity: 1; transform: translateY(0); }
         .dropdown-item { padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem; color: var(--text-color); text-decoration: none; transition: background-color 0.2s ease; }
-        .dropdown-item:hover { background-color: var(--placeholder-bg); }
+        .dropdown-item:hover { background-color: var(--placeholder-bg); text-decoration: none; }
         /* Content Area */
-        .content-area { padding: 2rem; min-height: calc(100vh - 70px); }
-        #profileContent, #taskManagementContent, #schedulingContent, #calendarContent, #filesContent, #dataContent, #projectsContent, #trackingContent, #deadlineContent, #teamContent, #reportsContent, #innovationContent, #settingsContent { display: none; }
-        #dashboardContent { display: block; }
+        .content-area { padding: 2rem; min-height: calc(100vh - 70px); /* Adjust based on actual top-nav height */ }
+        #profileContent, #taskManagementContent, #schedulingContent, #calendarContent, #filesContent, #dataContent, #projectsContent, #trackingContent, #deadlineContent, #teamContent, #reportsContent, #innovationContent, #settingsContent { display: none; } /* Hide all by default */
+        #dashboardContent { display: block; } /* Show dashboard initially */
+
         /* Welcome Section */
         .welcome-section { background: linear-gradient(135deg, var(--theme-primary-dark) 0%, var(--theme-primary) 100%); color: var(--white); padding: 2rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); transition: background 0.3s ease; }
         .welcome-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
@@ -184,12 +207,13 @@
         .user-info-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .user-info-details { flex: 1; }
         .user-info-name { font-weight: 600; font-size: 1.25rem; margin-bottom: 0.25rem; }
-        .user-info-title { opacity: 0.9; font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--light-gray); font-weight: 500; }
-        .user-info-title.role-admin { color: var(--admin-color); font-weight: 600; opacity: 1; }
+        .user-info-title { opacity: 0.9; font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--light-gray); font-weight: 500; transition: color 0.3s ease; }
+        /* Removed .user-info-title.role-admin as class is applied directly now */
         .user-info-email { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; opacity: 0.9; }
+
         /* Stats Section */
         .stats-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-        .stat-card { /* Updated Gradient - More subtle in light mode */ background: linear-gradient(140deg, var(--card-bg) 0%, color-mix(in srgb, var(--card-bg) 95%, var(--theme-primary-light) 5%) 100%); border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04), 0 6px 16px rgba(0,0,0,0.06); border: 1px solid var(--border-color); transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.3s ease, border-color 0.3s ease; position: relative; overflow: hidden; }
+        .stat-card { background: linear-gradient(140deg, var(--card-bg) 0%, color-mix(in srgb, var(--card-bg) 95%, var(--theme-primary-light) 5%) 100%); border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04), 0 6px 16px rgba(0,0,0,0.06); border: 1px solid var(--border-color); transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.3s ease, border-color 0.3s ease; position: relative; overflow: hidden; }
         .stat-card::before { content: ''; position: absolute; top: -40px; right: -50px; width: 120px; height: 120px; background-color: color-mix(in srgb, var(--theme-primary) 8%, transparent); border-radius: 50%; opacity: 0.7; pointer-events: none; transition: transform 0.3s ease, background-color 0.3s ease; filter: blur(5px); }
         .stat-card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.06), 0 8px 20px rgba(0,0,0,0.08); }
         .stat-card:hover::before { transform: scale(1.2); background-color: color-mix(in srgb, var(--theme-primary) 12%, transparent); }
@@ -198,6 +222,7 @@
         .stat-value { font-size: 2rem; font-weight: 700; color: var(--theme-primary-dark); display: flex; align-items: baseline; gap: 0.6rem; transition: color 0.3s ease; }
         .stat-arrow { font-size: 1rem; transition: color 0.3s ease, transform 0.3s ease; transform-origin: center; }
         .stat-arrow.up { color: var(--stat-up); transform: translateY(-2px); } .stat-arrow.down { color: var(--stat-down); transform: translateY(2px); } .stat-arrow.neutral { color: var(--stat-neutral); opacity: 0.8; }
+
         /* Activity Section */
         .activity-section { background-color: var(--card-bg); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0,0,0,0.05); padding: 1.5rem; border: 1px solid var(--border-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
@@ -205,22 +230,32 @@
         .live-indicator { display: inline-block; width: 8px; height: 8px; background-color: var(--success); border-radius: 50%; animation: pulse 1.5s infinite ease-in-out; margin-left: 0.2rem; }
         @keyframes pulse { 0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); } 100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
         .activity-actions { display: flex; gap: 0.5rem; }
-        .activity-list { list-style: none; position: relative; }
+        .activity-list { list-style: none; position: relative; padding-left: 0; /* Removed padding-left */ }
         .activity-list::before { content: ''; position: absolute; top: 10px; left: 20px; bottom: 10px; width: 2px; background-color: var(--border-color); z-index: 0; transition: background-color 0.3s ease; }
-        .activity-item { display: flex; padding: 1rem 0; border-bottom: 1px solid var(--border-color); align-items: flex-start; position: relative; margin-left: 50px; z-index: 1; transition: border-color 0.3s ease; }
+        .activity-item { display: flex; padding: 1rem 0; border-bottom: 1px solid var(--border-color); align-items: flex-start; position: relative; margin-left: 50px; /* Keep margin for icon space */ z-index: 1; transition: border-color 0.3s ease; }
         .activity-item:last-child { border-bottom: none; }
-        .activity-icon { width: 40px; height: 40px; border-radius: 50%; background-color: var(--bg-color); border: 2px solid var(--border-color); color: var(--theme-primary); display: flex; align-items: center; justify-content: center; position: absolute; left: -50px; top: 10px; flex-shrink: 0; z-index: 2; box-shadow: 0 0 0 3px var(--bg-color); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; }
-        .activity-content { flex: 1; min-width: 0; padding-left: 1rem; }
+        .activity-icon { width: 40px; height: 40px; border-radius: 50%; background-color: var(--bg-color); border: 2px solid var(--border-color); color: var(--theme-primary); display: flex; align-items: center; justify-content: center; position: absolute; left: -50px; /* Position relative to margin */ top: 10px; flex-shrink: 0; z-index: 2; box-shadow: 0 0 0 3px var(--bg-color); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; }
+        .activity-content { flex: 1; min-width: 0; padding-left: 1rem; /* Space between icon and text */ }
         .activity-message { margin-bottom: 0.25rem; word-break: break-word; overflow-wrap: break-word; line-height: 1.5; color: var(--text-color); transition: color 0.3s ease; }
         .activity-message strong { color: var(--theme-primary-dark); font-weight: 600; transition: color 0.3s ease; }
         .activity-time { font-size: 0.8rem; color: var(--gray); }
-        .delete-activity { background: none; border: none; color: var(--gray); cursor: pointer; padding: 0.5rem; border-radius: 4px; margin-left: 0.5rem; transition: background-color 0.2s, color 0.2s; align-self: center; }
+        .delete-activity { background: none; border: none; color: var(--gray); cursor: pointer; padding: 0.5rem; border-radius: 4px; margin-left: 0.5rem; transition: background-color 0.2s, color 0.2s; align-self: center; flex-shrink: 0; /* Prevent shrinking */}
         .delete-activity:hover { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
         /* Back to Dashboard Button Style */
         .back-to-dashboard { margin-bottom: 1.5rem; }
+
         /* Profile & Other Content Section Base Styles */
-        #profileContent, #taskManagementContent, #schedulingContent, #calendarContent, #filesContent, #dataContent, #projectsContent, #trackingContent, #deadlineContent, #teamContent, #reportsContent, #innovationContent, #settingsContent { background-color: var(--card-bg); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 2rem; border: 1px solid var(--border-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
-        /* Profile Content Specific Styles */
+        #profileContent, #taskManagementContent, #schedulingContent, #calendarContent, #filesContent, #dataContent, #projectsContent, #trackingContent, #deadlineContent, #teamContent, #reportsContent, #innovationContent, #settingsContent {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* Profile Content Specific Styles (Original Profile Page) */
         .profile-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
         .profile-title { font-size: 1.5rem; font-weight: 600; color: var(--theme-primary-dark); transition: color 0.3s ease; }
         .profile-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
@@ -229,10 +264,11 @@
         .form-control { width: 100%; padding: 0.75rem; border: 1px solid var(--input-border); border-radius: 6px; font-size: 1rem; background-color: var(--input-bg); color: var(--text-color); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
         .form-control:focus { outline: none; border-color: var(--theme-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-primary) 10%, transparent); }
         .form-control[readonly] { background-color: var(--placeholder-bg); cursor: not-allowed; opacity: 0.7; }
-        .form-control.role-admin { color: var(--admin-color); font-weight: 600; }
+        /* Removed .form-control.role-admin - class applied directly */
         .form-actions { grid-column: span 2; display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; }
-        .btn { padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .btn { padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; }
         .btn i { margin-right: 0; }
+        .btn:hover { text-decoration: none; }
         .btn-sm { padding: 0.5rem 1rem; font-size: 0.875rem; }
         .btn-primary { background-color: var(--theme-primary); color: white; }
         .btn-primary:hover { background-color: var(--theme-primary-dark); }
@@ -261,7 +297,7 @@
         .notification-header { padding: 1rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; transition: border-color 0.3s ease; }
         .notification-title { font-weight: 600; }
         .notification-actions { display: flex; gap: 0.5rem; }
-        .notification-list { list-style: none; }
+        .notification-list { list-style: none; padding-left: 0; }
         .notification-item { padding: 1rem; border-bottom: 1px solid var(--border-color); display: flex; gap: 1rem; position: relative; cursor: pointer; transition: background-color 0.2s ease, border-color 0.3s ease; }
         .notification-item:last-child { border-bottom: none; }
         .notification-item:hover { background-color: var(--placeholder-bg); }
@@ -272,7 +308,7 @@
         .notification-item.unread .notification-message { color: var(--theme-primary-dark); transition: color 0.3s ease; }
         .notification-time { font-size: 0.8rem; color: var(--gray); }
         .notification-dot { position: absolute; top: 1rem; right: 1rem; width: 8px; height: 8px; background-color: var(--theme-primary); border-radius: 50%; transition: background-color 0.3s ease; }
-        .notification-actions-item.delete-notification { position: absolute; top: 0.5rem; right: 0.5rem; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; color: var(--gray); cursor: pointer; border-radius: 50%; background: none; border: none; opacity: 0; transition: background-color 0.2s, opacity 0.2s, color 0.2s; }
+        .notification-actions-item.delete-notification { position: absolute; top: 0.5rem; right: 0.5rem; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; color: var(--gray); cursor: pointer; border-radius: 50%; background: none; border: none; opacity: 0; transition: background-color 0.2s, opacity 0.2s, color 0.2s; z-index: 5; /* Ensure button is clickable */}
         .notification-item:hover .delete-notification { opacity: 1; background-color: var(--light-gray); }
         .delete-notification:hover { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); }
         .delete-notification i { font-size: 0.8rem; }
@@ -282,7 +318,7 @@
         .filter-group { display: flex; align-items: center; gap: 0.5rem; }
         .filter-group label { font-weight: 500; color: var(--gray); font-size: 0.9rem; }
         .filter-select { padding: 0.5rem; border: 1px solid var(--input-border); border-radius: 4px; font-size: 0.9rem; min-width: 150px; background-color: var(--input-bg); color: var(--text-color); transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
-        .task-list { list-style: none; }
+        .task-list { list-style: none; padding-left: 0; }
         .task-item { background-color: var(--placeholder-bg); border-radius: 6px; padding: 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid transparent; gap: 1rem; border: 1px solid var(--border-color); transition: box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease; }
         .task-item:hover { box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
         .task-item.high-priority { border-left-color: var(--danger); } .task-item.medium-priority { border-left-color: var(--warning); } .task-item.low-priority { border-left-color: var(--success); }
@@ -339,13 +375,13 @@
         .member-avatar { width: 80px; height: 80px; border-radius: 50%; background-color: var(--theme-primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.5rem; margin: 0 auto 1rem; overflow: hidden; border: 3px solid var(--card-bg); box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: background-color 0.3s ease, border-color 0.3s ease; }
         .member-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .member-name { font-weight: 600; margin-bottom: 0.25rem; color: var(--theme-primary-dark); transition: color 0.3s ease; }
-        .member-role { color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem; }
-        .member-role.role-admin { color: var(--admin-color); font-weight: 600; }
+        .member-role { color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem; transition: color 0.3s ease; }
+        /* Removed .member-role.role-admin - class applied directly */
         .member-status { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 500; }
         .member-status.active { background-color: rgba(16, 185, 129, 0.1); color: var(--success); } .member-status.inactive { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); }
         .member-contact { margin-top: 1rem; display: flex; justify-content: center; gap: 0.75rem; }
-        .contact-btn { width: 36px; height: 36px; border-radius: 50%; background-color: var(--light-gray); display: flex; align-items: center; justify-content: center; color: var(--gray); cursor: pointer; transition: all 0.2s ease; }
-        .contact-btn:hover { background-color: var(--theme-primary); color: var(--white); transform: scale(1.1); }
+        .contact-btn { width: 36px; height: 36px; border-radius: 50%; background-color: var(--light-gray); display: flex; align-items: center; justify-content: center; color: var(--gray); cursor: pointer; transition: all 0.2s ease; text-decoration: none; }
+        .contact-btn:hover { background-color: var(--theme-primary); color: var(--white); transform: scale(1.1); text-decoration: none; }
 
         /* Settings Styles */
         .settings-section { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); transition: border-color 0.3s ease; }
@@ -353,6 +389,7 @@
         .settings-section h3 { font-size: 1.3rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-color); transition: color 0.3s ease; }
         .settings-section h4 { font-size: 1.1rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 1rem; color: var(--theme-primary-dark); transition: color 0.3s ease; }
         .settings-section p.section-description { font-size: 0.9rem; color: var(--gray); margin-bottom: 1.5rem; line-height: 1.5; }
+        .settings-section p.section-description a { color: var(--link-color); font-weight: 500;} /* Link style within description */
 
         /* Setting Item Layout */
         .setting-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 1rem 0; border-bottom: 1px solid var(--border-color); gap: 1.5rem; flex-wrap: wrap; transition: border-color 0.3s ease; }
@@ -363,22 +400,25 @@
         .setting-item .btn { flex-shrink: 0; margin-top: 0.5rem; } /* Adjust button alignment */
         .setting-item .actions { display: flex; align-items: flex-start; /* Align items to top */ gap: 1rem; flex-shrink: 0; flex-wrap: wrap; min-width: 150px; /* Ensure actions have some space */ }
         .setting-item .actions label { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; cursor: pointer; color: var(--text-color); transition: color 0.3s ease; margin-bottom: 0.5rem; /* Space between stacked items */ }
-        .setting-item .actions input[type="radio"], .setting-item .actions input[type="checkbox"] { margin-right: 0.3rem; cursor: pointer; }
+        .setting-item .actions input[type="radio"], .setting-item .actions input[type="checkbox"] { margin-right: 0.3rem; cursor: pointer; accent-color: var(--theme-primary); } /* Use accent-color for modern look */
         .setting-item .actions .form-control { max-width: 250px; /* Limit width of selects/inputs in actions */ }
         .setting-item .radio-group { display: flex; flex-direction: column; gap: 0.5rem; } /* Stack radio buttons */
         .setting-item .radio-group label { margin-bottom: 0; } /* Remove extra margin */
 
         /* Toggle Switch Styles */
-        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 24px; flex-shrink: 0; }
+        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 24px; flex-shrink: 0; cursor: pointer; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--light-gray); transition: .4s; border-radius: 24px; }
         .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         input:checked + .slider { background-color: var(--theme-primary); }
         input:checked + .slider:before { transform: translateX(26px); }
+        input:disabled + .slider { background-color: var(--border-color); cursor: not-allowed; opacity: 0.7; }
+        input:disabled + .slider:before { background-color: var(--gray); }
 
         /* Settings: Appearance - Theme Colors */
         .theme-color-options { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-        .theme-color-swatch { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid var(--border-color); transition: transform 0.2s ease, border-color 0.2s ease; position: relative; }
+        .theme-color-swatch { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid var(--border-color); transition: transform 0.2s ease, border-color 0.2s ease; position: relative; background: none; padding: 0; } /* Removed explicit background */
+        .theme-color-swatch:focus { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-primary) 30%, transparent); }
         .theme-color-swatch.active { border-color: var(--theme-primary); transform: scale(1.1); }
         .theme-color-swatch.active::after { content: '\f00c'; /* FontAwesome check */ font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 0.8rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
         .theme-color-swatch[data-color="blue"] { background-color: #2563eb; }
@@ -393,11 +433,19 @@
 
         /* Settings: Appearance - Mode Selection */
         .appearance-mode-options { display: flex; gap: 1rem; flex-wrap: wrap; }
-        .appearance-mode-option { padding: 1rem; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; text-align: center; transition: border-color 0.2s, background-color 0.2s; min-width: 80px; }
+        .appearance-mode-option { padding: 1rem; border: 2px solid var(--border-color); border-radius: 6px; cursor: pointer; text-align: center; transition: border-color 0.2s, background-color 0.2s; min-width: 80px; position: relative; }
         .appearance-mode-option i { display: block; font-size: 1.5rem; margin-bottom: 0.5rem; }
-        .appearance-mode-option input[type="radio"] { display: none; }
-        .appearance-mode-option input[type="radio"]:checked + .mode-label { border-color: var(--theme-primary); background-color: color-mix(in srgb, var(--theme-primary) 10%, transparent); }
-        .mode-label { display: block; } /* Make label clickable */
+        .appearance-mode-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; } /* Hide radio */
+        .appearance-mode-option input[type="radio"]:checked + .mode-label {
+             border-color: var(--theme-primary);
+             background-color: color-mix(in srgb, var(--theme-primary) 10%, transparent);
+             box-shadow: 0 0 0 1px var(--theme-primary); /* Subtle inner shadow */
+        }
+        .appearance-mode-option input[type="radio"]:focus-visible + .mode-label { /* Focus style for keyboard nav */
+             outline: 2px solid var(--theme-primary);
+             outline-offset: 2px;
+        }
+        .mode-label { display: block; color: var(--text-color); transition: color 0.3s; } /* Make label clickable */
 
         /* Settings: Danger Zone */
         .danger-zone { border: 2px solid var(--danger); border-radius: 8px; padding: 1.5rem; background-color: color-mix(in srgb, var(--danger) 5%, transparent); }
@@ -410,9 +458,14 @@
         /* Integration Status */
         .integration-status { font-size: 0.8rem; font-weight: 600; color: var(--success); display: flex; align-items: center; gap: 0.3rem; }
         .integration-status i { font-size: 0.7rem; }
-        .integration-notification-options { margin-top: 0.5rem; padding-left: 1rem; }
+        .integration-notification-options { margin-top: 0.5rem; padding-left: 1rem; width: 100%; /* Take full width */ }
         .integration-notification-options label { display: block; margin-bottom: 0.5rem; }
         .integration-notification-options select { padding: 0.25rem 0.5rem; font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--input-border); margin-left: 0.5rem; background-color: var(--input-bg); color: var(--text-color); }
+        .integration-notification-settings[style*="opacity: 0.6"] { /* Style for disabled integrations */
+             opacity: 0.6;
+             pointer-events: none;
+        }
+        .integration-notification-settings[style*="opacity: 0.6"] .setting-title { color: var(--gray); }
 
         /* Placeholder Styles */
          .chart-container, .gantt-chart, .schedule-calendar { background-color: var(--placeholder-bg); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; min-height: 200px; display: flex; flex-direction:column; align-items: center; justify-content: center; color: var(--gray); border: 1px dashed var(--border-color); text-align: center; transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
@@ -436,18 +489,22 @@
             .main-content { margin-left: 0; }
             .top-nav { padding: 1rem; }
             .search-bar { width: 250px; }
-            .menu-toggle { display: block; background: none; border: none; color: var(--gray); font-size: 1.5rem; cursor: pointer; margin-right: 1rem; order: -1; }
+            .menu-toggle.open-sidebar { display: block; margin-right: 1rem; order: -1;} /* Show open button */
+            .sidebar .menu-toggle.close-sidebar { display: block; } /* Show close inside sidebar */
             .user-menu { gap: 1rem; }
             .profile-form { grid-template-columns: 1fr; }
             .form-actions, .profile-picture-upload { grid-column: span 1; }
             .setting-item { flex-direction: column; align-items: stretch; } /* Stack setting items */
             .setting-item .actions { width: 100%; margin-top: 0.5rem; } /* Full width actions */
+            .activity-list::before { left: 20px; }
+            .activity-item { margin-left: 40px; }
+            .activity-icon { left: -40px; }
         }
         @media (max-width: 768px) {
             .top-nav { flex-wrap: wrap; justify-content: space-between; gap: 1rem; padding: 1rem; }
+            .menu-toggle.open-sidebar { order: 1; margin-right: 0;} /* Adjust order */
             .search-bar { width: 100%; order: 3; margin-top: 0.5rem; }
             .user-menu { order: 2; margin-left: auto; }
-            .menu-toggle { margin-right: 0; order: 1; }
             .content-area { padding: 1.5rem; }
             .profile-picture-upload { flex-direction: column; align-items: flex-start; }
             .user-info { flex-direction: column; text-align: center; gap: 1rem; }
@@ -461,11 +518,11 @@
             .file-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
             .notification-dropdown, .user-dropdown { width: calc(100vw - 40px); right: -10px; max-width: 350px; }
             .setting-item .actions { flex-direction: column; align-items: flex-start; gap: 0.5rem; } /* Stack actions like checkboxes */
-             .activity-item { margin-left: 0; padding-left: 50px; }
-             .activity-icon { left: 10px; }
-             .activity-list::before { left: 30px; }
-             .activity-content { padding-left: 1rem; }
-             .delete-activity { align-self: flex-end; }
+            .activity-item { margin-left: 0; padding-left: 50px; /* Add padding for icon */ }
+            .activity-icon { left: 10px; /* Bring icon inside */ }
+            .activity-list::before { left: 30px; /* Adjust line */ }
+            .activity-content { padding-left: 1rem; }
+            .delete-activity { align-self: flex-end; }
         }
         @media (max-width: 480px) {
             .stats-section { grid-template-columns: 1fr; }
@@ -476,10 +533,23 @@
             .user-info-avatar { width: 60px; height: 60px; font-size: 1.5rem; } .user-info-name { font-size: 1.1rem; }
             .btn { padding: 0.6rem 1.2rem; font-size: 0.9rem; }
             .section-title { font-size: 1.1rem; }
-            .search-bar { width: calc(100% - 50px); }
-            .user-name { font-size: 0.9rem; }
-            #connectionStatus { display: none; }
+            .user-name span:first-child { max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: middle; } /* Truncate long names */
+            #connectionStatus { display: none; } /* Hide connection status on very small screens */
+            .search-bar { /* Adjust search bar placement relative to toggle */
+                width: calc(100% - 60px); /* Adjust width */
+                margin-left: 10px; /* Add some space */
+                order: 2; /* Place between toggle and user menu */
+                margin-top: 0; /* Remove top margin */
+             }
+            .user-menu { order: 3; margin-left: 0; } /* Move user menu to end */
+            .top-nav { gap: 0.5rem; } /* Reduce gap */
+            .content-area { padding: 1rem; }
+             .activity-item { margin-left: 0; padding-left: 45px; }
+             .activity-icon { left: 5px; width: 35px; height: 35px; top: 12px;}
+             .activity-list::before { left: 22.5px; }
+             .activity-content { padding-left: 0.75rem; }
         }
+
     </style>
 </head>
 <body class="light-mode"> <!-- Default to light, JS will handle class change -->
@@ -490,7 +560,7 @@
                 <i class="fas fa-users-cog logo-icon"></i>
                 <span>TeamFlow</span>
             </a>
-            <button class="menu-toggle close-sidebar" style="display: none; color: white; background: none; border: none; font-size: 1.2rem; cursor: pointer;">
+            <button class="menu-toggle close-sidebar"> <!-- Removed inline style -->
                  <i class="fas fa-times"></i>
             </button>
         </div>
@@ -519,7 +589,7 @@
     <main class="main-content">
         <!-- Top Navigation -->
         <nav class="top-nav">
-            <button class="menu-toggle open-sidebar" style="display: none;">
+            <button class="menu-toggle open-sidebar"> <!-- Removed inline style -->
                 <i class="fas fa-bars"></i>
             </button>
             <div class="search-bar">
@@ -572,7 +642,7 @@
                         <div class="user-info-avatar" id="profileAvatar"><div class="initials">ME</div></div>
                         <div class="user-info-details">
                             <div class="user-info-name">Mohamed Elmenisy</div>
-                            <div class="user-info-title" id="userRoleTitle">Administrator</div>
+                            <div class="user-info-title" id="userRoleTitle">Administrator</div> <!-- Class added dynamically -->
                             <div class="user-info-email"><i class="fas fa-envelope"></i><span id="userEmail">m.elsayed@thechefz.co</span></div>
                         </div>
                     </div>
@@ -609,7 +679,7 @@
                 </div>
             </div>
 
-            <!-- Profile Content -->
+            <!-- Profile Content (Original, separate page if needed) -->
             <div id="profileContent">
                  <div class="back-to-dashboard"><a href="#dashboard" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back to Dashboard</a></div>
                 <div class="profile-header"><h2 class="profile-title">Profile Settings</h2></div>
@@ -620,12 +690,12 @@
                     </div>
                     <div class="form-group"><label for="firstName">First Name</label><input type="text" id="firstName" class="form-control" value="Mohamed"></div>
                     <div class="form-group"><label for="lastName">Last Name</label><input type="text" id="lastName" class="form-control" value="Elmenisy"></div>
-                    <div class="form-group"><label for="jobTitle">Job Title</label><input type="text" id="jobTitle" class="form-control" value="Administrator"></div>
+                    <div class="form-group"><label for="jobTitle">Job Title</label><input type="text" id="jobTitle" class="form-control" value="Administrator"></div> <!-- Class added dynamically -->
                     <div class="form-group"><label for="department">Department</label><input type="text" id="department" class="form-control" value="Management"></div>
                     <div class="form-group"><label for="email">Email</label><input type="email" id="email" class="form-control" value="m.elsayed@thechefz.co" readonly></div>
                     <div class="form-group"><label for="phone">Phone</label><input type="tel" id="phone" class="form-control" value="+201234567890"></div>
                     <div class="form-actions">
-                        <a href="#dashboard" class="btn btn-secondary" id="cancelProfileLink">Cancel</a>
+                        <a href="#dashboard" class="btn btn-secondary" id="cancelProfileLink">Cancel</a> <!-- Can act as cancel/back -->
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>
                 </form>
@@ -710,7 +780,7 @@
             <div id="deadlineContent">
                  <div class="back-to-dashboard"><a href="#dashboard" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back to Dashboard</a></div>
                 <div class="section-header"><h2 class="section-title">Deadline Tracking</h2><div class="filter-group"><label for="deadlineFilterSelect">Filter by Priority:</label><select id="deadlineFilterSelect" class="filter-select"><option value="all">All</option><option value="critical">Critical (< 2 days)</option><option value="high">High (< 7 days)</option><option value="normal">Normal (7+ days)</option></select></div></div>
-                 <div class="task-list"><li class="task-item high-priority"><div class="task-info"><div class="task-title">Security Patch Deployment</div><div class="task-description">Project: Dashboard Redesign</div></div><div class="task-meta"><span><i class="far fa-calendar-times"></i> Due: Aug 15 (Tomorrow!)</span></div></li><li class="task-item medium-priority"><div class="task-info"><div class="task-title">User Acceptance Testing Phase 1</div><div class="task-description">Project: Mobile App Dev</div></div><div class="task-meta"><span><i class="far fa-calendar-alt"></i> Due: Aug 20</span></div></li><li class="task-item low-priority"><div class="task-info"><div class="task-title">API Documentation Update</div><div class="task-description">Project: API Integration</div></div><div class="task-meta"><span><i class="far fa-calendar-alt"></i> Due: Aug 25</span></div></li><li class="task-item medium-priority"><div class="task-info"><div class="task-title">Final Mockup Review</div><div class="task-description">Project: Dashboard Redesign</div></div><div class="task-meta"><span><i class="far fa-calendar-alt"></i> Due: Aug 18</span></div></li></div>
+                 <ul class="task-list"><li class="task-item high-priority"><div class="task-info"><div class="task-title">Security Patch Deployment</div><div class="task-description">Project: Dashboard Redesign</div></div><div class="task-meta"><span><i class="far fa-calendar-times"></i> Due: Aug 15 (Tomorrow!)</span></div></li><li class="task-item medium-priority"><div class="task-info"><div class="task-title">User Acceptance Testing Phase 1</div><div class="task-description">Project: Mobile App Dev</div></div><div class="task-meta"><span><i class="far fa-calendar-alt"></i> Due: Aug 20</span></div></li><li class="task-item low-priority"><div class="task-info"><div class="task-title">API Documentation Update</div><div class="task-description">Project: API Integration</div></div><div class="task-meta"><span><i class="far fa-calendar-alt"></i> Due: Aug 25</span></div></li><li class="task-item medium-priority"><div class="task-info"><div class="task-title">Final Mockup Review</div><div class="task-description">Project: Dashboard Redesign</div></div><div class="task-meta"><span><i class="far fa-calendar-alt"></i> Due: Aug 18</span></div></li></ul>
             </div>
 
             <!-- Team Members Content -->
@@ -842,21 +912,21 @@
                                 <div class="setting-description">Choose light or dark mode, or switch automatically based on your system settings.</div>
                             </div>
                             <div class="actions appearance-mode-options">
-                                <label>
+                                <label class="appearance-mode-option"> <!-- Wrap input and label div -->
                                     <input type="radio" name="appearanceMode" value="light" checked>
-                                    <div class="appearance-mode-option mode-label">
+                                    <div class="mode-label">
                                         <i class="fas fa-sun"></i> Light
                                     </div>
                                 </label>
-                                <label>
+                                <label class="appearance-mode-option">
                                     <input type="radio" name="appearanceMode" value="dark">
-                                    <div class="appearance-mode-option mode-label">
+                                    <div class="mode-label">
                                          <i class="fas fa-moon"></i> Dark
                                     </div>
                                 </label>
-                                <label>
+                                <label class="appearance-mode-option">
                                     <input type="radio" name="appearanceMode" value="auto">
-                                    <div class="appearance-mode-option mode-label">
+                                    <div class="mode-label">
                                          <i class="fas fa-desktop"></i> Auto
                                     </div>
                                 </label>
@@ -888,6 +958,7 @@
                                 <select name="language" class="form-control" style="max-width: 200px;">
                                     <option value="en">English</option>
                                     <option value="system">System Default</option>
+                                    <!-- Add other languages here -->
                                 </select>
                             </div>
                          </div>
@@ -899,6 +970,7 @@
                                 <select name="timezone" class="form-control" style="max-width: 200px;">
                                     <option value="utc2">(UTC+02:00) Cairo</option>
                                     <option value="utc3">(UTC+03:00) Riyadh</option>
+                                    <!-- Add other timezones here -->
                                 </select>
                             </div>
                          </div>
@@ -928,6 +1000,7 @@
                                  <select name="startOfWeek" class="form-control" style="max-width: 150px;">
                                      <option value="sunday">Sunday</option>
                                      <option value="monday">Monday</option>
+                                     <!-- Add Saturday if needed -->
                                  </select>
                              </div>
                          </div>
@@ -959,7 +1032,7 @@
                          <div class="setting-item">
                              <div class="setting-info">
                                  <div class="setting-title">Flyout Toast Message</div>
-                                 <div class="setting-description">Show confirmation messages in the bottom corner after actions.</div>
+                                 <div class="setting-description">Show confirmation messages in the corner after actions.</div>
                              </div>
                              <div class="actions">
                                 <label class="toggle-switch">
@@ -1093,7 +1166,7 @@
                     <!-- Login Permissions Section -->
                     <div class="settings-section" id="settingsLoginPermissionsSection">
                         <h3>Login Permissions for TeamFlow Support</h3>
-                        <p class="section-description">If login permissions are granted, our trained Support Specialists can access your account to troubleshoot specific issues you raise in a support ticket. <a href="#" target="_blank" style="color: var(--theme-primary);">Read more about our Security Policy here.</a></p>
+                        <p class="section-description">If login permissions are granted, our trained Support Specialists can access your account to troubleshoot specific issues you raise in a support ticket. <a href="#" target="_blank">Read more about our Security Policy here.</a></p>
                          <div class="setting-item">
                              <div class="setting-info">
                                  <div class="setting-title">Permission Level</div>
@@ -1169,7 +1242,7 @@
                             <div class="setting-info"><div class="setting-title">Notification Sound Level</div></div>
                              <div class="actions">
                                 <select id="notificationSoundLevel" name="notificationSoundLevel" class="form-control" style="max-width: 150px;">
-                                    <option value="off">Off</option><option value="quiet">Quiet</option><option value="normal">Normal</option><option value="loud">Loud</option>
+                                    <option value="off">Off</option><option value="quiet">Quiet</option><option value="normal" selected>Normal</option><option value="loud">Loud</option>
                                 </select>
                              </div>
                          </div>
@@ -1236,7 +1309,6 @@
                                     <input type="checkbox" name="autoWatchTasks" checked>
                                     <span class="slider"></span>
                                 </label>
-                                <!-- Could add expand details here if needed -->
                              </div>
                          </div>
                          <div class="setting-item">
@@ -1298,10 +1370,7 @@
 
                 </form>
             </div>
-
-             <!-- Placeholder for other sections -->
-            <!-- ... (Keep other sections like scheduling, files, data, etc. as they were) ... -->
-
+            <!-- End Settings Content -->
 
         </div> <!-- End Content Area -->
     </main>
@@ -1319,8 +1388,11 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM Loaded. Initializing TeamFlow...");
+
             // --- DOM Elements ---
             const body = document.body;
+            const root = document.documentElement; // For CSS Variables
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.querySelector('.main-content');
             const menuItems = document.querySelectorAll('.menu-item');
@@ -1343,7 +1415,7 @@
             const activityList = document.getElementById('activityList');
             const showAllActivitiesBtn = document.getElementById('showAllActivities');
             const deleteAllActivitiesBtn = document.getElementById('deleteAllActivities');
-            const contentSections = document.querySelectorAll('.content-area > div[id$="Content"]');
+            const contentSections = document.querySelectorAll('.content-area > div[id$="Content"]'); // Selects all content divs
             const profileForm = document.getElementById('profileForm'); // Original profile page form
             const profilePictureInput = document.getElementById('profilePictureInput'); // Original profile page avatar input
             const profilePicturePreview = document.getElementById('profilePicturePreview'); // Original profile page avatar preview
@@ -1370,7 +1442,7 @@
             const settingsChangePasswordBtn = document.getElementById('settingsChangePasswordBtn');
             const settingsToggle2faBtn = document.getElementById('settingsToggle2faBtn');
             const settings2faStatus = document.getElementById('settings2faStatus');
-            const settings2faOptions = document.getElementById('settings2faOptions'); // Div containing 2FA choices
+            const settings2faOptions = document.getElementById('settings2faOptions');
             const themeColorSwatches = document.querySelectorAll('.theme-color-swatch');
             const appearanceModeRadios = document.querySelectorAll('input[name="appearanceMode"]');
             const highContrastToggle = document.querySelector('input[name="highContrast"]');
@@ -1379,7 +1451,8 @@
             const saveSettingsBtn = document.getElementById('saveSettingsBtn');
             const cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
             const viewTrashBtn = document.getElementById('viewTrashBtn');
-
+            const integrationToggles = document.querySelectorAll('.integration-toggle'); // Select all integration buttons
+            const integrationStatusSpans = document.querySelectorAll('.integration-status'); // Select all status spans
 
             // Stat Elements
             const teamMembersCountEl = document.getElementById('teamMembersCount');
@@ -1393,10 +1466,9 @@
 
             // --- Local Storage Keys ---
             const STORAGE_KEYS = {
-                ACTIVITIES: 'teamflow_activities_v5', // Version bump
-                NOTIFICATIONS: 'teamflow_notifications_v5',
-                USER_SETTINGS: 'teamflow_user_settings_v5', // Version bump for new settings structure
-                // ACTIVE_SETTINGS_TAB key removed
+                ACTIVITIES: 'teamflow_activities_v6', // Version bump if structure changes
+                NOTIFICATIONS: 'teamflow_notifications_v6',
+                USER_SETTINGS: 'teamflow_user_settings_v6', // Use one key for all settings
             };
 
             // --- Data ---
@@ -1404,19 +1476,20 @@
                 id: 1,
                 name: 'Mohamed Elmenisy',
                 email: 'm.elsayed@thechefz.co',
-                title: 'Administrator',
+                title: 'Administrator', // Make sure this matches for the red color
                 department: 'Management',
                 phone: '+201234567890',
-                profilePicture: null,
+                profilePicture: null, // Or a URL 'https://via.placeholder.com/100'
                 stats: { teamMembers: 12, tasksCompleted: 24, activeProjects: 5, upcomingDeadlines: 3 }
             };
             let previousStats = { ...currentUser.stats };
 
-             // --- Settings State (Updated Structure) ---
+             // --- Settings State (Unified Structure) ---
              let userSettings = {
-                 // Profile settings (name/email are read-only from currentUser)
-                 profile: {
-                     // password change handled separately
+                 // Profile settings (name/email are read-only from currentUser, password change handled separately)
+                 security: {
+                     twoFactorEnabled: false,
+                     twoFactorMethod: null, // 'sms', 'app'
                  },
                  appearance: {
                      themeColor: 'blue', // Default theme color
@@ -1425,7 +1498,7 @@
                  },
                  languageRegion: {
                      language: 'en', // 'en', 'system'
-                     timezone: 'utc2', // 'utc2', 'utc3'
+                     timezone: 'utc2', // Example: 'utc2', 'utc3'
                      notifyTimezoneChange: false,
                  },
                  timeDate: {
@@ -1440,40 +1513,38 @@
                      enableMarkdown: true,
                      showQuotes: true,
                      showCelebrations: true,
-                     showVerified: false, // Assuming default false, might depend on user status
+                     showVerified: false,
                      plainTextLinks: false,
                      performanceMode: false,
                      detectDesktopApp: true,
                      blockSelectAll: true,
+                     autoWatchTasks: true, // Moved from 'other'
+                     userStatus: 'online', // Moved from 'other'
                  },
                  loginPermissions: {
                      supportLoginPermission: 'disabled' // 'disabled', 'login_test', 'full'
                  },
-                 notifications: { // Kept similar internal structure
-                     taskAssignments: { app: true, email: false },
-                     projectUpdates: { app: false, email: false },
-                     comments: { app: true, email: false },
-                     deadlines: { app: true, email: false },
-                     announcements: { app: true },
-                     dailySummary: { email: false },
-                     smartNotifications: false, // Added
-                     autoWatchTasks: true, // Added
-                     soundLevel: 'normal',
-                     integrations: {
+                 notifications: {
+                     channels: { // Renamed for clarity
+                        taskAssignments: { app: true, email: false },
+                        projectUpdates: { app: false, email: false },
+                        comments: { app: true, email: false },
+                        deadlines: { app: true, email: false },
+                        announcements: { app: true }, // Only app option available
+                        dailySummary: { email: false }, // Only email option available
+                     },
+                     smartNotifications: false,
+                     soundLevel: 'normal', // 'off', 'quiet', 'normal', 'loud'
+                     integrations: { // Settings for notifications *via* integrations
                          slack: { enabled: false, taskAssignments: false, mentions: false, projectUpdates: false, channel: 'default' },
                          google: { calendarSync: false }
+                         // Add other integration notification settings here if needed
                      }
                  },
                  integrations: { // Connection status only
                      slack: false, google: false, github: false, jira: false, zoom: false, microsoft: false
                  },
-                 security: {
-                     twoFactorEnabled: false,
-                     twoFactorMethod: null, // 'sms', 'app'
-                     lastPasswordChange: '3 months ago' // Example
-                 },
-                 // Status (might not be persistent setting, but current state)
-                 currentStatus: 'online'
+                 // Removed 'other' section, merged into preferences
              };
 
             // --- Dynamic Data (Notifications & Activities) ---
@@ -1483,7 +1554,8 @@
             let isShowingAllActivities = false; // State for activity toggle
             const MAX_RECENT_ACTIVITIES = 5; // Number of activities to show initially
 
-            const searchData = [ // Example search data
+            // Example search data (can be expanded)
+            const searchData = [
                  { name: 'Dashboard Redesign', type: 'Project', link: '#projects' },
                  { name: 'Mohamed Elmenisy', type: 'Member', link: '#team-members' },
                  { name: 'Profile Page', type: 'Task', link: '#task-management' },
@@ -1493,7 +1565,7 @@
                  { name: 'Reports', type: 'Area', link: '#reports' }
             ];
 
-            // Updated feature map (removed profile/settings sub-features)
+            // Map feature names (from hash) to content IDs and menu item selectors
             const featureMap = {
                 'dashboard': { contentId: 'dashboardContent', menuItemSelector: '[data-feature="dashboard"]' },
                 'task-management': { contentId: 'taskManagementContent', menuItemSelector: '[data-feature="task-management"]' },
@@ -1508,20 +1580,22 @@
                 'reports': { contentId: 'reportsContent', menuItemSelector: '[data-feature="reports"]' },
                 'innovation-hub': { contentId: 'innovationContent', menuItemSelector: '[data-feature="innovation-hub"]' },
                 'settings': { contentId: 'settingsContent', menuItemSelector: '[data-feature="settings"]' },
-                'profile': { contentId: 'profileContent', menuItemSelector: null } // Keep separate profile page for now if desired, or merge logic fully into settings
+                'profile': { contentId: 'profileContent', menuItemSelector: null } // Keep separate original profile page if desired
             };
 
 
             // --- Initialization ---
             function initApp() {
                 loadData();
-                applySettingsToUI(); // Apply loaded settings first (incl. theme/mode)
-                updateUserUI();
+                applySettingsToUI(); // Apply loaded settings *first* (incl. theme/mode)
+                updateUserUI(); // Update user details everywhere
                 renderNotifications();
                 renderActivities();
                 setupEventListeners();
-                handleNavigation(); // Handles initial hash and view
+                handleNavigation(); // Handles initial hash and view based on URL
                 checkScreenSize();
+                console.log("TeamFlow Initialized.");
+                // Optional: Start simulations for testing
                 // simulateStatUpdates();
                 // simulateNewActivity();
                 // simulateNewNotification();
@@ -1529,45 +1603,62 @@
 
             // --- Data Persistence (LocalStorage) ---
             function saveData() {
-                localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
-                localStorage.setItem(STORAGE_KEYS.ACTIVITIES, JSON.stringify(activities));
-                localStorage.setItem(STORAGE_KEYS.USER_SETTINGS, JSON.stringify(userSettings));
+                try {
+                    localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
+                    localStorage.setItem(STORAGE_KEYS.ACTIVITIES, JSON.stringify(activities));
+                    localStorage.setItem(STORAGE_KEYS.USER_SETTINGS, JSON.stringify(userSettings));
+                    console.log("Data saved to localStorage.");
+                } catch (error) {
+                    console.error("Error saving data to localStorage:", error);
+                    showConfirmation("Could not save settings. Storage might be full.", "error");
+                }
             }
 
             function loadData() {
-                const storedNotifications = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
-                const storedActivities = localStorage.getItem(STORAGE_KEYS.ACTIVITIES);
-                const storedSettings = localStorage.getItem(STORAGE_KEYS.USER_SETTINGS);
+                 console.log("Loading data from localStorage...");
+                 const storedNotifications = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
+                 const storedActivities = localStorage.getItem(STORAGE_KEYS.ACTIVITIES);
+                 const storedSettings = localStorage.getItem(STORAGE_KEYS.USER_SETTINGS);
 
-                 if (storedNotifications) notifications = JSON.parse(storedNotifications);
-                 else setInitialNotifications();
+                 if (storedNotifications) {
+                    try { notifications = JSON.parse(storedNotifications); } catch (e) { console.error("Error parsing stored notifications", e); setInitialNotifications(); }
+                 } else { setInitialNotifications(); }
 
-                 if (storedActivities) activities = JSON.parse(storedActivities);
-                 else setInitialActivities();
+                 if (storedActivities) {
+                    try { activities = JSON.parse(storedActivities); } catch (e) { console.error("Error parsing stored activities", e); setInitialActivities(); }
+                 } else { setInitialActivities(); }
 
                  if (storedSettings) {
-                    const loaded = JSON.parse(storedSettings);
-                    userSettings = mergeDeep(userSettings, loaded); // Use deep merge
+                    try {
+                        const loaded = JSON.parse(storedSettings);
+                        // Use deep merge to preserve defaults if loaded settings are incomplete
+                        userSettings = mergeDeep(userSettings, loaded);
+                        console.log("User settings loaded:", userSettings);
+                    } catch (e) {
+                        console.error("Error parsing stored settings", e);
+                        // Stick with default userSettings object
+                    }
+                 } else {
+                     console.log("No stored settings found, using defaults.");
                  }
-                 // Ensure startOfWeek matches loaded setting if available, default otherwise
-                 userSettings.timeDate.startOfWeek = userSettings.timeDate.startOfWeek || 'sunday';
 
                  nextActivityId = activities.length > 0 ? Math.max(...activities.map(a => a.id)) + 1 : 0;
+                 console.log("Data loading complete.");
             }
 
-             // Helper for deep merging settings objects (remains the same)
+             // Helper for deep merging settings objects (handles nested objects)
              function mergeDeep(target, source) {
                 const isObject = (obj) => obj && typeof obj === 'object' && !Array.isArray(obj);
-                let output = { ...target };
+                let output = { ...target }; // Start with target's properties
                 if (isObject(target) && isObject(source)) {
                     Object.keys(source).forEach(key => {
-                        if (isObject(source[key])) {
-                            if (key in target && isObject(target[key])) {
-                                output[key] = mergeDeep(target[key], source[key]);
-                            } else {
+                        if (isObject(source[key])) { // If source property is an object
+                            if (key in target && isObject(target[key])) { // And target also has it as an object
+                                output[key] = mergeDeep(target[key], source[key]); // Recursively merge
+                            } else { // Otherwise, just take the source object
                                 output[key] = { ...source[key] };
                             }
-                        } else {
+                        } else { // If source property is not an object, just assign it
                             output[key] = source[key];
                         }
                     });
@@ -1575,17 +1666,19 @@
                 return output;
             }
 
-
-            function setInitialNotifications() { /* ... (keep existing logic) ... */
+            // Initial data setup if localStorage is empty
+            function setInitialNotifications() {
+                 console.log("Setting initial notifications.");
                  notifications = [
                      { id: 0, icon: 'fas fa-info-circle', message: 'Welcome to TeamFlow! Explore the dashboard.', time: formatTimeAgo(Date.now() - 10000), read: false },
                      { id: 1, icon: 'fas fa-check-circle', message: 'Task "Deploy Security Patch" completed by <strong>Alex R.</strong>', time: formatTimeAgo(Date.now() - 3600000), read: false },
                      { id: 2, icon: 'fas fa-comment-alt', message: '<strong>Sarah Johnson</strong> commented on <strong>Project Alpha Timeline</strong>: "Need updated estimates"', time: formatTimeAgo(Date.now() - 10800000), read: false },
                      { id: 3, icon: 'fas fa-tasks', message: 'New task assigned: "Review Q3 Marketing Plan"', time: formatTimeAgo(Date.now() - 86400000), read: true },
                  ];
-                 saveData();
+                 // No immediate save needed here, will be saved when data changes
             }
-            function setInitialActivities() { /* ... (keep existing logic) ... */
+            function setInitialActivities() {
+                 console.log("Setting initial activities.");
                  activities = [
                     { id: 0, icon: 'fas fa-check-circle', message: '<strong>You</strong> completed task <strong>Dashboard Design</strong>', timestamp: Date.now() - 7200000 },
                     { id: 1, icon: 'fas fa-comment-alt', message: '<strong>Sarah Johnson</strong> commented on <strong>Project Timeline</strong>', timestamp: Date.now() - 18000000 },
@@ -1595,866 +1688,458 @@
                     { id: 5, icon: 'fas fa-calendar-check', message: '<strong>Emily Chen</strong> scheduled <strong>Team Meeting</strong>', timestamp: Date.now() - 345600000 }, // 4 days ago
                  ];
                  nextActivityId = activities.length;
-                 saveData();
+                 // No immediate save needed here
             }
 
             // --- Core Navigation Logic ---
+            // --- Core Navigation Logic ---
             function handleNavigation() {
                 const hash = window.location.hash.substring(1);
-                const feature = hash || 'dashboard'; // No sub-features needed for settings anymore
+                const feature = hash || 'dashboard'; // Default to dashboard
                 updateView(feature);
             }
 
             function updateView(feature) {
                 const config = featureMap[feature];
+
                 if (!config) {
                     console.warn(`Feature "${feature}" not found. Redirecting to dashboard.`);
-                    window.location.hash = 'dashboard';
-                    updateView('dashboard');
+                    window.location.hash = 'dashboard'; // Correct invalid hash
+                    // The hashchange listener will call updateView again with 'dashboard'
                     return;
                 }
 
+                // Hide all content sections
                 contentSections.forEach(section => section.style.display = 'none');
-                const targetSection = document.getElementById(config.contentId);
 
+                // Show the target content section
+                const targetSection = document.getElementById(config.contentId);
                 if (targetSection) {
-                    targetSection.style.display = 'block';
-                    if (feature === 'dashboard') updateStatDisplay();
-                    if (feature === 'settings') {
-                        applySettingsToForm(); // Ensure settings form is up-to-date when navigating
-                    }
-                    // Update user details in settings form if viewing settings
-                     if (feature === 'settings') {
-                        settingsFullName.value = currentUser.name;
-                        settingsEmail.value = currentUser.email;
-                        const initials = (currentUser.name.split(' ')[0]?.[0] || '') + (currentUser.name.split(' ').slice(-1)[0]?.[0] || '');
-                        const avatarHtml = currentUser.profilePicture
-                            ? `<img src="${currentUser.profilePicture}" alt="${currentUser.name}">`
-                            : `<div class="initials">${initials.toUpperCase() || '??'}</div>`;
-                        settingsAvatarPreview.innerHTML = avatarHtml;
-                    }
+                    targetSection.style.display = 'block'; // Or 'grid', 'flex' as needed
                 } else {
-                    console.error(`Content section ID "${config.contentId}" not found.`);
+                    console.error(`Content section with ID "${config.contentId}" not found for feature "${feature}".`);
+                    // Fallback to dashboard display might be needed here
                     document.getElementById(featureMap['dashboard'].contentId).style.display = 'block';
-                    window.location.hash = 'dashboard';
-                    feature = 'dashboard';
-                    updateStatDisplay();
+                    feature = 'dashboard'; // Ensure menu highlights dashboard
+                    config = featureMap['dashboard'];
                 }
 
+
+                // Update active menu item
                 menuItems.forEach(item => item.classList.remove('active'));
                 if (config.menuItemSelector) {
                     const activeMenuItem = document.querySelector(config.menuItemSelector);
-                    if (activeMenuItem) activeMenuItem.classList.add('active');
+                    if (activeMenuItem) {
+                        activeMenuItem.classList.add('active');
+                    }
                 }
 
+                 // Special case: If viewing profile, keep no sidebar item active,
+                 // but if viewing settings, ensure settings item is active.
+                 if (feature === 'settings' && featureMap.settings.menuItemSelector) {
+                      const settingsMenuItem = document.querySelector(featureMap.settings.menuItemSelector);
+                      if (settingsMenuItem) settingsMenuItem.classList.add('active');
+                 }
+
+                // Close dropdowns and sidebar on navigation
                 userDropdown.classList.remove('active');
                 notificationDropdown.classList.remove('active');
-                if (window.innerWidth <= 992 && sidebar.classList.contains('active')) {
-                    sidebar.classList.remove('active');
-                }
-                searchResults.style.display = 'none';
+                sidebar.classList.remove('active'); // Close sidebar on mobile nav
+                searchResults.style.display = 'none'; // Close search results
+
+                // Scroll to top
                 window.scrollTo(0, 0);
             }
+
 
             // --- UI Update Functions ---
             function updateUserUI() {
                 const nameParts = currentUser.name.split(' ');
                 welcomeName.textContent = nameParts[0];
-                if (userNameDisplay) userNameDisplay.textContent = currentUser.name;
+                userNameDisplay.childNodes[0].nodeValue = currentUser.name + ' '; // Update only text node
                 userEmail.textContent = currentUser.email;
                 document.querySelector('.user-info-name').textContent = currentUser.name;
-                userRoleTitleEl.textContent = currentUser.title || 'Team Member';
-                userRoleTitleEl.classList.toggle('role-admin', currentUser.title === 'Administrator');
 
-                // Update original Profile page Form (if still used)
-                if (profileForm) {
-                    document.getElementById('firstName').value = nameParts[0] || '';
-                    document.getElementById('lastName').value = nameParts.slice(1).join(' ') || '';
-                    jobTitleInput.value = currentUser.title || '';
-                    jobTitleInput.classList.toggle('role-admin', currentUser.title === 'Administrator');
-                    document.getElementById('department').value = currentUser.department || '';
-                    document.getElementById('email').value = currentUser.email;
-                    document.getElementById('phone').value = currentUser.phone || '';
-                }
-                 // Update Settings page profile section (read-only parts)
-                 if (settingsForm) {
-                    settingsFullName.value = currentUser.name;
-                    settingsEmail.value = currentUser.email;
-                 }
+                const roleTitle = currentUser.role === 'admin' ? 'Administrator' : 'Team Member';
+                document.getElementById('userRoleTitle').textContent = roleTitle;
+                document.querySelector('.user-info-title').textContent = roleTitle; // Update welcome section title too
 
-                 // Update Team Member Cards Role Styling
-                 document.querySelectorAll('.member-role').forEach(el => {
-                     el.classList.toggle('role-admin', el.textContent === 'Administrator');
-                 });
+                document.getElementById('firstName').value = nameParts[0];
+                document.getElementById('lastName').value = nameParts.slice(1).join(' ');
+                document.getElementById('jobTitle').value = currentUser.title || '';
+                document.getElementById('department').value = currentUser.department || '';
+                document.getElementById('email').value = currentUser.email;
+                document.getElementById('phone').value = currentUser.phone || '';
 
-                const initials = (nameParts[0]?.[0] || '') + (nameParts.slice(-1)[0]?.[0] || '');
+                const initials = currentUser.initials || '??';
                 const avatarHtml = currentUser.profilePicture
                     ? `<img src="${currentUser.profilePicture}" alt="${currentUser.name}">`
-                    : `<div class="initials">${initials.toUpperCase() || '??'}</div>`;
-                userAvatarEl.innerHTML = avatarHtml;
-                profileAvatarEl.innerHTML = avatarHtml;
-                if (profilePicturePreview) profilePicturePreview.innerHTML = avatarHtml; // Update original profile page preview
-                if (settingsAvatarPreview) settingsAvatarPreview.innerHTML = avatarHtml; // Update settings page preview
+                    : `<div class="initials">${initials}</div>`;
+                userAvatar.innerHTML = avatarHtml;
+                document.getElementById('profileAvatar').innerHTML = avatarHtml;
+                profilePicturePreview.innerHTML = avatarHtml;
+
+                document.getElementById('teamMembersCount').textContent = currentUser.stats.teamMembers;
+                document.getElementById('tasksCompleted').textContent = currentUser.stats.tasksCompleted;
+                document.getElementById('activeProjects').textContent = currentUser.stats.activeProjects;
+                document.getElementById('upcomingDeadlines').textContent = currentUser.stats.upcomingDeadlines;
             }
 
-            function updateStatDisplay() { /* ... (keep existing logic) ... */
-                 if (!document.getElementById('dashboardContent') || document.getElementById('dashboardContent').style.display === 'none') return; // Only update if dashboard visible
-                updateStatUI('teamMembers', teamMembersCountEl, teamMembersArrowEl);
-                updateStatUI('tasksCompleted', tasksCompletedEl, tasksCompletedArrowEl);
-                updateStatUI('activeProjects', activeProjectsEl, activeProjectsArrowEl);
-                updateStatUI('upcomingDeadlines', upcomingDeadlinesEl, upcomingDeadlinesArrowEl);
-                previousStats = { ...currentUser.stats };
-            }
-            function updateStatUI(statKey, valueEl, arrowEl) { /* ... (keep existing logic) ... */
-                if (!valueEl || !arrowEl) return;
-                const currentValue = currentUser.stats[statKey];
-                const previousValue = previousStats[statKey];
-                valueEl.textContent = currentValue;
-                arrowEl.className = 'fas stat-arrow';
-                if (currentValue > previousValue) arrowEl.classList.add('fa-arrow-up', 'up');
-                else if (currentValue < previousValue) arrowEl.classList.add('fa-arrow-down', 'down');
-                else arrowEl.classList.add('fa-minus', 'neutral');
-            }
-            function renderNotifications() { /* ... (keep existing logic) ... */
+            function renderNotifications() {
                 notificationList.innerHTML = ''; // Clear existing
                 const unreadCount = notifications.filter(n => !n.read).length;
                 notificationBadge.textContent = unreadCount;
                 notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
 
                 if (notifications.length === 0) {
-                    notificationList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--gray);">No new notifications</li>';
+                    notificationList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--gray);">No notifications</li>';
                     return;
                 }
 
-                const sortedNotifications = [...notifications].sort((a, b) => b.id - a.id);
-
-                sortedNotifications.forEach(n => {
+                notifications.forEach(n => {
                     const li = document.createElement('li');
                     li.className = `notification-item ${n.read ? '' : 'unread'}`;
-                    li.dataset.id = n.id;
+                    li.dataset.id = n.id; // Add ID for easier access
                     li.innerHTML = `
-                        <div class="notification-icon"><i class="${n.icon || 'fas fa-info-circle'}"></i></div>
+                        <div class="notification-icon"><i class="${n.icon}"></i></div>
                         <div class="notification-content">
                             <div class="notification-message">${n.message}</div>
-                            <div class="notification-time">${n.time || 'Recently'}</div>
+                            <div class="notification-time">${n.time}</div>
                         </div>
                         ${n.read ? '' : '<div class="notification-dot"></div>'}
                         <button class="notification-actions-item delete-notification" title="Delete notification">
                             <i class="fas fa-times"></i>
                         </button>
                     `;
-                     li.addEventListener('click', (e) => {
-                         if (!e.target.closest('.delete-notification')) {
-                            markNotificationAsRead(n.id);
-                         }
-                     });
-                     li.querySelector('.delete-notification').addEventListener('click', handleDeleteNotificationClick);
+                    // Add event listeners within the loop for efficiency
+                    li.addEventListener('click', handleNotificationClick);
+                    li.querySelector('.delete-notification').addEventListener('click', handleDeleteNotificationClick);
                     notificationList.appendChild(li);
                 });
             }
-            function renderActivities() { /* ... (keep existing logic, ensure button display logic works) ... */
-                activityList.innerHTML = ''; // Clear existing
 
-                const sortedActivities = [...activities].sort((a, b) => b.timestamp - a.timestamp);
-                const activitiesToShow = isShowingAllActivities ? sortedActivities : sortedActivities.slice(0, MAX_RECENT_ACTIVITIES);
-
-                if (activitiesToShow.length === 0) {
-                    activityList.innerHTML = '<li style="padding: 1rem 0 1rem 50px; text-align: left; color: var(--gray); position:relative; z-index: 1;">No recent activity</li>';
-                    // Hide both buttons if no activities
-                    showAllActivitiesBtn.style.display = 'none';
-                    deleteAllActivitiesBtn.style.display = 'none';
-                    return;
-                } else {
-                    deleteAllActivitiesBtn.style.display = 'inline-flex'; // Show delete all if there are activities
-                }
-
-
-                activitiesToShow.forEach(activity => {
-                    const li = document.createElement('li');
-                    li.className = 'activity-item';
-                    li.dataset.id = activity.id;
-                    li.innerHTML = `
-                        <div class="activity-icon"><i class="${activity.icon || 'fas fa-info-circle'}"></i></div>
-                        <div class="activity-content">
-                            <div class="activity-message">${activity.message}</div>
-                            <div class="activity-time">${formatTimeAgo(activity.timestamp)}</div>
-                        </div>
-                        <button class="delete-activity" title="Delete"><i class="fas fa-trash"></i></button>
-                    `;
-                     // Add delete listener directly
-                     li.querySelector('.delete-activity').addEventListener('click', handleActivityDeleteClick);
-                    activityList.appendChild(li);
-                });
-
-                 // Update "Show All/Less" button text based on state and visibility
-                 if (activities.length > MAX_RECENT_ACTIVITIES) {
-                     showAllActivitiesBtn.style.display = 'inline-flex'; // Ensure button is visible
-                     // UPDATED TEXT LOGIC
-                     showAllActivitiesBtn.textContent = isShowingAllActivities ? 'Show Less' : 'Show All';
-                 } else {
-                     showAllActivitiesBtn.style.display = 'none'; // Hide button if not enough activities
-                 }
-            }
-
-
-            // --- Event Handlers ---
+             // --- Event Handlers ---
             function setupEventListeners() {
+                // Navigation handled by hashchange
+
+                // Dropdowns
                 userProfileWrapper.addEventListener('click', toggleUserDropdown);
                 notificationIconWrapper.addEventListener('click', toggleNotificationDropdown);
-                profileLink.addEventListener('click', () => userDropdown.classList.remove('active'));
-                settingsLink.addEventListener('click', () => userDropdown.classList.remove('active'));
-                logoutLink.addEventListener('click', handleLogout);
+
+                // Dropdown Links (use default href and hashchange)
+                 profileLink.addEventListener('click', () => userDropdown.classList.remove('active'));
+                 settingsLink.addEventListener('click', () => userDropdown.classList.remove('active'));
+                 logoutLink.addEventListener('click', (e) => {
+                     e.preventDefault(); // Prevent hash change if needed
+                     console.log("Logout");
+                     // Add actual logout logic here
+                     window.location.href = 'login.html'; // Redirect
+                 });
+
+
+                // Notifications
                 markAllAsRead.addEventListener('click', handleMarkAllRead);
                 deleteAllNotificationsBtn.addEventListener('click', handleDeleteAllNotifications);
+
+                // Search
                 searchInput.addEventListener('input', handleSearchInput);
                 searchInput.addEventListener('focus', handleSearchFocus);
-                searchInput.addEventListener('blur', () => setTimeout(() => searchResults.style.display = 'none', 150)); // Delay hide
+
+                // Profile Form
                 profileForm.addEventListener('submit', handleProfileSave);
                 profilePictureInput.addEventListener('change', handleProfilePictureChange);
+                // cancelProfileLink handles navigation via href
+
+                // Settings Tabs
                 settingsTabs.forEach(tab => tab.addEventListener('click', handleSettingsTabClick));
+
+                // Activity List Actions
+                showAllActivities.addEventListener('click', () => {
+                    // This might not be needed if activities are always shown
+                    console.log("Show all activities clicked");
+                });
                 deleteAllActivitiesBtn.addEventListener('click', handleDeleteAllActivities);
-                showAllActivitiesBtn.addEventListener('click', handleShowAllActivitiesToggle); // Listener for Show All/Less
+                // Add listeners for dynamically added delete buttons if needed, or use event delegation
+                activityList.addEventListener('click', handleActivityDeleteClick);
+
+                // Mobile Menu
                 openSidebarBtn.addEventListener('click', () => sidebar.classList.add('active'));
                 closeSidebarBtn.addEventListener('click', () => sidebar.classList.remove('active'));
-                // Use event delegation for sidebar clicks
+                // Close sidebar when clicking a menu item on mobile
                 sidebar.addEventListener('click', (e) => {
-                    const menuItem = e.target.closest('.menu-item');
-                    if (menuItem) {
-                        e.preventDefault(); // Prevent default anchor behavior
-                        window.location.hash = menuItem.getAttribute('href'); // Manually set hash
-                        // handleNavigation will be triggered by hashchange
-                        if (window.innerWidth <= 992) { // Close sidebar only on smaller screens
-                           sidebar.classList.remove('active');
-                        }
-                    }
+                     if (e.target.closest('.menu-item')) {
+                         sidebar.classList.remove('active');
+                     }
                 });
 
+                // Global Click Listener (for closing dropdowns)
                 document.addEventListener('click', handleGlobalClick);
-                window.addEventListener('hashchange', handleNavigation); // Primary navigation trigger
-                window.addEventListener('resize', checkScreenSize);
 
-                // Settings Form Submissions & Actions
-                generalSettingsForm.addEventListener('submit', handleGeneralSettingsSave);
-                notificationSettingsForm.addEventListener('submit', handleNotificationSettingsSave);
-                integrationSettingsForm.addEventListener('click', handleIntegrationToggleClick); // Delegation
-                enable2faBtn.addEventListener('click', handleToggle2FA);
-                changePasswordBtn.addEventListener('click', handleChangePassword);
-                manageSessionsBtn.addEventListener('click', handleManageSessions);
-
-                // Settings Cancel buttons
-                setupCancelButton('cancelGeneralSettings', applyGeneralSettingsToForm, 'General settings changes discarded.');
-                setupCancelButton('cancelNotificationSettings', applyNotificationSettingsToForm, 'Notification settings changes discarded.');
-                setupCancelButton('cancelProfileLink', updateUserUI, 'Profile changes discarded.', true); // Cancel for profile acts like reset
+                // Window Events
+                window.addEventListener('hashchange', handleNavigation);
+                window.addEventListener('resize', checkScreenSize); // Handle responsive changes
             }
 
-            function setupCancelButton(buttonId, resetFunction, message, preventDefault = false) {
-                 const button = document.getElementById(buttonId);
-                 if (button) {
-                     button.addEventListener('click', (e) => {
-                         if (preventDefault) e.preventDefault();
-                         resetFunction();
-                         showConfirmation(message, 'info');
-                         // Optional: Navigate back to dashboard if cancelling profile edit
-                         if (buttonId === 'cancelProfileLink') {
-                              window.location.hash = '#dashboard'; // Trigger navigation back
-                         }
-                     });
-                 }
-            }
+             function toggleUserDropdown(e) {
+                 e.stopPropagation();
+                 userDropdown.classList.toggle('active');
+                 notificationDropdown.classList.remove('active'); // Close other dropdown
+             }
 
-             function toggleUserDropdown(e) { e.stopPropagation(); userDropdown.classList.toggle('active'); notificationDropdown.classList.remove('active'); searchResults.style.display = 'none'; }
-             function toggleNotificationDropdown(e) { e.stopPropagation(); notificationDropdown.classList.toggle('active'); userDropdown.classList.remove('active'); searchResults.style.display = 'none'; }
-             function handleLogout(e) { e.preventDefault(); showConfirmation('Logged out successfully.', 'info'); /* Add actual logout logic */ }
+             function toggleNotificationDropdown(e) {
+                 e.stopPropagation();
+                 notificationDropdown.classList.toggle('active');
+                 userDropdown.classList.remove('active'); // Close other dropdown
+             }
+
+             function handleNotificationClick(e) {
+                 // Don't mark as read if delete button was clicked
+                 if (e.target.closest('.delete-notification')) return;
+
+                 const li = e.currentTarget;
+                 const id = parseInt(li.dataset.id);
+                 markNotificationAsRead(id);
+             }
 
              function handleDeleteNotificationClick(e) {
-                 e.stopPropagation(); // Prevent li click event
+                 e.stopPropagation(); // Prevent parent li click
                  const button = e.currentTarget;
                  const li = button.closest('.notification-item');
                  const id = parseInt(li.dataset.id);
-                 const messagePreview = li.querySelector('.notification-message').textContent.substring(0, 60);
-                 if (confirm(`Permanently delete this notification?\n\n"${messagePreview}..."\n\nThis action cannot be undone.`)) {
-                    deleteNotification(id);
-                    showConfirmation('Notification deleted.', 'info');
-                 }
+                 deleteNotification(id);
              }
 
              function handleMarkAllRead(e) {
                  e.stopPropagation();
-                 const unreadCount = notifications.filter(n => !n.read).length;
-                 if (unreadCount > 0) {
-                     notifications.forEach(n => n.read = true);
-                     saveData();
-                     renderNotifications();
-                     showConfirmation('All notifications marked as read.', 'info');
-                 }
-                 notificationDropdown.classList.remove('active');
+                 notifications.forEach(n => n.read = true);
+                 renderNotifications();
+                 showConfirmation('All notifications marked as read.');
              }
 
              function handleDeleteAllNotifications(e) {
                  e.stopPropagation();
-                 const count = notifications.length;
-                 if (count > 0) {
-                     if (confirm(`Delete all ${count} notifications? This action cannot be undone.`)) {
-                         const deletedCount = notifications.length; // Store count before clearing
-                         notifications = [];
-                         saveData();
-                         renderNotifications();
-                         playDeleteSound();
-                         showConfirmation(`All ${deletedCount} notification${deletedCount > 1 ? 's' : ''} cleared.`, 'info');
-                     }
+                 if (notifications.length > 0 && confirm('Are you sure you want to delete all notifications?')) {
+                     notifications = [];
+                     renderNotifications();
+                     playDeleteSound();
+                     showConfirmation('All notifications deleted.');
                  }
-                 notificationDropdown.classList.remove('active');
              }
 
             function handleSearchInput() {
-                 const query = searchInput.value.toLowerCase().trim();
-                 if (query.length < 2) {
-                     searchResults.style.display = 'none';
-                     searchResults.innerHTML = '';
-                     return;
-                 }
-                 const results = searchData.filter(item => item.name.toLowerCase().includes(query));
-                 searchResults.innerHTML = '';
-                 if (results.length > 0) {
-                     results.forEach(result => {
-                         const div = document.createElement('div');
-                         div.className = 'search-result-item';
-                         div.innerHTML = `${result.name} <span style="font-size: 0.8em; color: var(--gray);">(${result.type})</span>`;
-                         div.addEventListener('click', () => {
-                             window.location.hash = result.link; // Trigger navigation
-                             searchInput.value = '';
-                             searchResults.style.display = 'none';
-                         });
-                         searchResults.appendChild(div);
-                     });
-                     searchResults.style.display = 'block';
-                 } else {
-                     searchResults.innerHTML = '<div class="search-result-item" style="color: var(--gray);">No results found</div>';
-                     searchResults.style.display = 'block';
-                 }
+                const query = searchInput.value.trim().toLowerCase();
+                searchResults.innerHTML = '';
+                searchResults.style.display = 'none';
+
+                if (query.length === 0) return;
+
+                const results = searchData.filter(item =>
+                    item.name.toLowerCase().includes(query) ||
+                    item.type.toLowerCase().includes(query)
+                );
+
+                if (results.length > 0) {
+                    results.forEach(result => {
+                        const div = document.createElement('div');
+                        div.className = 'search-result-item';
+                        div.innerHTML = `<div><strong>${result.name}</strong></div><small>${result.type}</small>`;
+                        div.addEventListener('click', () => {
+                            window.location.href = result.link; // Navigate on click
+                            searchResults.style.display = 'none'; // Hide results
+                            searchInput.value = ''; // Clear input
+                        });
+                        searchResults.appendChild(div);
+                    });
+                    searchResults.style.display = 'block';
+                }
             }
+
             function handleSearchFocus() {
-                // Show results only if there's text and results exist
-                 if (searchInput.value.trim().length >= 2 && searchResults.children.length > 0) {
-                     searchResults.style.display = 'block';
+                 // Show results on focus only if there's text
+                 if (searchInput.value.trim().length > 0) {
+                     handleSearchInput();
                  }
             }
 
-            function handleProfileSave(e) {
+             function handleProfileSave(e) {
                  e.preventDefault();
-                 currentUser.name = `${document.getElementById('firstName').value.trim()} ${document.getElementById('lastName').value.trim()}`;
-                 currentUser.title = document.getElementById('jobTitle').value.trim();
-                 currentUser.department = document.getElementById('department').value.trim();
-                 currentUser.phone = document.getElementById('phone').value.trim();
-                 updateUserUI();
-                 // In a real app, save currentUser to backend.
-                 showConfirmation('Profile updated successfully!', 'success');
-                 // Optional: Redirect back to dashboard or stay on profile
-                  window.location.hash = '#dashboard'; // Go back to dashboard after save
-            }
-            function handleProfilePictureChange(e) {
+                 currentUser.name = `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`;
+                 currentUser.title = document.getElementById('jobTitle').value;
+                 currentUser.department = document.getElementById('department').value;
+                 currentUser.phone = document.getElementById('phone').value;
+                 // Extract initials - simple approach
+                 const nameParts = currentUser.name.split(' ');
+                 currentUser.initials = (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || '');
+                 updateUserUI(); // Reflect changes
+                 showConfirmation('Profile updated successfully!');
+                 // Navigate back to dashboard after save (optional)
+                 // setTimeout(() => { window.location.hash = 'dashboard'; }, 1000);
+             }
+
+             function handleProfilePictureChange(e) {
                 const file = e.target.files[0];
-                 if (file && file.type.startsWith('image/')) {
-                     const reader = new FileReader();
-                     reader.onload = (event) => {
-                         currentUser.profilePicture = event.target.result;
-                         updateUserUI(); // Update avatars
-                         showConfirmation('Profile picture updated (preview).', 'info');
-                         // Add logic here to actually upload the file to a server
-                     }
-                     reader.readAsDataURL(file);
-                 } else if (file) {
-                     showConfirmation('Invalid file type. Please select an image.', 'error');
-                 }
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        currentUser.profilePicture = event.target.result;
+                        updateUserUI(); // Update avatar previews
+                        showConfirmation('Profile picture updated.');
+                    }
+                    reader.readAsDataURL(file);
+                } else if (file) {
+                    alert('Please select a valid image file.');
+                }
             }
 
             function handleSettingsTabClick(e) {
-                 const clickedTab = e.target.closest('.settings-tab');
-                 if (!clickedTab) return;
-                 e.preventDefault(); // Prevent default anchor behavior if it were an anchor
+                const clickedTab = e.currentTarget;
+                const tabId = clickedTab.getAttribute('data-tab');
 
-                 const tabName = clickedTab.dataset.tab;
-                 activateSettingsTab(tabName);
+                settingsTabs.forEach(tab => tab.classList.remove('active'));
+                settingsPanels.forEach(panel => panel.classList.remove('active'));
 
-                 // Update URL hash to reflect the active tab for persistence
-                 window.location.hash = `settings/${tabName}`;
-                 localStorage.setItem(STORAGE_KEYS.ACTIVE_SETTINGS_TAB, tabName); // Also save to localStorage
+                clickedTab.classList.add('active');
+                const targetPanel = document.getElementById(`${tabId}Settings`);
+                if (targetPanel) {
+                    targetPanel.classList.add('active');
+                }
             }
-
-            function activateSettingsTab(tabName) {
-                 settingsTabs.forEach(tab => tab.classList.remove('active'));
-                 settingsPanels.forEach(panel => panel.classList.remove('active'));
-
-                 const targetTab = document.querySelector(`.settings-tab[data-tab="${tabName}"]`);
-                 const targetPanel = document.getElementById(`${tabName}Settings`);
-
-                 if (targetTab && targetPanel) {
-                     targetTab.classList.add('active');
-                     targetPanel.classList.add('active');
-                 } else {
-                     // Fallback to general if tabName is invalid
-                     activateDefaultSettingsTab();
-                     window.location.hash = 'settings/general'; // Correct URL hash
-                 }
-            }
-
-            function restoreSettingsTab(subFeature = null) {
-                // Use subFeature from URL hash if provided, otherwise check localStorage, fallback to 'general'
-                 const activeTabName = subFeature || localStorage.getItem(STORAGE_KEYS.ACTIVE_SETTINGS_TAB) || 'general';
-                 activateSettingsTab(activeTabName);
-            }
-
-            function activateDefaultSettingsTab() {
-                 activateSettingsTab('general');
-                 localStorage.setItem(STORAGE_KEYS.ACTIVE_SETTINGS_TAB, 'general');
-            }
-
-            // --- Settings Save Handlers ---
-            function handleGeneralSettingsSave(e) {
-                e.preventDefault();
-                userSettings.timezone = document.getElementById('timezone').value;
-                userSettings.language = document.getElementById('language').value;
-                // userSettings.startOfWeek is always 'sunday', no need to read from form
-                userSettings.darkMode = document.getElementById('darkModeToggle').checked;
-                saveData();
-                applySettingsToUI();
-                showConfirmation('General settings saved.', 'success');
-            }
-
-            function handleNotificationSettingsSave(e) {
-                e.preventDefault();
-                const formData = new FormData(notificationSettingsForm);
-
-                // Ensure notification objects exist
-                userSettings.notifications = userSettings.notifications || {};
-                userSettings.notifications.integrations = userSettings.notifications.integrations || {};
-
-                // Update standard notification preferences
-                const types = ['taskAssignments', 'projectUpdates', 'comments', 'deadlines', 'announcements'];
-                types.forEach(type => {
-                    userSettings.notifications[type] = userSettings.notifications[type] || {};
-                    userSettings.notifications[type].app = formData.has(`notify${capitalize(type)}_app`);
-                    if (notificationSettingsForm.elements[`notify${capitalize(type)}_email`]) {
-                        userSettings.notifications[type].email = formData.has(`notify${capitalize(type)}_email`);
-                    } else {
-                         delete userSettings.notifications[type].email;
-                     }
-                });
-
-                userSettings.notifications.dailySummary = { email: formData.has('notifyDailySummary_email') };
-                userSettings.notifications.soundLevel = formData.get('notificationSoundLevel');
-
-                // Update integration-specific notification preferences (Example: Slack)
-                if (userSettings.notifications.integrations.slack) {
-                     const slackSettings = userSettings.notifications.integrations.slack;
-                     // Determine if *any* Slack notification type is checked
-                     slackSettings.taskAssignments = formData.has('integrationNotify_slack_taskAssignments');
-                     slackSettings.mentions = formData.has('integrationNotify_slack_mentions');
-                     slackSettings.projectUpdates = formData.has('integrationNotify_slack_projectUpdates');
-                     // Master enable switch based on if any sub-option is checked
-                     slackSettings.enabled = slackSettings.taskAssignments || slackSettings.mentions || slackSettings.projectUpdates;
-                     slackSettings.channel = formData.get('integrationNotify_slack_channel') || 'default';
-                 }
-                 // Update integration-specific notification preferences (Example: Google Calendar Sync)
-                 if (userSettings.notifications.integrations.google) {
-                     userSettings.notifications.integrations.google.calendarSync = formData.has('integrationNotify_google_calendarSync');
-                 }
-
-                saveData();
-                applySettingsToUI(); // Re-apply to ensure UI reflects saved state
-                showConfirmation('Notification settings saved.', 'success');
-            }
-
-            function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
-
-            function handleIntegrationToggleClick(e) {
-                 const button = e.target.closest('.integration-toggle');
-                 if (!button) return;
-                 const integrationKey = button.dataset.integration;
-                 if (integrationKey && userSettings.integrations.hasOwnProperty(integrationKey)) {
-                     userSettings.integrations[integrationKey] = !userSettings.integrations[integrationKey];
-                     saveData();
-                     applyIntegrationSettingsToUI(); // Update integration connect/disconnect buttons
-                     applyNotificationSettingsToForm(); // Update related notification options (enable/disable)
-                     const action = userSettings.integrations[integrationKey] ? 'connected' : 'disconnected';
-                     const message = `${capitalize(integrationKey)} integration ${action}.`;
-                     showConfirmation(message, 'info');
-                 }
-             }
-
-            // --- Security Action Handlers ---
-            function handleToggle2FA() {
-                 userSettings.security.twoFactorEnabled = !userSettings.security.twoFactorEnabled;
-                 saveData();
-                 applySecuritySettingsToUI();
-                 const message = `Two-Factor Authentication ${userSettings.security.twoFactorEnabled ? 'enabled' : 'disabled'}.`;
-                 showConfirmation(message, 'info');
-            }
-
-            function handleChangePassword() {
-                 alert('Password change functionality placeholder. Requires backend implementation.');
-            }
-
-            function handleManageSessions() {
-                 alert('Active session management placeholder. Requires backend implementation.');
-            }
-
-            // --- Apply Settings to UI ---
-             function applySettingsToUI() {
-                 applyGeneralSettingsToForm();
-                 applyNotificationSettingsToForm(); // This now also handles integration-related options visibility
-                 applyIntegrationSettingsToUI();
-                 applySecuritySettingsToUI();
-                 // Apply dark mode if implemented
-                 // document.body.classList.toggle('dark-theme', userSettings.darkMode);
-             }
-
-             function applyGeneralSettingsToForm() {
-                 if (!generalSettingsForm) return;
-                 generalSettingsForm.elements['timezone'].value = userSettings.timezone || 'utc2';
-                 generalSettingsForm.elements['language'].value = userSettings.language || 'en';
-                 // Start week is now readonly input, value set in HTML
-                 generalSettingsForm.elements['darkMode'].checked = userSettings.darkMode || false;
-             }
-
-             function applyNotificationSettingsToForm() {
-                 if (!notificationSettingsForm || !userSettings.notifications) return;
-                 const form = notificationSettingsForm;
-                 const notifySettings = userSettings.notifications;
-                 const integrationStatus = userSettings.integrations; // Get connection status
-
-                 // Standard notifications
-                 const types = ['taskAssignments', 'projectUpdates', 'comments', 'deadlines', 'announcements'];
-                 types.forEach(type => {
-                     const setting = notifySettings[type] || {};
-                     const appCheckbox = form.elements[`notify${capitalize(type)}_app`];
-                     const emailCheckbox = form.elements[`notify${capitalize(type)}_email`];
-                     if (appCheckbox) appCheckbox.checked = !!setting.app;
-                     if (emailCheckbox) emailCheckbox.checked = !!setting.email;
-                 });
-
-                 const dailySummarySetting = notifySettings.dailySummary || {};
-                 const dailySummaryCheckbox = form.elements['notifyDailySummary_email'];
-                 if (dailySummaryCheckbox) dailySummaryCheckbox.checked = !!dailySummarySetting.email;
-
-                 // Integration notifications (e.g., Slack)
-                 const slackNotifySettings = notifySettings.integrations?.slack || {};
-                 const slackConnected = integrationStatus?.slack || false;
-                 const slackSection = form.querySelector('.integration-notification-settings[data-integration="slack"]');
-
-                 if (slackSection) {
-                     const checkboxes = slackSection.querySelectorAll('input[type="checkbox"]');
-                     const channelSelect = slackSection.querySelector('select[name="integrationNotify_slack_channel"]');
-
-                     // Enable/disable based on connection status
-                     checkboxes.forEach(cb => cb.disabled = !slackConnected);
-                     if(channelSelect) channelSelect.disabled = !slackConnected;
-
-                     // Set checkbox values from settings
-                     const slackTaskCb = form.elements['integrationNotify_slack_taskAssignments'];
-                     const slackMentionCb = form.elements['integrationNotify_slack_mentions'];
-                     const slackProjectCb = form.elements['integrationNotify_slack_projectUpdates'];
-
-                     if (slackTaskCb) slackTaskCb.checked = !!slackNotifySettings.taskAssignments && slackConnected;
-                     if (slackMentionCb) slackMentionCb.checked = !!slackNotifySettings.mentions && slackConnected;
-                     if (slackProjectCb) slackProjectCb.checked = !!slackNotifySettings.projectUpdates && slackConnected;
-                     if (channelSelect) channelSelect.value = slackNotifySettings.channel || 'default';
-
-                     // Dim the section if not connected
-                     slackSection.style.opacity = slackConnected ? '1' : '0.6';
-                     slackSection.style.pointerEvents = slackConnected ? 'auto' : 'none';
-                 }
-
-                 // Integration notifications (e.g., Google Calendar Sync)
-                  const googleNotifySettings = notifySettings.integrations?.google || {};
-                  const googleConnected = integrationStatus?.google || false;
-                  const googleSection = form.querySelector('.integration-notification-settings[data-integration="google"]');
-                  if (googleSection) {
-                     const toggleInput = googleSection.querySelector('input[name="integrationNotify_google_calendarSync"]');
-                     if (toggleInput) {
-                         toggleInput.checked = !!googleNotifySettings.calendarSync && googleConnected;
-                         toggleInput.disabled = !googleConnected;
-                         // Find parent toggle switch to disable visually if needed
-                         const toggleSwitch = toggleInput.closest('.toggle-switch');
-                         if (toggleSwitch) toggleSwitch.style.cursor = googleConnected ? 'pointer' : 'not-allowed';
-                     }
-                     googleSection.style.opacity = googleConnected ? '1' : '0.6';
-                     googleSection.style.pointerEvents = googleConnected ? 'auto' : 'none';
-                  }
-
-
-                 // Sound level
-                 form.elements['notificationSoundLevel'].value = notifySettings.soundLevel || 'normal';
-             }
-
-             function applyIntegrationSettingsToUI() {
-                 if (!integrationSettingsForm) return;
-                 const items = integrationSettingsForm.querySelectorAll('.setting-item');
-
-                 items.forEach(item => {
-                     const toggleButton = item.querySelector('.integration-toggle');
-                     const statusSpan = item.querySelector('.integration-status');
-                     if (!toggleButton || !statusSpan) return;
-
-                     const key = toggleButton.dataset.integration;
-                     if (userSettings.integrations.hasOwnProperty(key)) {
-                         const isConnected = userSettings.integrations[key];
-                         toggleButton.textContent = isConnected ? 'Disconnect' : 'Connect';
-                         toggleButton.classList.toggle('btn-danger', isConnected);
-                         toggleButton.classList.toggle('btn-outline', !isConnected);
-                         toggleButton.classList.remove('btn-primary');
-
-                         // Ensure button is visible when disconnected, status visible when connected
-                         toggleButton.style.display = isConnected ? 'inline-flex' : 'inline-flex'; // Always show button for action
-                         statusSpan.style.display = isConnected ? 'flex' : 'none'; // Show status only when connected
-                     }
-                 });
-             }
-
-             function applySecuritySettingsToUI() {
-                 if (!securitySettingsForm) return;
-                 const is2FAEnabled = userSettings.security.twoFactorEnabled || false;
-
-                 enable2faBtn.textContent = is2FAEnabled ? 'Disable 2FA' : 'Enable 2FA';
-                 enable2faBtn.classList.toggle('btn-danger', is2FAEnabled); // Red to disable
-                 enable2faBtn.classList.toggle('btn-primary', !is2FAEnabled); // Blue to enable
-                 enable2faBtn.classList.remove('btn-outline'); // Remove outline class
-
-                 if(twoFaStatusEl) {
-                     twoFaStatusEl.textContent = is2FAEnabled ? 'Enabled' : 'Disabled';
-                     twoFaStatusEl.style.fontWeight = is2FAEnabled ? 'bold' : 'normal';
-                     twoFaStatusEl.style.color = is2FAEnabled ? 'var(--success)' : 'var(--danger)';
-                 }
-
-                 const lastChangeEl = document.getElementById('lastPasswordChange');
-                 if (lastChangeEl) lastChangeEl.textContent = userSettings.security.lastPasswordChange || 'N/A';
-             }
-
-             // --- Activity List Actions ---
-             function handleShowAllActivitiesToggle() {
-                isShowingAllActivities = !isShowingAllActivities;
-                renderActivities(); // Re-render with new limit/all
-             }
 
              function handleActivityDeleteClick(e) {
-                 e.stopPropagation(); // Prevent potential parent clicks
-                 const button = e.currentTarget;
-                 const item = button.closest('.activity-item');
-                 const id = parseInt(item.dataset.id);
-                 const messagePreview = item.querySelector('.activity-message').textContent.substring(0, 60);
-                 if (item && confirm(`Permanently delete this activity record?\n\n"${messagePreview}..."\n\nThis action cannot be undone.`)) {
-                     deleteActivity(id);
-                     showConfirmation('Activity record deleted.', 'info');
+                 if (e.target.closest('.activity-actions-btn')) {
+                     const item = e.target.closest('.activity-item');
+                      if (item && confirm('Are you sure you want to delete this activity?')) {
+                          item.remove();
+                          playDeleteSound();
+                          showConfirmation('Activity deleted.');
+                      }
                  }
              }
 
-            function handleDeleteAllActivities() {
-                 const count = activities.length;
-                if (count > 0) {
-                    if (confirm(`Delete all ${count} activity records? This action cannot be undone.`)) {
-                        const deletedCount = activities.length;
-                        activities = [];
-                        nextActivityId = 0;
-                        saveData();
-                        renderActivities(); // Update list (will show "No activity" and hide buttons)
-                        playDeleteSound();
-                        showConfirmation(`All ${deletedCount} activity record${deletedCount > 1 ? 's' : ''} cleared.`, 'info');
-                    }
-                }
-            }
+             function handleDeleteAllActivities() {
+                  if (confirm('Are you sure you want to delete all activities?')) {
+                      activityList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--gray);">No recent activity</li>';
+                      playDeleteSound();
+                      showConfirmation('All activities deleted.');
+                  }
+             }
 
-            function deleteActivity(id) {
-                 const index = activities.findIndex(a => a.id === id);
-                 if (index > -1) {
-                     activities.splice(index, 1);
-                     saveData();
-                     renderActivities(); // Re-render the list
-                     playDeleteSound();
-                 }
-            }
 
-            // --- Global Click & Responsive ---
             function handleGlobalClick(e) {
-                if (!userProfileWrapper.contains(e.target)) userDropdown.classList.remove('active');
-                if (!notificationIconWrapper.contains(e.target)) notificationDropdown.classList.remove('active');
-                // Close sidebar if clicking outside of it on mobile
-                if (window.innerWidth <= 992 && sidebar.classList.contains('active') && !sidebar.contains(e.target) && !e.target.closest('.open-sidebar')) {
-                    sidebar.classList.remove('active');
+                // Close user dropdown if click is outside
+                if (!userProfileWrapper.contains(e.target)) {
+                    userDropdown.classList.remove('active');
                 }
-            }
-
-            function checkScreenSize() {
-                 const isMobile = window.innerWidth <= 992;
-                 openSidebarBtn.style.display = isMobile ? 'block' : 'none';
-                 closeSidebarBtn.style.display = isMobile ? 'block' : 'none';
-                 if (!isMobile) {
-                     sidebar.classList.remove('active'); // Ensure sidebar isn't stuck active on resize
-                     mainContent.style.marginLeft = 'var(--sidebar-width)';
-                     sidebar.style.transform = 'translateX(0)'; // Ensure visible on desktop
-                 } else {
-                     mainContent.style.marginLeft = '0';
-                     if (!sidebar.classList.contains('active')) {
-                         sidebar.style.transform = 'translateX(-100%)'; // Ensure hidden if not active
-                     }
+                // Close notification dropdown if click is outside
+                 if (!notificationIconWrapper.contains(e.target)) {
+                    notificationDropdown.classList.remove('active');
+                }
+                // Close search results if click is outside search bar
+                if (!e.target.closest('.search-bar')) {
+                    searchResults.style.display = 'none';
+                }
+                 // Close mobile sidebar if click is outside sidebar
+                 if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && !openSidebarBtn.contains(e.target)) {
+                    sidebar.classList.remove('active');
                  }
             }
 
             // --- Helper Functions ---
-            function showConfirmation(message, type = 'success') {
+            function showConfirmation(message) {
                 confirmationText.textContent = message;
-                confirmationMessage.className = 'confirmation-message'; // Reset classes
-                confirmationMessage.classList.add(type); // Add specific type class
-
-                switch (type) {
-                    case 'error': confirmationIcon.className = 'fas fa-times-circle'; break;
-                    case 'warning': confirmationIcon.className = 'fas fa-exclamation-triangle'; break;
-                    case 'info': confirmationIcon.className = 'fas fa-info-circle'; break;
-                    case 'success': default: confirmationIcon.className = 'fas fa-check-circle'; break;
-                }
-
                 confirmationMessage.classList.add('show');
-                if (window.confirmationTimeout) clearTimeout(window.confirmationTimeout);
-                window.confirmationTimeout = setTimeout(() => {
+                setTimeout(() => {
                     confirmationMessage.classList.remove('show');
-                    window.confirmationTimeout = null;
-                }, 3500);
+                }, 3000);
             }
 
-            function playSound(audioElement) {
-                if (!audioElement || !userSettings.notifications || userSettings.notifications.soundLevel === 'off') return;
-                let volume = 0.4;
-                switch (userSettings.notifications.soundLevel) {
-                     case 'quiet': volume = 0.15; break;
-                     case 'loud': volume = 0.7; break;
-                }
-                 audioElement.volume = volume;
-                 audioElement.currentTime = 0;
-                 audioElement.play().catch(e => console.warn('Sound play failed:', e));
+            function playNotificationSound() {
+                notificationSound.currentTime = 0;
+                notificationSound.play().catch(e => console.warn('Audio play failed:', e));
             }
-            function playNotificationSound() { playSound(notificationSound); }
-            function playActivitySound() { playSound(activitySound); }
-            function playDeleteSound() { playSound(deleteSound); }
+
+            function playDeleteSound() {
+                deleteSound.currentTime = 0;
+                deleteSound.play().catch(e => console.warn('Audio play failed:', e));
+            }
 
             function markNotificationAsRead(id) {
                 const notification = notifications.find(n => n.id === id);
-                 if (notification && !notification.read) {
-                     notification.read = true;
-                     saveData();
-                     renderNotifications(); // Re-render to remove dot/change style
-                     // Optional: Navigate to the related item if the notification has a link
-                     // if (notification.link) window.location.hash = notification.link;
-                 }
+                if (notification && !notification.read) {
+                    notification.read = true;
+                    renderNotifications(); // Re-render to update UI
+                }
             }
+
             function deleteNotification(id) {
-                 const index = notifications.findIndex(n => n.id === id);
-                 if (index > -1) {
-                     notifications.splice(index, 1);
-                     saveData();
-                     renderNotifications();
-                     playDeleteSound();
+                 notifications = notifications.filter(n => n.id !== id);
+                 renderNotifications();
+                 playDeleteSound();
+                 showConfirmation('Notification deleted.');
+            }
+
+             function addNewNotification(icon, message) {
+                 const newId = notifications.length > 0 ? Math.max(...notifications.map(n => n.id)) + 1 : 1;
+                 const newNotification = {
+                     id: newId,
+                     icon: icon,
+                     message: message,
+                     time: 'Just now',
+                     read: false
+                 };
+                 notifications.unshift(newNotification); // Add to the beginning
+                 renderNotifications();
+                 playNotificationSound();
+             }
+
+             // --- Responsive Handling ---
+            function checkScreenSize() {
+                const isMobile = window.innerWidth <= 992;
+                openSidebarBtn.style.display = isMobile ? 'block' : 'none';
+                closeSidebarBtn.style.display = isMobile ? 'block' : 'none';
+                 // Ensure sidebar isn't stuck open on resize
+                 if (!isMobile) {
+                     sidebar.classList.remove('active');
                  }
             }
-             function formatTimeAgo(timestamp) {
-                 const now = Date.now();
-                 const secondsPast = Math.floor((now - timestamp) / 1000);
 
-                 if (secondsPast < 60) return `${secondsPast}s ago`;
-                 if (secondsPast < 3600) return `${Math.floor(secondsPast / 60)}m ago`;
-                 if (secondsPast <= 86400) return `${Math.floor(secondsPast / 3600)}h ago`;
-
-                 const daysPast = Math.floor(secondsPast / 86400);
-                 if (daysPast <= 7) return `${daysPast}d ago`;
-
-                 const date = new Date(timestamp);
-                 return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            }
-
-            // --- Simulation Functions (Optional) ---
-            function simulateStatUpdates() {
-                setInterval(() => {
-                    // Randomly change one stat slightly
-                    const statsKeys = Object.keys(currentUser.stats);
-                    const randomStat = statsKeys[Math.floor(Math.random() * statsKeys.length)];
-                    const change = Math.random() < 0.6 ? 0 : (Math.random() < 0.5 ? 1 : -1); // More likely no change
-                    if (change !== 0) {
-                         currentUser.stats[randomStat] = Math.max(0, currentUser.stats[randomStat] + change); // Ensure non-negative
-                         updateStatDisplay();
-                    }
-                }, 8000); // Update roughly every 8 seconds
-            }
-             function simulateNewActivity() {
+             // --- Real-time Simulation ---
+             function initRealTimeUpdates() {
                  setInterval(() => {
-                     const activityTemplates = [
-                         { icon: 'fas fa-check-circle', message: '<strong>{user}</strong> completed task <strong>{task}</strong>' },
-                         { icon: 'fas fa-comment-alt', message: '<strong>{user}</strong> commented on <strong>{item}</strong>' },
-                         { icon: 'fas fa-file-upload', message: '<strong>{user}</strong> uploaded <strong>{file}</strong>' },
-                         { icon: 'fas fa-users', message: '<strong>{user}</strong> joined the team' },
-                     ];
-                     const users = ['Alex R.', 'Sarah J.', 'Emily C.', 'You'];
-                     const tasks = ['API Design', 'Mobile UI Mockup', 'Bug Fix #123', 'Documentation Review'];
-                     const items = ['Project Plan', 'Budget Sheet', 'Client Feedback Doc'];
-                     const files = ['report_final.pdf', 'logo_v3.png', 'data_export.csv'];
+                     // Simulate new activity/notification
+                     if (Math.random() > 0.9) { // Less frequent
+                         const activities = [
+                             { icon: 'fas fa-file-upload', message: 'Alex uploaded "Final Report.pdf"' },
+                             { icon: 'fas fa-comment-alt', message: 'Emily commented on "Homepage Mockup"' },
+                             { icon: 'fas fa-lightbulb', message: 'New idea submitted: "Gamification"' }
+                         ];
+                         const activity = activities[Math.floor(Math.random() * activities.length)];
 
-                     const template = activityTemplates[Math.floor(Math.random() * activityTemplates.length)];
-                     const user = users[Math.floor(Math.random() * users.length)];
-                     const message = template.message
-                         .replace('{user}', user)
-                         .replace('{task}', tasks[Math.floor(Math.random() * tasks.length)])
-                         .replace('{item}', items[Math.floor(Math.random() * items.length)])
-                         .replace('{file}', files[Math.floor(Math.random() * files.length)]);
+                         // Add to activity list (simplified)
+                         const activityItem = document.createElement('li');
+                         activityItem.className = 'activity-item new';
+                         activityItem.innerHTML = `
+                             <div class="activity-icon"><i class="${activity.icon}"></i></div>
+                             <div class="activity-content">
+                                 <div class="activity-message">${activity.message}</div>
+                                 <div class="activity-time">Just now</div>
+                             </div>
+                             <button class="activity-actions-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                         `;
+                         // Remove placeholder if it exists
+                         const placeholder = activityList.querySelector('li[style*="text-align: center"]');
+                         if(placeholder) placeholder.remove();
 
-                     const newActivity = {
-                         id: nextActivityId++,
-                         icon: template.icon,
-                         message: message,
-                         timestamp: Date.now()
-                     };
-                     activities.push(newActivity);
-                     saveData();
-                     renderActivities();
-                     playActivitySound(); // Play sound for new activity
-                     showConfirmation('New activity recorded.', 'info'); // Subtle confirmation
-                 }, 25000); // Add new activity roughly every 25 seconds
+                         activityList.insertBefore(activityItem, activityList.firstChild);
+
+                         // Add notification
+                         addNewNotification(activity.icon, activity.message);
+                     }
+                 }, 15000); // Every 15 seconds
              }
-             function simulateNewNotification() {
-                 setInterval(() => {
-                    const notificationTemplates = [
-                         { icon: 'fas fa-tasks', message: 'New task assigned: <strong>{task}</strong>' },
-                         { icon: 'fas fa-comment-alt', message: '<strong>{user}</strong> mentioned you in <strong>{item}</strong>' },
-                         { icon: 'fas fa-exclamation-triangle', message: 'Deadline approaching for <strong>{task}</strong>' },
-                         { icon: 'fas fa-calendar-check', message: 'Upcoming event: <strong>{event}</strong> tomorrow' },
-                     ];
-                     const users = ['Alex R.', 'Sarah J.', 'Project Bot'];
-                     const tasks = ['Finalize Report', 'Deploy Update', 'Review Mockups', 'Client Call Prep'];
-                     const items = ['Project Delta', 'Meeting Notes', 'Task #456'];
-                     const events = ['Team Sync', 'Client Demo', 'Sprint Planning'];
-
-                     const template = notificationTemplates[Math.floor(Math.random() * notificationTemplates.length)];
-                     const user = users[Math.floor(Math.random() * users.length)];
-                     const message = template.message
-                         .replace('{user}', user)
-                         .replace('{task}', tasks[Math.floor(Math.random() * tasks.length)])
-                         .replace('{item}', items[Math.floor(Math.random() * items.length)])
-                         .replace('{event}', events[Math.floor(Math.random() * events.length)]);
-
-                     const newNotification = {
-                         id: notifications.length > 0 ? Math.max(...notifications.map(n => n.id)) + 1 : 0,
-                         icon: template.icon,
-                         message: message,
-                         time: formatTimeAgo(Date.now()),
-                         read: false
-                     };
-                     notifications.push(newNotification);
-                     saveData();
-                     renderNotifications();
-                     playNotificationSound(); // Play sound
-                     showConfirmation('New notification received!', 'info');
-                 }, 45000); // Add new notification roughly every 45 seconds
-            }
 
             // --- Start the application ---
             initApp();
         });
     </script>
 </body>
-</html>
