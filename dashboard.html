@@ -236,22 +236,22 @@
             height: 100%;
             object-fit: cover;
         }
-        .user-name-wrapper { /* Wrapper for name and status */
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
+        .user-name {
+            font-weight: 500;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem; /* Reduced gap slightly */
         }
-        .user-name-display {
-            font-weight: 500;
-        }
-        /* Connection Status Indicator - Updated */
+        /* Connected Status Indicator - IMPROVED */
         #connectionStatus {
-            font-size: 0.7em;
+            font-size: 0.85em; /* Slightly larger */
             color: var(--success);
-            font-weight: 500;
+            font-weight: 600; /* Bolder */
+            margin-left: 6px; /* Adjusted spacing */
             opacity: 0.9;
-            line-height: 1; /* Adjust line height */
+            display: inline-block; /* Ensure vertical alignment works */
+            line-height: 1; /* Align baseline */
         }
         .user-dropdown {
             position: absolute;
@@ -554,7 +554,8 @@
             font-size: 0.8rem;
             color: var(--gray);
         }
-        .activity-actions-btn {
+        /* Activity Delete Button */
+        .delete-activity {
             background: none;
             border: none;
             color: var(--gray);
@@ -563,8 +564,9 @@
             border-radius: 4px;
             margin-left: 0.5rem;
             transition: background-color 0.2s, color 0.2s;
+            align-self: center; /* Vertically center delete button */
         }
-        .activity-actions-btn:hover {
+        .delete-activity:hover {
             background-color: rgba(239, 68, 68, 0.1); /* Danger background on hover */
             color: var(--danger);
         }
@@ -779,7 +781,8 @@
             position: absolute; top: 1rem; right: 1rem;
             width: 8px; height: 8px; background-color: var(--primary); border-radius: 50%;
         }
-        .notification-actions-item {
+        /* Notification Delete Button */
+        .notification-actions-item.delete-notification {
             position: absolute; top: 0.5rem; right: 0.5rem;
             display: flex; align-items: center; justify-content: center;
             width: 28px; height: 28px; padding: 0;
@@ -787,12 +790,12 @@
             background: none; border: none; opacity: 0;
             transition: background-color 0.2s, opacity 0.2s, color 0.2s;
         }
-        .notification-item:hover .notification-actions-item { opacity: 1; background-color: var(--light-gray); }
-        .notification-actions-item:hover {
+        .notification-item:hover .delete-notification { opacity: 1; background-color: var(--light-gray); }
+        .delete-notification:hover {
              background-color: rgba(239, 68, 68, 0.1);
              color: var(--danger);
          }
-        .notification-actions-item i { font-size: 0.8rem; }
+        .delete-notification i { font-size: 0.8rem; }
 
         /* Task Management Styles */
         #taskManagementContent { /* Same base style as profile */
@@ -941,20 +944,11 @@
         /* Integration Status (e.g., Connected) */
         .integration-status { font-size: 0.8rem; font-weight: 600; color: var(--success); display: flex; align-items: center; gap: 0.3rem; }
         .integration-status i { font-size: 0.7rem; }
-        /* Integration Config (Dropdown/Select) */
-        .integration-config { display: flex; flex-direction: column; gap: 0.5rem; margin-left: 1rem; }
-        .integration-config label { font-size: 0.8rem; font-weight: 500; color: var(--dark); }
-        .integration-config select { padding: 0.3rem 0.5rem; border: 1px solid var(--light-gray); border-radius: 4px; font-size: 0.8rem; max-width: 150px; }
-        /* Subtitle for notification categories */
-        .notification-category-title {
-            font-weight: 600;
-            margin-top: 1.5rem;
-            margin-bottom: 0.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--light-gray);
-            font-size: 1rem;
-            color: var(--primary-dark);
-        }
+
+        /* Settings Integration Notification Options */
+        .integration-notification-options { margin-top: 0.5rem; padding-left: 1rem; }
+        .integration-notification-options label { display: block; margin-bottom: 0.5rem; }
+        .integration-notification-options select { padding: 0.25rem 0.5rem; font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--light-gray); margin-left: 0.5rem; }
 
         /* Placeholder Styles for other sections */
         #schedulingContent, #filesContent, #dataContent, #trackingContent,
@@ -1027,6 +1021,7 @@
              .activity-icon { left: 10px; /* Bring icon closer */ }
              .activity-list::before { left: 30px; /* Align line with new icon pos */ }
              .activity-content { padding-left: 1rem; /* Reset padding */ }
+             .delete-activity { align-self: flex-end; } /* Adjust delete button on mobile */
         }
         @media (max-width: 480px) {
             .stats-section { grid-template-columns: 1fr; }
@@ -1042,9 +1037,9 @@
             .btn { padding: 0.6rem 1.2rem; font-size: 0.9rem; }
             .section-title { font-size: 1.1rem; }
             .search-bar { width: calc(100% - 50px); }
-            .user-name-wrapper { gap: 0; /* Reduce gap */ }
-            .user-name-display { font-size: 0.9rem; } /* Adjust name size */
+            .user-name { font-size: 0.9rem; } /* Adjust name size */
             #connectionStatus { display: none; } /* Hide connected status on very small screens */
+            .setting-item .actions { flex-direction: column; align-items: flex-start; gap: 0.5rem; width: 100%;} /* Stack checkboxes */
         }
     </style>
 </head>
@@ -1113,9 +1108,9 @@
                 </div>
                 <div class="user-profile" id="userProfileWrapper">
                     <div class="user-avatar" id="userAvatar"><div class="initials">ME</div></div>
-                    <div class="user-name-wrapper"> <!-- Changed to wrapper -->
-                        <span class="user-name-display" id="userNameDisplay">Mohamed Elmenisy</span>
-                        <span id="connectionStatus">Online</span> <!-- Changed text -->
+                    <div class="user-name">
+                        <span id="userNameDisplay">Mohamed Elmenisy</span>
+                        <span id="connectionStatus">(Connected)</span> <!-- UPDATED STYLE VIA CSS -->
                     </div>
                     <div class="user-dropdown" id="userDropdown">
                         <a href="#profile" class="dropdown-item" id="profileLink"><i class="fas fa-user"></i><span>Profile</span></a>
@@ -1165,7 +1160,7 @@
                     <div class="section-header">
                         <h3 class="section-title">Recent Activity <span class="live-indicator"></span></h3>
                         <div class="activity-actions">
-                            <button class="btn btn-outline btn-sm" id="showAllActivities">Show All</button> <!-- Text changes dynamically -->
+                            <button class="btn btn-outline btn-sm" id="showAllActivities">Show All</button> <!-- Text updated dynamically -->
                             <button class="btn btn-danger btn-sm" id="deleteAllActivities">Delete All</button>
                         </div>
                     </div>
@@ -1349,11 +1344,9 @@
                              </select>
                         </div>
                          <div class="form-group">
-                            <label for="startOfWeek">Start Week On</label>
-                            <select id="startOfWeek" name="startOfWeek" class="form-control">
-                                <option value="sunday" selected>Sunday</option> <!-- Only Sunday option -->
-                            </select>
-                        </div>
+                            <label for="startOfWeekDisplay">Start Week On</label>
+                            <input type="text" id="startOfWeekDisplay" class="form-control" value="Sunday" readonly>
+                         </div>
                         <div class="setting-item">
                             <div class="setting-info">
                                 <div class="setting-title">Dark Mode</div>
@@ -1377,12 +1370,13 @@
                 <div class="settings-panel" id="notificationSettings">
                      <form id="notificationSettingsForm">
                         <h3 style="margin-bottom: 1.5rem;">Notification Settings</h3>
+                        <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">Configure how you receive alerts from TeamFlow.</p>
 
-                        <div class="notification-category-title">General Notifications</div>
+                        <h4 style="margin-top: 1.5rem; margin-bottom: 1rem; font-size: 1.1rem; color: var(--primary-dark);">Channel Preferences</h4>
                         <div class="setting-item">
                             <div class="setting-info">
                                 <div class="setting-title">Task Assignments</div>
-                                <div class="setting-description">Notify me when new tasks are assigned to me.</div>
+                                <div class="setting-description">When new tasks are assigned to you.</div>
                             </div>
                             <div class="actions">
                                 <label><input type="checkbox" name="notifyTaskAssignments_app"> In-App</label>
@@ -1392,7 +1386,7 @@
                         <div class="setting-item">
                             <div class="setting-info">
                                 <div class="setting-title">Project Updates</div>
-                                <div class="setting-description">Notify me of major project status changes or milestones.</div>
+                                <div class="setting-description">Major project status changes or milestones.</div>
                             </div>
                              <div class="actions">
                                 <label><input type="checkbox" name="notifyProjectUpdates_app"> In-App</label>
@@ -1402,7 +1396,7 @@
                         <div class="setting-item">
                             <div class="setting-info">
                                 <div class="setting-title">Comments & Mentions</div>
-                                <div class="setting-description">Notify me when someone comments on my tasks or mentions me.</div>
+                                <div class="setting-description">When someone comments on your tasks or mentions you.</div>
                             </div>
                              <div class="actions">
                                 <label><input type="checkbox" name="notifyComments_app"> In-App</label>
@@ -1412,7 +1406,7 @@
                          <div class="setting-item">
                             <div class="setting-info">
                                 <div class="setting-title">Deadline Reminders</div>
-                                <div class="setting-description">Send reminders for upcoming task deadlines.</div>
+                                <div class="setting-description">Reminders for upcoming task deadlines.</div>
                             </div>
                              <div class="actions">
                                 <label><input type="checkbox" name="notifyDeadlines_app"> In-App</label>
@@ -1422,7 +1416,7 @@
                         <div class="setting-item">
                             <div class="setting-info">
                                 <div class="setting-title">Team Announcements</div>
-                                <div class="setting-description">Notify me about general team announcements.</div>
+                                <div class="setting-description">General team announcements.</div>
                             </div>
                              <div class="actions">
                                 <label><input type="checkbox" name="notifyAnnouncements_app"> In-App</label>
@@ -1441,40 +1435,60 @@
                              </div>
                         </div>
 
-                        <!-- Integration Notifications Section -->
-                        <div class="notification-category-title">Integration Notifications</div>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <div class="setting-title"><i class="fab fa-slack" style="color: #4A154B;"></i> Slack Notifications</div>
-                                <div class="setting-description">Receive notifications directly in your connected Slack workspace.</div>
-                            </div>
-                             <div class="actions">
-                                <label><input type="checkbox" name="notifyViaSlack_app"> In-App</label>
-                                <label><input type="checkbox" name="notifyViaSlack_integration" data-integration="slack"> Via Slack</label>
-                             </div>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <div class="setting-title"><i class="fab fa-google" style="color: #DB4437;"></i> Google Notifications</div>
-                                <div class="setting-description">Sync notifications with Google services (if applicable).</div>
-                            </div>
-                             <div class="actions">
-                                <label><input type="checkbox" name="notifyViaGoogle_app"> In-App</label>
-                                <!-- Add specific Google notification options if needed -->
-                                <span style="color:var(--gray); font-size: 0.8em;">(Configuration in Integrations)</span>
-                             </div>
-                        </div>
-                         <!-- Add more integrations as needed -->
+                        <h4 style="margin-top: 2rem; margin-bottom: 1rem; font-size: 1.1rem; color: var(--primary-dark);">Integration Notifications</h4>
+                        <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">Receive notifications via connected services. Requires the integration to be active in the 'Integrations' tab.</p>
 
-                         <div class="form-group" style="margin-top: 1.5rem;">
-                             <label for="notificationSoundLevel">Notification Sound Level</label>
-                             <select id="notificationSoundLevel" name="notificationSoundLevel" class="form-control">
-                                 <option value="off">Off</option>
-                                 <option value="quiet">Quiet</option>
-                                 <option value="normal">Normal</option>
-                                 <option value="loud">Loud</option>
-                             </select>
+                        <div class="setting-item integration-notification-settings" data-integration="slack">
+                            <div class="setting-info">
+                                <div class="setting-title"><i class="fab fa-slack" style="color: #4A154B;"></i> Slack</div>
+                                <div class="setting-description">Send notifications to your connected Slack workspace.</div>
+                            </div>
+                            <div class="actions">
+                                <label><input type="checkbox" name="integrationNotify_slack_taskAssignments"> Task Assignments</label>
+                                <label><input type="checkbox" name="integrationNotify_slack_mentions"> Mentions</label>
+                                <label><input type="checkbox" name="integrationNotify_slack_projectUpdates"> Project Updates</label>
+                                <div class="integration-notification-options">
+                                    <label for="slackChannelSelect">Send to channel:</label>
+                                    <select id="slackChannelSelect" name="integrationNotify_slack_channel" class="filter-select" style="padding: 0.5rem; min-width: 150px;" disabled>
+                                        <option value="default">Default (App DM)</option>
+                                        <option value="team-updates">#team-updates</option>
+                                        <option value="project-alpha">#project-alpha</option>
+                                    </select>
+                                    <small style="display: block; color: var(--gray); margin-top: 0.25rem;">(Channel selection requires connection)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item integration-notification-settings" data-integration="google">
+                             <div class="setting-info">
+                                 <div class="setting-title"><i class="fab fa-google" style="color: #DB4437;"></i> Google Calendar</div>
+                                 <div class="setting-description">Add TeamFlow deadlines and events to your Google Calendar.</div>
+                             </div>
+                             <div class="actions">
+                                 <label class="toggle-switch">
+                                     <input type="checkbox" name="integrationNotify_google_calendarSync">
+                                     <span class="slider"></span>
+                                 </label>
+                             </div>
                          </div>
+                        <!-- Add more integration notification options here as needed -->
+
+                         <h4 style="margin-top: 2rem; margin-bottom: 1rem; font-size: 1.1rem; color: var(--primary-dark);">Sound & Appearance</h4>
+                         <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Notification Sound Level</div>
+                                <div class="setting-description">Adjust the volume for in-app notification sounds.</div>
+                            </div>
+                             <div class="actions">
+                                <select id="notificationSoundLevel" name="notificationSoundLevel" class="form-control" style="max-width: 150px;">
+                                    <option value="off">Off</option>
+                                    <option value="quiet">Quiet</option>
+                                    <option value="normal">Normal</option>
+                                    <option value="loud">Loud</option>
+                                </select>
+                             </div>
+                        </div>
+
                         <div class="form-actions">
                             <button type="button" class="btn btn-secondary" id="cancelNotificationSettings">Cancel</button>
                             <button type="submit" class="btn btn-primary">Save Notification Settings</button>
@@ -1486,23 +1500,16 @@
                 <div class="settings-panel" id="integrationSettings">
                     <form id="integrationSettingsForm">
                         <h3 style="margin-bottom: 1.5rem;">Integrations</h3>
+                        <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1.5rem;">Connect your favorite tools to streamline your workflow. Connecting typically requires authorizing TeamFlow access via the respective service. Notification preferences for connected apps can be set in the 'Notifications' tab.</p>
                         <div class="setting-item">
                             <div class="setting-info">
                                 <div class="setting-title"><i class="fab fa-slack" style="color: #4A154B;"></i> Slack</div>
                                 <div class="setting-description">Connect workspace for notifications & commands.</div>
                             </div>
-                            <div class="actions"> <!-- Container for button, status, and config -->
-                                <button type="button" class="btn btn-outline btn-sm integration-toggle" data-integration="slack">Connect</button>
+                            <div class="actions">
                                 <span class="integration-status" data-integration="slack" style="display: none;"><i class="fas fa-check-circle"></i> Connected</span>
-                                <div class="integration-config" data-integration="slack" style="display: none;">
-                                    <label for="slackNotifyLevel">Notify on Slack for:</label>
-                                    <select id="slackNotifyLevel" name="slackNotifyLevel" class="integration-config-select" data-integration="slack">
-                                        <option value="all">All Activity</option>
-                                        <option value="mentions">Mentions Only</option>
-                                        <option value="tasks">Assigned Tasks</option>
-                                        <option value="off">Off</option>
-                                    </select>
-                                </div>
+                                <button type="button" class="btn btn-outline btn-sm integration-toggle" data-integration="slack">Connect</button>
+                                <!-- Configuration could go here if needed, e.g., dropdown for default channel -->
                             </div>
                         </div>
                         <div class="setting-item">
@@ -1511,16 +1518,8 @@
                                 <div class="setting-description">Sync Calendar events & access Drive files.</div>
                             </div>
                             <div class="actions">
-                                <button type="button" class="btn btn-outline btn-sm integration-toggle" data-integration="google">Connect</button>
                                 <span class="integration-status" data-integration="google" style="display: none;"><i class="fas fa-check-circle"></i> Connected</span>
-                                <div class="integration-config" data-integration="google" style="display: none;">
-                                     <label for="googleCalendarSync">Sync with Google Calendar:</label>
-                                     <select id="googleCalendarSync" name="googleCalendarSync" class="integration-config-select" data-integration="google">
-                                         <option value="two-way">Two-way Sync</option>
-                                         <option value="one-way">TeamFlow to Google</option>
-                                         <option value="off">Off</option>
-                                     </select>
-                                 </div>
+                                <button type="button" class="btn btn-outline btn-sm integration-toggle" data-integration="google">Connect</button>
                             </div>
                         </div>
                         <div class="setting-item">
@@ -1529,12 +1528,8 @@
                                 <div class="setting-description">Link repositories and track commits.</div>
                             </div>
                             <div class="actions">
-                                <button type="button" class="btn btn-outline btn-sm integration-toggle" data-integration="github">Connect</button>
                                 <span class="integration-status" data-integration="github" style="display: none;"><i class="fas fa-check-circle"></i> Connected</span>
-                                 <div class="integration-config" data-integration="github" style="display: none;">
-                                     <label for="githubRepoLink">Link Repositories:</label>
-                                     <button type="button" class="btn btn-outline btn-sm">Manage Linked Repos</button>
-                                 </div>
+                                <button type="button" class="btn btn-outline btn-sm integration-toggle" data-integration="github">Connect</button>
                             </div>
                         </div>
                         <div class="setting-item">
@@ -1543,15 +1538,8 @@
                                 <div class="setting-description">Sync issues and project status.</div>
                             </div>
                             <div class="actions">
-                                <button type="button" class="btn btn-outline btn-sm integration-toggle" data-integration="jira">Connect</button>
                                 <span class="integration-status" data-integration="jira" style="display: none;"><i class="fas fa-check-circle"></i> Connected</span>
-                                <div class="integration-config" data-integration="jira" style="display: none;">
-                                     <label for="jiraProjectSync">Sync Project:</label>
-                                     <select id="jiraProjectSync" name="jiraProjectSync" class="integration-config-select" data-integration="jira">
-                                         <option value="auto">Auto-detect</option>
-                                         <option value="manual">Manual Select</option>
-                                     </select>
-                                 </div>
+                                <button type="button" class="btn btn-outline btn-sm integration-toggle" data-integration="jira">Connect</button>
                             </div>
                         </div>
                         <div class="setting-item">
@@ -1560,9 +1548,8 @@
                                 <div class="setting-description">Schedule/join meetings from calendar.</div>
                             </div>
                             <div class="actions">
-                                <button type="button" class="btn btn-outline btn-sm integration-toggle" data-integration="zoom">Connect</button>
                                 <span class="integration-status" data-integration="zoom" style="display: none;"><i class="fas fa-check-circle"></i> Connected</span>
-                                <!-- No specific config needed for basic zoom -->
+                                <button type="button" class="btn btn-outline btn-sm integration-toggle" data-integration="zoom">Connect</button>
                             </div>
                         </div>
                         <div class="setting-item">
@@ -1570,21 +1557,12 @@
                                 <div class="setting-title"><i class="fab fa-microsoft" style="color: #0078D4;"></i> Microsoft 365</div>
                                 <div class="setting-description">Sync Outlook Calendar & OneDrive files.</div>
                             </div>
-                             <div class="actions">
-                                <button type="button" class="btn btn-outline btn-sm integration-toggle" data-integration="microsoft">Connect</button>
+                            <div class="actions">
                                 <span class="integration-status" data-integration="microsoft" style="display: none;"><i class="fas fa-check-circle"></i> Connected</span>
-                                <div class="integration-config" data-integration="microsoft" style="display: none;">
-                                     <label for="microsoftCalendarSync">Sync with Outlook Calendar:</label>
-                                     <select id="microsoftCalendarSync" name="microsoftCalendarSync" class="integration-config-select" data-integration="microsoft">
-                                         <option value="two-way">Two-way Sync</option>
-                                         <option value="one-way">TeamFlow to Outlook</option>
-                                         <option value="off">Off</option>
-                                     </select>
-                                 </div>
+                                <button type="button" class="btn btn-outline btn-sm integration-toggle" data-integration="microsoft">Connect</button>
                             </div>
                         </div>
-                        <!-- No global save needed for integrations - handled individually -->
-                        <p style="margin-top: 2rem; font-size: 0.9rem; color: var(--gray);">Connect your favorite tools to streamline your workflow. Connecting typically requires authorizing TeamFlow access via the respective service.</p>
+                         <!-- No global save button needed -->
                     </form>
                 </div>
 
@@ -1592,6 +1570,7 @@
                 <div class="settings-panel" id="securitySettings">
                      <form id="securitySettingsForm">
                         <h3 style="margin-bottom: 1.5rem;">Security Settings</h3>
+                        <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1.5rem;">Keep your account secure. Regularly update your password and enable 2FA if available.</p>
                         <div class="setting-item">
                             <div class="setting-info">
                                 <div class="setting-title"><i class="fas fa-shield-alt"></i> Two-Factor Authentication (2FA)</div>
@@ -1619,8 +1598,7 @@
                                 <button type="button" class="btn btn-outline btn-sm" id="manageSessionsBtn">View Sessions</button>
                             </div>
                         </div>
-                         <!-- No global save needed for security actions -->
-                        <p style="margin-top: 2rem; font-size: 0.9rem; color: var(--gray);">Keep your account secure. Regularly update your password and enable 2FA if available.</p>
+                         <!-- No global save button needed -->
                     </form>
                 </div>
             </div>
@@ -1643,6 +1621,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // --- DOM Elements ---
             const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content'); // Added for sidebar logic
             const menuItems = document.querySelectorAll('.menu-item');
             const searchInput = document.getElementById('searchInput');
             const searchResults = document.getElementById('searchResults');
@@ -1653,7 +1632,7 @@
             const markAllAsRead = document.getElementById('markAllAsRead');
             const deleteAllNotificationsBtn = document.getElementById('deleteAllNotifications');
             const userProfileWrapper = document.getElementById('userProfileWrapper');
-            const userNameDisplay = document.getElementById('userNameDisplay'); // Now the span holding the name
+            const userNameDisplay = document.getElementById('userNameDisplay');
             const userEmail = document.getElementById('userEmail');
             const welcomeName = document.getElementById('welcomeName');
             const userDropdown = document.getElementById('userDropdown');
@@ -1682,7 +1661,6 @@
             const profileAvatarEl = document.getElementById('profileAvatar');
             const userRoleTitleEl = document.getElementById('userRoleTitle');
             const jobTitleInput = document.getElementById('jobTitle');
-            const mainContent = document.querySelector('.main-content'); // Added for responsive adjustments
 
             // Settings Form Elements
             const generalSettingsForm = document.getElementById('generalSettingsForm');
@@ -1706,10 +1684,10 @@
 
             // --- Local Storage Keys ---
             const STORAGE_KEYS = {
-                ACTIVITIES: 'teamflow_activities_v4', // Incremented version
-                NOTIFICATIONS: 'teamflow_notifications_v4', // Incremented version
-                USER_SETTINGS: 'teamflow_user_settings_v4', // Incremented version
-                ACTIVE_SETTINGS_TAB: 'teamflow_active_settings_tab_v2' // Keep track of active tab within settings
+                ACTIVITIES: 'teamflow_activities_v4', // Version bump
+                NOTIFICATIONS: 'teamflow_notifications_v4',
+                USER_SETTINGS: 'teamflow_user_settings_v4', // Version bump for new settings structure
+                ACTIVE_SETTINGS_TAB: 'teamflow_active_settings_tab_v2' // Separate key version
             };
 
             // --- Data ---
@@ -1725,14 +1703,14 @@
             };
             let previousStats = { ...currentUser.stats };
 
-            // --- Settings State (with detailed defaults) ---
+            // --- Settings State (with detailed defaults & new structure) ---
             let userSettings = {
                 timezone: 'utc2',
                 language: 'en',
-                startOfWeek: 'sunday', // Defaulted to Sunday
+                startOfWeek: 'sunday', // Hardcoded to Sunday
                 darkMode: false,
-                showAllActivities: false, // Added setting for activity list state
                 notifications: {
+                    // Direct channel preferences
                     taskAssignments: { app: true, email: false },
                     projectUpdates: { app: false, email: false },
                     comments: { app: true, email: false },
@@ -1741,18 +1719,22 @@
                     dailySummary: { email: false },
                     soundLevel: 'normal',
                     // Integration-specific notification preferences
-                    slack: { app: true, integration: false }, // Example structure
-                    google: { app: true, integration: false }
-                    // Add other integrations here if needed
+                    integrations: {
+                        slack: {
+                            enabled: false, // Master switch for Slack notifications
+                            taskAssignments: false,
+                            mentions: false,
+                            projectUpdates: false,
+                            channel: 'default' // Default channel
+                        },
+                        google: {
+                            calendarSync: false // Simple toggle for calendar sync
+                        }
+                        // Add other integrations here if they have notification settings
+                    }
                 },
-                integrations: {
-                    // More detailed integration settings
-                    slack: { connected: false, notifyLevel: 'all' },
-                    google: { connected: false, calendarSync: 'two-way' },
-                    github: { connected: false }, // Basic connect/disconnect
-                    jira: { connected: false, projectSync: 'auto' },
-                    zoom: { connected: false }, // Basic connect/disconnect
-                    microsoft: { connected: false, calendarSync: 'two-way' }
+                integrations: { // Connection status only
+                    slack: false, google: false, github: false, jira: false, zoom: false, microsoft: false
                 },
                 security: {
                     twoFactorEnabled: false,
@@ -1764,7 +1746,8 @@
             let notifications = [];
             let activities = [];
             let nextActivityId = 0;
-            // Removed isShowingAllActivities, now managed in userSettings
+            let isShowingAllActivities = false; // State for activity toggle
+            const MAX_RECENT_ACTIVITIES = 5; // Number of activities to show initially
 
             const searchData = [ // Example search data
                  { name: 'Dashboard Redesign', type: 'Project', link: '#projects' },
@@ -1796,12 +1779,12 @@
             // --- Initialization ---
             function initApp() {
                 loadData();
-                applySettingsToUI(); // Apply loaded settings
+                applySettingsToUI(); // Apply loaded settings first
                 updateUserUI();
                 renderNotifications();
-                renderActivities(); // Render based on saved showAll state
+                renderActivities(); // Initial render (likely limited view)
                 setupEventListeners();
-                handleNavigation(); // Handle initial hash/load
+                handleNavigation(); // Handles initial hash and view
                 checkScreenSize();
                 // simulateStatUpdates(); // Uncomment to simulate stat changes
                 // simulateNewActivity(); // Uncomment to simulate new activities
@@ -1812,8 +1795,9 @@
             function saveData() {
                 localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
                 localStorage.setItem(STORAGE_KEYS.ACTIVITIES, JSON.stringify(activities));
+                // Make sure startOfWeek is always Sunday before saving settings
+                userSettings.startOfWeek = 'sunday';
                 localStorage.setItem(STORAGE_KEYS.USER_SETTINGS, JSON.stringify(userSettings));
-                // Active settings tab is saved separately in handleSettingsTabClick
             }
 
             function loadData() {
@@ -1829,40 +1813,38 @@
 
                  if (storedSettings) {
                     const loaded = JSON.parse(storedSettings);
-                    userSettings = mergeDeep(userSettings, loaded); // Use deep merge to preserve structure
-                 } else {
-                     // Ensure default settings are saved if nothing is stored
-                     saveData();
+                    // Use deep merge, prioritizing loaded structure but keeping defaults if missing
+                    userSettings = mergeDeep(userSettings, loaded);
                  }
+                 // Ensure startOfWeek is 'sunday' after loading, overriding any old saved value
+                 userSettings.startOfWeek = 'sunday';
                  nextActivityId = activities.length > 0 ? Math.max(...activities.map(a => a.id)) + 1 : 0;
             }
 
-             // Helper for deep merging settings objects (crucial for nested settings)
+             // Helper for deep merging settings objects
              function mergeDeep(target, source) {
                 const isObject = (obj) => obj && typeof obj === 'object' && !Array.isArray(obj);
-                let output = { ...target }; // Start with target's properties
+                let output = { ...target }; // Start with target defaults
+
                 if (isObject(target) && isObject(source)) {
                     Object.keys(source).forEach(key => {
-                        const targetValue = target[key];
-                        const sourceValue = source[key];
-                        if (isObject(sourceValue) && isObject(targetValue)) {
-                            // Recurse if both values are objects
-                            output[key] = mergeDeep(targetValue, sourceValue);
+                        if (isObject(source[key])) {
+                            // If key exists in target and is an object, recurse
+                            if (key in target && isObject(target[key])) {
+                                output[key] = mergeDeep(target[key], source[key]);
+                            } else {
+                                // Otherwise, take the source object entirely (could be a new structure)
+                                output[key] = { ...source[key] };
+                            }
                         } else {
-                            // Otherwise, source value overwrites target value
-                            output[key] = sourceValue;
+                            // Assign non-object value from source, overriding target
+                            output[key] = source[key];
                         }
                     });
+                     // Important: Ensure keys present in target but not source are kept (handled by starting with output = {...target})
                 }
-                 // Ensure keys only in target are also preserved
-                 Object.keys(target).forEach(key => {
-                     if (!(key in source)) {
-                         output[key] = target[key];
-                     }
-                 });
                 return output;
             }
-
 
             function setInitialNotifications() {
                  notifications = [
@@ -1871,7 +1853,7 @@
                      { id: 2, icon: 'fas fa-comment-alt', message: '<strong>Sarah Johnson</strong> commented on <strong>Project Alpha Timeline</strong>: "Need updated estimates"', time: formatTimeAgo(Date.now() - 10800000), read: false },
                      { id: 3, icon: 'fas fa-tasks', message: 'New task assigned: "Review Q3 Marketing Plan"', time: formatTimeAgo(Date.now() - 86400000), read: true },
                  ];
-                 // Don't save here, let loadData handle initial save if needed
+                 saveData();
             }
 
             function setInitialActivities() {
@@ -1884,21 +1866,31 @@
                     { id: 5, icon: 'fas fa-calendar-check', message: '<strong>Emily Chen</strong> scheduled <strong>Team Meeting</strong>', timestamp: Date.now() - 345600000 }, // 4 days ago
                  ];
                  nextActivityId = activities.length;
-                 // Don't save here, let loadData handle initial save if needed
+                 saveData();
             }
 
             // --- Core Navigation Logic ---
             function handleNavigation() {
                 const hash = window.location.hash.substring(1);
-                const feature = hash || 'dashboard';
-                updateView(feature);
+                let feature = hash || 'dashboard';
+                let subFeature = null;
+
+                // Check for settings sub-tabs (e.g., #settings/notifications)
+                if (feature.startsWith('settings/')) {
+                    const parts = feature.split('/');
+                    feature = parts[0]; // 'settings'
+                    subFeature = parts[1]; // e.g., 'notifications'
+                }
+
+                updateView(feature, subFeature);
             }
 
-            function updateView(feature) {
+            function updateView(feature, subFeature = null) {
                 const config = featureMap[feature];
                 if (!config) {
                     console.warn(`Feature "${feature}" not found. Redirecting to dashboard.`);
-                    window.location.hash = 'dashboard'; // Explicitly set hash to trigger navigation again if invalid
+                    window.location.hash = 'dashboard'; // Change URL
+                    updateView('dashboard'); // Recursively call to render dashboard
                     return;
                 }
 
@@ -1908,45 +1900,43 @@
                 if (targetSection) {
                     targetSection.style.display = 'block';
                     if (feature === 'dashboard') updateStatDisplay();
-                    // If navigating TO settings, restore the last used tab
                     if (feature === 'settings') {
-                        restoreSettingsTab();
+                        restoreSettingsTab(subFeature); // Restore specific tab if provided
                     }
                 } else {
                     console.error(`Content section ID "${config.contentId}" not found.`);
                     document.getElementById(featureMap['dashboard'].contentId).style.display = 'block';
-                    window.location.hash = 'dashboard'; // Fallback navigation
+                    window.location.hash = 'dashboard'; // Correct URL if section missing
+                    feature = 'dashboard'; // Fallback feature name
                     updateStatDisplay();
                 }
 
-                // Update active menu item in sidebar
                 menuItems.forEach(item => item.classList.remove('active'));
                 if (config.menuItemSelector) {
                     const activeMenuItem = document.querySelector(config.menuItemSelector);
                     if (activeMenuItem) activeMenuItem.classList.add('active');
-                } else if (feature === 'profile' || feature === 'settings') {
-                    // Highlight 'Settings' in sidebar for both Profile and Settings views
-                    const settingsMenuItem = document.querySelector(featureMap.settings.menuItemSelector);
+                } else if (feature === 'settings' && featureMap.settings.menuItemSelector) {
+                     const settingsMenuItem = document.querySelector(featureMap.settings.menuItemSelector);
                      if (settingsMenuItem) settingsMenuItem.classList.add('active');
+                } else if (feature === 'profile' && featureMap.settings.menuItemSelector) {
+                     // Optionally highlight settings if profile is viewed via settings link
                 }
 
-                // Close dropdowns and sidebar on navigation
                 userDropdown.classList.remove('active');
                 notificationDropdown.classList.remove('active');
                 if (window.innerWidth <= 992 && sidebar.classList.contains('active')) {
-                    sidebar.classList.remove('active');
+                    sidebar.classList.remove('active'); // Close sidebar on nav click only on smaller screens
                 }
-                searchResults.style.display = 'none'; // Hide search results
-                window.scrollTo(0, 0); // Scroll to top
+                searchResults.style.display = 'none';
+                window.scrollTo(0, 0);
             }
-
 
             // --- UI Update Functions ---
             function updateUserUI() {
                 const nameParts = currentUser.name.split(' ');
                 welcomeName.textContent = nameParts[0];
                 if (userNameDisplay) userNameDisplay.textContent = currentUser.name;
-                // Connection status text updated in HTML to "Online"
+                // Connection status handled via CSS and HTML span
                 userEmail.textContent = currentUser.email;
                 document.querySelector('.user-info-name').textContent = currentUser.name;
                 userRoleTitleEl.textContent = currentUser.title || 'Team Member';
@@ -2023,8 +2013,9 @@
                             <i class="fas fa-times"></i>
                         </button>
                     `;
+                    // Add event listeners directly here
                      li.addEventListener('click', (e) => {
-                         if (!e.target.closest('.delete-notification')) {
+                         if (!e.target.closest('.delete-notification')) { // Don't mark read if delete clicked
                             markNotificationAsRead(n.id);
                          }
                      });
@@ -2037,12 +2028,18 @@
                 activityList.innerHTML = ''; // Clear existing
 
                 const sortedActivities = [...activities].sort((a, b) => b.timestamp - a.timestamp);
-                const activitiesToShow = userSettings.showAllActivities ? sortedActivities : sortedActivities.slice(0, MAX_RECENT_ACTIVITIES);
+                const activitiesToShow = isShowingAllActivities ? sortedActivities : sortedActivities.slice(0, MAX_RECENT_ACTIVITIES);
 
                 if (activitiesToShow.length === 0) {
                     activityList.innerHTML = '<li style="padding: 1rem 0 1rem 50px; text-align: left; color: var(--gray); position:relative; z-index: 1;">No recent activity</li>';
+                    // Hide both buttons if no activities
+                    showAllActivitiesBtn.style.display = 'none';
+                    deleteAllActivitiesBtn.style.display = 'none';
                     return;
+                } else {
+                    deleteAllActivitiesBtn.style.display = 'inline-flex'; // Show delete all if there are activities
                 }
+
 
                 activitiesToShow.forEach(activity => {
                     const li = document.createElement('li');
@@ -2054,16 +2051,18 @@
                             <div class="activity-message">${activity.message}</div>
                             <div class="activity-time">${formatTimeAgo(activity.timestamp)}</div>
                         </div>
-                        <button class="activity-actions-btn delete-activity" title="Delete"><i class="fas fa-trash"></i></button>
+                        <button class="delete-activity" title="Delete"><i class="fas fa-trash"></i></button>
                     `;
+                     // Add delete listener directly
                      li.querySelector('.delete-activity').addEventListener('click', handleActivityDeleteClick);
                     activityList.appendChild(li);
                 });
 
-                 // Update button text based on state and visibility
+                 // Update "Show All/Less" button text based on state and visibility
                  if (activities.length > MAX_RECENT_ACTIVITIES) {
                      showAllActivitiesBtn.style.display = 'inline-flex'; // Ensure button is visible
-                     showAllActivitiesBtn.textContent = userSettings.showAllActivities ? 'Show Less' : 'Show All';
+                     // UPDATED TEXT LOGIC
+                     showAllActivitiesBtn.textContent = isShowingAllActivities ? 'Show Less' : 'Show All';
                  } else {
                      showAllActivitiesBtn.style.display = 'none'; // Hide button if not enough activities
                  }
@@ -2081,33 +2080,35 @@
                 deleteAllNotificationsBtn.addEventListener('click', handleDeleteAllNotifications);
                 searchInput.addEventListener('input', handleSearchInput);
                 searchInput.addEventListener('focus', handleSearchFocus);
-                searchInput.addEventListener('blur', () => setTimeout(() => searchResults.style.display = 'none', 150));
+                searchInput.addEventListener('blur', () => setTimeout(() => searchResults.style.display = 'none', 150)); // Delay hide
                 profileForm.addEventListener('submit', handleProfileSave);
                 profilePictureInput.addEventListener('change', handleProfilePictureChange);
                 settingsTabs.forEach(tab => tab.addEventListener('click', handleSettingsTabClick));
                 deleteAllActivitiesBtn.addEventListener('click', handleDeleteAllActivities);
-                showAllActivitiesBtn.addEventListener('click', handleShowAllActivitiesToggle);
+                showAllActivitiesBtn.addEventListener('click', handleShowAllActivitiesToggle); // Listener for Show All/Less
                 openSidebarBtn.addEventListener('click', () => sidebar.classList.add('active'));
                 closeSidebarBtn.addEventListener('click', () => sidebar.classList.remove('active'));
+                // Use event delegation for sidebar clicks
                 sidebar.addEventListener('click', (e) => {
-                    if (e.target.closest('.menu-item')) {
-                        // handleNavigation will be called by hashchange event
-                        if (window.innerWidth <= 992) { // Only close on mobile
-                            sidebar.classList.remove('active');
+                    const menuItem = e.target.closest('.menu-item');
+                    if (menuItem) {
+                        e.preventDefault(); // Prevent default anchor behavior
+                        window.location.hash = menuItem.getAttribute('href'); // Manually set hash
+                        // handleNavigation will be triggered by hashchange
+                        if (window.innerWidth <= 992) { // Close sidebar only on smaller screens
+                           sidebar.classList.remove('active');
                         }
                     }
                 });
 
                 document.addEventListener('click', handleGlobalClick);
-                window.addEventListener('hashchange', handleNavigation);
+                window.addEventListener('hashchange', handleNavigation); // Primary navigation trigger
                 window.addEventListener('resize', checkScreenSize);
 
                 // Settings Form Submissions & Actions
                 generalSettingsForm.addEventListener('submit', handleGeneralSettingsSave);
                 notificationSettingsForm.addEventListener('submit', handleNotificationSettingsSave);
-                integrationSettingsForm.addEventListener('click', handleIntegrationActionClick); // Delegate clicks within integrations form
-                integrationSettingsForm.addEventListener('change', handleIntegrationConfigChange); // Delegate changes within integrations form
-
+                integrationSettingsForm.addEventListener('click', handleIntegrationToggleClick); // Delegation
                 enable2faBtn.addEventListener('click', handleToggle2FA);
                 changePasswordBtn.addEventListener('click', handleChangePassword);
                 manageSessionsBtn.addEventListener('click', handleManageSessions);
@@ -2115,18 +2116,19 @@
                 // Settings Cancel buttons
                 setupCancelButton('cancelGeneralSettings', applyGeneralSettingsToForm, 'General settings changes discarded.');
                 setupCancelButton('cancelNotificationSettings', applyNotificationSettingsToForm, 'Notification settings changes discarded.');
-                setupCancelButton('cancelProfileLink', updateUserUI, 'Profile changes discarded.', true);
+                setupCancelButton('cancelProfileLink', updateUserUI, 'Profile changes discarded.', true); // Cancel for profile acts like reset
             }
 
-             function setupCancelButton(buttonId, resetFunction, message, preventDefault = false) {
+            function setupCancelButton(buttonId, resetFunction, message, preventDefault = false) {
                  const button = document.getElementById(buttonId);
                  if (button) {
                      button.addEventListener('click', (e) => {
                          if (preventDefault) e.preventDefault();
-                         resetFunction(); // Reset the form/UI to the currently saved state
+                         resetFunction();
                          showConfirmation(message, 'info');
+                         // Optional: Navigate back to dashboard if cancelling profile edit
                          if (buttonId === 'cancelProfileLink') {
-                              window.location.hash = '#dashboard';
+                              window.location.hash = '#dashboard'; // Trigger navigation back
                          }
                      });
                  }
@@ -2137,7 +2139,7 @@
              function handleLogout(e) { e.preventDefault(); showConfirmation('Logged out successfully.', 'info'); /* Add actual logout logic */ }
 
              function handleDeleteNotificationClick(e) {
-                 e.stopPropagation();
+                 e.stopPropagation(); // Prevent li click event
                  const button = e.currentTarget;
                  const li = button.closest('.notification-item');
                  const id = parseInt(li.dataset.id);
@@ -2165,7 +2167,7 @@
                  const count = notifications.length;
                  if (count > 0) {
                      if (confirm(`Delete all ${count} notifications? This action cannot be undone.`)) {
-                         const deletedCount = notifications.length;
+                         const deletedCount = notifications.length; // Store count before clearing
                          notifications = [];
                          saveData();
                          renderNotifications();
@@ -2191,7 +2193,7 @@
                          div.className = 'search-result-item';
                          div.innerHTML = `${result.name} <span style="font-size: 0.8em; color: var(--gray);">(${result.type})</span>`;
                          div.addEventListener('click', () => {
-                             window.location.hash = result.link; // This will trigger handleNavigation via hashchange
+                             window.location.hash = result.link; // Trigger navigation
                              searchInput.value = '';
                              searchResults.style.display = 'none';
                          });
@@ -2204,6 +2206,7 @@
                  }
             }
             function handleSearchFocus() {
+                // Show results only if there's text and results exist
                  if (searchInput.value.trim().length >= 2 && searchResults.children.length > 0) {
                      searchResults.style.display = 'block';
                  }
@@ -2218,7 +2221,8 @@
                  updateUserUI();
                  // In a real app, save currentUser to backend.
                  showConfirmation('Profile updated successfully!', 'success');
-                 window.location.hash = '#dashboard';
+                 // Optional: Redirect back to dashboard or stay on profile
+                  window.location.hash = '#dashboard'; // Go back to dashboard after save
             }
             function handleProfilePictureChange(e) {
                 const file = e.target.files[0];
@@ -2226,7 +2230,7 @@
                      const reader = new FileReader();
                      reader.onload = (event) => {
                          currentUser.profilePicture = event.target.result;
-                         updateUserUI();
+                         updateUserUI(); // Update avatars
                          showConfirmation('Profile picture updated (preview).', 'info');
                          // Add logic here to actually upload the file to a server
                      }
@@ -2239,40 +2243,41 @@
             function handleSettingsTabClick(e) {
                  const clickedTab = e.target.closest('.settings-tab');
                  if (!clickedTab) return;
+                 e.preventDefault(); // Prevent default anchor behavior if it were an anchor
 
                  const tabName = clickedTab.dataset.tab;
-                 settingsTabs.forEach(tab => tab.classList.remove('active'));
-                 settingsPanels.forEach(panel => panel.classList.remove('active'));
+                 activateSettingsTab(tabName);
 
-                 clickedTab.classList.add('active');
-                 const targetPanel = document.getElementById(`${tabName}Settings`);
-                 if (targetPanel) targetPanel.classList.add('active');
-
-                 // Save the active tab name to localStorage
-                 localStorage.setItem(STORAGE_KEYS.ACTIVE_SETTINGS_TAB, tabName);
+                 // Update URL hash to reflect the active tab for persistence
+                 window.location.hash = `settings/${tabName}`;
+                 localStorage.setItem(STORAGE_KEYS.ACTIVE_SETTINGS_TAB, tabName); // Also save to localStorage
             }
 
-            // Function to restore the active tab when settings page loads
-            function restoreSettingsTab() {
-                 const activeTabName = localStorage.getItem(STORAGE_KEYS.ACTIVE_SETTINGS_TAB) || 'general'; // Default to 'general'
-                 const activeTab = document.querySelector(`.settings-tab[data-tab="${activeTabName}"]`);
-                 const activePanel = document.getElementById(`${activeTabName}Settings`);
-
+            function activateSettingsTab(tabName) {
                  settingsTabs.forEach(tab => tab.classList.remove('active'));
                  settingsPanels.forEach(panel => panel.classList.remove('active'));
 
-                 if (activeTab && activePanel) {
-                     activeTab.classList.add('active');
-                     activePanel.classList.add('active');
+                 const targetTab = document.querySelector(`.settings-tab[data-tab="${tabName}"]`);
+                 const targetPanel = document.getElementById(`${tabName}Settings`);
+
+                 if (targetTab && targetPanel) {
+                     targetTab.classList.add('active');
+                     targetPanel.classList.add('active');
                  } else {
-                     // Fallback to default if stored tab is invalid
+                     // Fallback to general if tabName is invalid
                      activateDefaultSettingsTab();
+                     window.location.hash = 'settings/general'; // Correct URL hash
                  }
             }
 
+            function restoreSettingsTab(subFeature = null) {
+                // Use subFeature from URL hash if provided, otherwise check localStorage, fallback to 'general'
+                 const activeTabName = subFeature || localStorage.getItem(STORAGE_KEYS.ACTIVE_SETTINGS_TAB) || 'general';
+                 activateSettingsTab(activeTabName);
+            }
+
             function activateDefaultSettingsTab() {
-                 document.querySelector('.settings-tab[data-tab="general"]').classList.add('active');
-                 document.getElementById('generalSettings').classList.add('active');
+                 activateSettingsTab('general');
                  localStorage.setItem(STORAGE_KEYS.ACTIVE_SETTINGS_TAB, 'general');
             }
 
@@ -2281,10 +2286,10 @@
                 e.preventDefault();
                 userSettings.timezone = document.getElementById('timezone').value;
                 userSettings.language = document.getElementById('language').value;
-                userSettings.startOfWeek = document.getElementById('startOfWeek').value; // Should always be 'sunday' now
+                // userSettings.startOfWeek is always 'sunday', no need to read from form
                 userSettings.darkMode = document.getElementById('darkModeToggle').checked;
                 saveData();
-                applySettingsToUI(); // Re-apply all settings to ensure consistency
+                applySettingsToUI();
                 showConfirmation('General settings saved.', 'success');
             }
 
@@ -2292,100 +2297,62 @@
                 e.preventDefault();
                 const formData = new FormData(notificationSettingsForm);
 
-                userSettings.notifications = userSettings.notifications || {}; // Ensure base object exists
+                // Ensure notification objects exist
+                userSettings.notifications = userSettings.notifications || {};
+                userSettings.notifications.integrations = userSettings.notifications.integrations || {};
 
-                // Helper function to safely access nested properties
-                const getSetting = (obj, path, defaultValue) => {
-                    const value = path.split('.').reduce((o, p) => (o && o[p] !== undefined) ? o[p] : undefined, obj);
-                    return value !== undefined ? value : defaultValue;
-                };
-
-                // General Notifications
-                const generalTypes = ['taskAssignments', 'projectUpdates', 'comments', 'deadlines', 'announcements'];
-                generalTypes.forEach(type => {
+                // Update standard notification preferences
+                const types = ['taskAssignments', 'projectUpdates', 'comments', 'deadlines', 'announcements'];
+                types.forEach(type => {
                     userSettings.notifications[type] = userSettings.notifications[type] || {};
                     userSettings.notifications[type].app = formData.has(`notify${capitalize(type)}_app`);
                     if (notificationSettingsForm.elements[`notify${capitalize(type)}_email`]) {
                         userSettings.notifications[type].email = formData.has(`notify${capitalize(type)}_email`);
-                    }
+                    } else {
+                         delete userSettings.notifications[type].email;
+                     }
                 });
 
-                userSettings.notifications.dailySummary = {
-                    email: formData.has('notifyDailySummary_email')
-                };
-
-                // Integration Notifications
-                const integrationKeys = ['slack', 'google']; // Add other keys as needed
-                integrationKeys.forEach(key => {
-                     userSettings.notifications[key] = userSettings.notifications[key] || {};
-                    userSettings.notifications[key].app = formData.has(`notifyVia${capitalize(key)}_app`);
-                    const integrationCheckbox = notificationSettingsForm.elements[`notifyVia${capitalize(key)}_integration`];
-                     if (integrationCheckbox) {
-                         userSettings.notifications[key].integration = integrationCheckbox.checked;
-                     }
-                 });
-
-
+                userSettings.notifications.dailySummary = { email: formData.has('notifyDailySummary_email') };
                 userSettings.notifications.soundLevel = formData.get('notificationSoundLevel');
 
+                // Update integration-specific notification preferences (Example: Slack)
+                if (userSettings.notifications.integrations.slack) {
+                     const slackSettings = userSettings.notifications.integrations.slack;
+                     // Determine if *any* Slack notification type is checked
+                     slackSettings.taskAssignments = formData.has('integrationNotify_slack_taskAssignments');
+                     slackSettings.mentions = formData.has('integrationNotify_slack_mentions');
+                     slackSettings.projectUpdates = formData.has('integrationNotify_slack_projectUpdates');
+                     // Master enable switch based on if any sub-option is checked
+                     slackSettings.enabled = slackSettings.taskAssignments || slackSettings.mentions || slackSettings.projectUpdates;
+                     slackSettings.channel = formData.get('integrationNotify_slack_channel') || 'default';
+                 }
+                 // Update integration-specific notification preferences (Example: Google Calendar Sync)
+                 if (userSettings.notifications.integrations.google) {
+                     userSettings.notifications.integrations.google.calendarSync = formData.has('integrationNotify_google_calendarSync');
+                 }
+
                 saveData();
-                applySettingsToUI();
+                applySettingsToUI(); // Re-apply to ensure UI reflects saved state
                 showConfirmation('Notification settings saved.', 'success');
             }
 
-            function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+            function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 
-
-            // --- Integrations Panel Event Handlers ---
-            function handleIntegrationActionClick(e) {
-                // Handle Connect/Disconnect button clicks
-                const button = e.target.closest('.integration-toggle');
-                if (button) {
-                    const integrationKey = button.dataset.integration;
-                    if (integrationKey && userSettings.integrations.hasOwnProperty(integrationKey)) {
-                        userSettings.integrations[integrationKey].connected = !userSettings.integrations[integrationKey].connected;
-                        // Set default config values when connecting if they don't exist
-                        if(userSettings.integrations[integrationKey].connected) {
-                             if(integrationKey === 'slack' && !userSettings.integrations.slack.notifyLevel) userSettings.integrations.slack.notifyLevel = 'all';
-                             if(integrationKey === 'google' && !userSettings.integrations.google.calendarSync) userSettings.integrations.google.calendarSync = 'two-way';
-                             if(integrationKey === 'jira' && !userSettings.integrations.jira.projectSync) userSettings.integrations.jira.projectSync = 'auto';
-                             if(integrationKey === 'microsoft' && !userSettings.integrations.microsoft.calendarSync) userSettings.integrations.microsoft.calendarSync = 'two-way';
-                        }
-                        saveData();
-                        applyIntegrationSettingsToUI(); // Update UI for this section
-                        const action = userSettings.integrations[integrationKey].connected ? 'connected' : 'disconnected';
-                        const message = `${capitalize(integrationKey)} integration ${action}.`;
-                        showConfirmation(message, 'info');
-                    }
-                }
-                // Handle other potential actions like 'Manage Linked Repos'
-                if(e.target.closest('button') && e.target.textContent === 'Manage Linked Repos') {
-                    alert('Placeholder: Open modal/page to manage GitHub repositories.');
-                }
-            }
-
-            function handleIntegrationConfigChange(e) {
-                 // Handle changes in integration config dropdowns/selects
-                 const select = e.target.closest('.integration-config-select');
-                 if (select) {
-                     const integrationKey = select.dataset.integration;
-                     const configKey = select.name; // e.g., 'slackNotifyLevel' or 'googleCalendarSync'
-                     const configValue = select.value;
-
-                     if (integrationKey && userSettings.integrations[integrationKey] && userSettings.integrations[integrationKey].hasOwnProperty(configKey)) {
-                         userSettings.integrations[integrationKey][configKey] = configValue;
-                         saveData();
-                         // No visual confirmation needed usually, just save silently
-                         console.log(`Saved integration setting: ${integrationKey}.${configKey} = ${configValue}`);
-                     } else if (integrationKey && userSettings.integrations[integrationKey]) {
-                         // If the specific key (like slackNotifyLevel) doesn't exist yet, create it
-                         userSettings.integrations[integrationKey][configKey] = configValue;
-                         saveData();
-                         console.log(`Created and saved integration setting: ${integrationKey}.${configKey} = ${configValue}`);
-                     }
+            function handleIntegrationToggleClick(e) {
+                 const button = e.target.closest('.integration-toggle');
+                 if (!button) return;
+                 const integrationKey = button.dataset.integration;
+                 if (integrationKey && userSettings.integrations.hasOwnProperty(integrationKey)) {
+                     userSettings.integrations[integrationKey] = !userSettings.integrations[integrationKey];
+                     saveData();
+                     applyIntegrationSettingsToUI(); // Update integration connect/disconnect buttons
+                     applyNotificationSettingsToForm(); // Update related notification options (enable/disable)
+                     const action = userSettings.integrations[integrationKey] ? 'connected' : 'disconnected';
+                     const message = `${capitalize(integrationKey)} integration ${action}.`;
+                     showConfirmation(message, 'info');
                  }
-            }
-
+             }
 
             // --- Security Action Handlers ---
             function handleToggle2FA() {
@@ -2407,124 +2374,127 @@
             // --- Apply Settings to UI ---
              function applySettingsToUI() {
                  applyGeneralSettingsToForm();
-                 applyNotificationSettingsToForm();
+                 applyNotificationSettingsToForm(); // This now also handles integration-related options visibility
                  applyIntegrationSettingsToUI();
                  applySecuritySettingsToUI();
                  // Apply dark mode if implemented
                  // document.body.classList.toggle('dark-theme', userSettings.darkMode);
-                 // Update activity button text based on loaded setting
-                 renderActivities(); // This will now use userSettings.showAllActivities
              }
 
              function applyGeneralSettingsToForm() {
                  if (!generalSettingsForm) return;
                  generalSettingsForm.elements['timezone'].value = userSettings.timezone || 'utc2';
                  generalSettingsForm.elements['language'].value = userSettings.language || 'en';
-                 generalSettingsForm.elements['startOfWeek'].value = userSettings.startOfWeek || 'sunday'; // Should always be Sunday
+                 // Start week is now readonly input, value set in HTML
                  generalSettingsForm.elements['darkMode'].checked = userSettings.darkMode || false;
              }
 
              function applyNotificationSettingsToForm() {
                  if (!notificationSettingsForm || !userSettings.notifications) return;
                  const form = notificationSettingsForm;
+                 const notifySettings = userSettings.notifications;
+                 const integrationStatus = userSettings.integrations; // Get connection status
 
-                 // Helper
-                 const setCheckbox = (name, value) => {
-                     const el = form.elements[name];
-                     if (el) el.checked = !!value; // Use !! to convert to boolean
-                 };
-
-                 // General Notifications
-                 const generalTypes = ['taskAssignments', 'projectUpdates', 'comments', 'deadlines', 'announcements'];
-                 generalTypes.forEach(type => {
-                     const setting = userSettings.notifications[type] || {};
-                     setCheckbox(`notify${capitalize(type)}_app`, setting.app);
-                     if (form.elements[`notify${capitalize(type)}_email`]) {
-                         setCheckbox(`notify${capitalize(type)}_email`, setting.email);
-                     }
-                 });
-                 setCheckbox('notifyDailySummary_email', (userSettings.notifications.dailySummary || {}).email);
-
-                 // Integration Notifications
-                 const integrationKeys = ['slack', 'google']; // Match keys used in save handler
-                 integrationKeys.forEach(key => {
-                     const setting = userSettings.notifications[key] || {};
-                     setCheckbox(`notifyVia${capitalize(key)}_app`, setting.app);
-                     const integrationCheckbox = form.elements[`notifyVia${capitalize(key)}_integration`];
-                     if (integrationCheckbox) {
-                        setCheckbox(`notifyVia${capitalize(key)}_integration`, setting.integration);
-                        // Disable integration checkbox if the main integration is not connected
-                        integrationCheckbox.disabled = !(userSettings.integrations[key] && userSettings.integrations[key].connected);
-                        integrationCheckbox.closest('label').style.opacity = integrationCheckbox.disabled ? 0.5 : 1;
-                     }
+                 // Standard notifications
+                 const types = ['taskAssignments', 'projectUpdates', 'comments', 'deadlines', 'announcements'];
+                 types.forEach(type => {
+                     const setting = notifySettings[type] || {};
+                     const appCheckbox = form.elements[`notify${capitalize(type)}_app`];
+                     const emailCheckbox = form.elements[`notify${capitalize(type)}_email`];
+                     if (appCheckbox) appCheckbox.checked = !!setting.app;
+                     if (emailCheckbox) emailCheckbox.checked = !!setting.email;
                  });
 
-                 form.elements['notificationSoundLevel'].value = userSettings.notifications.soundLevel || 'normal';
+                 const dailySummarySetting = notifySettings.dailySummary || {};
+                 const dailySummaryCheckbox = form.elements['notifyDailySummary_email'];
+                 if (dailySummaryCheckbox) dailySummaryCheckbox.checked = !!dailySummarySetting.email;
+
+                 // Integration notifications (e.g., Slack)
+                 const slackNotifySettings = notifySettings.integrations?.slack || {};
+                 const slackConnected = integrationStatus?.slack || false;
+                 const slackSection = form.querySelector('.integration-notification-settings[data-integration="slack"]');
+
+                 if (slackSection) {
+                     const checkboxes = slackSection.querySelectorAll('input[type="checkbox"]');
+                     const channelSelect = slackSection.querySelector('select[name="integrationNotify_slack_channel"]');
+
+                     // Enable/disable based on connection status
+                     checkboxes.forEach(cb => cb.disabled = !slackConnected);
+                     if(channelSelect) channelSelect.disabled = !slackConnected;
+
+                     // Set checkbox values from settings
+                     const slackTaskCb = form.elements['integrationNotify_slack_taskAssignments'];
+                     const slackMentionCb = form.elements['integrationNotify_slack_mentions'];
+                     const slackProjectCb = form.elements['integrationNotify_slack_projectUpdates'];
+
+                     if (slackTaskCb) slackTaskCb.checked = !!slackNotifySettings.taskAssignments && slackConnected;
+                     if (slackMentionCb) slackMentionCb.checked = !!slackNotifySettings.mentions && slackConnected;
+                     if (slackProjectCb) slackProjectCb.checked = !!slackNotifySettings.projectUpdates && slackConnected;
+                     if (channelSelect) channelSelect.value = slackNotifySettings.channel || 'default';
+
+                     // Dim the section if not connected
+                     slackSection.style.opacity = slackConnected ? '1' : '0.6';
+                     slackSection.style.pointerEvents = slackConnected ? 'auto' : 'none';
+                 }
+
+                 // Integration notifications (e.g., Google Calendar Sync)
+                  const googleNotifySettings = notifySettings.integrations?.google || {};
+                  const googleConnected = integrationStatus?.google || false;
+                  const googleSection = form.querySelector('.integration-notification-settings[data-integration="google"]');
+                  if (googleSection) {
+                     const toggleInput = googleSection.querySelector('input[name="integrationNotify_google_calendarSync"]');
+                     if (toggleInput) {
+                         toggleInput.checked = !!googleNotifySettings.calendarSync && googleConnected;
+                         toggleInput.disabled = !googleConnected;
+                         // Find parent toggle switch to disable visually if needed
+                         const toggleSwitch = toggleInput.closest('.toggle-switch');
+                         if (toggleSwitch) toggleSwitch.style.cursor = googleConnected ? 'pointer' : 'not-allowed';
+                     }
+                     googleSection.style.opacity = googleConnected ? '1' : '0.6';
+                     googleSection.style.pointerEvents = googleConnected ? 'auto' : 'none';
+                  }
+
+
+                 // Sound level
+                 form.elements['notificationSoundLevel'].value = notifySettings.soundLevel || 'normal';
              }
 
              function applyIntegrationSettingsToUI() {
                  if (!integrationSettingsForm) return;
+                 const items = integrationSettingsForm.querySelectorAll('.setting-item');
 
-                 integrationSettingsForm.querySelectorAll('.setting-item').forEach(item => {
-                     const integrationKey = item.querySelector('.integration-toggle')?.dataset.integration;
-                     if (!integrationKey || !userSettings.integrations.hasOwnProperty(integrationKey)) return;
+                 items.forEach(item => {
+                     const toggleButton = item.querySelector('.integration-toggle');
+                     const statusSpan = item.querySelector('.integration-status');
+                     if (!toggleButton || !statusSpan) return;
 
-                     const integrationData = userSettings.integrations[integrationKey];
-                     const isConnected = integrationData.connected;
-
-                     const toggleButton = item.querySelector(`.integration-toggle[data-integration="${integrationKey}"]`);
-                     const statusSpan = item.querySelector(`.integration-status[data-integration="${integrationKey}"]`);
-                     const configDiv = item.querySelector(`.integration-config[data-integration="${integrationKey}"]`);
-
-                     // Update Button
-                     if (toggleButton) {
+                     const key = toggleButton.dataset.integration;
+                     if (userSettings.integrations.hasOwnProperty(key)) {
+                         const isConnected = userSettings.integrations[key];
                          toggleButton.textContent = isConnected ? 'Disconnect' : 'Connect';
                          toggleButton.classList.toggle('btn-danger', isConnected);
                          toggleButton.classList.toggle('btn-outline', !isConnected);
                          toggleButton.classList.remove('btn-primary');
-                     }
 
-                     // Update Status Span
-                     if (statusSpan) {
-                         statusSpan.style.display = isConnected ? 'flex' : 'none';
-                     }
-
-                     // Update Config Section Visibility and Values
-                     if (configDiv) {
-                         configDiv.style.display = isConnected ? 'flex' : 'none';
-                         if(isConnected) {
-                            configDiv.querySelectorAll('.integration-config-select').forEach(select => {
-                                const configKey = select.name;
-                                if(integrationData.hasOwnProperty(configKey)) {
-                                    select.value = integrationData[configKey];
-                                } else {
-                                    // Set to default if key doesn't exist in saved data (e.g., first connect)
-                                    if(configKey === 'slackNotifyLevel') select.value = 'all';
-                                    if(configKey === 'googleCalendarSync') select.value = 'two-way';
-                                    if(configKey === 'jiraProjectSync') select.value = 'auto';
-                                    if(configKey === 'microsoftCalendarSync') select.value = 'two-way';
-                                }
-                            });
-                         }
+                         // Ensure button is visible when disconnected, status visible when connected
+                         toggleButton.style.display = isConnected ? 'inline-flex' : 'inline-flex'; // Always show button for action
+                         statusSpan.style.display = isConnected ? 'flex' : 'none'; // Show status only when connected
                      }
                  });
-                  // After updating integrations, re-apply notification settings to potentially disable checkboxes
-                  applyNotificationSettingsToForm();
              }
-
 
              function applySecuritySettingsToUI() {
                  if (!securitySettingsForm) return;
                  const is2FAEnabled = userSettings.security.twoFactorEnabled || false;
 
                  enable2faBtn.textContent = is2FAEnabled ? 'Disable 2FA' : 'Enable 2FA';
-                 enable2faBtn.classList.toggle('btn-danger', is2FAEnabled);
-                 enable2faBtn.classList.toggle('btn-primary', !is2FAEnabled);
-                 enable2faBtn.classList.remove('btn-outline');
+                 enable2faBtn.classList.toggle('btn-danger', is2FAEnabled); // Red to disable
+                 enable2faBtn.classList.toggle('btn-primary', !is2FAEnabled); // Blue to enable
+                 enable2faBtn.classList.remove('btn-outline'); // Remove outline class
 
                  if(twoFaStatusEl) {
                      twoFaStatusEl.textContent = is2FAEnabled ? 'Enabled' : 'Disabled';
-                     twoFaStatusEl.style.fontWeight = 'bold'; // Always bold for visibility
+                     twoFaStatusEl.style.fontWeight = is2FAEnabled ? 'bold' : 'normal';
                      twoFaStatusEl.style.color = is2FAEnabled ? 'var(--success)' : 'var(--danger)';
                  }
 
@@ -2534,13 +2504,12 @@
 
              // --- Activity List Actions ---
              function handleShowAllActivitiesToggle() {
-                userSettings.showAllActivities = !userSettings.showAllActivities;
-                saveData(); // Save the toggle state
-                renderActivities(); // Re-render with new state
+                isShowingAllActivities = !isShowingAllActivities;
+                renderActivities(); // Re-render with new limit/all
              }
 
              function handleActivityDeleteClick(e) {
-                 e.stopPropagation();
+                 e.stopPropagation(); // Prevent potential parent clicks
                  const button = e.currentTarget;
                  const item = button.closest('.activity-item');
                  const id = parseInt(item.dataset.id);
@@ -2551,16 +2520,17 @@
                  }
              }
 
-             function handleDeleteAllActivities() {
+            function handleDeleteAllActivities() {
                  const count = activities.length;
                 if (count > 0) {
                     if (confirm(`Delete all ${count} activity records? This action cannot be undone.`)) {
+                        const deletedCount = activities.length;
                         activities = [];
                         nextActivityId = 0;
                         saveData();
-                        renderActivities(); // Update list (will show "No activity")
+                        renderActivities(); // Update list (will show "No activity" and hide buttons)
                         playDeleteSound();
-                        showConfirmation(`All ${count} activity record${count > 1 ? 's' : ''} cleared.`, 'info');
+                        showConfirmation(`All ${deletedCount} activity record${deletedCount > 1 ? 's' : ''} cleared.`, 'info');
                     }
                 }
             }
@@ -2579,18 +2549,25 @@
             function handleGlobalClick(e) {
                 if (!userProfileWrapper.contains(e.target)) userDropdown.classList.remove('active');
                 if (!notificationIconWrapper.contains(e.target)) notificationDropdown.classList.remove('active');
-                // Keep search results open if clicked inside, hide on blur handled separately
-                // if (!searchResults.contains(e.target) && e.target !== searchInput) searchResults.style.display = 'none';
+                // Close sidebar if clicking outside of it on mobile
+                if (window.innerWidth <= 992 && sidebar.classList.contains('active') && !sidebar.contains(e.target) && !e.target.closest('.open-sidebar')) {
+                    sidebar.classList.remove('active');
+                }
             }
+
             function checkScreenSize() {
                  const isMobile = window.innerWidth <= 992;
                  openSidebarBtn.style.display = isMobile ? 'block' : 'none';
-                 closeSidebarBtn.style.display = isMobile ? 'block' : 'none'; // Show close button only when needed
+                 closeSidebarBtn.style.display = isMobile ? 'block' : 'none';
                  if (!isMobile) {
                      sidebar.classList.remove('active'); // Ensure sidebar isn't stuck active on resize
                      mainContent.style.marginLeft = 'var(--sidebar-width)';
+                     sidebar.style.transform = 'translateX(0)'; // Ensure visible on desktop
                  } else {
                      mainContent.style.marginLeft = '0';
+                     if (!sidebar.classList.contains('active')) {
+                         sidebar.style.transform = 'translateX(-100%)'; // Ensure hidden if not active
+                     }
                  }
             }
 
