@@ -1901,34 +1901,65 @@
                             return response.text();
                         })
                         .then(html => {
-                            featureSections.innerHTML = html; // Replace placeholder with fetched content
-                            featureSections.classList.add('active'); // Ensure the section itself is marked active
+                            featureSections.innerHTML = html; // Insert the loaded HTML
+                            featureSections.classList.add('active');
 
-                            // IMPORTANT: Re-initialize any JS needed for the loaded content here
-                            // Check if the loaded content has a specific init function or re-run necessary parts
+                            // !!!!! --- START OF MODIFIED SECTION --- !!!!!
+                            // After inserting content, check for and call the initialization function
                             if (featureId === 'employee-scheduling') {
-                                // Attempt to find and call an initialization function if it exists in the loaded script
                                 if (typeof initializeEmployeeSchedule === 'function') {
-                                    initializeEmployeeSchedule();
+                                    try {
+                                        // Pass deep copies of necessary data to the initialization function
+                                        console.log("Passing currentUser to schedule:", currentUser);
+                                        console.log("Passing teamMembers to schedule:", teamMembers);
+                                        initializeEmployeeSchedule(
+                                            JSON.parse(JSON.stringify(currentUser || DEFAULT_USER)), // Pass current user or a default structure
+                                            JSON.parse(JSON.stringify(teamMembers || []))          // Pass current team members or an empty array
+                                        );
+                                    } catch (err) {
+                                         console.error(`Error executing initializeEmployeeSchedule:`, err);
+                                         // Update the placeholder to show the initialization error
+                                         featureTitle.textContent = `Error Initializing ${featureId.replace(/-/g, ' ')}`;
+                                         featureDescription.textContent = `Content loaded, but failed during initialization. Check console for details. Error: ${err.message}`;
+                                         featureLoadingIndicator.style.display = 'none'; // Hide loading spinner
+                                         featureErrorMessage.style.display = 'block'; // Show error message
+                                         featurePlaceholder.style.display = 'flex'; // Keep placeholder visible to display the error
+                                    }
                                 } else {
-                                    console.warn(`Initialization function 'initializeEmployeeSchedule' not found for ${featureId}. Manual script execution might be needed.`);
-                                    // If the script doesn't have an init function, you might need to manually
-                                    // find the script tag within the loaded 'html' and execute it,
-                                    // but this is complex and error-prone. It's better to design
-                                    // the loaded scripts to be initializable.
+                                    console.warn(`Initialization function 'initializeEmployeeSchedule' not found for ${featureId}. Dynamic content might not be interactive.`);
+                                     // Update placeholder to indicate script wasn't found/run
+                                     featureTitle.textContent = `${featureId.replace(/-/g, ' ')} Loaded (Initialization Script Not Found)`;
+                                     featureDescription.textContent = `Content loaded, but its specific setup script (initializeEmployeeSchedule) was not found. Interaction might be limited.`;
+                                     featureLoadingIndicator.style.display = 'none'; // Hide loading spinner
+                                     featureErrorMessage.style.display = 'none'; // No error, just warning
+                                     featurePlaceholder.style.display = 'flex'; // Show placeholder with the warning
                                 }
                             }
-                            // Add similar checks for other dynamically loaded features
+                            // Add similar `else if` blocks here for other features
+                            // that require specific initialization after loading, e.g.:
+                            // else if (featureId === 'projects') {
+                            //     if (typeof initializeProjectsView === 'function') {
+                            //         initializeProjectsView(pass_necessary_data);
+                            //     } else { console.warn(...) }
+                            // }
 
+                            // Hide placeholder elements *after* initialization attempt (unless an error occurred)
+                            featureLoadingIndicator.style.display = 'none';
+                            // Only hide the placeholder if no error message was shown during initialization
+                             if (featureErrorMessage.style.display !== 'block') {
+                                featurePlaceholder.style.display = 'none';
+                             }
+                            // !!!!! --- END OF MODIFIED SECTION --- !!!!!
                         })
                         .catch(error => {
                             console.error(`Error loading feature '${featureId}' from '${filePath}':`, error);
+                            // Update placeholder to show loading error
                             featureTitle.textContent = `Error Loading ${featureId.replace(/-/g, ' ')}`;
-                            // Display a more helpful error message
                             featureDescription.textContent = `Could not load content. Please check the file path ('${filePath}') and ensure the file exists and the server is configured correctly. Error: ${error.message}`;
                             featureLoadingIndicator.style.display = 'none';
                             featureErrorMessage.style.display = 'block';
-                             featureSections.classList.add('active'); // Still show the section, but with error
+                            featurePlaceholder.style.display = 'flex'; // Ensure placeholder is visible for error
+                            featureSections.classList.add('active'); // Still show the section container, but with error content
                         });
                 }
 
@@ -2765,7 +2796,7 @@
                          showSuccessMessage("Logging out...");
                          setTimeout(() => {
                             // Redirect to a login page (ensure it exists)
-                            window.location.href = 'login.html';
+                            window.location.href = 'login.html'; // Assuming a login page exists
                          }, 500);
                      },
                      onCancel: hideConfirmModal
@@ -2816,6 +2847,7 @@
                     notificationSound.currentTime = 0;
                     notificationSound.play().catch(e => {
                         console.warn('Notification sound play failed:', e);
+                        // Maybe user hasn't interacted with the page yet.
                     });
                  }
             }
