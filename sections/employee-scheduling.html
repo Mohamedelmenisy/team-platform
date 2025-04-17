@@ -635,8 +635,23 @@
     // NOW ACCEPTS ARGUMENTS: dashboardCurrentUser, dashboardTeamMembers
     function initializeEmployeeSchedule(dashboardCurrentUser, dashboardTeamMembers) {
         console.log("Initializing Employee Schedule Section with passed data...");
-        // console.log("Received User:", dashboardCurrentUser); // Log user data if needed
-        // console.log("Received Team Members:", dashboardTeamMembers); // Log team data if needed
+        // Ensure the dashboardApp global object exists for accessing shared functions/data
+         if (typeof window.dashboardApp === 'undefined') {
+            console.error("FATAL: dashboardApp global object not found. Cannot initialize schedule.");
+            // Optionally display an error message within the schedule container
+            const scheduleContainer = document.querySelector('.employee-schedule-body');
+            if(scheduleContainer) {
+                scheduleContainer.innerHTML = `<div style="padding: 2rem; text-align: center; color: var(--danger);">Error: Could not link to main dashboard functions.</div>`;
+            }
+            return;
+        }
+
+        // Use functions from dashboardApp
+        const showConfirmModal = window.dashboardApp.showConfirmModal;
+        const hideConfirmModal = window.dashboardApp.hideConfirmModal;
+        const showSuccessMessage = window.dashboardApp.showSuccessMessage;
+        const showErrorMessage = window.dashboardApp.showErrorMessage;
+        const addActivity = window.dashboardApp.addActivity; // Use dashboard's activity logger
 
         const scheduleContainer = document.querySelector('.employee-schedule-body');
         if (!scheduleContainer) {
@@ -647,14 +662,7 @@
         // --- DOM Elements ---
         const employeeModal = scheduleContainer.querySelector('#schedule-employeeModal');
         const shiftModal = scheduleContainer.querySelector('#schedule-shiftModal');
-        // Use the main dashboard's confirmation modal (ensure these IDs match dash.html)
-        const confirmationDialog = document.getElementById('confirmModal');
-        const dialogTitle = document.getElementById('confirmTitle');
-        const dialogMessage = document.getElementById('confirmMessage');
-        const confirmBtn = document.getElementById('confirmBtn');
-        const cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
-
-        // Schedule specific elements
+        // Schedule specific elements (prefixing ensures they are scoped to this section)
         const addEmployeeBtn = scheduleContainer.querySelector('#schedule-addEmployeeBtn');
         const sendRemindersBtn = scheduleContainer.querySelector('#schedule-sendRemindersBtn');
         const saveScheduleBtn = scheduleContainer.querySelector('#schedule-saveScheduleBtn');
@@ -682,12 +690,9 @@
 
 
         // --- State Variables ---
-        // ** Use the passed arguments directly **
+        // ** Use the passed arguments directly (copies already made by dashboard) **
         let scheduleCurrentUser = dashboardCurrentUser || { role: 'employee', id: null, name: 'Guest' }; // Provide default structure
-        // Ensure teamMembers is an array and deep copy it to avoid modifying original
-        let scheduleEmployees = Array.isArray(dashboardTeamMembers)
-                                ? JSON.parse(JSON.stringify(dashboardTeamMembers))
-                                : [];
+        let scheduleEmployees = dashboardTeamMembers || []; // Use the passed array
         let scheduleCurrentWeekStart = new Date(); // Will be adjusted in initialize()
         let scheduleSavedData = {}; // Loaded from localStorage
         let isAdminOrSupervisor = false; // Determined in initialize()
@@ -725,67 +730,6 @@
             return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
         }
 
-
-        // Use main dashboard's confirmation modal system
-        function showScheduleConfirmation(config) {
-            // Check if main modal and its functions/elements exist
-            if(confirmationDialog && typeof showConfirmModal === 'function' && typeof hideConfirmModal === 'function' && dialogTitle && dialogMessage && confirmBtn && cancelConfirmBtn) {
-                 dialogTitle.textContent = config.title || 'Confirm';
-                 dialogMessage.innerHTML = config.message || 'Are you sure?'; // Use innerHTML for potential bolding
-                 confirmBtn.textContent = config.confirmText || 'Confirm';
-                 cancelConfirmBtn.textContent = config.cancelText || 'Cancel';
-                 // Set button classes using main dashboard's scheme (adjust if needed)
-                 confirmBtn.className = `btn ${config.confirmClass || 'btn-danger'}`; // Default danger for confirmations
-                 cancelConfirmBtn.className = 'btn btn-outline'; // Default outline for cancel
-
-                 // Assign temporary handlers
-                 const confirmHandler = () => {
-                     hideConfirmModal(); // Assumes this function exists in dash.html
-                     confirmBtn.removeEventListener('click', confirmHandler); // Clean up listener
-                     cancelConfirmBtn.removeEventListener('click', cancelHandler); // Clean up listener
-                     if (config.onConfirm) config.onConfirm();
-                 };
-                 const cancelHandler = () => {
-                     hideConfirmModal(); // Assumes this function exists in dash.html
-                     confirmBtn.removeEventListener('click', confirmHandler); // Clean up listener
-                     cancelConfirmBtn.removeEventListener('click', cancelHandler); // Clean up listener
-                      if (config.onCancel) config.onCancel();
-                 };
-
-                 confirmBtn.addEventListener('click', confirmHandler);
-                 cancelConfirmBtn.addEventListener('click', cancelHandler);
-
-                 // Show the main modal using its own function from dash.html
-                 showConfirmModal(); // Assumes this function exists
-            } else {
-                 // Fallback to simple browser confirm if main modal system isn't available
-                 console.warn("Main dashboard confirmation modal system not found or incomplete. Using browser confirm().");
-                 if (confirm(`${config.title}\n${config.message.replace(/<[^>]*>/g, '')}`)) { // Strip HTML for basic confirm
-                     if (config.onConfirm) config.onConfirm();
-                 } else {
-                     if (config.onCancel) config.onCancel();
-                 }
-            }
-        }
-
-        // Use main dashboard's success/error message system if available
-        function showScheduleSuccess(message) {
-            if (typeof showSuccessMessage === 'function') {
-                showSuccessMessage(message);
-            } else {
-                console.log("Success:", message); // Log as fallback
-                // alert(message); // Avoid disruptive alerts if possible
-            }
-        }
-        function showScheduleError(message) {
-             if (typeof showErrorMessage === 'function') {
-                 showErrorMessage(message);
-             } else {
-                  console.error("Error:", message); // Log as fallback
-                 // alert(`Error: ${message}`); // Avoid disruptive alerts
-             }
-        }
-
         // --- UI Update Functions ---
 
         function updateWeekDisplayUI() {
@@ -801,6 +745,10 @@
 
             // Update table headers
             const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+             const weekStartDay = scheduleCurrentUser.preferences?.weekStart === 'sun' ? 0 : 1; // 0 for Sun, 1 for Mon
+             // Adjust day names based on week start (if you support Mon start later)
+            // const days = weekStartDay === 1 ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
             const headerRow = scheduleContainer.querySelector('.schedule-table thead tr');
             if (!headerRow) { console.error("Schedule header row not found!"); return; }
             headerRow.innerHTML = '<th>Employee</th>'; // Clear existing day headers
@@ -837,11 +785,15 @@
             console.log("Rendering table with employees:", scheduleEmployees.length);
 
             if (!Array.isArray(scheduleEmployees) || scheduleEmployees.length === 0) {
-                 scheduleTableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">No employees found. Please add employees via Team Management.</td></tr>`;
+                 scheduleTableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">No employees found. Please add employees via Team Management or the button above.</td></tr>`;
                  return;
             }
 
-            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+             const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+             // Adjust based on week start if needed later
+            // const weekStartDay = scheduleCurrentUser.preferences?.weekStart === 'sun' ? 0 : 1;
+            // const days = weekStartDay === 1 ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
 
             scheduleEmployees.forEach((employee, index) => {
                  // Basic validation for employee data
@@ -1025,7 +977,7 @@
 
                  if (mailtoLink.length > MAX_MAILTO_LEN) {
                     // Option 1: Warn user
-                    showScheduleConfirmation({
+                    showConfirmModal({
                         title: "Too Many Recipients/Data",
                         message: `The generated email link might be too long (${mailtoLink.length} chars) for your email client. Sending reminders individually or reducing included details might be necessary.`,
                         confirmText: "Try Anyway",
@@ -1039,7 +991,7 @@
                  }
                  tryOpenMailto(mailtoLink); // Try opening the link
              } else {
-                  showScheduleError("No employee emails found to send reminders.");
+                  showErrorMessage("No employee emails found to send reminders.");
              }
         }
 
@@ -1049,20 +1001,20 @@
                 // Simple check if window failed to open (often due to popup blockers)
                 if(!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
                      // Might indicate popup blocker or other issue
-                    showScheduleConfirmation({
+                     // Use the dashboardApp's showConfirmModal
+                    showConfirmModal({
                          title: "Open Email Client?",
                          message: "Could not automatically open your email client. This might be due to browser settings or popup blockers. Please check your settings.",
                          confirmText: "OK",
-                         confirmClass: "btn-warning",
-                         // Hide cancel button if only OK is needed
+                         confirmClass: "btn-primary", // Use primary for OK informational
                          cancelText: "" // Hide cancel button
                     });
                  } else {
-                     showScheduleSuccess("Attempting to open email client with reminders...");
+                     showSuccessMessage("Attempting to open email client with reminders...");
                  }
             } catch (e) {
                  console.error("Error opening mailto link:", e);
-                 showScheduleError("An error occurred while trying to open your email client.");
+                 showErrorMessage("An error occurred while trying to open your email client.");
             }
         }
 
@@ -1070,7 +1022,8 @@
         function handleSaveScheduleClick() {
             // Data is saved on each shift edit via localStorage using localStorageKey
             localStorage.setItem(localStorageKey, JSON.stringify(scheduleSavedData));
-            showScheduleSuccess("Schedule changes saved successfully.");
+            showSuccessMessage("Schedule changes saved successfully.");
+             addActivity('fa-calendar-check', `Schedule changes saved for week: ${weekDisplay.textContent}`);
             // Optional: Add visual feedback like button disabling/enabling
         }
 
@@ -1085,36 +1038,47 @@
 
              // Basic validation
              if (!name || !email || !/^\S+@\S+\.\S+$/.test(email)) { // Simple email format check
-                 showScheduleError("Please enter a valid name and email address.");
+                 showErrorMessage("Please enter a valid name and email address.");
                  return;
              }
 
             // IMPORTANT: In a real app, this should interact with a backend or
             // the main dashboard's data management system to add the employee persistently.
-            // This implementation only adds to the local view for this session.
+            // This uses dashboardApp.updateTeamMembers to update the global list.
+            const currentTeam = window.dashboardApp.getTeamMembers(); // Get current global list
+
+            // Check if email already exists globally
+            if (currentTeam.some(emp => emp.email.toLowerCase() === email.toLowerCase())) {
+                showErrorMessage(`An employee with the email ${email} already exists in the system.`);
+                 emailInput.focus();
+                return;
+            }
+
             const newEmployee = {
-                // Generate a temporary ID (negative to avoid collisions with real IDs?)
-                id: -Math.floor(Math.random() * 1000000),
+                // Generate a temporary ID (negative for temp) or use backend ID
+                 id: Date.now(), // Simple unique ID for this example
                 name: name,
                 email: email,
-                role: 'employee' // Default role, adjust if needed
-                // Add other necessary fields matching the main teamMembers structure
+                role: 'member', // Default role for newly added via schedule?
+                initials: name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || email.substring(0, 2).toUpperCase(),
+                avatar: '' // Default empty avatar
+                // Add other fields matching the main teamMembers structure if needed
             };
 
-            // Add to the local array for immediate display
-            scheduleEmployees.push(newEmployee);
+            // Update the global team list using the dashboard function
+            const updatedTeam = [...currentTeam, newEmployee];
+            window.dashboardApp.updateTeamMembers(updatedTeam);
 
-            // Re-render the table to show the new employee
+             // Update the local scheduleEmployees array as well
+             scheduleEmployees.push(newEmployee);
+
+
+            // Re-render the schedule table to show the new employee
             loadShiftsForCurrentWeekUI();
 
             employeeModal.style.display = 'none';
-            showScheduleSuccess(`Employee ${name} added to the schedule view (Temporary). Please use Team Management for permanent additions.`);
-
-             // Optional: Update the main dashboard's teamMembers if possible
-             // if (typeof teamMembers !== 'undefined' && Array.isArray(teamMembers)) {
-             //     teamMembers.push(newEmployee); // Reflect change globally (might need deep copy)
-             //     if(typeof saveData === 'function') saveData(); // Trigger global save if exists
-             // }
+            addActivity('fa-user-plus', `Added temporary employee: ${name} (${email})`);
+            showSuccessMessage(`Employee ${name} added to the schedule view. Please complete details in Team Management if needed.`);
         }
 
         function handleEditShiftClick(event) {
@@ -1125,7 +1089,7 @@
 
              if (!empId || !dateKey || !shiftModal || !shiftForm) {
                  console.error("Missing data or modal elements for edit shift.", { empId, dateKey, shiftModal, shiftForm });
-                 showScheduleError("Could not open shift editor. Data missing.");
+                 showErrorMessage("Could not open shift editor. Data missing.");
                  return;
              }
 
@@ -1134,7 +1098,7 @@
 
              if (!employee || !shiftDate) {
                  console.error("Could not find employee or parse date for edit.", { empId, dateKey });
-                 showScheduleError("Could not open shift editor. Invalid employee or date.");
+                 showErrorMessage("Could not open shift editor. Invalid employee or date.");
                  return;
              }
 
@@ -1149,7 +1113,10 @@
 
             shiftEmployeeInput.value = employee.name;
              // Display formatted date, store YYYY-MM-DD in hidden input
-            shiftDateDisplayInput.value = shiftDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+             // Use date format preference from currentUser if available
+             const dateFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+             // Add logic here to use scheduleCurrentUser.preferences.dateFormat if needed for display
+            shiftDateDisplayInput.value = shiftDate.toLocaleDateString(scheduleCurrentUser.preferences?.language || 'en-US', dateFormatOptions);
             shiftDateInput.value = dateKey; // Keep hidden input updated
              // Set min/max on hidden date input for potential future use/validation
              shiftDateInput.min = formatDateKey(scheduleMinDate);
@@ -1190,7 +1157,7 @@
 
             if (!employee || !dateKey) {
                 console.error("Missing employee ID or date key on shift form submission.", { empId, dateKey });
-                showScheduleError("Error saving shift: Invalid data.");
+                showErrorMessage("Error saving shift: Invalid data.");
                 shiftModal.style.display = 'none';
                 return;
             }
@@ -1212,7 +1179,7 @@
                  case 'vacation': shiftText = 'VAC'; shiftClass = 'vacation'; break;
                  case 'custom':
                      if (!customShiftText) {
-                         showScheduleError('Please enter the custom shift times.');
+                         showErrorMessage('Please enter the custom shift times.');
                          customShiftInput.focus();
                          return; // Stop submission
                      }
@@ -1222,7 +1189,7 @@
                      break;
                  default:
                      console.warn("Unknown shift type selected:", shiftTypeValue);
-                     showScheduleError("Invalid shift type selected.");
+                     showErrorMessage("Invalid shift type selected.");
                       shiftModal.style.display = 'none';
                      return; // Don't save unknown type
             }
@@ -1250,7 +1217,8 @@
 
             shiftModal.style.display = 'none';
             const displayDate = getLocalDateFromKey(dateKey);
-            showScheduleSuccess(`Shift updated for ${employee.name} on ${displayDate.toLocaleDateString()}.`);
+            addActivity('fa-clock', `Updated shift for ${employee.name} on ${displayDate.toLocaleDateString()}`);
+            showSuccessMessage(`Shift updated for ${employee.name}.`);
         }
 
 
@@ -1266,15 +1234,15 @@
 
             if (!employee || !displayDate || !dateKey) {
                 console.error("Missing employee ID or date key for delete.", { empId, dateKey });
-                 showScheduleError("Could not delete shift: Invalid data.");
+                 showErrorMessage("Could not delete shift: Invalid data.");
                 shiftModal.style.display = 'none';
                 return;
             }
 
             const formattedDate = displayDate.toLocaleDateString();
 
-            // Confirm deletion
-            showScheduleConfirmation({
+            // Confirm deletion using dashboard's modal
+            showConfirmModal({
                 title: 'Delete Shift?',
                 message: `Are you sure you want to delete the shift for <strong>${employee.name}</strong> on ${formattedDate}? This cannot be undone.`,
                 confirmText: 'Delete Shift',
@@ -1297,14 +1265,14 @@
 
                          // Update the UI (remove the shift div visually)
                          updateShiftDisplayUI(empId, dateKey, '', '', ''); // Pass empty values
-
-                         showScheduleSuccess(`Shift deleted for ${employee.name} on ${formattedDate}.`);
+                         addActivity('fa-calendar-minus', `Deleted shift for ${employee.name} on ${formattedDate}`);
+                         showSuccessMessage(`Shift deleted for ${employee.name} on ${formattedDate}.`);
                     } else {
-                         showScheduleSuccess(`No shift found to delete for ${employee.name} on ${formattedDate}.`);
+                         showSuccessMessage(`No shift found to delete for ${employee.name} on ${formattedDate}.`);
                     }
 
                     shiftModal.style.display = 'none'; // Close modal after action
-                    // Confirmation modal is hidden by the showScheduleConfirmation handler
+                    // Confirmation modal is hidden automatically by the modal logic
                 }
                 // onCancel is handled implicitly by the confirmation modal closing
             });
@@ -1385,7 +1353,7 @@
             try {
                 console.log("Running Employee Schedule Initialization...");
 
-                // 1. Determine User Role
+                // 1. Determine User Role from passed data
                 isAdminOrSupervisor = scheduleCurrentUser.role === 'admin' || scheduleCurrentUser.role === 'supervisor';
                 console.log(`User Role: ${scheduleCurrentUser.role}, IsAdminOrSupervisor: ${isAdminOrSupervisor}`);
 
@@ -1393,7 +1361,7 @@
                  if (!Array.isArray(scheduleEmployees)) {
                      console.error("Passed teamMembers data is not an array!");
                      scheduleEmployees = []; // Reset to empty array
-                     showScheduleError("Failed to load employee data.");
+                     showErrorMessage("Failed to load employee data.");
                  }
                  // Filter out any invalid employee entries before proceeding
                  scheduleEmployees = scheduleEmployees.filter(emp => emp && emp.id && emp.name);
@@ -1413,42 +1381,52 @@
                     } catch (e) {
                         console.error(`Error parsing schedule data from localStorage (${localStorageKey}):`, e);
                         scheduleSavedData = {}; // Reset if parsing fails
-                        showScheduleError("Could not load previously saved schedule data.");
+                        showErrorMessage("Could not load previously saved schedule data.");
                     }
                 } else {
                     console.log(`No saved schedule data found for key ${localStorageKey}. Starting fresh.`);
                     scheduleSavedData = {};
                 }
 
-                // 4. Set initial week (Clamped to May 2025)
-                const today = new Date();
-                // Calculate the Monday of the current week
-                const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-                const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust to Monday
-                let potentialWeekStart = new Date(today.getFullYear(), today.getMonth(), diff);
+                 // 4. Set initial week (Clamped to May 2025, considering week start pref)
+                 const today = new Date();
+                 // Calculate the start of the current week based on user preference (Mon/Sun)
+                 const weekStartDay = scheduleCurrentUser.preferences?.weekStart === 'sun' ? 0 : 1; // 0 for Sun, 1 for Mon
+                 const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+                 // Calculate difference to the desired start day
+                 let diff = today.getDate() - dayOfWeek + (dayOfWeek === weekStartDay ? 0 : (dayOfWeek < weekStartDay ? weekStartDay - 7 : weekStartDay));
+                 let potentialWeekStart = new Date(today.getFullYear(), today.getMonth(), diff);
+
 
                  // Clamp to the allowed month (May 2025)
                  if (potentialWeekStart < scheduleMinDate) {
-                     // If current week is before May, start at the first week of May
+                     // If current week is before May, start at the first week containing May dates, respecting start day
                      let may1st = new Date(scheduleMinDate);
                      let may1stDay = may1st.getDay();
-                     let may1stDiff = may1st.getDate() - may1stDay + (may1stDay === 0 ? -6 : 1);
+                     let may1stDiff = may1st.getDate() - may1stDay + (may1stDay === weekStartDay ? 0 : (may1stDay < weekStartDay ? weekStartDay - 7 : weekStartDay));
                      scheduleCurrentWeekStart = new Date(may1st.getFullYear(), may1st.getMonth(), may1stDiff);
-                      // Ensure calculated start isn't before May 1st if May 1st isn't a Monday
-                      if (scheduleCurrentWeekStart < scheduleMinDate) {
-                          scheduleCurrentWeekStart.setDate(scheduleCurrentWeekStart.getDate() + 7);
-                      }
+                     // If calculated start is still before May 1st (e.g., May 1st is Tue, start day is Mon), jump to next week
+                     if (scheduleCurrentWeekStart < scheduleMinDate) {
+                         scheduleCurrentWeekStart.setDate(scheduleCurrentWeekStart.getDate() + 7);
+                     }
                  } else if (potentialWeekStart > scheduleMaxDate) {
                      // If current week is after May, start at the last week containing May dates
                      let may31st = new Date(scheduleMaxDate);
                      let may31stDay = may31st.getDay();
-                     let may31stDiff = may31st.getDate() - may31stDay + (may31stDay === 0 ? -6 : 1);
+                     let may31stDiff = may31st.getDate() - may31stDay + (may31stDay === weekStartDay ? 0 : (may31stDay < weekStartDay ? weekStartDay - 7 : weekStartDay));
                      scheduleCurrentWeekStart = new Date(may31st.getFullYear(), may31st.getMonth(), may31stDiff);
+                     // It's possible the calculated start day is already in June if May 31st is early in the week.
+                     // In this case, we might need to step back one week (this logic can get complex depending on exact requirement)
+                     if (scheduleCurrentWeekStart > scheduleMaxDate) {
+                          // Simple approach: just use the week containing May 31st, even if start is earlier
+                         // More complex: ensure *some* day of the week is within May
+                     }
+
                  } else {
                      // Current week is within May
                      scheduleCurrentWeekStart = potentialWeekStart;
                  }
-                console.log("Initial week start date set to:", scheduleCurrentWeekStart.toDateString());
+                 console.log("Initial week start date set to:", scheduleCurrentWeekStart.toDateString());
 
 
                 // 5. Initial UI setup
