@@ -1895,19 +1895,37 @@
                     fetch(filePath)
                         .then(response => {
                             if (!response.ok) {
-                                throw new Error(`HTTP error! status: ${response.status}`);
+                                // Throw an error with status text to be more informative
+                                throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
                             }
                             return response.text();
                         })
                         .then(html => {
                             featureSections.innerHTML = html; // Replace placeholder with fetched content
                             featureSections.classList.add('active'); // Ensure the section itself is marked active
-                             // Re-initialize any JS needed for the loaded content here (if applicable)
+
+                            // IMPORTANT: Re-initialize any JS needed for the loaded content here
+                            // Check if the loaded content has a specific init function or re-run necessary parts
+                            if (featureId === 'employee-scheduling') {
+                                // Attempt to find and call an initialization function if it exists in the loaded script
+                                if (typeof initializeEmployeeSchedule === 'function') {
+                                    initializeEmployeeSchedule();
+                                } else {
+                                    console.warn(`Initialization function 'initializeEmployeeSchedule' not found for ${featureId}. Manual script execution might be needed.`);
+                                    // If the script doesn't have an init function, you might need to manually
+                                    // find the script tag within the loaded 'html' and execute it,
+                                    // but this is complex and error-prone. It's better to design
+                                    // the loaded scripts to be initializable.
+                                }
+                            }
+                            // Add similar checks for other dynamically loaded features
+
                         })
                         .catch(error => {
-                            console.error(`Error loading feature '${featureId}':`, error);
+                            console.error(`Error loading feature '${featureId}' from '${filePath}':`, error);
                             featureTitle.textContent = `Error Loading ${featureId.replace(/-/g, ' ')}`;
-                            featureDescription.textContent = `Could not load the content for this section. Please check if the file '${filePath}' exists and is accessible.`;
+                            // Display a more helpful error message
+                            featureDescription.textContent = `Could not load content. Please check the file path ('${filePath}') and ensure the file exists and the server is configured correctly. Error: ${error.message}`;
                             featureLoadingIndicator.style.display = 'none';
                             featureErrorMessage.style.display = 'block';
                              featureSections.classList.add('active'); // Still show the section, but with error
