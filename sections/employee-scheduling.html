@@ -1,115 +1,1228 @@
-            // --- Feature/Section Loading ---
-            function setActiveFeature(featureId, settingsTab = null) {
-                // ... (الكود السابق للتحقق من الصلاحيات وتحديث الحالة والقائمة الجانبية) ...
+<!-- Note: Removed DOCTYPE, html, head, body tags -->
+<!-- Note: Removed <header> section as it's provided by dash.html -->
 
-                currentFeature = featureId;
-                currentSettingsTab = settingsTab || (featureId === 'settings' ? (currentSettingsTab || 'preferences') : null);
+<!-- Styles specific to Employee Scheduling -->
+<!-- Note: Removed :root and potentially conflicting global styles. -->
+<!-- Consider scoping these styles further if needed (e.g., using a parent class) -->
+<style>
+    /* Styles specific to this section (employee schedule) */
+    .employee-schedule-body { /* Use a more specific class or ID for the container if needed */
+        /* background-color: var(--light); Applied by dash.html */
+        /* color: var(--dark); Applied by dash.html */
+        /* Add padding if needed, though dash.html's .content-section likely provides it */
+    }
 
-                // Update URL hash
-                let hash = `#${featureId}`;
-                if (featureId === 'settings' && currentSettingsTab) {
-                    hash += `-${currentSettingsTab}`;
-                }
-                if (window.location.hash !== hash) {
-                    history.pushState({ feature: featureId, tab: currentSettingsTab }, '', hash);
-                }
+    /* Main Content Styling Adjustments */
+    .employee-schedule-body .main-container {
+        max-width: 100%; /* Take full width within the dashboard content area */
+        margin: 0; /* Reset margin */
+        padding: 0; /* Reset padding, rely on dash.html's .content-section */
+    }
 
-                // Update Sidebar Menu Active State
-                menuItems.forEach(item => item.classList.remove('active'));
-                const activeMenuItem = document.querySelector(`.menu-item[data-feature="${featureId}"]`);
-                if (activeMenuItem) activeMenuItem.classList.add('active');
+    .employee-schedule-body .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem; /* Adjusted margin */
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
 
-                // Show/Hide Content Sections
-                contentSections.forEach(section => section.classList.remove('active'));
-                featureSectionsContainer.style.display = 'none';
+    .employee-schedule-body .page-title {
+        font-size: 1.5rem; /* Adjusted size */
+        color: var(--primary-dark);
+        font-weight: 600; /* Adjusted weight */
+    }
 
-                if (featureId === 'dashboard') {
-                    dashboardContent.classList.add('active');
-                    updateStats();
-                    loadActivities();
-                } else if (featureId === 'profile') {
-                    profileContent.classList.add('active');
-                    updateUserUI();
-                } else if (featureId === 'settings') {
-                    settingsContent.classList.add('active');
-                    applyRBAC();
-                    activateSettingsTab(currentSettingsTab || 'preferences');
-                } else {
-                    // Handle other features dynamically
-                    featureSectionsContainer.style.display = 'block';
-                    featureSections.innerHTML = ''; // Clear previous content
-                    featureSections.appendChild(featurePlaceholder);
-                    featureTitle.textContent = `Loading ${featureId.replace(/-/g, ' ')}...`;
-                    featureDescription.textContent = '';
-                    featureLoadingIndicator.style.display = 'block';
-                    featureErrorMessage.style.display = 'none';
-                    featurePlaceholder.style.display = 'flex';
+    /* Schedule Controls */
+    .employee-schedule-body .schedule-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        background-color: var(--white);
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
 
-                    const filePath = `sections/${featureId}.html`;
+    .employee-schedule-body .week-navigation {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem; /* Adjusted gap */
+    }
 
-                    fetch(filePath)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
-                            }
-                            return response.text();
-                        })
-                        .then(html => {
-                            featureSections.innerHTML = html; // <<<--- تم إدخال المحتوى هنا
-                            featureSections.classList.add('active');
+    .employee-schedule-body .week-display {
+        font-weight: 600;
+        min-width: 180px;
+        text-align: center;
+        color: var(--dark); /* Ensure text color matches theme */
+    }
 
-                            // !!!!! --- START OF CHANGE --- !!!!!
-                            // بعد إدخال المحتوى، تحقق من وجود دالة التهيئة واستدعها
-                            if (featureId === 'employee-scheduling') {
-                                if (typeof initializeEmployeeSchedule === 'function') {
-                                    try {
-                                        initializeEmployeeSchedule(); // <<<--- استدعاء الدالة هنا
-                                    } catch (err) {
-                                         console.error(`Error executing initializeEmployeeSchedule:`, err);
-                                         featureTitle.textContent = `Error Initializing ${featureId.replace(/-/g, ' ')}`;
-                                         featureDescription.textContent = `Content loaded, but failed during initialization. Check console for details. Error: ${err.message}`;
-                                         featureLoadingIndicator.style.display = 'none';
-                                         featureErrorMessage.style.display = 'block';
-                                    }
-                                } else {
-                                    console.warn(`Initialization function 'initializeEmployeeSchedule' not found for ${featureId}. Dynamic content might not be interactive.`);
-                                    // يمكنك عرض رسالة تحذير للمستخدم هنا أيضاً إذا أردت
-                                     featureTitle.textContent = `${featureId.replace(/-/g, ' ')} Loaded`;
-                                     featureDescription.textContent = `Content loaded, but its specific script function was not found. Interaction might be limited.`;
-                                      featureLoadingIndicator.style.display = 'none';
-                                      featureErrorMessage.style.display = 'none'; // Not necessarily an error, but incomplete
-                                }
-                            }
-                            // Add similar 'else if' blocks for other features needing JS initialization
-                            // else if (featureId === 'some-other-feature') {
-                            //    if (typeof initializeSomeOtherFeature === 'function') {
-                            //        initializeSomeOtherFeature();
-                            //    } else { console.warn(...); }
-                            // }
+    /* Use button styles from main dashboard (.btn, .btn-primary, etc.) */
+    /* No need to redefine .btn styles here if dash.html defines them globally */
 
-                             // Hide placeholder elements that might remain if the loaded content doesn't fill everything
-                             featureLoadingIndicator.style.display = 'none';
-                             featureErrorMessage.style.display = 'none';
-                             featurePlaceholder.style.display = 'none'; // Hide the entire placeholder div
+    /* Schedule Table */
+    .employee-schedule-body .schedule-container {
+        background-color: var(--white);
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        overflow-x: auto;
+    }
 
-                            // !!!!! --- END OF CHANGE --- !!!!!
+    .employee-schedule-body .schedule-table {
+        width: 100%;
+        border-collapse: separate; /* Changed from collapse for spacing */
+        border-spacing: 0 0px; /* Add spacing between rows */
+        margin-top: 0px; /* Add space above table */
+    }
 
-                        })
-                        .catch(error => {
-                            console.error(`Error loading feature '${featureId}' from '${filePath}':`, error);
-                            featureTitle.textContent = `Error Loading ${featureId.replace(/-/g, ' ')}`;
-                            featureDescription.textContent = `Could not load content. Please check the file path ('${filePath}') and ensure the file exists and the server is configured correctly. Error: ${error.message}`;
-                            featureLoadingIndicator.style.display = 'none';
-                            featureErrorMessage.style.display = 'block';
-                            featurePlaceholder.style.display = 'flex'; // Keep placeholder visible for error
-                            featureSections.classList.add('active');
-                        });
-                }
+    .employee-schedule-body .schedule-table thead th {
+        padding: 0.8rem 0.5rem; /* Adjusted padding */
+        text-align: center;
+        background-color: var(--primary); /* Use dashboard variable */
+        color: white;
+        font-weight: 600;
+        position: sticky;
+        top: 0; /* Might need adjustment based on dashboard's sticky nav height */
+        z-index: 10; /* Ensure header stays above content */
+        border-bottom: 2px solid var(--primary-dark); /* Add bottom border */
+    }
+    /* Add top borders to first row headers */
+    .employee-schedule-body .schedule-table thead tr:first-child th:first-child { border-top-left-radius: 8px; }
+    .employee-schedule-body .schedule-table thead tr:first-child th:last-child { border-top-right-radius: 8px; }
 
-                // Show/Hide Back Button
-                backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none';
 
-                window.scrollTo(0, 0);
+    .employee-schedule-body .schedule-table tbody td {
+        padding: 0.75rem 0.5rem; /* Adjusted padding */
+        text-align: center;
+        background-color: var(--white); /* Use variable */
+        border: none; /* Remove individual cell borders */
+        border-bottom: 1px solid var(--light-gray); /* Add bottom border for row separation */
+        color: var(--dark); /* Ensure text color */
+        vertical-align: middle; /* Align content vertically */
+    }
+
+    .employee-schedule-body .schedule-table tbody tr:last-child td {
+        border-bottom: none; /* Remove bottom border for last row */
+    }
+     /* Add left/right borders to first/last cell */
+     .employee-schedule-body .schedule-table tbody td:first-child { border-left: 1px solid var(--light-gray); }
+     .employee-schedule-body .schedule-table tbody td:last-child { border-right: 1px solid var(--light-gray); }
+     /* Round corners for first/last cell of last row */
+     .employee-schedule-body .schedule-table tbody tr:last-child td:first-child { border-bottom-left-radius: 8px; }
+     .employee-schedule-body .schedule-table tbody tr:last-child td:last-child { border-bottom-right-radius: 8px; }
+
+
+    .employee-schedule-body .employee-name {
+        font-weight: 500; /* Adjusted weight */
+        text-align: left;
+        position: sticky;
+        left: 0;
+        background-color: var(--white); /* Ensure sticky header has background */
+        padding: 0.75rem 1rem; /* Adjusted padding */
+        white-space: nowrap;
+        z-index: 5; /* Lower than header */
+        border-right: 1px solid var(--light-gray); /* Separator line */
+    }
+
+    /* Employee name colors - These can stay as they are specific */
+    .employee-schedule-body .employee-1 { color: #3b82f6; }
+    .employee-schedule-body .employee-2 { color: #10b981; }
+    .employee-schedule-body .employee-3 { color: #8b5cf6; }
+    .employee-schedule-body .employee-4 { color: #ec4899; }
+    .employee-schedule-body .employee-5 { color: #f59e0b; }
+    .employee-schedule-body .employee-6 { color: #14b8a6; }
+
+    /* Shift Styles */
+    .employee-schedule-body .shift {
+        padding: 0.3rem 0.6rem; /* Adjusted padding */
+        border-radius: 4px;
+        font-size: 0.8rem; /* Adjusted size */
+        font-weight: 500;
+        white-space: nowrap;
+        display: inline-block; /* Ensure it takes space */
+    }
+
+    .employee-schedule-body .shift-morning { background-color: #dbeafe; color: #1e40af; }
+    .employee-schedule-body .shift-afternoon { background-color: #e0f2fe; color: #0c4a6e; }
+    .employee-schedule-body .shift-night { background-color: #ede9fe; color: #5b21b6; }
+    .employee-schedule-body .day-off { background-color: #f0fdf4; color: #166534; }
+    .employee-schedule-body .sick-leave { background-color: #fee2e2; color: #991b1b; }
+    .employee-schedule-body .vacation { background-color: #ffedd5; color: #9a3412; }
+
+    /* Compact day headers */
+    .employee-schedule-body .day-header {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem; /* Adjusted gap */
+        align-items: center; /* Center header content */
+    }
+
+    .employee-schedule-body .day-name {
+        font-weight: 600;
+        font-size: 0.85rem; /* Adjusted size */
+    }
+
+    .employee-schedule-body .day-date {
+        font-size: 0.75rem; /* Adjusted size */
+        opacity: 0.8; /* Adjusted opacity */
+    }
+
+    /* Modal Styles (Rely on dash.html modals if possible, otherwise prefix IDs) */
+    /* Example prefixing: #schedule-employeeModal, #schedule-shiftModal */
+    .employee-schedule-body .modal { /* If using separate modals */
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6); /* Darker backdrop */
+        z-index: 1050; /* Ensure above dashboard content */
+        justify-content: center;
+        align-items: center;
+    }
+
+    .employee-schedule-body .modal-content {
+        background-color: var(--white);
+        width: 90%;
+        max-width: 500px; /* Slightly smaller max-width */
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        padding: 1.5rem; /* Adjusted padding */
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .employee-schedule-body .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem; /* Add padding */
+        border-bottom: 1px solid var(--light-gray); /* Add separator */
+    }
+
+    .employee-schedule-body .modal-title {
+        font-size: 1.25rem; /* Adjusted size */
+        font-weight: 600;
+        color: var(--dark); /* Use theme color */
+    }
+
+    .employee-schedule-body .close-modal {
+        background: none;
+        border: none;
+        font-size: 1.75rem; /* Larger close button */
+        cursor: pointer;
+        color: var(--gray);
+        line-height: 1;
+        padding: 0;
+    }
+     .employee-schedule-body .close-modal:hover {
+         color: var(--dark);
+     }
+
+    .employee-schedule-body .form-group {
+        margin-bottom: 1rem; /* Adjusted margin */
+    }
+
+    .employee-schedule-body .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--dark);
+        font-size: 0.9rem; /* Smaller label */
+    }
+
+    .employee-schedule-body .form-control {
+        width: 100%;
+        padding: 0.6rem 0.75rem; /* Adjusted padding */
+        border: 1px solid var(--light-gray);
+        border-radius: 6px;
+        font-size: 0.95rem; /* Adjusted size */
+        background-color: var(--white); /* Theme support */
+        color: var(--dark); /* Theme support */
+    }
+    .employee-schedule-body .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+     .employee-schedule-body .form-control[readonly] {
+         background-color: var(--light-gray);
+         cursor: not-allowed;
+     }
+     .employee-schedule-body textarea.form-control {
+         min-height: 80px;
+     }
+
+    .employee-schedule-body .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem; /* Adjusted gap */
+        margin-top: 1.5rem; /* Adjusted margin */
+        padding-top: 1rem; /* Add padding */
+        border-top: 1px solid var(--light-gray); /* Add separator */
+    }
+
+    /* Admin Controls */
+    .employee-schedule-body .admin-controls {
+        position: relative; /* Keep for positioning edit button if needed */
+        padding: 0.75rem 0.5rem; /* Match cell padding */
+        display: flex; /* Use flex for alignment */
+        flex-direction: column; /* Stack shift and edit button */
+        align-items: center;
+        justify-content: center;
+        min-height: 50px; /* Ensure minimum height */
+    }
+
+    .employee-schedule-body .edit-shift {
+        cursor: pointer;
+        color: var(--primary);
+        font-size: 0.75rem; /* Smaller edit text */
+        display: none; /* Hide by default, shown on hover by JS if admin */
+        margin-top: 0.25rem;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+     .employee-schedule-body .edit-shift:hover {
+         opacity: 1;
+         text-decoration: underline;
+     }
+
+    /* Show edit button on cell hover if admin */
+    .employee-schedule-body .admin-controls:hover .edit-shift.admin-visible {
+        display: inline;
+    }
+
+
+    /* Confirmation Dialog (Rely on dash.html's #confirmModal if possible) */
+    .employee-schedule-body .confirmation-dialog { /* If using separate dialog */
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        z-index: 1100; /* Above modals */
+        justify-content: center;
+        align-items: center;
+    }
+
+    .employee-schedule-body .dialog-content {
+        background-color: var(--white);
+        width: 90%;
+        max-width: 380px;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        padding: 1.5rem; /* Adjusted padding */
+        text-align: center;
+    }
+
+    .employee-schedule-body .dialog-message {
+        margin-bottom: 1.5rem;
+        font-size: 1rem; /* Adjusted size */
+        color: var(--dark);
+        line-height: 1.5;
+    }
+
+    .employee-schedule-body .dialog-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    /* Responsive Design Adjustments */
+    @media (max-width: 768px) {
+        .employee-schedule-body .schedule-controls {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch; /* Stretch items */
+        }
+         .employee-schedule-body .week-navigation {
+             justify-content: space-between; /* Space out nav buttons */
+             width: 100%;
+         }
+         .employee-schedule-body .schedule-controls > .btn-primary {
+             width: 100%; /* Full width save button */
+             justify-content: center;
+         }
+
+        .employee-schedule-body .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem; /* Reduced gap */
+            margin-bottom: 1.5rem;
+        }
+         .employee-schedule-body .page-header > div { /* Button container */
+             width: 100%;
+             display: flex;
+             gap: 0.5rem;
+         }
+          .employee-schedule-body .page-header > div > .btn {
+              flex-grow: 1; /* Make buttons share space */
+              justify-content: center;
+          }
+
+        .employee-schedule-body .employee-name {
+            position: static; /* Unstick on mobile */
+            border-right: none;
+            border-bottom: 1px solid var(--light-gray); /* Add bottom border */
+            text-align: center;
+            font-weight: 600;
+             background-color: #f8fafc; /* Slight background difference */
+        }
+        .employee-schedule-body .schedule-table tbody td:first-child {
+            border-left: none;
+        }
+         .employee-schedule-body .schedule-table tbody td {
+             display: block; /* Stack cells vertically */
+             width: 100%;
+             text-align: right; /* Align content to the right */
+             padding-left: 50%; /* Create space for label */
+             position: relative;
+             border-bottom: 1px solid var(--light-gray);
+         }
+          .employee-schedule-body .schedule-table tbody td:last-child {
+              border-bottom: 2px solid var(--dark); /* Thicker border after last day */
+          }
+         .employee-schedule-body .schedule-table tbody td::before {
+             content: attr(data-label); /* Use data-label for day */
+             position: absolute;
+             left: 10px;
+             width: calc(50% - 20px);
+             padding-right: 10px;
+             white-space: nowrap;
+             text-align: left;
+             font-weight: bold;
+             color: var(--gray);
+         }
+          .employee-schedule-body .schedule-table tbody td.employee-name {
+              display: table-cell; /* Keep name cell normal */
+              width: auto;
+              text-align: left;
+              padding-left: 1rem;
+              position: sticky; /* Try keeping name sticky if possible */
+              left:0;
+              background-color: var(--light);
+              z-index: 5;
+          }
+         .employee-schedule-body .schedule-table tbody td.employee-name::before {
+             content: none; /* Remove pseudo-label */
+         }
+         /* Hide the table header on mobile */
+         .employee-schedule-body .schedule-table thead {
+             display: none;
+         }
+          /* Adjust admin controls for stacked view */
+         .employee-schedule-body .admin-controls {
+             min-height: auto;
+             padding: 0.5rem 10px 0.5rem 50%; /* Adjust padding */
+             flex-direction: row; /* Place shift and edit side-by-side */
+             justify-content: flex-end; /* Align to the right */
+             align-items: center;
+             gap: 0.5rem;
+         }
+         .employee-schedule-body .edit-shift {
+             margin-top: 0;
+         }
+
+    }
+    @media (max-width: 480px) {
+         .employee-schedule-body .page-title {
+             font-size: 1.3rem;
+         }
+         .employee-schedule-body .shift {
+             font-size: 0.75rem;
+             padding: 0.2rem 0.4rem;
+         }
+          .employee-schedule-body .edit-shift {
+              font-size: 0.7rem;
+          }
+          .employee-schedule-body .modal-content {
+              padding: 1rem;
+          }
+           .employee-schedule-body .form-actions {
+               flex-direction: column;
+               gap: 0.5rem;
+           }
+            .employee-schedule-body .form-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+    }
+</style>
+
+<!-- This container will be inserted into dash.html's #featureSections -->
+<div class="employee-schedule-body">
+    <!-- Main Content (Removed header) -->
+    <div class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">Employee Schedule</h1>
+            <div>
+                <!-- Buttons might be controlled by dash.html permissions -->
+                <button class="btn btn-primary" id="schedule-addEmployeeBtn"> <!-- Prefixed ID -->
+                    <i class="fas fa-plus"></i> Add Employee
+                </button>
+                <button class="btn btn-secondary" id="schedule-sendRemindersBtn" style="background-color: var(--secondary);"> <!-- Prefixed ID -->
+                    <i class="fas fa-envelope"></i> Send Reminders
+                </button>
+            </div>
+        </div>
+
+        <!-- Schedule Controls -->
+        <div class="schedule-controls">
+            <div class="week-navigation">
+                <button class="btn btn-outline" id="schedule-prevWeekBtn"> <!-- Prefixed ID -->
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="week-display" id="schedule-weekDisplay">Loading...</div> <!-- Prefixed ID -->
+                <button class="btn btn-outline" id="schedule-nextWeekBtn"> <!-- Prefixed ID -->
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <button class="btn btn-primary" id="schedule-saveScheduleBtn"> <!-- Prefixed ID -->
+                <i class="fas fa-save"></i> Save Schedule
+            </button>
+        </div>
+
+        <!-- Schedule Table -->
+        <div class="schedule-container">
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <!-- Headers will be populated by JS -->
+                        <th>Employee</th>
+                        <th>Mon</th>
+                        <th>Tue</th>
+                        <th>Wed</th>
+                        <th>Thu</th>
+                        <th>Fri</th>
+                        <th>Sat</th>
+                        <th>Sun</th>
+                    </tr>
+                </thead>
+                <tbody id="schedule-table-body"> <!-- Added ID for JS targeting -->
+                    <!-- Employee rows will be populated by JS -->
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">Loading schedule...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <!-- Consider using the main dashboard's modal system if possible -->
+    <div class="modal" id="schedule-employeeModal"> <!-- Prefixed ID -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Employee</h2>
+                <button class="close-modal" id="schedule-closeEmployeeModal">×</button> <!-- Prefixed ID -->
+            </div>
+            <form id="schedule-employeeForm"> <!-- Prefixed ID -->
+                <div class="form-group">
+                    <label for="schedule-empName">Full Name</label>
+                    <input type="text" id="schedule-empName" class="form-control" required> <!-- Prefixed ID -->
+                </div>
+                <div class="form-group">
+                    <label for="schedule-empEmail">Email</label>
+                    <input type="email" id="schedule-empEmail" class="form-control" required> <!-- Prefixed ID -->
+                </div>
+                <!-- Removed Position and Role as these might come from main user data -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="schedule-cancelEmployeeBtn">Cancel</button> <!-- Prefixed ID -->
+                    <button type="submit" class="btn btn-primary">Add Employee</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Shift Modal -->
+    <div class="modal" id="schedule-shiftModal"> <!-- Prefixed ID -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Shift</h2>
+                <button class="close-modal" id="schedule-closeShiftModal">×</button> <!-- Prefixed ID -->
+            </div>
+            <form id="schedule-shiftForm"> <!-- Prefixed ID -->
+                <div class="form-group">
+                    <label for="schedule-shiftEmployee">Employee</label>
+                    <input type="text" id="schedule-shiftEmployee" class="form-control" readonly> <!-- Prefixed ID -->
+                </div>
+                <div class="form-group">
+                    <label for="schedule-shiftDate">Date</label>
+                    <input type="date" id="schedule-shiftDate" class="form-control" required> <!-- Prefixed ID -->
+                </div>
+                <div class="form-group">
+                    <label for="schedule-shiftType">Shift Type</label>
+                    <select id="schedule-shiftType" class="form-control" required> <!-- Prefixed ID -->
+                        <option value="morning">Morning (9AM-5PM)</option>
+                        <option value="afternoon">Afternoon (12PM-8PM)</option>
+                        <option value="night">Night (5PM-1AM)</option>
+                        <option value="day-off">Day Off</option>
+                        <option value="sick-leave">Sick Leave</option>
+                        <option value="vacation">Vacation</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                <div class="form-group" id="schedule-customShiftGroup" style="display: none;"> <!-- Prefixed ID -->
+                    <label for="schedule-customShift">Custom Shift Times</label>
+                    <input type="text" id="schedule-customShift" class="form-control" placeholder="e.g., 10AM-6PM"> <!-- Prefixed ID -->
+                </div>
+                <div class="form-group">
+                    <label for="schedule-shiftNotes">Notes</label>
+                    <textarea id="schedule-shiftNotes" class="form-control" rows="3"></textarea> <!-- Prefixed ID -->
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-danger" id="schedule-deleteShiftBtn">Delete Shift</button> <!-- Prefixed ID -->
+                    <button type="button" class="btn btn-outline" id="schedule-cancelShiftBtn">Cancel</button> <!-- Prefixed ID -->
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation Dialog -->
+    <!-- Use dash.html's #confirmModal instead -->
+    <!-- <div class="confirmation-dialog" id="schedule-confirmationDialog"> ... </div> -->
+
+</div> <!-- End of .employee-schedule-body -->
+
+
+<script>
+    // Wrap all code in an initialization function
+    function initializeEmployeeSchedule() {
+        console.log("Initializing Employee Schedule Section...");
+
+        // Use prefixed IDs or carefully select elements within this section's container
+        const scheduleContainer = document.querySelector('.employee-schedule-body'); // Or specific ID if added
+        if (!scheduleContainer) {
+            console.error("Employee Schedule container not found!");
+            return;
+        }
+
+        // DOM Elements (Use querySelector within the container for better scoping)
+        const employeeModal = scheduleContainer.querySelector('#schedule-employeeModal');
+        const shiftModal = scheduleContainer.querySelector('#schedule-shiftModal');
+        // Use the main dashboard's confirmation modal
+        const confirmationDialog = document.getElementById('confirmModal'); // Main dashboard modal
+        const dialogTitle = document.getElementById('confirmTitle');       // Main dashboard modal title
+        const dialogMessage = document.getElementById('confirmMessage');    // Main dashboard modal message
+        const confirmBtn = document.getElementById('confirmBtn');          // Main dashboard modal confirm btn
+        const cancelConfirmBtn = document.getElementById('cancelConfirmBtn'); // Main dashboard modal cancel btn
+
+        // Find schedule-specific elements using the container
+        const addEmployeeBtn = scheduleContainer.querySelector('#schedule-addEmployeeBtn');
+        const sendRemindersBtn = scheduleContainer.querySelector('#schedule-sendRemindersBtn');
+        const closeEmployeeModal = scheduleContainer.querySelector('#schedule-closeEmployeeModal');
+        const closeShiftModal = scheduleContainer.querySelector('#schedule-closeShiftModal');
+        const cancelEmployeeBtn = scheduleContainer.querySelector('#schedule-cancelEmployeeBtn');
+        const cancelShiftBtn = scheduleContainer.querySelector('#schedule-cancelShiftBtn');
+        const employeeForm = scheduleContainer.querySelector('#schedule-employeeForm');
+        const shiftForm = scheduleContainer.querySelector('#schedule-shiftForm');
+        const shiftTypeSelect = scheduleContainer.querySelector('#schedule-shiftType'); // Renamed variable
+        const customShiftGroup = scheduleContainer.querySelector('#schedule-customShiftGroup');
+        const customShiftInput = scheduleContainer.querySelector('#schedule-customShift'); // Added
+        const deleteShiftBtn = scheduleContainer.querySelector('#schedule-deleteShiftBtn');
+        const prevWeekBtn = scheduleContainer.querySelector('#schedule-prevWeekBtn');
+        const nextWeekBtn = scheduleContainer.querySelector('#schedule-nextWeekBtn');
+        const weekDisplay = scheduleContainer.querySelector('#schedule-weekDisplay');
+        const saveScheduleBtn = scheduleContainer.querySelector('#schedule-saveScheduleBtn');
+        const scheduleTableBody = scheduleContainer.querySelector('#schedule-table-body'); // Target tbody
+        const shiftEmployeeInput = scheduleContainer.querySelector('#schedule-shiftEmployee'); // Added
+        const shiftDateInput = scheduleContainer.querySelector('#schedule-shiftDate');
+        const shiftNotesInput = scheduleContainer.querySelector('#schedule-shiftNotes'); // Added
+
+        // State variables for the schedule section
+        let scheduleEmployees = []; // Use a local copy or fetch from dashboard's teamMembers
+        let scheduleCurrentUser = {}; // Get user info/role from dashboard if needed
+        let scheduleCurrentWeekStart = new Date(); // Initialize properly
+        let scheduleSavedData = {}; // Local storage for schedule
+
+        const scheduleMinDate = new Date(2025, 4, 1); // May 1, 2025
+        const scheduleMaxDate = new Date(2025, 4, 31); // May 31, 2025
+
+        // --- Helper Functions ---
+
+        function formatDateKey(date) {
+            // Ensure consistent format for localStorage keys (YYYY-MM-DD)
+             if (!(date instanceof Date)) {
+                date = new Date(date); // Try converting if it's not a Date object
+             }
+             if (isNaN(date.getTime())) {
+                 console.error("Invalid date passed to formatDateKey:", date);
+                 return null; // Or throw an error
+             }
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Use main dashboard's confirmation modal
+        function showScheduleConfirmation(config) {
+            // Map config to the main modal's elements
+            dialogTitle.textContent = config.title || 'Confirm';
+            dialogMessage.innerHTML = config.message || 'Are you sure?'; // Use innerHTML
+            confirmBtn.textContent = config.confirmText || 'Confirm';
+            cancelConfirmBtn.textContent = config.cancelText || 'Cancel';
+            confirmBtn.className = `btn ${config.confirmClass || 'btn-primary'}`; // Use dashboard btn classes
+
+            // Store callbacks directly on buttons or use a global callback variable
+            confirmBtn.onclick = () => { // Attach temporary handler
+                hideConfirmModal(); // Use dash.html's function
+                if (config.onConfirm) config.onConfirm();
+            };
+            cancelConfirmBtn.onclick = () => { // Attach temporary handler
+                 hideConfirmModal(); // Use dash.html's function
+                 if (config.onCancel) config.onCancel();
+            };
+             // Show the main modal (assuming dash.html has a function like this)
+             if (typeof showConfirmModal === 'function') {
+                 // We just configured it, now show it (the function might do this already)
+                 confirmationDialog.style.display = 'flex'; // Or call showConfirmModal() if it does more
+             } else {
+                  confirmationDialog.style.display = 'flex'; // Fallback
+             }
+        }
+
+        // Use main dashboard's success message
+         function showScheduleSuccess(message) {
+              if (typeof showSuccessMessage === 'function') {
+                  showSuccessMessage(message);
+              } else {
+                  alert(message); // Fallback
+              }
+         }
+
+        function updateWeekDisplayUI() {
+            const weekEnd = new Date(scheduleCurrentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+
+            const options = { month: 'short', day: 'numeric' };
+            const startStr = scheduleCurrentWeekStart.toLocaleDateString('en-US', options);
+            const endStr = weekEnd.toLocaleDateString('en-US', options);
+            const year = scheduleCurrentWeekStart.getFullYear();
+
+            weekDisplay.textContent = `${startStr} - ${endStr}, ${year}`;
+
+            // Update table headers
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const headerRow = scheduleContainer.querySelector('.schedule-table thead tr');
+            headerRow.innerHTML = '<th>Employee</th>'; // Clear existing day headers
+
+            const tempDate = new Date(scheduleCurrentWeekStart);
+            days.forEach(dayName => {
+                const th = document.createElement('th');
+                const dateStr = tempDate.toLocaleDateString('en-US', { day: 'numeric' }); // Only date number
+                const monthStr = tempDate.toLocaleDateString('en-US', { month: 'short' });
+                th.innerHTML = `
+                    <div class="day-header">
+                        <span class="day-name">${dayName}</span>
+                        <span class="day-date">${monthStr} ${dateStr}</span>
+                    </div>
+                `;
+                headerRow.appendChild(th);
+                tempDate.setDate(tempDate.getDate() + 1);
+            });
+
+            // Enable/disable navigation buttons
+            const prevWeek = new Date(scheduleCurrentWeekStart);
+            prevWeek.setDate(prevWeek.getDate() - 7);
+            prevWeekBtn.disabled = prevWeek < scheduleMinDate;
+
+            const nextWeekEnd = new Date(scheduleCurrentWeekStart);
+            nextWeekEnd.setDate(nextWeekEnd.getDate() + 7); // Start of next week
+            nextWeekBtn.disabled = nextWeekEnd > scheduleMaxDate; // Disable if *start* of next week is past max date
+        }
+
+        function renderScheduleTable() {
+            scheduleTableBody.innerHTML = ''; // Clear existing rows
+
+            if (scheduleEmployees.length === 0) {
+                 scheduleTableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">No employees found. Add employees via Team Management.</td></tr>`;
+                 return;
             }
 
-            // ... (بقية كود dash.html) ...
+            const isAdminOrSupervisor = scheduleCurrentUser.role === 'admin' || scheduleCurrentUser.role === 'supervisor';
+            const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+
+            scheduleEmployees.forEach((employee, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="employee-name employee-${index + 1}">${employee.name}</td>`; // Use index for class cycling
+
+                const tempDate = new Date(scheduleCurrentWeekStart);
+                days.forEach((day, dayIndex) => {
+                    const td = document.createElement('td');
+                    td.classList.add('admin-controls');
+                    const dateKey = formatDateKey(tempDate);
+                    td.dataset.label = `${days[dayIndex].toUpperCase()} (${tempDate.toLocaleDateString('en-us', {month:'short', day:'numeric'})})`; // For mobile view
+
+                    const empKey = `emp-${employee.id}`;
+                    let shiftText = '';
+                    let shiftClass = '';
+                    let notes = '';
+
+                    if (scheduleSavedData[empKey] && scheduleSavedData[empKey][dateKey]) {
+                        const shiftData = scheduleSavedData[empKey][dateKey];
+                        shiftText = shiftData.text;
+                        shiftClass = shiftData.class;
+                        notes = shiftData.notes || '';
+                    }
+
+                    if (shiftText && shiftClass) {
+                        td.innerHTML += `<div class="shift ${shiftClass}" title="${notes}">${shiftText}</div>`;
+                    }
+
+                    // Add edit button/span only if admin/supervisor
+                    if (isAdminOrSupervisor) {
+                        const editSpan = document.createElement('span');
+                        editSpan.className = 'edit-shift admin-visible'; // Add class to control visibility
+                        editSpan.dataset.emp = employee.id;
+                        editSpan.dataset.dayIndex = dayIndex; // Use index for easier date calculation
+                        editSpan.textContent = '(edit)';
+                        editSpan.onclick = handleEditShiftClick; // Attach listener directly
+                        td.appendChild(editSpan);
+                    } else {
+                        // Add empty div to maintain cell height consistency if needed
+                        // td.innerHTML += '<div> </div>';
+                    }
+
+                    tr.appendChild(td);
+                    tempDate.setDate(tempDate.getDate() + 1); // Move to next day
+                });
+                scheduleTableBody.appendChild(tr);
+            });
+        }
+
+
+        function updateShiftDisplayUI(empId, dateKey, shiftText, shiftClass, notes = '') {
+             const dateObj = new Date(dateKey + 'T00:00:00'); // Ensure correct date parsing
+             if (isNaN(dateObj.getTime())) return; // Invalid date
+
+             const weekStart = new Date(scheduleCurrentWeekStart);
+             const dayIndex = Math.floor((dateObj.getTime() - weekStart.getTime()) / (1000 * 60 * 60 * 24));
+
+            if (dayIndex >= 0 && dayIndex <= 6) {
+                 const editButton = scheduleContainer.querySelector(`.edit-shift[data-emp="${empId}"][data-day-index="${dayIndex}"]`);
+                 if (!editButton) return; // Button not found (might be different week or employee not rendered)
+
+                 const shiftCell = editButton.closest('td');
+                 if (!shiftCell) return;
+
+                 // Remove existing shift div
+                 const existingShift = shiftCell.querySelector('.shift');
+                 if (existingShift) {
+                     existingShift.remove();
+                 }
+
+                 // Add new shift div if text exists
+                 if (shiftText && shiftClass) {
+                     const shiftDiv = document.createElement('div');
+                     shiftDiv.className = `shift ${shiftClass}`;
+                     shiftDiv.textContent = shiftText;
+                     shiftDiv.title = notes || ''; // Add notes as tooltip
+                     // Insert shift before the edit button
+                     shiftCell.insertBefore(shiftDiv, editButton);
+                 }
+            }
+        }
+
+
+        function loadShiftsForCurrentWeekUI() {
+            renderScheduleTable(); // Re-renders the entire table structure for the week
+        }
+
+        // --- Event Handlers ---
+
+        function handleWeekChange(direction) {
+             const newWeekStart = new Date(scheduleCurrentWeekStart);
+             newWeekStart.setDate(newWeekStart.getDate() + (direction * 7));
+
+             // Prevent going out of bounds
+             const checkEnd = new Date(newWeekStart); checkEnd.setDate(checkEnd.getDate()+6); // End of the target week
+             if (newWeekStart < scheduleMinDate || checkEnd > scheduleMaxDate) {
+                 console.log("Navigation blocked: Out of allowed date range.");
+                 return; // Don't navigate if the *entire* target week isn't valid
+             }
+
+             scheduleCurrentWeekStart = newWeekStart;
+             updateWeekDisplayUI();
+             loadShiftsForCurrentWeekUI();
+        }
+
+        function handleAddEmployeeClick() {
+            if (!employeeModal) return;
+             employeeForm.reset();
+            employeeModal.style.display = 'flex';
+        }
+
+        function handleSendRemindersClick() {
+             const subject = encodeURIComponent('Upcoming Work Schedule Reminder');
+             let body = `Dear Team Member,\n\nThis is a reminder of your upcoming work schedule for the week of ${weekDisplay.textContent}.\n\n`;
+
+             // Optional: Add specific shifts to the email body (more complex)
+             // body += "Your shifts:\n";
+             // scheduleEmployees.forEach(emp => { ... fetch shifts for emp ... body += ... })
+
+             body += `\nPlease review your shifts and let us know if you have any conflicts.\n\nBest regards,\nManagement`;
+             const encodedBody = encodeURIComponent(body);
+
+             let emails = scheduleEmployees.map(e => e.email).filter(Boolean).join(',');
+             if (emails) {
+                 const mailtoLink = `mailto:${emails}?subject=${subject}&body=${encodedBody}`;
+                 // Limiting mailto length might be necessary
+                 if (mailtoLink.length > 2000) { // Arbitrary limit, varies by client
+                    showScheduleConfirmation({
+                        title: "Too Many Recipients",
+                        message: "Cannot open email for all employees at once due to length limitations. Please send reminders individually or in smaller groups.",
+                        confirmText: "OK",
+                        confirmClass: "btn-primary"
+                    });
+                    return;
+                 }
+                 window.open(mailtoLink, '_blank');
+                 showScheduleSuccess("Email client opened with reminders prepared.");
+             } else {
+                  showScheduleSuccess("No employee emails found to send reminders.");
+             }
+        }
+
+        function handleSaveScheduleClick() {
+            // Data is saved on each shift edit via localStorage
+            showScheduleSuccess("Schedule is automatically saved.");
+        }
+
+        function handleEmployeeFormSubmit(e) {
+            e.preventDefault();
+            if (!employeeModal) return;
+
+            const nameInput = scheduleContainer.querySelector('#schedule-empName');
+            const emailInput = scheduleContainer.querySelector('#schedule-empEmail');
+            const name = nameInput.value.trim();
+            const email = emailInput.value.trim();
+
+             if (!name || !email) {
+                 alert("Please fill in both name and email.");
+                 return;
+             }
+
+            // Note: In a real app, you'd likely add the employee through the main
+            // dashboard's Team Management, not here. This is just for demo.
+            const newEmployee = {
+                id: Date.now(), // Simple unique ID for demo
+                name: name,
+                email: email
+            };
+
+            scheduleEmployees.push(newEmployee);
+            // You might want to update the main dashboard's teamMembers list too
+            // saveData(); // Call dash.html's save function if possible
+
+            loadShiftsForCurrentWeekUI(); // Re-render table with new employee
+            employeeModal.style.display = 'none';
+            showScheduleSuccess(`Employee ${name} added to the schedule view.`);
+        }
+
+         function handleEditShiftClick(event) {
+             const target = event.target; // The clicked span.edit-shift
+             const empId = parseInt(target.dataset.emp);
+             const dayIndex = parseInt(target.dataset.dayIndex);
+
+             const employee = scheduleEmployees.find(e => e.id === empId);
+
+             if (employee && dayIndex >= 0 && dayIndex <= 6) {
+                 const shiftDate = new Date(scheduleCurrentWeekStart);
+                 shiftDate.setDate(shiftDate.getDate() + dayIndex);
+                 const dateKey = formatDateKey(shiftDate);
+
+                 shiftEmployeeInput.value = employee.name;
+                 shiftDateInput.value = dateKey; // YYYY-MM-DD format
+                 shiftDateInput.min = formatDateKey(scheduleMinDate);
+                 shiftDateInput.max = formatDateKey(scheduleMaxDate);
+
+                 // Load existing data into modal
+                 const empKey = `emp-${employee.id}`;
+                 const savedShift = scheduleSavedData[empKey]?.[dateKey];
+
+                 if (savedShift) {
+                     shiftTypeSelect.value = savedShift.type;
+                     customShiftGroup.style.display = savedShift.type === 'custom' ? 'block' : 'none';
+                     customShiftInput.value = savedShift.type === 'custom' ? savedShift.text : '';
+                     shiftNotesInput.value = savedShift.notes || '';
+                 } else {
+                     // Default values if no saved data
+                     shiftTypeSelect.value = 'morning'; // Or 'day-off' or empty
+                     customShiftGroup.style.display = 'none';
+                     customShiftInput.value = '';
+                     shiftNotesInput.value = '';
+                 }
+
+                 // Set data attributes on the form for easy access on save/delete
+                 shiftForm.dataset.empId = empId;
+                 shiftForm.dataset.dateKey = dateKey;
+
+                 shiftModal.style.display = 'flex';
+             } else {
+                 console.error("Could not find employee or invalid day index for edit.");
+             }
+         }
+
+        function handleShiftFormSubmit(e) {
+            e.preventDefault();
+            if (!shiftModal) return;
+
+            const empId = parseInt(shiftForm.dataset.empId);
+            const dateKey = shiftForm.dataset.dateKey; // YYYY-MM-DD
+            const employee = scheduleEmployees.find(e => e.id === empId);
+
+            if (!employee || !dateKey) {
+                console.error("Missing employee ID or date key on shift form.");
+                shiftModal.style.display = 'none';
+                return;
+            }
+
+            const shiftTypeValue = shiftTypeSelect.value;
+            const customShiftText = customShiftInput.value.trim();
+            const notes = shiftNotesInput.value.trim();
+
+            let shiftText = '';
+            let shiftClass = '';
+
+            switch(shiftTypeValue) {
+                 case 'morning': shiftText = '9AM-5PM'; shiftClass = 'shift-morning'; break;
+                 case 'afternoon': shiftText = '12PM-8PM'; shiftClass = 'shift-afternoon'; break;
+                 case 'night': shiftText = '5PM-1AM'; shiftClass = 'shift-night'; break;
+                 case 'day-off': shiftText = 'OFF'; shiftClass = 'day-off'; break;
+                 case 'sick-leave': shiftText = 'SICK'; shiftClass = 'sick-leave'; break;
+                 case 'vacation': shiftText = 'VAC'; shiftClass = 'vacation'; break;
+                 case 'custom':
+                     if (!customShiftText) {
+                         alert('Please enter custom shift times.');
+                         customShiftInput.focus();
+                         return;
+                     }
+                     shiftText = customShiftText;
+                     // Assign a default class or create a specific 'custom' style
+                     shiftClass = 'shift-morning'; // Example: Use morning style as base
+                     break;
+                 default:
+                     console.warn("Unknown shift type:", shiftTypeValue);
+                     shiftModal.style.display = 'none';
+                     return; // Don't save unknown type
+            }
+
+            // Save to local state and localStorage
+            const empKey = `emp-${empId}`;
+            if (!scheduleSavedData[empKey]) {
+                scheduleSavedData[empKey] = {};
+            }
+            scheduleSavedData[empKey][dateKey] = {
+                type: shiftTypeValue,
+                text: shiftText,
+                class: shiftClass,
+                notes: notes
+            };
+            localStorage.setItem('employeeSchedule', JSON.stringify(scheduleSavedData));
+
+            // Update UI
+            updateShiftDisplayUI(empId, dateKey, shiftText, shiftClass, notes);
+
+            shiftModal.style.display = 'none';
+            showScheduleSuccess(`Shift updated for ${employee.name} on ${new Date(dateKey+'T00:00:00').toLocaleDateString()}.`);
+        }
+
+        function handleDeleteShiftClick() {
+            if (!shiftModal) return;
+
+            const empId = parseInt(shiftForm.dataset.empId);
+            const dateKey = shiftForm.dataset.dateKey; // YYYY-MM-DD
+            const employee = scheduleEmployees.find(e => e.id === empId);
+
+            if (!employee || !dateKey) {
+                console.error("Missing employee ID or date key for delete.");
+                shiftModal.style.display = 'none';
+                return;
+            }
+            const formattedDate = new Date(dateKey + 'T00:00:00').toLocaleDateString();
+
+            showScheduleConfirmation({
+                title: 'Delete Shift?',
+                message: `Are you sure you want to delete the shift for <strong>${employee.name}</strong> on ${formattedDate}?`,
+                confirmText: 'Delete',
+                confirmClass: 'btn-danger',
+                onConfirm: () => {
+                    const empKey = `emp-${empId}`;
+                    if (scheduleSavedData[empKey] && scheduleSavedData[empKey][dateKey]) {
+                        delete scheduleSavedData[empKey][dateKey];
+                        localStorage.setItem('employeeSchedule', JSON.stringify(scheduleSavedData));
+
+                        // Update the UI (remove the shift div)
+                        updateShiftDisplayUI(empId, dateKey, '', ''); // Pass empty text/class
+                         showScheduleSuccess(`Shift deleted for ${employee.name} on ${formattedDate}.`);
+                    } else {
+                         showScheduleSuccess(`No shift found to delete for ${employee.name} on ${formattedDate}.`);
+                    }
+                    shiftModal.style.display = 'none';
+                    // Confirmation modal is hidden by the showScheduleConfirmation function's handler
+                },
+                onCancel: () => {
+                    // Just hide the confirmation modal (handled by showScheduleConfirmation)
+                }
+            });
+        }
+
+        function setupScheduleEventListeners() {
+            // Week Navigation
+            prevWeekBtn.addEventListener('click', () => handleWeekChange(-1));
+            nextWeekBtn.addEventListener('click', () => handleWeekChange(1));
+
+            // --- Admin Buttons ---
+            // Check role before adding listeners
+            if (scheduleCurrentUser.role === 'admin' || scheduleCurrentUser.role === 'supervisor') {
+                 addEmployeeBtn.style.display = 'inline-flex'; // Show buttons
+                 sendRemindersBtn.style.display = 'inline-flex';
+                 saveScheduleBtn.style.display = 'inline-flex';
+
+                addEmployeeBtn.addEventListener('click', handleAddEmployeeClick);
+                sendRemindersBtn.addEventListener('click', handleSendRemindersClick);
+                saveScheduleBtn.addEventListener('click', handleSaveScheduleClick);
+
+                // Edit shift listeners are added dynamically in renderScheduleTable
+            } else {
+                 addEmployeeBtn.style.display = 'none'; // Hide buttons
+                 sendRemindersBtn.style.display = 'none';
+                 saveScheduleBtn.style.display = 'none';
+            }
+
+
+            // --- Modals ---
+            // Employee Modal
+            if (employeeModal) {
+                closeEmployeeModal.addEventListener('click', () => employeeModal.style.display = 'none');
+                cancelEmployeeBtn.addEventListener('click', () => employeeModal.style.display = 'none');
+                employeeForm.addEventListener('submit', handleEmployeeFormSubmit);
+                // Close on backdrop click
+                employeeModal.addEventListener('click', (event) => {
+                    if (event.target === employeeModal) employeeModal.style.display = 'none';
+                });
+            }
+
+            // Shift Modal
+            if (shiftModal) {
+                closeShiftModal.addEventListener('click', () => shiftModal.style.display = 'none');
+                cancelShiftBtn.addEventListener('click', () => shiftModal.style.display = 'none');
+                shiftForm.addEventListener('submit', handleShiftFormSubmit);
+                deleteShiftBtn.addEventListener('click', handleDeleteShiftClick);
+                // Show/hide custom shift input based on select change
+                shiftTypeSelect.addEventListener('change', function() {
+                    customShiftGroup.style.display = this.value === 'custom' ? 'block' : 'none';
+                     if(this.value === 'custom') {
+                         customShiftInput.required = true;
+                     } else {
+                         customShiftInput.required = false;
+                     }
+                });
+                // Close on backdrop click
+                shiftModal.addEventListener('click', (event) => {
+                    if (event.target === shiftModal) shiftModal.style.display = 'none';
+                });
+            }
+
+             // Close modals with Escape key
+             document.addEventListener('keydown', (e) => {
+                 if (e.key === 'Escape') {
+                     if (employeeModal && employeeModal.style.display === 'flex') {
+                         employeeModal.style.display = 'none';
+                     }
+                     if (shiftModal && shiftModal.style.display === 'flex') {
+                         shiftModal.style.display = 'none';
+                     }
+                     // Main confirmation dialog closing is likely handled by dash.html
+                 }
+             });
+        }
+
+        // --- Initialization Specific to Employee Schedule ---
+        function initialize() {
+            // 1. Get current user data from the main dashboard (IMPORTANT)
+            // This assumes dash.html has a global 'currentUser' object or a function to get it
+             if (typeof currentUser !== 'undefined' && currentUser) { // Added check for currentUser existing
+                scheduleCurrentUser = JSON.parse(JSON.stringify(currentUser)); // Deep copy
+                 console.log("Schedule Section: Current user role:", scheduleCurrentUser.role);
+             } else {
+                 console.warn("Schedule Section: Cannot access currentUser from dashboard. Using default.");
+                 scheduleCurrentUser = { role: 'employee' }; // Default to least privilege
+             }
+
+             // 2. Get employee list from the main dashboard (IMPORTANT)
+             // This assumes dash.html has a global 'teamMembers' array or a function to get it
+             if (typeof teamMembers !== 'undefined' && Array.isArray(teamMembers)) { // Added check for teamMembers being an array
+                 scheduleEmployees = JSON.parse(JSON.stringify(teamMembers)); // Deep copy
+                 console.log("Schedule Section: Loaded employees:", scheduleEmployees.length);
+             } else {
+                 console.warn("Schedule Section: Cannot access teamMembers from dashboard or it's not an array. Using default.");
+                 // Load placeholder employees if main list isn't available (for standalone testing)
+                 scheduleEmployees = [
+                     { id: 1, name: 'Mohamed Elmenisy', email: 'mohamed@example.com' },
+                     { id: 2, name: 'Yousef', email: 'yousef@example.com' },
+                     { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com' },
+                     { id: 4, name: 'Bassant Badr', email: 'bassant@example.com' }
+                 ];
+             }
+
+
+            // 3. Load saved schedule data
+            scheduleSavedData = JSON.parse(localStorage.getItem('employeeSchedule')) || {};
+
+            // 4. Set initial week (e.g., current week or first week of May)
+            // Let's start with the first allowed week (May 5th, 2025, which is a Monday)
+             const today = new Date();
+             // Find the start of the current week (assuming Monday start for calculation)
+             const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+             const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust for Sunday
+             let potentialWeekStart = new Date(new Date().setDate(diff)); // Use new Date() to avoid modifying 'today'
+
+             // Clamp to allowed range (May 2025)
+             if (potentialWeekStart < scheduleMinDate) {
+                  // Start at the first valid week (week containing May 1st)
+                  let may1Date = new Date(scheduleMinDate); // Use a copy
+                  let may1Day = may1Date.getDay();
+                  let may1Diff = may1Date.getDate() - may1Day + (may1Day === 0 ? -6 : 1);
+                  scheduleCurrentWeekStart = new Date(may1Date.setDate(may1Diff));
+                  // If calculated start is before May 1st (e.g., May 1st is Tue/Wed...), advance to next Monday
+                  if(scheduleCurrentWeekStart < scheduleMinDate) {
+                      scheduleCurrentWeekStart.setDate(scheduleCurrentWeekStart.getDate() + 7);
+                  }
+
+             } else if (potentialWeekStart > scheduleMaxDate) {
+                 // Start at the last possible week (week containing May 31st)
+                  let may31Date = new Date(scheduleMaxDate); // Use a copy
+                  let may31Day = may31Date.getDay();
+                  let may31Diff = may31Date.getDate() - may31Day + (may31Day === 0 ? -6 : 1);
+                  scheduleCurrentWeekStart = new Date(may31Date.setDate(may31Diff));
+             } else {
+                  scheduleCurrentWeekStart = potentialWeekStart;
+             }
+
+
+            // 5. Initial UI setup
+            updateWeekDisplayUI();
+            loadShiftsForCurrentWeekUI(); // Renders the table
+            setupScheduleEventListeners();
+
+            console.log("Employee Schedule Section Initialized Successfully.");
+        }
+
+        // Call the initialization function for this section
+        // Ensure this runs *after* the DOM content is loaded by dash.html
+        // The call within dash.html's fetch().then() handles this.
+        // initialize(); // Don't call initialize() here directly
+
+    } // End of initializeEmployeeSchedule function
+</script>
