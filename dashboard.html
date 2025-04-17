@@ -287,8 +287,11 @@
         body.compact .user-info-name { font-size: 1rem; }
 
         .user-info-title { opacity: 0.9; font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--light-gray); font-weight: 600; } /* Adjusted color for dark bg */
+        /* --- Style for Administrator Role in Welcome Section --- */
+        .user-info-title.role-admin { color: var(--team-manager); }
         /* Compact layout */
         body.compact .user-info-title { font-size: 0.8rem; }
+
 
         .user-info-email { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; opacity: 0.9; }
 
@@ -506,6 +509,8 @@
         body.spacious .settings-tab { padding: 1rem 2rem; }
         .settings-tab:hover { color: var(--primary); }
         .settings-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .settings-tab.disabled { color: var(--light-gray); cursor: not-allowed; pointer-events: none; } /* Style for disabled tabs */
+
 
         .settings-panel { display: none; }
         .settings-panel.active { display: block; animation: fadeInPanel 0.5s ease-out; }
@@ -578,6 +583,7 @@
         .member-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
         .member-actions .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; } /* Smaller buttons */
 
+        /* --- Updated Add Member Form for Invite --- */
         .add-member-form { margin-top: 2rem; padding: 1.5rem; border: 1px dashed var(--light-gray); border-radius: 8px; background-color: var(--light); /* Theme support */ }
         /* Compact layout */
         body.compact .add-member-form { margin-top: 1.5rem; padding: 1rem; }
@@ -628,6 +634,7 @@
         body.dark-theme .notifications-footer { background-color: var(--primary-light); }
         body.dark-theme .welcome-section { background-color: var(--primary-dark); color: var(--white); } /* Explicitly set dark welcome */
         body.dark-theme .user-info-title { color: var(--light-gray); } /* Adjust title color on dark welcome */
+         body.dark-theme .user-info-title.role-admin { color: var(--team-manager); } /* Ensure admin red overrides dark theme gray */
         body.dark-theme .user-info-email { color: var(--light-gray); }
         body.dark-theme .welcome-subtitle { color: var(--light-gray); }
 
@@ -737,6 +744,10 @@
             .member-actions { margin-top: 0.5rem; }
             .profile-avatar-section { margin-bottom: 1.5rem; }
             #profileAvatarLarge { width: 100px; height: 100px; font-size: 2.5rem; }
+            /* Adjust invite form layout on mobile */
+             .add-member-form .data-form { grid-template-columns: 1fr; align-items: stretch; }
+             .add-member-form .data-form > div { margin-bottom: 1rem; } /* Add bottom margin back */
+             .add-member-form .data-form > div:last-child { margin-top: 0; } /* Reset top margin for button container */
         }
         @media (max-width: 480px) {
              .section-header > div { justify-content: center; width: 100%; } /* Center activity actions */
@@ -750,10 +761,14 @@
         .back-button {
             display: inline-flex; align-items: center; gap: 0.75rem; /* Increased gap */ color: var(--primary);
             font-weight: 500; cursor: pointer; margin-bottom: 1.5rem; /* Increased margin */ padding: 0.6rem 1.2rem; /* Adjusted padding */
-            border-radius: 6px; transition: background-color 0.2s, border-color 0.2s; border: 1px solid transparent;
+            border-radius: 6px; transition: background-color 0.2s, border-color 0.2s, color 0.2s; border: 1px solid transparent;
             font-size: 0.9rem; /* Slightly smaller text */
         }
-        .back-button:hover { background-color: var(--primary-light); border-color: var(--primary); }
+        .back-button:hover {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary-dark);
+        }
         .back-button i { transition: transform 0.2s; font-size: 0.8rem; /* Smaller icon */ }
         .back-button:hover i { transform: translateX(-3px); }
 
@@ -898,7 +913,7 @@
         <nav class="top-nav">
             <div class="search-bar">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" placeholder="Search employees, projects, tasks..." id="searchInput">
+                <input type="text" placeholder="Search employees, projects, tasks..." id="searchInput" autocomplete="off"> <!-- Added autocomplete="off" -->
                 <div class="search-results" id="searchResults"></div>
             </div>
 
@@ -926,7 +941,7 @@
 
         <!-- Content Area -->
         <div class="content-area">
-             <!-- Back button (hidden by default) --- Text Changed --- -->
+             <!-- Back button (hidden by default) --- Style Updated --- -->
             <div class="back-button" id="backButton" style="display: none;">
                 <i class="fas fa-arrow-left"></i>
                 <span>Back to Dashboard</span>
@@ -934,7 +949,7 @@
 
             <!-- Dashboard Content -->
             <div id="dashboardContent" class="content-section active">
-                <!-- Welcome Section -->
+                <!-- Welcome Section --- Admin Role Styled --- -->
                 <div class="welcome-section">
                     <h2 class="welcome-title">Welcome, <span id="welcomeName">Mohamed</span>!</h2>
                      <!-- --- Added Subtitle --- -->
@@ -943,7 +958,8 @@
                         <div class="user-info-avatar" id="profileAvatar">ME</div>
                         <div class="user-info-details">
                             <div class="user-info-name">Mohamed Elmenisy</div>
-                            <div class="user-info-title" id="userRoleTitle">Administrator</div>
+                             <!-- ID added for easier JS targeting, class added dynamically by JS -->
+                            <div class="user-info-title" id="userInfoRoleTitle">Administrator</div>
                             <div class="user-info-email">
                                 <i class="fas fa-envelope"></i>
                                 <span id="userEmail">m.elsayed@thechefz.co</span>
@@ -952,7 +968,7 @@
                     </div>
                 </div>
 
-                <!-- Stats Section -->
+                <!-- Stats Section --- Styling Updated --- -->
                 <div class="stats-section">
                     <div class="stat-card">
                         <div class="stat-title"><i class="fas fa-users"></i>Team Members</div>
@@ -985,11 +1001,11 @@
                     </div>
                 </div>
 
-                <!-- Activity Section -->
+                <!-- Activity Section --- Actions Added --- -->
                 <div class="activity-section">
                     <div class="section-header">
                         <h3 class="section-title">Recent Activity <span class="live-badge">LIVE</span></h3>
-                         <!-- --- Actions Container (Show All added) --- -->
+                         <!-- --- Actions Container (Show All/Delete All added) --- -->
                         <div>
                             <span class="view-all" id="viewAllActivity" style="display: none;">Show All</span>
                             <span class="delete-all" id="deleteAllActivity" style="display: none;">Delete All</span>
@@ -1068,9 +1084,11 @@
                     <div class="settings-tab" data-tab="account">Account</div>
                     <div class="settings-tab" data-tab="security">Security</div>
                     <div class="settings-tab" data-tab="notifications">Notifications</div>
-                    <div class="settings-tab" data-tab="team">Team Management</div>
+                     <!-- Team Management tab (potentially admin only access) -->
+                    <div class="settings-tab" data-tab="team" id="teamSettingsTab">Team Management</div>
                     <div class="settings-tab" data-tab="collaboration">Collaboration</div> <!-- New Tab -->
-                    <div class="settings-tab" data-tab="danger">Danger Zone</div> <!-- New Tab -->
+                     <!-- Danger Zone tab (admin only access) -->
+                    <div class="settings-tab" data-tab="danger" id="dangerZoneTab">Danger Zone</div> <!-- New Tab -->
                 </div>
 
                 <!-- Preferences Panel -->
@@ -1120,15 +1138,15 @@
                             </select>
                         </div>
                          <div class="form-group">
-                            <label for="region">Region (Placeholder)</label>
-                            <input type="text" id="region" class="form-control" placeholder="e.g., Europe/London" disabled>
+                            <label for="region">Region</label>
+                            <input type="text" id="region" class="form-control" placeholder="Cairo (Placeholder)" disabled> <!-- Updated Placeholder -->
                         </div>
                         <div class="form-group">
-                             <!-- --- Updated Week Start --- -->
+                             <!-- --- Updated Week Start (Sunday Only) --- -->
                             <label for="weekStart">Calendar Week Start</label>
                             <select id="weekStart" class="form-control">
                                 <option value="sun" selected>Sunday</option>
-                                <option value="mon">Monday</option>
+                                <!-- <option value="mon">Monday</option> --> <!-- Monday removed -->
                             </select>
                         </div>
                          <div class="form-group" style="grid-column: span 2;">
@@ -1323,24 +1341,25 @@
                         <div class="team-list" id="teamList">
                              <div style="text-align: center; padding: 2rem; color: var(--gray);">Loading team members...</div>
                         </div>
+                        <!-- Invite Member Form -->
                         <div class="add-member-form">
-                            <h4>Add New Member</h4>
-                            <form id="addMemberForm" class="data-form" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end; gap: 1rem;"> <!-- Adjusted layout -->
+                            <h4>Invite New Member</h4>
+                            <form id="inviteMemberForm" class="data-form" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end; gap: 1rem;"> <!-- Adjusted layout -->
                                 <div class="form-group" style="margin-bottom: 0;">
-                                    <label for="memberEmail">Email</label>
-                                    <input type="email" id="memberEmail" class="form-control" placeholder="user@example.com" required>
+                                    <label for="inviteMemberEmail">Email</label>
+                                    <input type="email" id="inviteMemberEmail" class="form-control" placeholder="user@example.com" required>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 0;">
-                                    <label for="memberRole">Role</label>
-                                    <select id="memberRole" class="form-control" required>
+                                    <label for="inviteMemberRole">Role</label>
+                                    <select id="inviteMemberRole" class="form-control" required>
                                         <option value="member">Member</option>
                                         <option value="senior">Senior</option>
                                         <option value="supervisor">Supervisor</option>
-                                        <option value="admin">Admin</option>
+                                        <option value="admin">Admin</option> <!-- Admin role might be restricted based on inviter's role -->
                                     </select>
                                 </div>
                                 <div style="grid-column: 1 / -1; margin-top: 1rem;"> <!-- Button spans all columns and adds top margin -->
-                                    <button type="submit" class="btn btn-primary">Add Member</button>
+                                    <button type="submit" class="btn btn-primary">Send Invite</button>
                                 </div>
                             </form>
                         </div>
@@ -1369,14 +1388,14 @@
                     </form>
                 </div>
 
-                <!-- Danger Zone Panel (Placeholder) -->
+                <!-- Danger Zone Panel (Admin only access) -->
                 <div class="settings-panel" id="dangerPanel">
                     <h3 class="section-title" style="color: var(--danger);">Danger Zone</h3>
-                     <p style="color: var(--gray);">Actions in this section are permanent and cannot be undone.</p>
+                     <p style="color: var(--gray);">Actions in this section are permanent and cannot be undone. (Visible to Admins only)</p>
                      <div style="margin-top: 1.5rem; border: 1px solid var(--danger); border-radius: 6px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
                           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;"> <!-- Added wrap and gap -->
                                <div>
-                                   <strong style="color: var(--dark);">Delete Team Data</strong>
+                                   <strong style="color: var(--dark);">Delete Team Data (Placeholder)</strong>
                                    <p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.25rem;">Permanently delete all projects, tasks, and files associated with this team.</p>
                                </div>
                                <button class="btn btn-danger" disabled>Delete All Team Data</button>
@@ -1466,7 +1485,7 @@
             const userAvatar = document.getElementById('userAvatar');
             const userProfileDetails = document.querySelector('.user-profile-details'); // Target the wrapper
             const userName = document.getElementById('userName');
-            const userEmail = document.getElementById('userEmail');
+            const userEmail = document.getElementById('userEmail'); // In welcome section
             const welcomeName = document.getElementById('welcomeName');
             const userDropdown = document.getElementById('userDropdown');
             const profileLink = document.getElementById('profileLink');
@@ -1499,7 +1518,7 @@
             const securityForm = document.getElementById('securityForm');
             const notificationsForm = document.getElementById('notificationsForm');
             const teamList = document.getElementById('teamList');
-            const addMemberForm = document.getElementById('addMemberForm');
+            const inviteMemberForm = document.getElementById('inviteMemberForm'); // Changed from addMemberForm ID
             const themeOptions = document.querySelectorAll('.theme-option');
             const layoutDensitySelect = document.getElementById('layoutDensity');
             const weekStartSelect = document.getElementById('weekStart'); // Added
@@ -1512,7 +1531,7 @@
             const tasksCompleted = document.getElementById('tasksCompleted');
             const activeProjects = document.getElementById('activeProjects');
             const upcomingDeadlines = document.getElementById('upcomingDeadlines');
-            const userRoleTitle = document.getElementById('userRoleTitle');
+            const userInfoRoleTitle = document.getElementById('userInfoRoleTitle'); // Specific ID for welcome role title
             const backButton = document.getElementById('backButton');
             const notificationSound = document.getElementById('notificationSound');
             const successMessage = document.getElementById('successMessage');
@@ -1532,10 +1551,12 @@
             const upcomingDeadlinesTrend = document.getElementById('upcomingDeadlinesTrend');
             const soundNotificationsSwitch = document.getElementById('soundNotifications');
             const fullNameDisplay = document.getElementById('fullNameDisplay'); // Added for profile
+            const teamSettingsTab = document.getElementById('teamSettingsTab'); // Specific settings tab
+            const dangerZoneTab = document.getElementById('dangerZoneTab'); // Specific settings tab
 
             // --- State Variables ---
             let currentUser = {};
-            let teamMembers = [];
+            let teamMembers = []; // Holds confirmed team members
             let activities = [];
             let notifications = [];
             let currentFeature = 'dashboard';
@@ -1552,8 +1573,8 @@
             const DEFAULT_USER = { // Default user if localStorage is empty
                  id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co',
                  title: 'Administrator', department: 'Management', phone: '+201234567890',
-                 avatar: '', initials: 'ME', role: 'admin', password: 'password123', // Note: Storing plain password is bad practice!
-                 preferences: { language: 'en', timezone: 'cairo', dateFormat: 'dd/mm/yyyy', theme: 'blue', layoutDensity: 'normal', soundNotifications: true, weekStart: 'sun' }, // Added weekStart default
+                 avatar: '', initials: 'ME', role: 'admin', password: 'password123', // !! INSECURE EXAMPLE PASSWORD !!
+                 preferences: { language: 'en', timezone: 'cairo', dateFormat: 'dd/mm/yyyy', theme: 'blue', layoutDensity: 'normal', soundNotifications: true, weekStart: 'sun' },
                  notificationPreferences: { email: { tasks: true, deadlines: true, updates: false }, push: { messages: true, teamUpdates: false } },
                  security: { twoFactorEnabled: true },
                  stats: { teamMembers: 0, tasksCompleted: 0, activeProjects: 0, upcomingDeadlines: 0, teamMembersTrend: 'neutral', tasksCompletedTrend: 'neutral', activeProjectsTrend: 'neutral', upcomingDeadlinesTrend: 'neutral' }
@@ -1563,11 +1584,12 @@
             function initDashboard() {
                 loadData();
                 updateUserUI();
-                loadTeamMembers();
+                loadTeamMembers(); // Load existing/confirmed members
                 loadActivities();
                 loadNotifications();
                 updateStats();
                 applyUserPreferences(); // Applies theme, layout, AND loads initial settings form data
+                applyRBAC(); // Apply role-based UI changes
                 handleInitialNavigation(); // Loads content based on URL hash
                 startActivityTimeUpdater();
                 // startRealTimeUpdates(); // Optional: Simulate updates
@@ -1613,16 +1635,20 @@
 
                 // Top Nav & Welcome
                 userName.textContent = currentUser.name;
-                // userEmail is now only in the welcome section
+                document.getElementById('userEmail').textContent = currentUser.email; // Ensure welcome email is updated
                 welcomeName.textContent = firstName;
 
                 // User Info Section (in Dashboard Welcome)
                 document.querySelector('.user-info-name').textContent = currentUser.name;
-                document.querySelector('.user-info-email span').textContent = currentUser.email;
                 const roleTitles = { 'admin': 'Administrator', 'senior': 'Senior', 'supervisor': 'Supervisor', 'member': 'Member' };
                 const roleTitle = roleTitles[currentUser.role] || 'Member';
-                document.querySelector('.user-info-title').textContent = roleTitle;
-                userRoleTitle.textContent = roleTitle; // Ensure this specific element is updated if used elsewhere
+                userInfoRoleTitle.textContent = roleTitle; // Update specific welcome role title
+                // Apply role-specific styling to welcome title
+                userInfoRoleTitle.classList.remove('role-admin'); // Clear previous class
+                if (currentUser.role === 'admin') {
+                    userInfoRoleTitle.classList.add('role-admin'); // Add admin class for red color
+                }
+
 
                 // Profile Form
                 document.getElementById('firstName').value = firstName;
@@ -1672,6 +1698,47 @@
                  loadSettingsFormData();
             }
 
+             function applyRBAC() {
+                const isAdmin = currentUser.role === 'admin';
+                const isSupervisor = currentUser.role === 'supervisor';
+
+                // --- Control Visibility of Settings Tabs ---
+                // Example: Only admins see Danger Zone
+                if (dangerZoneTab) {
+                    dangerZoneTab.style.display = isAdmin ? 'block' : 'none'; // Hide if not admin
+                    dangerZoneTab.classList.toggle('disabled', !isAdmin); // Visually disable if not admin
+                }
+                // Example: Team Management might have different visibility rules
+                // if (teamSettingsTab) { teamSettingsTab.style.display = (isAdmin || isSupervisor) ? 'block' : 'none'; }
+
+                // --- Control Activity Deletion ---
+                // Delete All button visibility is handled in loadActivities
+                // Individual delete icons are handled in loadActivities
+
+                // --- Control Team Management Actions ---
+                 // Visibility of Invite form / Edit / Delete buttons handled in loadTeamMembers
+                 // Functionality restriction is handled in the respective handlers (handleEditMemberClick, handleDeleteMemberClick)
+
+                // --- Control Notification Deletion ---
+                // Delete All button visibility handled when modal opens/updates
+                // Individual delete icons visibility/functionality handled in loadNotifications
+
+                // --- Other RBAC ---
+                // Disable Account Deletion button if not admin (example)
+                const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+                if (deleteAccountBtn) {
+                    deleteAccountBtn.disabled = !isAdmin; // Placeholder is always disabled, but this shows the logic
+                }
+                // Control access to specific features (if needed)
+                // menuItems.forEach(item => {
+                //     const feature = item.dataset.feature;
+                //     if (feature === 'some-admin-feature' && !isAdmin) {
+                //         item.style.display = 'none';
+                //     }
+                // });
+            }
+
+
             function loadSettingsFormData() {
                  // Ensure currentUser.preferences exists
                  currentUser.preferences = currentUser.preferences || {};
@@ -1710,15 +1777,18 @@
 
             function updateStats() {
                 const stats = currentUser.stats || {};
-                teamMembersCount.textContent = stats.teamMembers ?? 0;
-                tasksCompleted.textContent = stats.tasksCompleted ?? 0;
+                teamMembersCount.textContent = teamMembers.length; // Get current length from actual array
+                tasksCompleted.textContent = stats.tasksCompleted ?? 0; // Keep others potentially from stored stats
                 activeProjects.textContent = stats.activeProjects ?? 0;
                 upcomingDeadlines.textContent = stats.upcomingDeadlines ?? 0;
+                 // Update stats object with current team count
+                if (currentUser.stats) currentUser.stats.teamMembers = teamMembers.length;
                  // Generate more dynamic trends for simulation
                 updateTrendIndicator(teamMembersTrend, stats.teamMembersTrend || ['up', 'down', 'neutral'][Math.floor(Math.random() * 3)]);
                 updateTrendIndicator(tasksCompletedTrend, stats.tasksCompletedTrend || ['up', 'down', 'neutral'][Math.floor(Math.random() * 3)]);
                 updateTrendIndicator(activeProjectsTrend, stats.activeProjectsTrend || ['up', 'down', 'neutral'][Math.floor(Math.random() * 3)]);
                 updateTrendIndicator(upcomingDeadlinesTrend, stats.upcomingDeadlinesTrend || ['up', 'down', 'neutral'][Math.floor(Math.random() * 3)]);
+                 // No need to save data here, saving happens after explicit actions
             }
 
             function updateTrendIndicator(element, trend) {
@@ -1751,10 +1821,30 @@
                 } else {
                     notificationBadge.style.display = 'none';
                 }
+                 // RBAC for 'Delete All' notifications button
+                 deleteAllNotificationsBtn.style.display = notifications.length > 0 && (currentUser.role === 'admin' || currentUser.role === 'supervisor') ? 'inline-flex' : 'none';
             }
 
             // --- Feature/Section Loading ---
             function setActiveFeature(featureId, settingsTab = null) {
+                // Role-based access check for features/settings tabs
+                if (featureId === 'settings') {
+                    const targetTab = settingsTab || currentSettingsTab || 'preferences';
+                    if (targetTab === 'danger' && currentUser.role !== 'admin') {
+                        console.warn("Access denied: Only admins can access the Danger Zone.");
+                        setActiveFeature('dashboard'); // Redirect non-admins
+                        return;
+                    }
+                     // Add more checks here if other tabs need role restrictions
+                }
+                // Add checks for feature links if needed
+                // if (featureId === 'some-admin-feature' && currentUser.role !== 'admin') {
+                //     console.warn("Access denied: Admin feature.");
+                //     setActiveFeature('dashboard');
+                //     return;
+                // }
+
+
                 currentFeature = featureId;
                 currentSettingsTab = settingsTab || (featureId === 'settings' ? (currentSettingsTab || 'preferences') : null); // Persist or default settings tab
 
@@ -1779,10 +1869,14 @@
                 // --- Dynamic Loading Logic ---
                 if (featureId === 'dashboard') {
                     dashboardContent.classList.add('active');
+                    updateStats(); // Refresh stats when coming back
+                    loadActivities(); // Refresh activities
                 } else if (featureId === 'profile') {
                     profileContent.classList.add('active');
+                    updateUserUI(); // Ensure profile form is up-to-date
                 } else if (featureId === 'settings') {
                     settingsContent.classList.add('active');
+                    applyRBAC(); // Re-apply RBAC for settings tabs specifically
                     activateSettingsTab(currentSettingsTab || 'preferences'); // Activate the correct settings tab
                 } else {
                     // Handle other features dynamically
@@ -1824,16 +1918,31 @@
                 backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none';
 
                 // Close mobile sidebar if open (optional)
-                sidebar.classList.remove('active');
+                // sidebar.classList.remove('active'); // Add sidebar toggle logic if needed
                  // Scroll to top
                  window.scrollTo(0, 0);
             }
 
 
             function activateSettingsTab(tabId) {
+                 // RBAC check before activating tab
+                 if (tabId === 'danger' && currentUser.role !== 'admin') {
+                     console.warn("Attempted to switch to Danger Zone without admin rights.");
+                     // Optionally switch to a default tab like 'preferences' instead
+                     activateSettingsTab('preferences');
+                     return;
+                 }
+
                  currentSettingsTab = tabId;
                  // Update tabs UI
-                 settingsTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
+                 settingsTabs.forEach(t => {
+                     t.classList.remove('active');
+                     // Don't mark disabled tabs as active even if clicked somehow
+                     if (!t.classList.contains('disabled') && t.dataset.tab === tabId) {
+                        t.classList.add('active');
+                     }
+                 });
+
                  // Update panels UI
                  settingsPanels.forEach(p => p.classList.toggle('active', p.id === `${tabId}Panel`));
 
@@ -1843,7 +1952,7 @@
                  }
                  // Reload data specific to the tab if necessary (e.g., team members, account info)
                  if (tabId === 'team') {
-                     loadTeamMembers();
+                     loadTeamMembers(); // Refresh team list when tab is activated
                  } else if (tabId === 'account') {
                       updateUserUI(); // Re-populate readonly fields
                  } else if (['preferences', 'security', 'notifications'].includes(tabId)) {
@@ -1868,12 +1977,14 @@
                          }
                      }
                  }
+                 // Set feature, RBAC checks happen within setActiveFeature
                  setActiveFeature(featureId, settingsTab);
             }
 
             // --- Activity & Notification Loading ---
             function loadActivities(showAll = false) {
                 activityList.innerHTML = ''; // Clear previous items
+                const canDeleteAny = currentUser.role === 'admin' || currentUser.role === 'supervisor';
 
                 if (activities.length === 0) {
                     activityList.innerHTML = `<li style="text-align: center; padding: 2rem; color: var(--gray);">No recent activity.</li>`;
@@ -1882,21 +1993,15 @@
                     return;
                 }
 
-                const activitiesToShow = showAll ? activities : activities.slice(0, MAX_ACTIVITIES_DISPLAYED);
+                const activitiesToShow = showAll ? activities : activities.slice().reverse().slice(0, MAX_ACTIVITIES_DISPLAYED); // Show most recent first
 
                 activitiesToShow.forEach(activity => {
                     const li = document.createElement('li');
                     li.className = 'activity-item';
-                    // Check if this is the very latest activity added *just now* to apply highlight
-                    // This is a basic check; more robust might involve comparing timestamps closely
                     if (activity.isNew) {
                         li.classList.add('new-activity');
-                        // Remove the temporary flag after applying class
                         delete activity.isNew;
-                        // Optionally remove the class after animation
-                        setTimeout(() => {
-                            li.classList.remove('new-activity');
-                        }, NEW_ACTIVITY_HIGHLIGHT_DURATION);
+                        setTimeout(() => { li.classList.remove('new-activity'); }, NEW_ACTIVITY_HIGHLIGHT_DURATION);
                     }
                     li.dataset.id = activity.id; // Add ID for easier deletion
                     li.innerHTML = `
@@ -1906,10 +2011,15 @@
                             <div class="activity-time" data-timestamp="${activity.timestamp}">${getTimeAgo(activity.timestamp)}</div>
                         </div>
                         <div class="activity-actions">
-                            ${(currentUser.role === 'admin' || currentUser.role === 'supervisor') ? `<i class="fas fa-trash delete-activity" title="Delete Activity"></i>` : ''}
+                            ${canDeleteAny ? `<i class="fas fa-trash delete-activity" title="Delete Activity"></i>` : ''}
                         </div>
                     `;
-                    activityList.appendChild(li);
+                    // Prepend to show newest first if not showing all
+                    if (!showAll) {
+                       activityList.prepend(li);
+                    } else {
+                       activityList.appendChild(li); // Append if showing all (keeps original order)
+                    }
                 });
 
                  // Attach event listeners to newly added delete icons
@@ -1919,18 +2029,20 @@
 
                 // Control visibility of "Show All" and "Delete All"
                 viewAllActivity.style.display = activities.length > MAX_ACTIVITIES_DISPLAYED && !showAll ? 'inline' : 'none';
-                deleteAllActivity.style.display = activities.length > 0 && (currentUser.role === 'admin' || currentUser.role === 'supervisor') ? 'inline' : 'none';
+                deleteAllActivity.style.display = activities.length > 0 && canDeleteAny ? 'inline' : 'none';
             }
 
 
             function loadNotifications() {
                  notificationsBody.innerHTML = ''; // Clear previous items
-                 updateNotificationBadge();
+                 updateNotificationBadge(); // Also updates Delete All button visibility based on count + role
 
                  if (notifications.length === 0) {
                     notificationsBody.innerHTML = `<div class="no-notifications-message">No notifications yet.</div>`;
                     return;
                  }
+
+                 const canDeleteAny = currentUser.role === 'admin' || currentUser.role === 'supervisor';
 
                  notifications.forEach(notification => {
                     const item = document.createElement('div');
@@ -1942,7 +2054,7 @@
                             <div class="notification-message">${notification.message}</div>
                             <div class="notification-time">${getTimeAgo(notification.timestamp)}</div>
                         </div>
-                        <i class="fas fa-trash delete-notification" title="Delete Notification"></i>
+                        ${canDeleteAny ? `<i class="fas fa-trash delete-notification" title="Delete Notification"></i>` : ''}
                     `;
 
                      // Mark as read on click (but not on delete icon click)
@@ -1952,11 +2064,14 @@
                          }
                      });
 
-                      // Delete handler
-                      item.querySelector('.delete-notification').addEventListener('click', (e) => {
-                         e.stopPropagation(); // Prevent marking as read when deleting
-                         handleDeleteNotificationClick(notification.id);
-                      });
+                      // Delete handler (only add if icon exists)
+                      const deleteBtn = item.querySelector('.delete-notification');
+                      if (deleteBtn) {
+                          deleteBtn.addEventListener('click', (e) => {
+                             e.stopPropagation(); // Prevent marking as read when deleting
+                             handleDeleteNotificationClick(notification.id);
+                          });
+                      }
 
                     notificationsBody.appendChild(item);
                  });
@@ -1968,27 +2083,29 @@
                 try {
                     const now = new Date();
                     const date = new Date(timestamp);
-                    // Check if date is valid
                     if (isNaN(date.getTime())) return 'Invalid date';
 
                     const seconds = Math.floor((now - date) / 1000);
-                    if (seconds < 0) return 'In the future'; // Handle future dates gracefully
+                    if (seconds < 0) return 'In the future';
 
-                    let interval = Math.floor(seconds / 31536000);
-                    if (interval >= 1) {
-                        // Use Intl for better date formatting if needed, or basic locale string
-                         return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-                    }
-                    interval = Math.floor(seconds / 2592000);
+                    let interval = Math.floor(seconds / 31536000); // years
+                    if (interval >= 1) return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+
+                    interval = Math.floor(seconds / 2592000); // months
                     if (interval >= 1) return `${interval} month${interval === 1 ? '' : 's'} ago`;
-                    interval = Math.floor(seconds / 604800); // Weeks
+
+                    interval = Math.floor(seconds / 604800); // weeks
                      if (interval >= 1) return `${interval} week${interval === 1 ? '' : 's'} ago`;
-                    interval = Math.floor(seconds / 86400);
+
+                    interval = Math.floor(seconds / 86400); // days
                     if (interval >= 1) return `${interval} day${interval === 1 ? '' : 's'} ago`;
-                    interval = Math.floor(seconds / 3600);
+
+                    interval = Math.floor(seconds / 3600); // hours
                     if (interval >= 1) return `${interval} hour${interval === 1 ? '' : 's'} ago`;
-                    interval = Math.floor(seconds / 60);
+
+                    interval = Math.floor(seconds / 60); // minutes
                     if (interval >= 1) return `${interval} min${interval === 1 ? '' : 's'} ago`;
+
                     return seconds < 10 ? 'Just now' : `${Math.floor(seconds)} secs ago`;
                 } catch (error) {
                     console.error("Error formatting time:", error);
@@ -2004,7 +2121,6 @@
                         timeElement.textContent = getTimeAgo(timestamp);
                     }
                 });
-                 // Update notification times too
                  notificationsBody.querySelectorAll('.notification-time').forEach(timeElement => {
                      const notificationItem = timeElement.closest('.notification-list-item');
                      const notificationId = notificationItem?.dataset.id;
@@ -2018,81 +2134,74 @@
             }
 
             function startActivityTimeUpdater() {
-                if (activityIntervalId) clearInterval(activityIntervalId); // Clear existing interval
-                updateActivityTimes(); // Update immediately
+                if (activityIntervalId) clearInterval(activityIntervalId);
+                updateActivityTimes();
                 activityIntervalId = setInterval(updateActivityTimes, UPDATE_INTERVAL);
             }
 
              // --- Team Management ---
              function loadTeamMembers() {
                 teamList.innerHTML = ''; // Clear list
+                const canManage = currentUser.role === 'admin' || currentUser.role === 'supervisor';
+                const canDelete = currentUser.role === 'admin'; // Only admins can delete
 
                 if (teamMembers.length === 0) {
-                    teamList.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--gray);">No team members yet. Add one below.</div>`;
-                    if (currentUser.stats) currentUser.stats.teamMembers = 0;
-                    updateStats(); // Update stats display
-                    saveData();
-                    return;
+                    teamList.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--gray);">No team members yet. Invite one below.</div>`;
+                } else {
+                    teamMembers.forEach(member => {
+                        const memberCard = document.createElement('div');
+                        memberCard.className = 'team-member-card';
+                        memberCard.dataset.id = member.id;
+
+                         // Determine if current user can manage *this specific* member
+                         const canManageThisMember = (canManage && member.role !== 'admin' && member.role !== 'supervisor') || // Supervisors can manage members/seniors
+                                                 (canDelete && member.id !== currentUser.id); // Admins can manage anyone but themselves via this list
+
+                        const canDeleteThisMember = canDelete && member.id !== currentUser.id; // Admins can delete anyone but themselves
+
+                        let avatarContent = member.initials || member.email.substring(0, 2).toUpperCase();
+                        let avatarStyle = '';
+                        if (member.avatar) {
+                            avatarStyle = `background-image: url(${member.avatar});`;
+                            avatarContent = '';
+                        }
+
+                        memberCard.innerHTML = `
+                            <div class="member-avatar" style="${avatarStyle}">${avatarContent}</div>
+                            <div class="member-details">
+                                <div class="member-name">${member.name || 'Unnamed Member'}</div>
+                                <div class="member-email">${member.email}</div>
+                            </div>
+                            <div class="member-role role-${member.role || 'member'}">
+                                ${(member.role || 'member').charAt(0).toUpperCase() + (member.role || 'member').slice(1)}
+                            </div>
+                            <div class="member-actions">
+                                 ${canManageThisMember ? `<button class="btn btn-outline btn-sm edit-member" title="Edit Member"><i class="fas fa-edit"></i></button>` : ''}
+                                 ${canDeleteThisMember ? `<button class="btn btn-danger btn-sm delete-member" title="Delete Member"><i class="fas fa-trash"></i></button>` : ''}
+                            </div>
+                        `;
+                        teamList.appendChild(memberCard);
+                    });
+                    // Add event listeners to new buttons
+                    teamList.querySelectorAll('.edit-member').forEach(btn => btn.addEventListener('click', handleEditMemberClick));
+                    teamList.querySelectorAll('.delete-member').forEach(btn => btn.addEventListener('click', handleDeleteMemberClick));
                 }
 
-                teamMembers.forEach(member => {
-                    const memberCard = document.createElement('div');
-                    memberCard.className = 'team-member-card';
-                    memberCard.dataset.id = member.id;
-
-                    const canManage = currentUser.role === 'admin' || currentUser.role === 'supervisor';
-                    const canDelete = currentUser.role === 'admin'; // Only admins can delete
-
-                    // Create avatar display logic
-                    let avatarContent = member.initials || member.email.substring(0, 2).toUpperCase();
-                    let avatarStyle = '';
-                    if (member.avatar) {
-                        avatarStyle = `background-image: url(${member.avatar});`;
-                        avatarContent = ''; // Clear initials if image exists
-                    }
-
-                    memberCard.innerHTML = `
-                        <div class="member-avatar" style="${avatarStyle}">${avatarContent}</div>
-                        <div class="member-details">
-                            <div class="member-name">${member.name || 'Unnamed Member'}</div>
-                            <div class="member-email">${member.email}</div>
-                        </div>
-                        <div class="member-role role-${member.role || 'member'}">
-                            ${(member.role || 'member').charAt(0).toUpperCase() + (member.role || 'member').slice(1)}
-                        </div>
-                        <div class="member-actions">
-                             ${canManage ? `<button class="btn btn-outline btn-sm edit-member" title="Edit Member"><i class="fas fa-edit"></i></button>` : ''}
-                             ${canDelete ? `<button class="btn btn-danger btn-sm delete-member" title="Delete Member"><i class="fas fa-trash"></i></button>` : ''}
-                        </div>
-                    `;
-                    teamList.appendChild(memberCard);
-                });
-
-                // Add event listeners to new buttons
-                teamList.querySelectorAll('.edit-member').forEach(btn => btn.addEventListener('click', handleEditMemberClick));
-                teamList.querySelectorAll('.delete-member').forEach(btn => btn.addEventListener('click', handleDeleteMemberClick));
-
-                // Update stats
-                if (currentUser.stats) currentUser.stats.teamMembers = teamMembers.length;
-                updateStats();
-                saveData(); // Save updated stats
+                updateStats(); // Update stats display after loading members
              }
 
             // --- Modals ---
             function showConfirmModal(config) {
-                // config: { title, message, confirmText, cancelText, confirmClass, onConfirm, onCancel }
                  confirmTitle.textContent = config.title || 'Confirm Action';
-                 confirmMessage.textContent = config.message || 'Are you sure?';
+                 confirmMessage.innerHTML = config.message || 'Are you sure?'; // Use innerHTML for potential formatting
                  confirmBtn.textContent = config.confirmText || 'Confirm';
                  cancelConfirmBtn.textContent = config.cancelText || 'Cancel';
-                 confirmBtn.className = `btn ${config.confirmClass || 'btn-danger'}`; // Default to danger
+                 confirmBtn.className = `btn ${config.confirmClass || 'btn-danger'}`;
 
-                 // Store callbacks
                  confirmCallback = config.onConfirm || null;
-                 cancelCallback = config.onCancel || null; // For potential cancel action confirmation
+                 cancelCallback = config.onCancel || null;
 
                  confirmModal.style.display = 'flex';
-                 // Focus the confirm button for accessibility
                  confirmBtn.focus();
             }
             function hideConfirmModal() {
@@ -2137,12 +2246,12 @@
                  const department = document.getElementById('department').value;
 
                  const isDirty = name !== currentUser.name ||
-                                 title !== (currentUser.title || '') || // Handle potentially undefined initial values
+                                 title !== (currentUser.title || '') ||
                                  phone !== (currentUser.phone || '') ||
                                  department !== (currentUser.department || '');
 
                  if (!isDirty) {
-                     setActiveFeature('dashboard'); // Go back if nothing changed
+                     setActiveFeature('dashboard');
                      return;
                  }
 
@@ -2154,7 +2263,7 @@
                      onConfirm: () => {
                          updateUserUI(); // Reloads form data from currentUser
                          hideConfirmModal();
-                         setActiveFeature('dashboard'); // Go back to dashboard
+                         setActiveFeature('dashboard');
                      },
                      onCancel: () => hideConfirmModal()
                  });
@@ -2172,44 +2281,60 @@
                  if(loadingText) loadingText.style.display = 'inline';
                  if(btnText) btnText.style.display = 'none';
 
-                 setTimeout(() => {
-                     let saveSuccessful = true;
-                     let activityMessage = '';
+                 setTimeout(() => { // Simulate API call delay
                      try {
+                         let activityMessage = '';
+                         let valuesToSave = {}; // Object to log values
+
                          if (panelId === 'preferencesPanel') {
                              currentUser.preferences.theme = document.getElementById('selectedTheme').value;
                              currentUser.preferences.layoutDensity = layoutDensitySelect.value;
                              currentUser.preferences.language = document.getElementById('language').value;
                              currentUser.preferences.dateFormat = document.getElementById('dateFormat').value;
                              currentUser.preferences.weekStart = weekStartSelect.value; // Save week start
+
+                             valuesToSave = {
+                                 theme: currentUser.preferences.theme,
+                                 layoutDensity: currentUser.preferences.layoutDensity,
+                                 language: currentUser.preferences.language,
+                                 dateFormat: currentUser.preferences.dateFormat,
+                                 weekStart: currentUser.preferences.weekStart
+                             };
                              activityMessage = 'Updated preferences settings.';
                          } else if (panelId === 'accountPanel') {
                              currentUser.preferences.timezone = document.getElementById('timezone').value;
+                             valuesToSave = { timezone: currentUser.preferences.timezone };
                              activityMessage = 'Updated account settings.';
                          } else if (panelId === 'securityPanel') {
                              currentUser.security = currentUser.security || {};
+                             const original2FA = currentUser.security.twoFactorEnabled;
                              currentUser.security.twoFactorEnabled = document.getElementById('twoFactorAuth').checked;
                              const currentPass = currentPasswordInput.value;
                              const newPass = newPasswordInput.value;
                              const confirmPass = confirmPasswordInput.value;
 
+                             valuesToSave = { twoFactorEnabled: currentUser.security.twoFactorEnabled };
+                             activityMessage = 'Updated security settings.'; // Default message
+
                              currentPasswordError.style.display = 'none';
                              passwordMatchError.style.display = 'none';
 
-                             if (newPass || confirmPass || currentPass) {
+                             // --- Password Change Logic ---
+                             if (newPass || confirmPass || currentPass) { // Only proceed if a password field is touched
                                  if (!currentPass) {
                                     currentPasswordError.textContent = 'Current password is required to change password';
                                     currentPasswordError.style.display = 'block';
                                     currentPasswordInput.focus();
                                     throw new Error('Current password missing.');
                                  }
+                                 // !! WARNING: Comparing plain text passwords !!
                                  if (currentPass !== currentUser.password) {
                                     currentPasswordError.textContent = 'Current password is incorrect';
                                     currentPasswordError.style.display = 'block';
                                     currentPasswordInput.focus();
                                     throw new Error('Incorrect current password.');
                                  }
-                                  if (!newPass) { // Require new password if current is entered
+                                  if (!newPass) {
                                      passwordMatchError.textContent = 'New password cannot be empty';
                                      passwordMatchError.style.display = 'block';
                                      newPasswordInput.focus();
@@ -2227,13 +2352,19 @@
                                      confirmPasswordInput.focus();
                                      throw new Error('New passwords do not match.');
                                  }
-                                 currentUser.password = newPass; // Save new password
+                                 // !! WARNING: Storing plain text password !!
+                                 currentUser.password = newPass;
                                  activityMessage = 'Changed password.';
-                                 securityForm.reset(); // Clear password fields
-                             } else {
-                                // Only 2FA setting changed (or nothing changed)
-                                activityMessage = 'Updated security settings.';
+                                 valuesToSave.passwordChanged = true; // Log change
+                                 // Reset password fields AFTER successful save
+                                 currentPasswordInput.value = '';
+                                 newPasswordInput.value = '';
+                                 confirmPasswordInput.value = '';
+                             } else if (original2FA !== currentUser.security.twoFactorEnabled) {
+                                 // Only 2FA changed
+                                 activityMessage = 'Updated 2FA setting.';
                              }
+
                          } else if (panelId === 'notificationsPanel') {
                              currentUser.notificationPreferences = currentUser.notificationPreferences || { email: {}, push: {} };
                              currentUser.notificationPreferences.email = currentUser.notificationPreferences.email || {};
@@ -2244,8 +2375,20 @@
                              currentUser.notificationPreferences.push.messages = document.getElementById('pushMessages').checked;
                              currentUser.notificationPreferences.push.teamUpdates = document.getElementById('pushTeamUpdates').checked;
                              currentUser.preferences.soundNotifications = soundNotificationsSwitch.checked;
+
+                             valuesToSave = {
+                                 emailTasks: currentUser.notificationPreferences.email.tasks,
+                                 emailDeadlines: currentUser.notificationPreferences.email.deadlines,
+                                 emailUpdates: currentUser.notificationPreferences.email.updates,
+                                 pushMessages: currentUser.notificationPreferences.push.messages,
+                                 pushTeamUpdates: currentUser.notificationPreferences.push.teamUpdates,
+                                 soundNotifications: currentUser.preferences.soundNotifications
+                             };
                              activityMessage = 'Updated notification settings.';
                          }
+
+                         // --- Verification Log ---
+                         console.log(`Saving settings for ${panelId}. Values captured:`, valuesToSave);
 
                          saveData();
                          applyUserPreferences(); // Re-apply theme/layout and reload form data
@@ -2255,23 +2398,23 @@
                          showSuccessMessage(successMsg || 'Settings saved successfully!');
 
                      } catch (error) {
-                         saveSuccessful = false;
                          console.error(`Error saving settings for ${panelId}:`, error.message);
                          // Error messages displayed within the try block for password
                          if (!error.message.includes('password') && !error.message.includes('missing')) {
-                            alert(`Error saving settings: ${error.message}`); // Generic alert for other issues
+                             // Show a generic error for other issues
+                             showConfirmModal({ title: "Save Error", message: `Could not save settings: ${error.message}`, confirmText: "OK", confirmClass: "btn-primary", onConfirm: hideConfirmModal });
                          }
+                         // Do not clear password fields on error
                      } finally {
                          saveButton.disabled = false; // Always re-enable button
                          if(spinner) spinner.style.display = 'none';
                          if(loadingText) loadingText.style.display = 'none';
                          if(btnText) btnText.style.display = 'inline';
                      }
-                 }, SIMULATED_DELAY);
+                 }, SIMULATED_DELAY); // End of setTimeout
              }
 
              function handleSettingsCancel(panelId) {
-                 // Always confirm cancellation for settings panels
                  showConfirmModal({
                      title: `Discard ${panelId.replace('Panel', '')} Settings Changes?`,
                      message: 'Are you sure? Any unsaved changes in this section will be lost.',
@@ -2286,10 +2429,11 @@
                  });
              }
 
-             function handleAddMember(e) {
+             // --- Invite Member Simulation ---
+             function handleInviteMember(e) {
                  e.preventDefault();
-                 const emailInput = document.getElementById('memberEmail');
-                 const roleSelect = document.getElementById('memberRole');
+                 const emailInput = document.getElementById('inviteMemberEmail');
+                 const roleSelect = document.getElementById('inviteMemberRole');
                  const email = emailInput.value.trim();
                  const role = roleSelect.value;
 
@@ -2298,34 +2442,52 @@
                      emailInput.focus();
                      return;
                  }
+                 // Check existing confirmed members
                  if (teamMembers.some(member => member.email.toLowerCase() === email.toLowerCase())) {
                      alert('A team member with this email already exists.');
                      emailInput.focus();
                      return;
                  }
+                 // Check pending invites (if you implement a pending list)
+                 // if (pendingInvites.some(invite => invite.email.toLowerCase() === email.toLowerCase())) {
+                 //     alert('An invitation has already been sent to this email.');
+                 //     return;
+                 // }
 
-                 let name = email.split('@')[0];
-                 name = name.replace(/[^a-zA-Z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim(); // Clean up name
-                 name = name.split(' ').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
-                 name = name || 'New Member';
+                 // RBAC Check: Can the current user assign the selected role?
+                 // Example: Only admins can invite other admins.
+                 if (role === 'admin' && currentUser.role !== 'admin') {
+                     alert('Only Administrators can invite other Administrators.');
+                     roleSelect.focus();
+                     return;
+                 }
+                 // Example: Supervisors cannot invite admins or other supervisors.
+                 if (currentUser.role === 'supervisor' && (role === 'admin' || role === 'supervisor')) {
+                     alert('Supervisors cannot invite Administrators or other Supervisors.');
+                     roleSelect.focus();
+                     return;
+                 }
 
-                 const newMember = {
-                     id: Date.now(),
-                     name: name,
-                     email: email,
-                     role: role,
-                     avatar: '',
-                     initials: name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || email.substring(0, 2).toUpperCase(),
-                 };
+                 // Simulate sending invite
+                 const fakeInviteToken = `sim_token_${Date.now()}`;
+                 const fakeInviteLink = `${window.location.origin}/register.html?token=${fakeInviteToken}`; // Assuming a registration page
 
-                 teamMembers.push(newMember);
-                 saveData();
-                 loadTeamMembers(); // Reload list UI
-                 addActivity('fa-user-plus', `${currentUser.name} added new ${role}: ${email}`);
-                 addNotification('fa-user-plus', `New team member added: ${name} (${email})`); // Add notification
-                 showSuccessMessage(`Team member ${email} added.`);
-                 addMemberForm.reset();
+                 console.log('--- SIMULATING INVITE ---');
+                 console.log('To:', email);
+                 console.log('Role:', role);
+                 console.log('Invite Link (Fake):', fakeInviteLink);
+                 console.log('--- END SIMULATION ---');
+
+                 // Optional: Add to a pending invites list in localStorage
+                 // let pendingInvites = JSON.parse(localStorage.getItem('pendingInvites')) || [];
+                 // pendingInvites.push({ email: email, role: role, token: fakeInviteToken, timestamp: new Date().toISOString() });
+                 // localStorage.setItem('pendingInvites', JSON.stringify(pendingInvites));
+
+                 addActivity('fa-paper-plane', `${currentUser.name} sent an invite to ${email} as a ${role}.`);
+                 showSuccessMessage(`Invitation sent to ${email}.`);
+                 inviteMemberForm.reset();
              }
+
 
             function handleEditMemberClick(e) {
                  const card = e.target.closest('.team-member-card');
@@ -2335,42 +2497,47 @@
 
                  // Using prompts is bad UX, but simpler for this example
                  const newName = prompt("Enter new name:", member.name || '');
-                 const newEmail = prompt("Enter new email:", member.email);
+                 let newEmail = member.email; // Don't prompt for email usually, maybe view only
                  let newRole = member.role;
 
-                 const adminCanChange = currentUser.role === 'admin';
-                 const supervisorCanChange = currentUser.role === 'supervisor' && !['admin', 'supervisor'].includes(member.role);
-                 const canChangeRole = adminCanChange || supervisorCanChange;
+                 // Role Change Logic with RBAC
+                 const isAdmin = currentUser.role === 'admin';
+                 const isSupervisor = currentUser.role === 'supervisor';
+                 let canChangeRole = false;
+                 let allowedRolesPrompt = '';
 
-                 if (canChangeRole) {
-                     const allowedRoles = adminCanChange ? 'member, senior, supervisor, admin' : 'member, senior';
-                     newRole = prompt(`Enter new role (${allowedRoles}):`, member.role);
-                     if (!allowedRoles.split(', ').includes(newRole?.toLowerCase())) {
-                         alert('Invalid role entered or permission denied. Keeping original role.');
-                         newRole = member.role; // Revert
-                     }
-                 } else if (member.id !== currentUser.id) { // Allow editing own name/email if not changing role
-                     alert("You don't have permission to change this member's role.");
-                 } else if (member.id === currentUser.id) {
-                     // Allow self-edit name/email, role change handled above or not allowed
+                 if (isAdmin && member.id !== currentUser.id) { // Admins can change anyone's role but their own via this interface
+                     canChangeRole = true;
+                     allowedRolesPrompt = 'member, senior, supervisor, admin';
+                 } else if (isSupervisor && !['admin', 'supervisor'].includes(member.role)) { // Supervisors can change member/senior roles
+                     canChangeRole = true;
+                     allowedRolesPrompt = 'member, senior';
                  }
 
-
-                 if (newName !== null && newEmail !== null) { // User didn't cancel prompts
-                     if (!newEmail || !newEmail.includes('@')) {
-                         alert('Invalid email entered.'); return;
+                 if (canChangeRole) {
+                     const promptedRole = prompt(`Enter new role (${allowedRolesPrompt}):`, member.role);
+                     if (promptedRole !== null) { // Check if prompt was cancelled
+                         const cleanRole = promptedRole.trim().toLowerCase();
+                         if (allowedRolesPrompt.split(', ').includes(cleanRole)) {
+                             newRole = cleanRole;
+                         } else {
+                             alert('Invalid role entered or permission denied. Keeping original role.');
+                             // Revert or keep original, here we keep original
+                         }
                      }
-                      if (teamMembers.some(m => m.id !== memberId && m.email.toLowerCase() === newEmail.toLowerCase())) {
-                           alert('Another member already uses this email address.'); return;
-                       }
+                 } else if (member.id !== currentUser.id) { // Non-admin/supervisor trying to edit someone else
+                     alert("You don't have permission to change this member's role.");
+                 }
+                 // Admins/supervisors cannot change their own role via this prompt interface
 
-                     member.name = newName.trim() || 'Unnamed Member';
-                     member.email = newEmail.trim();
-                     member.role = newRole.toLowerCase();
+
+                 if (newName !== null) { // User didn't cancel name prompt
+                     member.name = newName.trim() || 'Unnamed Member'; // Update name
+                     member.role = newRole; // Update role (might be unchanged)
                      member.initials = member.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || member.email.substring(0, 2).toUpperCase();
 
                      saveData();
-                     loadTeamMembers();
+                     loadTeamMembers(); // Reload list UI
                      addActivity('fa-user-edit', `Updated details for team member: ${member.email}`);
                      showSuccessMessage('Team member updated.');
                  }
@@ -2382,6 +2549,7 @@
                  const member = teamMembers.find(m => m.id === memberId);
                  if (!member) return;
 
+                 // RBAC Check: Only Admins can delete, and not themselves
                  if (currentUser.role !== 'admin') {
                      alert('Only administrators can delete team members.'); return;
                  }
@@ -2391,16 +2559,16 @@
 
                  showConfirmModal({
                      title: 'Delete Team Member?',
-                     message: `Remove ${member.name || member.email} from the team? This cannot be undone.`,
+                     message: `Remove <strong>${member.name || member.email}</strong> from the team? This cannot be undone.`,
                      confirmText: 'Delete',
                      confirmClass: 'btn-danger',
                      onConfirm: () => {
                          const memberEmail = member.email;
                          teamMembers = teamMembers.filter(m => m.id !== memberId);
                          saveData();
-                         loadTeamMembers();
+                         loadTeamMembers(); // Reload list UI (also updates stats)
                          addActivity('fa-user-minus', `Removed team member: ${memberEmail}`);
-                         addNotification('fa-user-minus', `Team member removed: ${memberEmail}`); // Add notification
+                         addNotification('fa-user-minus', `Team member removed: ${memberEmail}`);
                          showSuccessMessage('Team member deleted.');
                          hideConfirmModal();
                      },
@@ -2413,6 +2581,7 @@
                 const activityId = parseInt(listItem.dataset.id);
                 if (!activityId) return;
 
+                // RBAC Check
                 if (currentUser.role !== 'admin' && currentUser.role !== 'supervisor') {
                     alert('Deletion restricted to Admins/Supervisors.'); return;
                 }
@@ -2425,7 +2594,8 @@
                      onConfirm: () => {
                          activities = activities.filter(a => a.id !== activityId);
                          saveData();
-                         loadActivities(viewAllActivity.style.display === 'none');
+                         // Reload activities, respecting current view (all or limited)
+                         loadActivities(viewAllActivity.style.display === 'none' && activities.length > MAX_ACTIVITIES_DISPLAYED);
                          showSuccessMessage('Activity deleted.');
                          hideConfirmModal();
                      },
@@ -2434,6 +2604,7 @@
              }
 
             function handleDeleteAllActivities() {
+                 // RBAC Check
                  if (currentUser.role !== 'admin' && currentUser.role !== 'supervisor') {
                     alert('Deletion restricted to Admins/Supervisors.'); return;
                  }
@@ -2448,7 +2619,7 @@
                      onConfirm: () => {
                          activities = [];
                          saveData();
-                         loadActivities();
+                         loadActivities(); // Reload (will show empty message)
                          showSuccessMessage('All activities deleted.');
                          hideConfirmModal();
                      },
@@ -2471,8 +2642,8 @@
                  notifications.forEach(n => { if (!n.read) { n.read = true; changed = true; } });
                  if (changed) {
                      saveData();
-                     loadNotifications();
-                     updateNotificationBadge();
+                     loadNotifications(); // Reload UI
+                     // updateNotificationBadge() is called within loadNotifications
                      showSuccessMessage('All notifications marked as read.');
                  } else {
                     showSuccessMessage('No unread notifications.');
@@ -2480,6 +2651,10 @@
             }
 
              function handleDeleteNotificationClick(notificationId) {
+                 // RBAC check (already done for showing the button, but good practice)
+                 if (currentUser.role !== 'admin' && currentUser.role !== 'supervisor') {
+                     alert('Deletion restricted.'); return;
+                 }
                   showConfirmModal({
                       title: 'Delete Notification?',
                       message: 'Delete this notification?',
@@ -2488,8 +2663,8 @@
                       onConfirm: () => {
                           notifications = notifications.filter(n => n.id != notificationId);
                           saveData();
-                          loadNotifications();
-                          updateNotificationBadge();
+                          loadNotifications(); // Reload UI
+                          // updateNotificationBadge() is called within loadNotifications
                           showSuccessMessage('Notification deleted.');
                           hideConfirmModal();
                       },
@@ -2498,6 +2673,10 @@
              }
 
              function handleDeleteAllNotifications() {
+                 // RBAC Check
+                 if (currentUser.role !== 'admin' && currentUser.role !== 'supervisor') {
+                     alert('Deletion restricted.'); return;
+                 }
                   if (notifications.length === 0) {
                       showSuccessMessage('No notifications to delete.'); return;
                   }
@@ -2509,8 +2688,8 @@
                      onConfirm: () => {
                          notifications = [];
                          saveData();
-                         loadNotifications();
-                         updateNotificationBadge();
+                         loadNotifications(); // Reload UI
+                         // updateNotificationBadge() is called within loadNotifications
                          showSuccessMessage('All notifications deleted.');
                          hideConfirmModal();
                      },
@@ -2548,7 +2727,7 @@
                             hideConfirmModal();
                         },
                         onCancel: () => {
-                            profileAvatarInput.value = null;
+                            profileAvatarInput.value = null; // Clear file input
                             hideConfirmModal();
                         }
                     });
@@ -2564,10 +2743,11 @@
                      confirmText: 'Logout',
                      confirmClass: 'btn-danger',
                      onConfirm: () => {
-                         clearUserData();
+                         // clearUserData(); // Optionally clear all data on logout
                          showSuccessMessage("Logging out...");
                          setTimeout(() => {
-                            window.location.href = 'login.html'; // Redirect (ensure login.html exists)
+                            // Redirect to a login page (ensure it exists)
+                            window.location.href = 'login.html';
                          }, 500);
                      },
                      onCancel: hideConfirmModal
@@ -2583,14 +2763,15 @@
                     timestamp: new Date().toISOString(),
                     isNew: true // Temporary flag for highlighting
                 };
-                activities.unshift(newActivity);
+                activities.push(newActivity); // Add to the end of the main array
+                 // Sort activities by timestamp descending before saving (optional but good)
+                 activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
                 saveData();
+                // Reload UI only if dashboard is active, respecting 'showAll' state
                 if (currentFeature === 'dashboard') {
-                   loadActivities(viewAllActivity.style.display === 'none');
-                   startActivityTimeUpdater();
+                   loadActivities(viewAllActivity.style.display === 'none' && activities.length > MAX_ACTIVITIES_DISPLAYED);
+                   // startActivityTimeUpdater(); // Time updater runs continuously
                 }
-                // Optionally trigger notification for some activities
-                // addNotification(icon, message);
              }
 
              function addNotification(icon, message) {
@@ -2601,11 +2782,11 @@
                      timestamp: new Date().toISOString(),
                      read: false
                 };
-                notifications.unshift(newNotification);
+                notifications.unshift(newNotification); // Add to beginning
                 saveData();
-                updateNotificationBadge();
+                updateNotificationBadge(); // Update count and delete button visibility
                  if (notificationsModal.style.display === 'flex') {
-                     loadNotifications();
+                     loadNotifications(); // Refresh modal if open
                  }
                  if (currentUser.preferences?.soundNotifications) {
                     playNotificationSound();
@@ -2614,14 +2795,10 @@
 
             function playNotificationSound() {
                 if (notificationSound && typeof notificationSound.play === 'function') {
-                    // Reset playback position and play
                     notificationSound.currentTime = 0;
                     notificationSound.play().catch(e => {
-                        // Autoplay restrictions might prevent sound, especially without user interaction
-                        console.warn('Notification sound play failed (possibly due to browser policy):', e);
+                        console.warn('Notification sound play failed:', e);
                     });
-                 } else {
-                     console.warn('Notification sound element not found or cannot play.');
                  }
             }
 
@@ -2640,7 +2817,7 @@
                     setActiveFeature(item.dataset.feature);
                 }));
 
-                // Back Button --- Listener Updated ---
+                // Back Button
                 backButton.addEventListener('click', () => setActiveFeature('dashboard'));
 
                 // Browser Back/Forward Navigation
@@ -2648,14 +2825,14 @@
                     if (event.state) {
                         setActiveFeature(event.state.feature, event.state.tab);
                     } else {
-                         handleInitialNavigation();
+                         handleInitialNavigation(); // Go back to default or initial hash
                     }
                 });
 
                 // Search
                 searchInput.addEventListener('input', handleSearch);
                 searchInput.addEventListener('focus', handleSearch);
-                document.addEventListener('click', (e) => {
+                document.addEventListener('click', (e) => { // Close search results on outside click
                     if (!e.target.closest('.search-bar')) {
                         searchResults.classList.remove('active');
                         searchResults.innerHTML = '';
@@ -2664,38 +2841,45 @@
 
                 // User Dropdown
                 userAvatar.addEventListener('click', () => userDropdown.classList.toggle('active'));
-                userProfileDetails.addEventListener('click', () => userDropdown.classList.toggle('active'));
+                userProfileDetails.addEventListener('click', () => userDropdown.classList.toggle('active')); // Allow clicking name/status area
                 profileLink.addEventListener('click', (e) => { e.preventDefault(); userDropdown.classList.remove('active'); setActiveFeature('profile'); });
                 settingsLink.addEventListener('click', (e) => { e.preventDefault(); userDropdown.classList.remove('active'); setActiveFeature('settings'); });
                 logoutLink.addEventListener('click', (e) => { e.preventDefault(); userDropdown.classList.remove('active'); handleLogout(); });
-                document.addEventListener('click', (e) => {
+                document.addEventListener('click', (e) => { // Close dropdown on outside click
                     if (!e.target.closest('.user-profile')) userDropdown.classList.remove('active');
                 });
 
                 // Notifications Modal
                 notificationIcon.addEventListener('click', () => {
                     notificationsModal.style.display = 'flex';
-                    loadNotifications();
+                    loadNotifications(); // Load fresh data when opening
                 });
                 closeNotifications.addEventListener('click', () => notificationsModal.style.display = 'none');
-                notificationsModal.addEventListener('click', (e) => {
+                notificationsModal.addEventListener('click', (e) => { // Close on backdrop click
                      if (e.target === notificationsModal) notificationsModal.style.display = 'none';
                  });
                 markAllReadBtn.addEventListener('click', handleMarkAllNotificationsRead);
-                deleteAllNotificationsBtn.addEventListener('click', handleDeleteAllNotifications);
+                deleteAllNotificationsBtn.addEventListener('click', handleDeleteAllNotifications); // Changed ID used here
 
                 // Activity List Actions
-                viewAllActivity.addEventListener('click', () => loadActivities(true)); // Added listener
-                deleteAllActivity.addEventListener('click', handleDeleteAllActivities);
+                viewAllActivity.addEventListener('click', () => loadActivities(true)); // Show all activities
+                deleteAllActivity.addEventListener('click', handleDeleteAllActivities); // Delete all
 
-                // Profile Form Actions --- Listener Updated ---
+                // Profile Form Actions
                 profileForm.addEventListener('submit', handleProfileSave);
                 cancelProfileBtn.addEventListener('click', handleProfileCancel);
-                uploadPhotoButton.addEventListener('click', () => profileAvatarInput.click()); // NEW Listener
+                uploadPhotoButton.addEventListener('click', () => profileAvatarInput.click()); // Trigger file input
                 profileAvatarInput.addEventListener('change', handleAvatarUpload);
 
                 // Settings Tabs
-                settingsTabs.forEach(tab => tab.addEventListener('click', () => activateSettingsTab(tab.dataset.tab)));
+                settingsTabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                         // Prevent clicking disabled tabs (redundant if style prevents pointer events)
+                         if (!tab.classList.contains('disabled')) {
+                             activateSettingsTab(tab.dataset.tab);
+                         }
+                    });
+                });
 
                 // Settings Forms Save/Cancel
                 preferencesForm.addEventListener('submit', (e) => { e.preventDefault(); handleSettingsSave('preferencesForm', 'preferencesPanel', 'Preferences saved.'); });
@@ -2710,39 +2894,43 @@
                 notificationsForm.addEventListener('submit', (e) => { e.preventDefault(); handleSettingsSave('notificationsForm', 'notificationsPanel', 'Notification settings saved.'); });
                 cancelNotificationsBtn.addEventListener('click', () => handleSettingsCancel('notificationsPanel'));
 
-                 // Theme/Layout Direct Apply
+                 // Theme/Layout Direct Apply (Live preview)
                  themeOptions.forEach(option => {
                      option.addEventListener('click', function() {
                          const theme = this.dataset.theme;
-                         document.getElementById('selectedTheme').value = theme;
+                         document.getElementById('selectedTheme').value = theme; // Update hidden input for save
                          themeOptions.forEach(opt => opt.classList.remove('selected'));
                          this.classList.add('selected');
+                         // Apply theme and current layout immediately
                          document.body.className = '';
                          document.body.classList.add(`${theme}-theme`);
                          document.body.classList.add(layoutDensitySelect.value || 'normal');
+                         applyRBAC(); // Re-apply role styles if needed
                      });
                  });
                  layoutDensitySelect.addEventListener('change', function() {
                      const density = this.value;
+                     // Apply layout and current theme immediately
                      document.body.classList.remove('compact', 'normal', 'spacious');
                      document.body.classList.add(density);
                      const currentTheme = document.getElementById('selectedTheme').value || 'blue';
                       document.body.classList.add(`${currentTheme}-theme`);
+                      applyRBAC(); // Re-apply role styles if needed
                  });
 
-                // Team Management
-                addMemberForm.addEventListener('submit', handleAddMember);
+                // Team Management - Invite Member
+                inviteMemberForm.addEventListener('submit', handleInviteMember);
 
                 // Confirm Modal Buttons
                 confirmBtn.addEventListener('click', () => { if (confirmCallback) confirmCallback(); });
                 cancelConfirmBtn.addEventListener('click', () => {
-                    if (cancelCallback) cancelCallback();
+                    if (cancelCallback) cancelCallback(); // Optional cancel callback
                      hideConfirmModal();
                 });
-                 confirmModal.addEventListener('click', (e) => {
+                 confirmModal.addEventListener('click', (e) => { // Close on backdrop click
                      if (e.target === confirmModal) hideConfirmModal();
                  });
-                 document.addEventListener('keydown', (e) => {
+                 document.addEventListener('keydown', (e) => { // Close with Escape key
                     if (e.key === 'Escape' && confirmModal.style.display === 'flex') {
                         hideConfirmModal();
                     }
@@ -2774,30 +2962,53 @@
                      return;
                  }
 
-                 matchingUsers.slice(0, 3).forEach(user => {
-                     const item = document.createElement('div');
-                     item.className = 'search-result-item';
-                     item.innerHTML = `<i class="fas fa-user" style="margin-right: 0.5rem; color: var(--primary);"></i> ${user.name} (${user.email})`;
-                     item.onclick = () => {
-                         setActiveFeature('settings', 'team'); // Go to team settings tab
-                         searchResults.classList.remove('active');
-                         searchInput.value = user.name;
-                     };
-                     searchResults.appendChild(item);
-                 });
+                 // Display User Results
+                 if (matchingUsers.length > 0) {
+                    const userHeader = document.createElement('div');
+                    userHeader.innerHTML = '<strong>Team Members</strong>';
+                    userHeader.style.padding = '0.5rem 1rem 0.25rem'; userHeader.style.fontSize = '0.8rem'; userHeader.style.color = 'var(--gray)';
+                    searchResults.appendChild(userHeader);
+                    matchingUsers.slice(0, 3).forEach(user => {
+                        const item = document.createElement('div');
+                        item.className = 'search-result-item';
+                        item.innerHTML = `<i class="fas fa-user" style="margin-right: 0.5rem; color: var(--primary);"></i> ${user.name} (${user.email})`;
+                        item.onclick = () => {
+                            setActiveFeature('settings', 'team'); // Go to team settings tab
+                            // Highlight or focus the member card would require more complex logic
+                            searchResults.classList.remove('active');
+                            searchInput.value = ''; // Clear search
+                        };
+                        searchResults.appendChild(item);
+                    });
+                 }
 
-                 matchingActivities.slice(0, 3).forEach(activity => {
-                     const item = document.createElement('div');
-                     item.className = 'search-result-item';
-                     item.innerHTML = `<i class="fas ${activity.icon || 'fa-info-circle'}" style="margin-right: 0.5rem; color: var(--secondary);"></i> ${activity.message.substring(0, 50)}...`;
-                     item.onclick = () => {
-                         setActiveFeature('dashboard');
-                         // Highlight logic needed here
-                         searchResults.classList.remove('active');
-                         searchInput.value = activity.message.substring(0, 20)+'...';
-                     };
-                     searchResults.appendChild(item);
-                 });
+                // Display Activity Results
+                 if (matchingActivities.length > 0) {
+                    const activityHeader = document.createElement('div');
+                    activityHeader.innerHTML = '<strong>Recent Activities</strong>';
+                    activityHeader.style.padding = '0.5rem 1rem 0.25rem'; activityHeader.style.fontSize = '0.8rem'; activityHeader.style.color = 'var(--gray)';
+                    searchResults.appendChild(activityHeader);
+                     matchingActivities.slice(0, 3).forEach(activity => {
+                         const item = document.createElement('div');
+                         item.className = 'search-result-item';
+                         item.innerHTML = `<i class="fas ${activity.icon || 'fa-info-circle'}" style="margin-right: 0.5rem; color: var(--secondary);"></i> ${activity.message.substring(0, 50)}...`;
+                         item.onclick = () => {
+                             setActiveFeature('dashboard');
+                             // Highlight the specific activity item
+                             const activityElement = activityList.querySelector(`.activity-item[data-id="${activity.id}"]`);
+                             if (activityElement) {
+                                 activityElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                 activityElement.style.transition = 'background-color 0.3s ease-out';
+                                 activityElement.style.backgroundColor = 'var(--primary-light)';
+                                 setTimeout(() => { activityElement.style.backgroundColor = ''; }, 1500);
+                             }
+                             searchResults.classList.remove('active');
+                             searchInput.value = ''; // Clear search
+                         };
+                         searchResults.appendChild(item);
+                     });
+                 }
+
                  // Add results for projects/tasks here
              }
 
