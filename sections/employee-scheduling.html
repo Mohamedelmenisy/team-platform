@@ -545,103 +545,113 @@
         }
 
 
+       <script>
+    // This function definition needs to be globally accessible when the script runs.
+    function initializeEmployeeSchedule(dashboardCurrentUser, dashboardTeamMembers) {
+        console.log("--- initializeEmployeeSchedule from HTML's script tag ---");
+
+        // Ensure dashboardApp and necessary functions/data are available
+        // ... (الكود الخاص بالتحقق من dashboardApp والبيانات) ...
+        if (typeof window.dashboardApp === 'undefined' || /* ... */ !dashboardCurrentUser || !dashboardTeamMembers ) {
+             console.error("FATAL: dashboardApp or required functions/data not found or invalid.");
+             // ... (عرض رسالة الخطأ) ...
+             return;
+        }
+        const showConfirmModal = window.dashboardApp.showConfirmModal;
+        // ... (باقي الدوال المساعدة من dashboardApp) ...
+
+        const scheduleContainer = document.querySelector('.employee-schedule-body');
+        // ... (التحقق من scheduleContainer) ...
+
+        // --- DOM Elements ---
+        // ... (تعريف كل عناصر DOM مثل employeeModal, shiftModal etc.) ...
+        console.log("DOM elements queried.");
+
+        // --- State Variables ---
+        // ... (تعريف كل متغيرات الحالة scheduleCurrentUser, scheduleEmployees etc.) ...
+        console.log("State variables set.");
+
+        // --- Helper Functions ---
+        function formatDateKey(date) { /* ... */ }
+        function getLocalDateFromKey(dateKey) { /* ... */ }
+
+        // --- UI Update Functions ---
+        function updateWeekDisplayUI() { /* ... */ }
+        function renderScheduleTable() { /* ... */ }
+        function updateShiftDisplayUI(empId, dateKey, shiftText, shiftClass, notes = '') { /* ... */ }
+        function loadShiftsForCurrentWeekUI() { /* ... */ }
+
+        // --- Event Handlers ---
+        function handleWeekChange(direction) { /* ... */ }
+        function handleAddEmployeeClick() { /* ... */ }
+        function handleSendRemindersClick() { /* ... */ }
+        function tryOpenMailto(mailtoLink) { /* ... */ }
+        function handleSaveScheduleClick() { /* ... */ }
+        function handleEmployeeFormSubmit(e) { /* ... */ }
+        function handleEditShiftClick(event) { /* ... */ }
+        function handleShiftFormSubmit(e) { /* ... */ }
+        function handleDeleteShiftClick() { /* ... */ }
+
+        // --- Event Listener Setup ---
+        function setupScheduleEventListeners() { /* ... */ }
+
+
         // --- Main Initialization Logic for this Section ---
-function initialize() {
-    // **** START TRY BLOCK ****
-    try {
-        console.log("Running initialize() inside employee-scheduling script...");
-
-        // 1. Determine Role
-        console.log("Step 1: Determining role...");
-        // Add null check for scheduleCurrentUser
-        if (!scheduleCurrentUser || typeof scheduleCurrentUser.role === 'undefined') {
-             throw new Error("Cannot determine user role - scheduleCurrentUser is invalid or missing role property.");
-        }
-        isAdminOrSupervisor = scheduleCurrentUser.role === 'admin' || scheduleCurrentUser.role === 'supervisor';
-        console.log(`Role: ${scheduleCurrentUser.role}, IsAdmin: ${isAdminOrSupervisor}`);
-
-        // 2. Validate Employees
-        console.log("Step 2: Validating employee data...");
-        if (!Array.isArray(scheduleEmployees)) {
-             console.warn("Employee data is not an array, using empty.", scheduleEmployees);
-             scheduleEmployees = [];
-        } else {
-             // Ensure basic structure for filtering
-             scheduleEmployees = scheduleEmployees.filter(emp => emp && typeof emp === 'object' && emp.id && emp.name);
-        }
-        console.log(`Initializing with ${scheduleEmployees.length} valid employees.`);
-
-
-        // 3. Load Saved Data
-        console.log("Step 3: Loading data from localStorage...");
-        const savedDataString = localStorage.getItem(localStorageKey);
-        if (savedDataString) {
+        function initialize() {
+            // **** START TRY BLOCK ****
             try {
-                scheduleSavedData = JSON.parse(savedDataString);
-                if (typeof scheduleSavedData !== 'object' || scheduleSavedData === null) {
-                    console.warn("Invalid data format in localStorage, resetting.");
-                    scheduleSavedData = {};
+                console.log("Running initialize() inside employee-scheduling script...");
+
+                // 1. Determine Role
+                console.log("Step 1: Determining role...");
+                if (!scheduleCurrentUser || typeof scheduleCurrentUser.role === 'undefined') {
+                     throw new Error("Cannot determine user role - scheduleCurrentUser is invalid or missing role property.");
                 }
-            } catch (e) {
-                console.error("Parsing localStorage error:", e);
-                scheduleSavedData = {};
-                showErrorMessage("Could not load saved schedule. Starting fresh."); // Inform user
+                isAdminOrSupervisor = scheduleCurrentUser.role === 'admin' || scheduleCurrentUser.role === 'supervisor';
+                console.log(`Role: ${scheduleCurrentUser.role}, IsAdmin: ${isAdminOrSupervisor}`);
+
+                // 2. Validate Employees
+                console.log("Step 2: Validating employee data...");
+                // ... (كود التحقق والتصفية للموظفين) ...
+                console.log(`Initializing with ${scheduleEmployees.length} valid employees.`);
+
+                // 3. Load Saved Data
+                console.log("Step 3: Loading data from localStorage...");
+                // ... (كود تحميل البيانات من localStorage) ...
+                console.log("Loaded schedule data:", scheduleSavedData);
+
+                // 4. Set Initial Week
+                 console.log("Step 4: Setting initial week...");
+                 // ... (كود حساب وتحديد الأسبوع الأول) ...
+                 console.log("Initial week start calculated:", scheduleCurrentWeekStart.toDateString());
+
+                // 5. Initial UI Setup
+                console.log("Step 5: Performing initial UI setup...");
+                if (typeof updateWeekDisplayUI !== 'function') throw new Error("updateWeekDisplayUI is not defined");
+                updateWeekDisplayUI();
+                if (typeof loadShiftsForCurrentWeekUI !== 'function') throw new Error("loadShiftsForCurrentWeekUI is not defined");
+                loadShiftsForCurrentWeekUI();
+                if (typeof setupScheduleEventListeners !== 'function') throw new Error("setupScheduleEventListeners is not defined");
+                setupScheduleEventListeners();
+                console.log("Employee Schedule Section Initialized Successfully.");
+
+            // **** END TRY BLOCK / START CATCH BLOCK ****
+            } catch (error) {
+                 console.error("<<<<< CAUGHT ERROR during schedule initialization >>>>>", error); // Log the specific error
+                 // ... (كود عرض رسالة الخطأ للمستخدم) ...
+                  if (typeof showErrorMessage === 'function') {
+                       showErrorMessage(`Schedule Init Error: ${error.message}`);
+                  }
             }
-        } else {
-            scheduleSavedData = {};
-        }
-         console.log("Loaded schedule data:", scheduleSavedData);
+        } // End of initialize function
 
+        // --- Execute Initialization ---
+        console.log("Calling internal initialize() function...");
+        initialize(); // <<< هذا الاستدعاء مهم لتشغيل الكود
 
-        // 4. Set Initial Week
-         console.log("Step 4: Setting initial week...");
-         const today = new Date();
-         // Add null check for preferences
-         const weekStartPref = scheduleCurrentUser?.preferences?.weekStart;
-         const weekStartDay = weekStartPref === 'sun' ? 0 : 1; // Default to Mon if preference missing
-         const dayOfWeek = today.getDay();
-         let diff = today.getDate() - dayOfWeek + (dayOfWeek === weekStartDay ? 0 : (dayOfWeek < weekStartDay ? weekStartDay - 7 : weekStartDay));
-         let potentialWeekStart = new Date(today.getFullYear(), today.getMonth(), diff);
-         // Clamping logic...
-         if (potentialWeekStart < scheduleMinDate) { /* ...clamping logic as before ... */ scheduleCurrentWeekStart=new Date(scheduleMinDate.getFullYear(), scheduleMinDate.getMonth(), scheduleMinDate.getDate()); /* Simplified fallback */ }
-          else if (potentialWeekStart > scheduleMaxDate) { /* ...clamping logic as before ... */ scheduleCurrentWeekStart = new Date(scheduleMaxDate.getFullYear(), scheduleMaxDate.getMonth(), scheduleMaxDate.getDate() - 6); /* Simplified fallback */}
-          else { scheduleCurrentWeekStart = potentialWeekStart; }
-         console.log("Initial week start calculated:", scheduleCurrentWeekStart.toDateString());
+    } // <<< نهاية دالة initializeEmployeeSchedule
 
-        // 5. Initial UI Setup
-        console.log("Step 5: Performing initial UI setup...");
-        if (typeof updateWeekDisplayUI !== 'function') throw new Error("updateWeekDisplayUI is not defined");
-        updateWeekDisplayUI();
+    // --- رسالة للتحقق أن السكربت نفسه تم تحليله ---
+    console.log("--- employee-scheduling.html script tag finished parsing ---");
 
-        if (typeof loadShiftsForCurrentWeekUI !== 'function') throw new Error("loadShiftsForCurrentWeekUI is not defined");
-        loadShiftsForCurrentWeekUI(); // This calls renderScheduleTable
-
-        if (typeof setupScheduleEventListeners !== 'function') throw new Error("setupScheduleEventListeners is not defined");
-        setupScheduleEventListeners();
-
-        console.log("Employee Schedule Section Initialized Successfully.");
-
-    // **** END TRY BLOCK / START CATCH BLOCK ****
-    } catch (error) {
-         console.error("<<<<< CAUGHT ERROR during schedule initialization >>>>>", error); // Log the specific error
-         // Display a user-friendly error message within the schedule section
-         if(scheduleContainer) {
-              scheduleContainer.innerHTML = `<div style='padding:2rem;text-align:center;color:var(--danger);border:1px solid var(--danger); border-radius: 8px;'>
-                  <h2>Initialization Error</h2>
-                  <p>Failed to initialize the schedule module.</p>
-                  <p><small>Details: ${error.message}. Check console for more info.</small></p>
-                  </div>`;
-         }
-         // Also use dashboard error message system if available
-          if (typeof showErrorMessage === 'function') {
-               showErrorMessage(`Schedule Init Error: ${error.message}`);
-          }
-    }
-} // End of initialize function
-
-// --- Execute Initialization ---
-console.log("Calling internal initialize() function...");
-initialize(); // Call the internal initialize function
-
-console.log("--- employee-scheduling.html script tag finished parsing ---"); // Should still appear
-<script>
+</script> // <<< تأكد أن هذا هو وسم الإغلاق الوحيد للسكربت
