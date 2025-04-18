@@ -1,120 +1,96 @@
-<!-- Styles specific to Employee Scheduling -->
-<style>
-    /* ... (نفس كود الـ CSS) ... */
-</style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Schedule - Notion Style</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; background: #f9fafb; margin: 0; padding: 2rem; }
+        .schedule-container { max-width: 1000px; margin: auto; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow-x: auto; }
+        .week-nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem; }
+        .week-nav button { padding: 8px 16px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; }
+        .week-nav button:hover { background: #e5e7eb; }
+        .week-nav span { font-size: 16px; font-weight: 500; color: #374151; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        thead th { background: #f9fafb; padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: left; font-size: 14px; color: #374151; }
+        tbody td { padding: 12px; border-top: 1px solid #e5e7eb; font-size: 14px; color: #4b5563; }
+        tbody tr:hover { background: #f3f4f6; }
+    </style>
+</head>
+<body>
 
-<!-- This container will be inserted into dash.html's #featureSections -->
-<div class="employee-schedule-body">
-    <!-- Main Content -->
-    <div class="main-container">
-        <div class="page-header">
-            <h1 class="page-title">Employee Schedule (Simplified V4)</h1>
-        </div>
-        <div class="schedule-controls">
-            <div class="week-navigation">
-                <button class="btn btn-outline" id="schedule-prevWeekBtn" disabled><i class="fas fa-chevron-left"></i></button>
-                <div class="week-display" id="schedule-weekDisplay">Waiting for JS...</div>
-                <button class="btn btn-outline" id="schedule-nextWeekBtn" disabled><i class="fas fa-chevron-right"></i></button>
-            </div>
-        </div>
-        <div class="schedule-container">
-            <table class="schedule-table">
-                <thead>
-                    <tr><th>Employee</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr>
-                </thead>
-                <tbody id="schedule-table-body">
-                    <tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">Waiting for JS execution...</td></tr>
-                </tbody>
-            </table>
-        </div>
+<div class="schedule-container">
+    <div class="week-nav">
+        <button id="prev-week">← Previous</button>
+        <span id="week-display">Loading...</span>
+        <button id="next-week">Next →</button>
     </div>
-</div> <!-- End of .employee-schedule-body -->
+
+    <table>
+        <thead>
+        <tr>
+            <th>Employee</th>
+            <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th>
+        </tr>
+        </thead>
+        <tbody id="schedule-table-body">
+        <tr><td colspan="8" style="text-align:center; padding:20px;">Loading schedule...</td></tr>
+        </tbody>
+    </table>
+</div>
 
 <script>
-    // Put a log *outside* any function first. Does this even appear?
-    console.log("!!! [SIMPLIFIED V4] Script tag STARTING to parse !!!");
+    document.addEventListener('DOMContentLoaded', () => {
+        const weekDisplay = document.getElementById('week-display');
+        const tableBody = document.getElementById('schedule-table-body');
+        let currentWeek = new Date();
 
-    finitializeEmployeeSchedule(
-  { id: 1, name: 'Admin', role: 'admin' },
-  [
-    { id: 101, name: 'Ahmed Ali', email: 'ahmed@test.com' },
-    { id: 102, name: 'Sara Hassan', email: 'sara@test.com' }
-  ]
-);
+        const employees = [
+            { id: 101, name: 'Ahmed Ali', email: 'ahmed@test.com' },
+            { id: 102, name: 'Sara Hassan', email: 'sara@test.com' }
+        ];
 
-
-        // Check for dashboardApp just in case
-        if (typeof window.dashboardApp?.showErrorMessage !== 'function') {
-             console.error("[SIMPLIFIED V4] dashboardApp or showErrorMessage is missing!");
-             alert("CRITICAL ERROR: dashboardApp missing!"); // Fallback alert
-             return;
+        function getWeekRange(date) {
+            const first = date.getDate() - date.getDay() + 1; // Monday
+            const start = new Date(date.setDate(first));
+            const end = new Date(start);
+            end.setDate(start.getDate() + 6);
+            return { start, end };
         }
-        const showErrorMessage = window.dashboardApp.showErrorMessage;
-        console.log("[SIMPLIFIED V4] dashboardApp seems ok.");
 
-        // Find elements *immediately* and log results
-        // Use a slight delay before trying to access DOM elements fully
-        setTimeout(() => {
-            console.log("[SIMPLIFIED V4 - Timeout] Attempting to find elements...");
-            const weekDisplay = document.getElementById('schedule-weekDisplay');
-            const scheduleTableBody = document.getElementById('schedule-table-body');
-            console.log("[SIMPLIFIED V4 - Timeout] Finding elements results:", { weekDisplay, scheduleTableBody });
+        function renderWeek() {
+            const { start, end } = getWeekRange(new Date(currentWeek));
+            weekDisplay.textContent = `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
+            renderSchedule();
+        }
 
-            if (!weekDisplay || !scheduleTableBody) {
-                console.error("[SIMPLIFIED V4 - Timeout] Critical elements weekDisplay or scheduleTableBody NOT FOUND!");
-                showErrorMessage("Error: Schedule UI elements could not be found even after delay.");
-                // Try updating a known element for visual feedback
-                 const titleElement = document.querySelector('.employee-schedule-body .page-title');
-                 if (titleElement) titleElement.innerHTML += ' <span style="color:red;">(Error finding elements!)</span>';
+        function renderSchedule() {
+            tableBody.innerHTML = '';
+
+            if (!employees.length) {
+                tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">No employees found.</td></tr>`;
                 return;
             }
-            console.log("[SIMPLIFIED V4 - Timeout] Essential elements found.");
 
-            // Start the main logic within a try block
-            try {
-                console.log("[SIMPLIFIED V4 - Timeout] Entering try block...");
+            employees.forEach(emp => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${emp.name}</td>` + `<td></td>`.repeat(7);
+                tableBody.appendChild(tr);
+            });
+        }
 
-                // 1. Update Week Display
-                console.log("[SIMPLIFIED V4 - Timeout] Attempting to update week display...");
-                weekDisplay.textContent = "Week Display OK (V4)"; // Changed text
-                console.log("[SIMPLIFIED V4 - Timeout] Week display updated.");
+        document.getElementById('prev-week').onclick = () => {
+            currentWeek.setDate(currentWeek.getDate() - 7);
+            renderWeek();
+        };
 
-                // 2. Clear Table Body
-                console.log("[SIMPLIFIED V4 - Timeout] Attempting to clear table body...");
-                scheduleTableBody.innerHTML = ''; // Clear "Waiting..." message
-                console.log("[SIMPLIFIED V4 - Timeout] Table body cleared.");
+        document.getElementById('next-week').onclick = () => {
+            currentWeek.setDate(currentWeek.getDate() + 7);
+            renderWeek();
+        };
 
-                // 3. Define Fake Employee Data
-                const fakeEmployees = [ { id: 1, name: "Tester Alpha" }, { id: 2, name: "Tester Beta" } ];
-                console.log("[SIMPLIFIED V4 - Timeout] Using fake data:", fakeEmployees);
-
-                // 4. Render Fake Data
-                console.log("[SIMPLIFIED V4 - Timeout] Attempting to render fake data...");
-                fakeEmployees.forEach((employee, index) => {
-                    const tr = document.createElement('tr');
-                    const nameTd = document.createElement('td');
-                    nameTd.className = `employee-name employee-${index + 1}`;
-                    nameTd.textContent = employee.name;
-                    tr.appendChild(nameTd);
-                    for (let i = 0; i < 7; i++) {
-                        const td = document.createElement('td');
-                        td.textContent = `OK ${i+1}`; // Simple success indicator
-                        tr.appendChild(td);
-                    }
-                    scheduleTableBody.appendChild(tr);
-                });
-                console.log("[SIMPLIFIED V4 - Timeout] Fake data rendered.");
-
-                console.log("--- [SIMPLIFIED V4] Initialization Successful ---");
-
-            } catch (error) {
-                 console.error("<<<<< CAUGHT ERROR during SIMPLIFIED V4 initialization >>>>>", error);
-                 if(scheduleTableBody) scheduleTableBody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">Error: ${error.message}</td></tr>`;
-                 showErrorMessage(`Simplified Init Error: ${error.message}`);
-            }
-        }, 200); // Increased delay slightly more to 200ms
-
-    } // End of initializeEmployeeSchedule
-
-    console.log("!!! [SIMPLIFIED V4] Script tag FINISHED parsing !!!");
+        renderWeek();
+    });
 </script>
+
+</body>
+</html>
