@@ -546,43 +546,102 @@
 
 
         // --- Main Initialization Logic for this Section ---
-        function initialize() {
-            try {
-                console.log("Running initialize() inside employee-scheduling script...");
-                // 1. Determine Role
-                isAdminOrSupervisor = scheduleCurrentUser?.role === 'admin' || scheduleCurrentUser?.role === 'supervisor';
-                console.log(`Role: ${scheduleCurrentUser?.role}, IsAdmin: ${isAdminOrSupervisor}`);
-                // 2. Validate Employees
-                if (!Array.isArray(scheduleEmployees)) { console.warn("Employee data not an array, using empty.", scheduleEmployees); scheduleEmployees = []; }
-                 else { scheduleEmployees = scheduleEmployees.filter(emp => emp && emp.id && emp.name); } // Clean up
-                console.log(`Initializing with ${scheduleEmployees.length} valid employees.`);
-                // 3. Load Saved Data
-                const savedDataString = localStorage.getItem(localStorageKey);
-                if (savedDataString) { try { scheduleSavedData = JSON.parse(savedDataString); if (typeof scheduleSavedData !== 'object' || scheduleSavedData === null) scheduleSavedData = {}; } catch (e) { console.error("Parsing localStorage error:", e); scheduleSavedData = {}; } }
-                 else { scheduleSavedData = {}; } console.log("Loaded schedule data from localStorage.");
-                // 4. Set Initial Week
-                const today = new Date(); const weekStartDay = scheduleCurrentUser?.preferences?.weekStart === 'sun' ? 0 : 1; const dayOfWeek = today.getDay();
-                let diff = today.getDate() - dayOfWeek + (dayOfWeek === weekStartDay ? 0 : (dayOfWeek < weekStartDay ? weekStartDay - 7 : weekStartDay));
-                let potentialWeekStart = new Date(today.getFullYear(), today.getMonth(), diff);
-                if (potentialWeekStart < scheduleMinDate) { /*...clamping logic...*/ let may1st = new Date(scheduleMinDate); let d = may1st.getDay(); let df = may1st.getDate()-d+(d===weekStartDay?0:(d<weekStartDay?weekStartDay-7:weekStartDay)); scheduleCurrentWeekStart=new Date(may1st.getFullYear(),may1st.getMonth(),df); if(scheduleCurrentWeekStart<scheduleMinDate) scheduleCurrentWeekStart.setDate(scheduleCurrentWeekStart.getDate()+7); }
-                 else if (potentialWeekStart > scheduleMaxDate) { /*...clamping logic...*/ let may31st = new Date(scheduleMaxDate); let d=may31st.getDay(); let df = may31st.getDate()-d+(d===weekStartDay?0:(d<weekStartDay?weekStartDay-7:weekStartDay)); scheduleCurrentWeekStart = new Date(may31st.getFullYear(),may31st.getMonth(),df); if(scheduleCurrentWeekStart > scheduleMaxDate) scheduleCurrentWeekStart.setDate(scheduleCurrentWeekStart.getDate()-7); }
-                 else { scheduleCurrentWeekStart = potentialWeekStart; } console.log("Initial week start:", scheduleCurrentWeekStart.toDateString());
-                // 5. Initial UI Setup
-                console.log("Performing initial UI setup...");
-                updateWeekDisplayUI(); loadShiftsForCurrentWeekUI(); setupScheduleEventListeners();
-                console.log("Employee Schedule Section Initialized Successfully.");
-            } catch (error) {
-                 console.error("FATAL ERROR during schedule initialization:", error);
-                 showErrorMessage(`Initialization Error: ${error.message}`); // Show error to user
-                 if(scheduleContainer) { scheduleContainer.innerHTML = `<div style='padding:2rem;text-align:center;color:var(--danger);border:1px solid var(--danger);'><h2>Error</h2><p>Failed to initialize schedule. ${error.message}</p></div>`; }
-            }
+function initialize() {
+    // **** START TRY BLOCK ****
+    try {
+        console.log("Running initialize() inside employee-scheduling script...");
+
+        // 1. Determine Role
+        console.log("Step 1: Determining role...");
+        // Add null check for scheduleCurrentUser
+        if (!scheduleCurrentUser || typeof scheduleCurrentUser.role === 'undefined') {
+             throw new Error("Cannot determine user role - scheduleCurrentUser is invalid or missing role property.");
         }
+        isAdminOrSupervisor = scheduleCurrentUser.role === 'admin' || scheduleCurrentUser.role === 'supervisor';
+        console.log(`Role: ${scheduleCurrentUser.role}, IsAdmin: ${isAdminOrSupervisor}`);
 
-        // --- Execute Initialization ---
-         console.log("Calling internal initialize() function...");
-        initialize(); // Call the internal initialize function to start everything
+        // 2. Validate Employees
+        console.log("Step 2: Validating employee data...");
+        if (!Array.isArray(scheduleEmployees)) {
+             console.warn("Employee data is not an array, using empty.", scheduleEmployees);
+             scheduleEmployees = [];
+        } else {
+             // Ensure basic structure for filtering
+             scheduleEmployees = scheduleEmployees.filter(emp => emp && typeof emp === 'object' && emp.id && emp.name);
+        }
+        console.log(`Initializing with ${scheduleEmployees.length} valid employees.`);
 
-    } // <<< End of initializeEmployeeSchedule function definition
 
-    console.log("--- employee-scheduling.html script tag finished parsing ---");
+        // 3. Load Saved Data
+        console.log("Step 3: Loading data from localStorage...");
+        const savedDataString = localStorage.getItem(localStorageKey);
+        if (savedDataString) {
+            try {
+                scheduleSavedData = JSON.parse(savedDataString);
+                if (typeof scheduleSavedData !== 'object' || scheduleSavedData === null) {
+                    console.warn("Invalid data format in localStorage, resetting.");
+                    scheduleSavedData = {};
+                }
+            } catch (e) {
+                console.error("Parsing localStorage error:", e);
+                scheduleSavedData = {};
+                showErrorMessage("Could not load saved schedule. Starting fresh."); // Inform user
+            }
+        } else {
+            scheduleSavedData = {};
+        }
+         console.log("Loaded schedule data:", scheduleSavedData);
+
+
+        // 4. Set Initial Week
+         console.log("Step 4: Setting initial week...");
+         const today = new Date();
+         // Add null check for preferences
+         const weekStartPref = scheduleCurrentUser?.preferences?.weekStart;
+         const weekStartDay = weekStartPref === 'sun' ? 0 : 1; // Default to Mon if preference missing
+         const dayOfWeek = today.getDay();
+         let diff = today.getDate() - dayOfWeek + (dayOfWeek === weekStartDay ? 0 : (dayOfWeek < weekStartDay ? weekStartDay - 7 : weekStartDay));
+         let potentialWeekStart = new Date(today.getFullYear(), today.getMonth(), diff);
+         // Clamping logic...
+         if (potentialWeekStart < scheduleMinDate) { /* ...clamping logic as before ... */ scheduleCurrentWeekStart=new Date(scheduleMinDate.getFullYear(), scheduleMinDate.getMonth(), scheduleMinDate.getDate()); /* Simplified fallback */ }
+          else if (potentialWeekStart > scheduleMaxDate) { /* ...clamping logic as before ... */ scheduleCurrentWeekStart = new Date(scheduleMaxDate.getFullYear(), scheduleMaxDate.getMonth(), scheduleMaxDate.getDate() - 6); /* Simplified fallback */}
+          else { scheduleCurrentWeekStart = potentialWeekStart; }
+         console.log("Initial week start calculated:", scheduleCurrentWeekStart.toDateString());
+
+        // 5. Initial UI Setup
+        console.log("Step 5: Performing initial UI setup...");
+        if (typeof updateWeekDisplayUI !== 'function') throw new Error("updateWeekDisplayUI is not defined");
+        updateWeekDisplayUI();
+
+        if (typeof loadShiftsForCurrentWeekUI !== 'function') throw new Error("loadShiftsForCurrentWeekUI is not defined");
+        loadShiftsForCurrentWeekUI(); // This calls renderScheduleTable
+
+        if (typeof setupScheduleEventListeners !== 'function') throw new Error("setupScheduleEventListeners is not defined");
+        setupScheduleEventListeners();
+
+        console.log("Employee Schedule Section Initialized Successfully.");
+
+    // **** END TRY BLOCK / START CATCH BLOCK ****
+    } catch (error) {
+         console.error("<<<<< CAUGHT ERROR during schedule initialization >>>>>", error); // Log the specific error
+         // Display a user-friendly error message within the schedule section
+         if(scheduleContainer) {
+              scheduleContainer.innerHTML = `<div style='padding:2rem;text-align:center;color:var(--danger);border:1px solid var(--danger); border-radius: 8px;'>
+                  <h2>Initialization Error</h2>
+                  <p>Failed to initialize the schedule module.</p>
+                  <p><small>Details: ${error.message}. Check console for more info.</small></p>
+                  </div>`;
+         }
+         // Also use dashboard error message system if available
+          if (typeof showErrorMessage === 'function') {
+               showErrorMessage(`Schedule Init Error: ${error.message}`);
+          }
+    }
+} // End of initialize function
+
+// --- Execute Initialization ---
+console.log("Calling internal initialize() function...");
+initialize(); // Call the internal initialize function
+
+console.log("--- employee-scheduling.html script tag finished parsing ---"); // Should still appear
 </script>
