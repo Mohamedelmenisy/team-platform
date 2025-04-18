@@ -1869,133 +1869,135 @@
             }
 
             // --- Feature/Section Loading ---
-            function setActiveFeature(featureId, settingsTab = null) {
-                // Role-based access check for features/settings tabs
-                if (featureId === 'settings') {
-                    const targetTab = settingsTab || currentSettingsTab || 'preferences';
-                    if (targetTab === 'danger' && currentUser.role !== 'admin') {
-                        console.warn("Access denied: Only admins can access the Danger Zone.");
-                        setActiveFeature('dashboard'); // Redirect non-admins
-                        return;
+          // --- Feature/Section Loading ---
+function setActiveFeature(featureId, settingsTab = null) {
+    // ... (الكود السابق للتحقق من الدور وتحديث الحالة) ...
+    currentFeature = featureId;
+    currentSettingsTab = settingsTab || (featureId === 'settings' ? (currentSettingsTab || 'preferences') : null);
+
+    let hash = `#${featureId}`;
+    if (featureId === 'settings' && currentSettingsTab) {
+        hash += `-${currentSettingsTab}`;
+    }
+    if (window.location.hash !== hash) {
+        history.pushState({ feature: featureId, tab: currentSettingsTab }, '', hash);
+    }
+
+    menuItems.forEach(item => item.classList.remove('active'));
+    const activeMenuItem = document.querySelector(`.menu-item[data-feature="${featureId}"]`);
+    if (activeMenuItem) activeMenuItem.classList.add('active');
+
+    contentSections.forEach(section => section.classList.remove('active'));
+    featureSectionsContainer.style.display = 'none';
+
+    if (featureId === 'dashboard') {
+        dashboardContent.classList.add('active');
+        updateStats();
+        loadActivities();
+        setPlaceholderState('hidden');
+    } else if (featureId === 'profile') {
+        profileContent.classList.add('active');
+        updateUserUI();
+        setPlaceholderState('hidden');
+    } else if (featureId === 'settings') {
+        settingsContent.classList.add('active');
+        applyRBAC();
+        activateSettingsTab(currentSettingsTab || 'preferences');
+        setPlaceholderState('hidden');
+    } else {
+        // Handle other features dynamically
+        featureSectionsContainer.style.display = 'block';
+        featureSections.innerHTML = ''; // Clear previous content
+        featureSections.appendChild(featurePlaceholder);
+        setPlaceholderState('loading', `Loading ${featureId.replace(/-/g, ' ')}...`);
+
+        const filePath = `sections/${featureId}.html`;
+
+        fetch(filePath)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Use DOMParser to safely parse the HTML and handle scripts
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newContent = doc.body.firstChild; // Assuming content is wrapped in one div
+
+                if (!newContent) {
+                    throw new Error("Failed to parse fetched HTML content correctly.");
+                }
+
+                // Clear placeholder and append the main content node
+                featureSections.innerHTML = '';
+                featureSections.appendChild(newContent);
+                featureSections.classList.add('active');
+
+                // Find and execute scripts *after* appending content
+                const scripts = newContent.querySelectorAll('script');
+                scripts.forEach(originalScript => {
+                    const script = document.createElement('script');
+                    // Copy attributes like src, type if they exist (though inline expected here)
+                    // originalScript.getAttributeNames().forEach(attr => script.setAttribute(attr, originalScript.getAttribute(attr)));
+
+                    // Copy inline script content
+                    if (originalScript.textContent) {
+                        script.textContent = originalScript.textContent;
                     }
-                     // Add more checks here if other tabs need role restrictions
-                }
-                // Add checks for feature links if needed
-                // if (featureId === 'some-admin-feature' && currentUser.role !== 'admin') {
-                //     console.warn("Access denied: Admin feature.");
-                //     setActiveFeature('dashboard');
-                //     return;
-                // }
+                    // Remove the original script from the parsed content (optional, cleans up)
+                    // originalScript.remove();
+                    // Append the new script to the feature section to execute it
+                    featureSections.appendChild(script); // Append to the container so it executes in context
+                });
 
+                 // Now, *after* potentially executing the scripts, check for the init function
+                 // Use a small timeout to give the browser a moment to execute the appended scripts
+                setTimeout(() => {
+                    const initFunctionName = `initialize${featureId.replace(/-/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('')}`;
+                    const initFunc = window[initFunctionName] || window.initializeEmployeeSchedule; // Check both generic and specific names
 
-                currentFeature = featureId;
-                currentSettingsTab = settingsTab || (featureId === 'settings' ? (currentSettingsTab || 'preferences') : null); // Persist or default settings tab
+                    if (typeof initFunc === 'function') {
+                        try {
+                            console.log(`Calling ${initFunc.name || 'initialization function'} for ${featureId}...`);
+                            const currentUserData = window.dashboardApp.getCurrentUser();
+                            const teamMembersData = window.dashboardApp.getTeamMembers();
 
-                // Update URL without reload only if it changed
-                let hash = `#${featureId}`;
-                if (featureId === 'settings' && currentSettingsTab) {
-                    hash += `-${currentSettingsTab}`;
-                }
-                if (window.location.hash !== hash) {
-                    history.pushState({ feature: featureId, tab: currentSettingsTab }, '', hash);
-                }
-
-                // Update Sidebar Menu Active State
-                menuItems.forEach(item => item.classList.remove('active'));
-                const activeMenuItem = document.querySelector(`.menu-item[data-feature="${featureId}"]`);
-                if (activeMenuItem) activeMenuItem.classList.add('active');
-
-                // Show/Hide Content Sections
-                contentSections.forEach(section => section.classList.remove('active'));
-                featureSectionsContainer.style.display = 'none'; // Hide dynamic container by default
-
-                // --- Dynamic Loading Logic ---
-                if (featureId === 'dashboard') {
-                    dashboardContent.classList.add('active');
-                    updateStats(); // Refresh stats when coming back
-                    loadActivities(); // Refresh activities
-                     setPlaceholderState('hidden'); // Ensure placeholder is hidden
-                } else if (featureId === 'profile') {
-                    profileContent.classList.add('active');
-                    updateUserUI(); // Ensure profile form is up-to-date
-                     setPlaceholderState('hidden'); // Ensure placeholder is hidden
-                } else if (featureId === 'settings') {
-                    settingsContent.classList.add('active');
-                    applyRBAC(); // Re-apply RBAC for settings tabs specifically
-                    activateSettingsTab(currentSettingsTab || 'preferences'); // Activate the correct settings tab
-                     setPlaceholderState('hidden'); // Ensure placeholder is hidden
-                } else {
-                    // Handle other features dynamically
-                    featureSectionsContainer.style.display = 'block'; // Show the container
-                    featureSections.innerHTML = ''; // Clear previous dynamic content
-                    featureSections.appendChild(featurePlaceholder); // Add placeholder back
-                    setPlaceholderState('loading', `Loading ${featureId.replace(/-/g, ' ')}...`);
-
-                    // Construct file path (ASSUMPTION: files are in ./sections/)
-                    const filePath = `sections/${featureId}.html`;
-
-                    fetch(filePath)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
+                            if (!currentUserData || !teamMembersData) {
+                                throw new Error("currentUserData or teamMembersData is missing before calling init function.");
                             }
-                            return response.text();
-                        })
-                        .then(html => {
-                            // Insert the loaded HTML into the feature section *container*
-                            featureSections.innerHTML = html;
-                            featureSections.classList.add('active'); // Mark the section active (used by schedule CSS)
 
-                            // Check for specific initialization script for the loaded feature
-                             const initFunctionName = `initialize${featureId.replace(/-/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('')}`; // e.g., initializeEmployeeScheduling
-                             if (typeof window[initFunctionName] === 'function') {
-                                 try {
-                                     console.log(`Calling ${initFunctionName}...`);
-                                     // Call the init function, passing dashboard globals/data
-                                     window[initFunctionName](dashboardGlobals.getCurrentUser(), dashboardGlobals.getTeamMembers());
-                                     setPlaceholderState('hidden'); // Hide placeholder on successful initialization
-                                 } catch (err) {
-                                      console.error(`Error executing ${initFunctionName}:`, err);
-                                     setPlaceholderState('error',
-                                                        `Error Initializing ${featureId.replace(/-/g, ' ')}`,
-                                                        `Content loaded, but failed during initialization. Check console for details. Error: ${err.message}`
-                                                       );
-                                 }
-                             } else if (featureId === 'employee-scheduling' && typeof initializeEmployeeSchedule === 'function') {
-                                 // Fallback for the specifically named function in the original code
-                                 try {
-                                     console.log("Calling specific initializeEmployeeSchedule...");
-                                     initializeEmployeeSchedule(dashboardGlobals.getCurrentUser(), dashboardGlobals.getTeamMembers());
-                                     setPlaceholderState('hidden');
-                                 } catch (err) {
-                                     console.error(`Error executing initializeEmployeeSchedule:`, err);
-                                      setPlaceholderState('error',
-                                                        `Error Initializing ${featureId.replace(/-/g, ' ')}`,
-                                                        `Content loaded, but failed during initialization. Check console for details. Error: ${err.message}`
-                                                       );
-                                 }
-                             } else {
-                                 console.warn(`Initialization function '${initFunctionName}' not found for ${featureId}. Content loaded but might not be interactive.`);
-                                  // Show the loaded content, but maybe keep a non-error placeholder? Or just hide it.
-                                  setPlaceholderState('hidden'); // Assume static content if no init function
-                             }
-                        })
-                        .catch(error => {
-                            console.error(`Error loading feature '${featureId}' from '${filePath}':`, error);
-                             setPlaceholderState('error',
-                                                `Error Loading ${featureId.replace(/-/g, ' ')}`,
-                                                `Could not load content from <code>${filePath}</code>. Please check the file exists and the server is running. <br><small>Error: ${error.message}</small>`
-                                               );
-                            featureSections.classList.add('active'); // Keep container visible for error message
-                        });
-                }
+                            initFunc(currentUserData, teamMembersData);
+                            setPlaceholderState('hidden'); // Hide placeholder only if init starts successfully
 
-                // Show/Hide Back Button
-                backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none';
+                        } catch (err) {
+                            console.error(`Error executing ${initFunc.name || 'initialization function'}:`, err);
+                            setPlaceholderState('error',
+                                `Error Initializing ${featureId.replace(/-/g, ' ')}`,
+                                `Initialization failed. Check console. Error: ${err.message}`
+                            );
+                        }
+                    } else {
+                        console.warn(`Initialization function not found for ${featureId} after attempting script execution. Static content displayed.`);
+                        setPlaceholderState('hidden'); // Hide placeholder, assume static content
+                    }
+                }, 50); // Small delay (50ms)
 
-                 window.scrollTo(0, 0); // Scroll to top
-            }
+            })
+            .catch(error => {
+                console.error(`Error loading or processing feature '${featureId}' from '${filePath}':`, error);
+                setPlaceholderState('error',
+                    `Error Loading ${featureId.replace(/-/g, ' ')}`,
+                    `Could not load/process content from <code>${filePath}</code>. <br><small>Error: ${error.message}</small>`
+                );
+                featureSections.classList.add('active');
+            });
+    }
 
+    backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none';
+    window.scrollTo(0, 0);
+}
 
             function activateSettingsTab(tabId) {
                  // RBAC check before activating tab
