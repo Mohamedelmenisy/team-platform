@@ -1867,54 +1867,88 @@
                  // RBAC for 'Delete All' notifications button
                  deleteAllNotificationsBtn.style.display = notifications.length > 0 && (currentUser.role === 'admin' || currentUser.role === 'supervisor') ? 'inline-flex' : 'none';
             }
+// --- Feature/Section Loading --- [الكود الأصلي الذي كان يعمل جزئياً]
+function setActiveFeature(featureId, settingsTab = null) {
+    // Role-based access check... (الكود كما كان)
+    // ...
+    // Update URL hash... (الكود كما كان)
+    // ...
+    // Update Sidebar Menu Active State... (الكود كما كان)
+    // ...
+    // Show/Hide Content Sections... (الكود كما كان)
+    // ...
 
-            // --- Feature/Section Loading ---
-          // --- Feature/Section Loading ---
-                // ...الكود السابق داخل .then(html => ...) الذي يلحق السكربتات...
+    // --- Dynamic Loading Logic (النسخة البسيطة التي لا تنفذ السكربت) ---
+    if (featureId === 'dashboard') {
+        dashboardContent.classList.add('active');
+        updateStats();
+        loadActivities();
+        setPlaceholderState('hidden');
+    } else if (featureId === 'profile') {
+        profileContent.classList.add('active');
+        updateUserUI();
+        setPlaceholderState('hidden');
+    } else if (featureId === 'settings') {
+        settingsContent.classList.add('active');
+        applyRBAC();
+        activateSettingsTab(currentSettingsTab || 'preferences');
+        setPlaceholderState('hidden');
+    } else {
+        // Handle other features dynamically
+        featureSectionsContainer.style.display = 'block';
+        featureSections.innerHTML = ''; // Clear previous content
+        featureSections.appendChild(featurePlaceholder);
+        setPlaceholderState('loading', `Loading ${featureId.replace(/-/g, ' ')}...`);
 
-                 // Now, *after* potentially executing the scripts, check for the init function
-                 // Use a small timeout to give the browser a moment to execute the appended scripts
+        const filePath = `sections/${featureId}.html`;
+
+        fetch(filePath)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                // <<< المشكلة هنا: innerHTML لا ينفذ السكربتات المضمنة >>>
+                featureSections.innerHTML = html;
+                featureSections.classList.add('active');
+
+                // <<< الكود القديم الذي يبحث عن الدالة ويفشل >>>
                 setTimeout(() => {
-                    console.log("Checking for window.initializeEmployeeSchedule..."); // <<< رسالة تحقق جديدة
+                    const initFunctionName = `initialize${featureId.replace(/-/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('')}`;
+                    const initFunc = window[initFunctionName] || window.initializeEmployeeSchedule;
 
-                    if (typeof window.initializeEmployeeSchedule === 'function') { // <<< تحقق فقط من الاسم المحدد مباشرة
+                    if (typeof initFunc === 'function') {
                         try {
-                            console.log("FOUND window.initializeEmployeeSchedule! Calling it."); // <<< تحقق إذا وجدها
+                            console.log(`Attempting to call ${initFunc.name || 'initialization function'} for ${featureId}...`);
                             const currentUserData = window.dashboardApp.getCurrentUser();
                             const teamMembersData = window.dashboardApp.getTeamMembers();
-
-                            if (!currentUserData || !teamMembersData) {
-                                throw new Error("currentUserData or teamMembersData is missing before calling init function.");
-                            }
-
-                            window.initializeEmployeeSchedule(currentUserData, teamMembersData); // <<< استدعاء مباشر
+                            if (!currentUserData || !teamMembersData) throw new Error("Data missing");
+                            initFunc(currentUserData, teamMembersData);
                             setPlaceholderState('hidden');
-
                         } catch (err) {
-                            console.error(`Error executing initializeEmployeeSchedule:`, err);
-                            setPlaceholderState('error',
-                                `Error Initializing ${featureId.replace(/-/g, ' ')}`,
-                                `Initialization failed. Check console. Error: ${err.message}`
-                            );
+                            console.error(`Error executing init function:`, err);
+                            setPlaceholderState('error', `Error Initializing ${featureId.replace(/-/g, ' ')}`, `Initialization failed. Check console. Error: ${err.message}`);
                         }
                     } else {
-                        console.error("<<<<< FAILED: window.initializeEmployeeSchedule is NOT defined or NOT a function >>>>>"); // <<< رسالة فشل أوضح
-                        setPlaceholderState('error',
-                            `Initialization Error`,
-                            `Function 'initializeEmployeeSchedule' was not found after script execution.`
-                        );
+                        console.warn(`Initialization function not found for ${featureId}. Static content displayed.`);
+                        setPlaceholderState('hidden'); // Assume static content if no init function
                     }
-                }, 100); // Increased timeout slightly just in case
+                }, 50); // Small delay
 
             })
             .catch(error => {
-               // ... معالجة الخطأ ...
+                console.error(`Error loading feature '${featureId}' from '${filePath}':`, error);
+                setPlaceholderState('error', `Error Loading ${featureId.replace(/-/g, ' ')}`, `Could not load content from <code>${filePath}</code>. <br><small>Error: ${error.message}</small>`);
+                featureSections.classList.add('active');
             });
-    } // نهاية كتلة else
+    }
 
     backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none';
     window.scrollTo(0, 0);
 }
+           
         
             function activateSettingsTab(tabId) {
                  // RBAC check before activating tab
