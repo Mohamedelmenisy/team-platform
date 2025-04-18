@@ -548,103 +548,142 @@
         }
 
 
-        // --- Main Initialization Logic for this Section ---
+        <script>
+    function initializeEmployeeSchedule(dashboardCurrentUser, dashboardTeamMembers) {
+        console.log("--- initializeEmployeeSchedule from HTML's script tag ---");
+
+        // Check dependencies immediately
+        if (typeof window.dashboardApp?.showErrorMessage !== 'function') {
+             console.error("FATAL: dashboardApp or required functions not found.");
+             alert("Initialization Error: Cannot connect to dashboard functions."); // Fallback alert
+             return;
+        }
+        const showErrorMessage = window.dashboardApp.showErrorMessage; // Assign early for error reporting
+
+        // Rigorous check of passed data
+        if (!dashboardCurrentUser || typeof dashboardCurrentUser !== 'object') {
+            console.error("FATAL: dashboardCurrentUser is invalid or missing!", dashboardCurrentUser);
+            showErrorMessage("Initialization Error: Invalid user data received.");
+            return;
+        }
+         if (!Array.isArray(dashboardTeamMembers)) {
+             console.error("FATAL: dashboardTeamMembers is not a valid array!", dashboardTeamMembers);
+             showErrorMessage("Initialization Error: Invalid team data received.");
+             return;
+        }
+        console.log("Dashboard connection and data seem OK. User:", dashboardCurrentUser, "Team:", dashboardTeamMembers);
+
+        // Get other functions
+        const showConfirmModal = window.dashboardApp.showConfirmModal;
+        const hideConfirmModal = window.dashboardApp.hideConfirmModal || function(){};
+        const showSuccessMessage = window.dashboardApp.showSuccessMessage;
+        const addActivity = window.dashboardApp.addActivity;
+
+        const scheduleContainer = document.querySelector('.employee-schedule-body');
+        if (!scheduleContainer) {
+            console.error("Employee Schedule container not found!");
+            showErrorMessage("Initialization Error: Schedule container missing.");
+            return;
+        }
+         console.log("Schedule container found.");
+
+        // --- DEFINE ALL INNER FUNCTIONS FIRST (DOM Elements query is moved inside initialize) ---
+
+        let scheduleCurrentWeekStart; // Defined globally within this scope
+        let scheduleSavedData = {};
+        let isAdminOrSupervisor = false;
+        const scheduleMinDate = new Date(2025, 4, 1);
+        const scheduleMaxDate = new Date(2025, 4, 31);
+        const localStorageKey = 'employeeSchedule_May2025';
+
+        function formatDateKey(date) { /* ... */ if (!(date instanceof Date) || isNaN(date.getTime())) return null; const y = date.getFullYear(); const m = (date.getMonth() + 1).toString().padStart(2, '0'); const d = date.getDate().toString().padStart(2, '0'); return `${y}-${m}-${d}`; }
+        function getLocalDateFromKey(dateKey) { /* ... */ if (!dateKey || typeof dateKey !== 'string' || !dateKey.match(/^\d{4}-\d{2}-\d{2}$/)) return null; const p = dateKey.split('-'); return new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2])); }
+        function updateWeekDisplayUI(weekDisplay, prevWeekBtn, nextWeekBtn) { /* ... */ console.log("-> updateWeekDisplayUI running"); const weekEnd = new Date(scheduleCurrentWeekStart); weekEnd.setDate(weekEnd.getDate() + 6); const opts = { month: 'short', day: 'numeric' }; weekDisplay.textContent = `${scheduleCurrentWeekStart.toLocaleDateString('en-US', opts)} - ${weekEnd.toLocaleDateString('en-US', opts)}, ${scheduleCurrentWeekStart.getFullYear()}`; const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; const headerRow = scheduleContainer?.querySelector('.schedule-table thead tr'); if (!headerRow) return; headerRow.innerHTML = '<th>Employee</th>'; const tmp = new Date(scheduleCurrentWeekStart); days.forEach(d => {/*...*/const th=document.createElement('th'); const ds=tmp.toLocaleDateString('en-US',{day:'numeric'}); const ms=tmp.toLocaleDateString('en-US',{month:'short'}); th.innerHTML=`<div class="day-header"><span class="day-name">${d}</span><span class="day-date">${ms} ${ds}</span></div>`; headerRow.appendChild(th); tmp.setDate(tmp.getDate()+1);}); const prevT=new Date(scheduleCurrentWeekStart); prevT.setDate(prevT.getDate()-1); prevWeekBtn.disabled=prevT<scheduleMinDate; const nextT=new Date(scheduleCurrentWeekStart); nextT.setDate(nextT.getDate()+7); nextWeekBtn.disabled=nextT>scheduleMaxDate; console.log("Week display UI updated."); }
+        function renderScheduleTable(scheduleTableBody, scheduleEmployees) { /* ... */ console.log(`-> renderScheduleTable running for ${scheduleEmployees?.length} employees`); scheduleTableBody.innerHTML = ''; if (!Array.isArray(scheduleEmployees) || scheduleEmployees.length === 0) { scheduleTableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--gray);">No employees.</td></tr>`; return; } const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; scheduleEmployees.forEach((emp, i) => {if (!emp?.id || !emp?.name) return; const tr = document.createElement('tr'); tr.dataset.empId = emp.id; const nTd=document.createElement('td'); nTd.className=`employee-name employee-${(i % 6) + 1}`; nTd.textContent=emp.name; tr.appendChild(nTd); const tmp=new Date(scheduleCurrentWeekStart); days.forEach((d,di)=>{const td=document.createElement('td'); td.classList.add('admin-controls'); const dk=formatDateKey(tmp); if(!dk){td.innerHTML='ERR'; tr.appendChild(td); tmp.setDate(tmp.getDate()+1); return;} const mob=`${days[di]} (${tmp.toLocaleDateString('en-us',{month:'short',day:'numeric'})})`; td.dataset.label=mob; td.dataset.dateKey=dk; const ek=`emp-${emp.id}`; const sd=scheduleSavedData[ek]?.[dk]; if(sd?.text&&sd?.class){const sdiv=document.createElement('div'); sdiv.className=`shift ${sd.class}`; sdiv.textContent=sd.text; sdiv.title=sd.notes||''; td.appendChild(sdiv);} if(isAdminOrSupervisor){const es=document.createElement('span'); es.className='edit-shift admin-visible'; es.dataset.empId=emp.id; es.dataset.dateKey=dk; es.textContent=sd?'(edit)':'(add)'; es.setAttribute('role','button'); es.setAttribute('tabindex','0'); es.onclick=handleEditShiftClick; es.onkeydown=(e)=>{if(e.key==='Enter'||e.key===' ')handleEditShiftClick(e);}; td.appendChild(es);} tr.appendChild(td); tmp.setDate(tmp.getDate()+1);}); scheduleTableBody.appendChild(tr); }); console.log("Schedule table rendered."); }
+        function updateShiftDisplayUI(empId, dateKey, shiftText, shiftClass, notes = '') { /* ... */ const cellSelector = `tr[data-emp-id="${empId}"] td[data-date-key="${dateKey}"]`; const shiftCell = scheduleContainer?.querySelector(cellSelector); if (!shiftCell) return; const editSpan = shiftCell.querySelector('.edit-shift'); const exists = shiftText && shiftClass; const oldShift = shiftCell.querySelector('.shift'); if (oldShift) oldShift.remove(); if (exists) { const div = document.createElement('div'); div.className = `shift ${shiftClass}`; div.textContent = shiftText; div.title = notes || ''; if (editSpan) shiftCell.insertBefore(div, editSpan); else shiftCell.appendChild(div); } if (editSpan) editSpan.textContent = exists ? '(edit)' : '(add)'; }
+        function loadShiftsForCurrentWeekUI(scheduleTableBody, scheduleEmployees) { console.log("-> loadShiftsForCurrentWeekUI running"); renderScheduleTable(scheduleTableBody, scheduleEmployees); }
+        function handleWeekChange(direction) { /* ... */ const newWeekStart = new Date(scheduleCurrentWeekStart); newWeekStart.setDate(newWeekStart.getDate() + (direction * 7)); if (newWeekStart < scheduleMinDate || newWeekStart > scheduleMaxDate) return; scheduleCurrentWeekStart = newWeekStart; const scheduleTableBody = scheduleContainer?.querySelector('#schedule-table-body'); const weekDisplay = scheduleContainer?.querySelector('#schedule-weekDisplay'); const prevWeekBtn = scheduleContainer?.querySelector('#schedule-prevWeekBtn'); const nextWeekBtn = scheduleContainer?.querySelector('#schedule-nextWeekBtn'); if(scheduleTableBody && weekDisplay && prevWeekBtn && nextWeekBtn){ updateWeekDisplayUI(weekDisplay, prevWeekBtn, nextWeekBtn); loadShiftsForCurrentWeekUI(scheduleTableBody, scheduleEmployees); } }
+        function handleAddEmployeeClick() { /* ... */ const employeeModal = scheduleContainer?.querySelector('#schedule-employeeModal'); const employeeForm = scheduleContainer?.querySelector('#schedule-employeeForm'); if (!employeeModal || !employeeForm) return; employeeForm.reset(); employeeModal.style.display = 'flex'; scheduleContainer.querySelector('#schedule-empName')?.focus(); }
+        function handleSendRemindersClick() { /* ... */ const weekText = scheduleContainer?.querySelector('#schedule-weekDisplay')?.textContent || "Current Week"; /* ... rest of the function ... */ tryOpenMailto(`mailto:...`); }
+        function tryOpenMailto(mailtoLink) { /* ... */ try { window.open(mailtoLink, '_blank'); showSuccessMessage("Attempting email..."); } catch (e) { showErrorMessage("Could not open email."); } }
+        function handleSaveScheduleClick() { /* ... */ localStorage.setItem(localStorageKey, JSON.stringify(scheduleSavedData)); showSuccessMessage("Schedule saved."); addActivity('fa-calendar-check', `Schedule saved`); }
+        function handleEmployeeFormSubmit(e) { /* ... */ e.preventDefault(); /* ... get name, email ... */ if(!name || !email /*...*/) {showErrorMessage("Valid name/email needed."); return;} const currentTeam = window.dashboardApp.getTeamMembers(); if(currentTeam.some(emp => emp.email.toLowerCase() === email.toLowerCase())) {showErrorMessage(`Email ${email} exists.`); return;} const newEmployee = {id:Date.now(), name, email, role:'member', initials: name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase()}; window.dashboardApp.updateTeamMembers([...currentTeam, newEmployee]); scheduleEmployees.push(newEmployee); const scheduleTableBody = scheduleContainer?.querySelector('#schedule-table-body'); if(scheduleTableBody) loadShiftsForCurrentWeekUI(scheduleTableBody, scheduleEmployees); const employeeModal = scheduleContainer?.querySelector('#schedule-employeeModal'); if(employeeModal) employeeModal.style.display='none'; addActivity('fa-user-plus', `Added ${name}`); showSuccessMessage(`${name} added.`); }
+        function handleEditShiftClick(event) { /* ... */ const target = event.currentTarget || event.target; const empId = parseInt(target?.dataset.empId); const dateKey = target?.dataset.dateKey; const shiftModal = scheduleContainer?.querySelector('#schedule-shiftModal'); const shiftForm = scheduleContainer?.querySelector('#schedule-shiftForm'); /* ... checks ... */ if (!empId || !dateKey || !shiftModal || !shiftForm) {showErrorMessage("Cannot edit: data missing."); return;} /* ... get employee, shiftDate ... */ if (!employee || !shiftDate) {showErrorMessage("Cannot edit: invalid data."); return;} /* ... reset form, populate fields ... */ shiftModal.style.display = 'flex'; scheduleContainer?.querySelector('#schedule-shiftType')?.focus(); }
+        function handleShiftFormSubmit(e) { /* ... */ e.preventDefault(); const shiftModal = scheduleContainer?.querySelector('#schedule-shiftModal'); const shiftForm = scheduleContainer?.querySelector('#schedule-shiftForm'); /* ... checks ... */ if (!shiftModal || !shiftForm) return; /* ... get empId, dateKey, employee ... */ if (!employee || !dateKey) { showErrorMessage("Save error."); shiftModal.style.display = 'none'; return; } /* ... get type, custom text, notes ... */ let shiftText = '', shiftClass = ''; /* ... switch case ... */ const empKey = `emp-${empId}`; if (!scheduleSavedData[empKey]) scheduleSavedData[empKey] = {}; scheduleSavedData[empKey][dateKey] = { type: shiftTypeValue, text: shiftText, class: shiftClass, notes: notes }; localStorage.setItem(localStorageKey, JSON.stringify(scheduleSavedData)); updateShiftDisplayUI(empId, dateKey, shiftText, shiftClass, notes); shiftModal.style.display = 'none'; /* ... add activity, show success ... */ }
+        function handleDeleteShiftClick() { /* ... */ const shiftModal = scheduleContainer?.querySelector('#schedule-shiftModal'); const shiftForm = scheduleContainer?.querySelector('#schedule-shiftForm'); /* ... checks ... */ if (!shiftModal || !shiftForm) return; /* ... get empId, dateKey, employee, displayDate ... */ if (!employee || !displayDate || !dateKey) {showErrorMessage("Delete error."); shiftModal.style.display = 'none'; return;} const formattedDate = displayDate.toLocaleDateString(); showConfirmModal({ title: 'Delete Shift?', message: `Delete shift for <strong>${employee.name}</strong>?`, confirmText: 'Delete', confirmClass: 'btn-danger', onConfirm: () => { /* ... delete logic ... */ shiftModal.style.display = 'none'; } }); }
+        function setupScheduleEventListeners() { /* ... */ console.log("-> setupScheduleEventListeners running"); prevWeekBtn?.addEventListener('click', () => handleWeekChange(-1)); nextWeekBtn?.addEventListener('click', () => handleWeekChange(1)); /* ... rest of event listeners ... */ console.log("Schedule event listeners attached."); }
+
+        // --- Main Initialization Logic ---
         function initialize() {
+            console.log(">>> initialize() started"); // Log start of initialize
+
             // **** START TRY BLOCK ****
             try {
-                console.log("Running initialize() inside employee-scheduling script...");
+                console.log("Inside initialize() try block...");
+
+                // Query critical elements *inside* initialize after DOM should be ready
+                const weekDisplayElem = scheduleContainer.querySelector('#schedule-weekDisplay');
+                const scheduleTableBodyElem = scheduleContainer.querySelector('#schedule-table-body');
+                const prevWeekBtnElem = scheduleContainer.querySelector('#schedule-prevWeekBtn');
+                const nextWeekBtnElem = scheduleContainer.querySelector('#schedule-nextWeekBtn');
+
+                console.log("Querying elements inside initialize:", { weekDisplayElem, scheduleTableBodyElem, prevWeekBtnElem, nextWeekBtnElem });
+
+                 if (!weekDisplayElem || !scheduleTableBodyElem || !prevWeekBtnElem || !nextWeekBtnElem) {
+                    throw new Error("Essential UI elements not found inside initialize. DOM might not be ready or selectors are wrong.");
+                 }
+                 console.log("Essential elements found.");
 
                 // 1. Determine Role
                 console.log("Step 1: Determining role...");
                 if (!scheduleCurrentUser || typeof scheduleCurrentUser.role === 'undefined') {
-                     throw new Error("Cannot determine user role - scheduleCurrentUser is invalid or missing role property.");
+                     throw new Error("Cannot determine user role - scheduleCurrentUser is invalid.");
                 }
                 isAdminOrSupervisor = scheduleCurrentUser.role === 'admin' || scheduleCurrentUser.role === 'supervisor';
                 console.log(`Role: ${scheduleCurrentUser.role}, IsAdmin: ${isAdminOrSupervisor}`);
 
                 // 2. Validate Employees
                 console.log("Step 2: Validating employee data...");
-                if (!Array.isArray(scheduleEmployees)) {
-                     console.warn("Employee data is not an array, using empty.", scheduleEmployees);
-                     scheduleEmployees = [];
-                } else {
-                     // Ensure basic structure for filtering
-                     scheduleEmployees = scheduleEmployees.filter(emp => emp && typeof emp === 'object' && emp.id && emp.name);
-                }
+                if (!Array.isArray(scheduleEmployees)) { scheduleEmployees = []; } else { scheduleEmployees = scheduleEmployees.filter(emp => emp?.id && emp?.name); }
                 console.log(`Initializing with ${scheduleEmployees.length} valid employees.`);
-
 
                 // 3. Load Saved Data
                 console.log("Step 3: Loading data from localStorage...");
                 const savedDataString = localStorage.getItem(localStorageKey);
-                if (savedDataString) {
-                    try {
-                        scheduleSavedData = JSON.parse(savedDataString);
-                        if (typeof scheduleSavedData !== 'object' || scheduleSavedData === null) {
-                            console.warn("Invalid data format in localStorage, resetting.");
-                            scheduleSavedData = {};
-                        }
-                    } catch (e) {
-                        console.error("Parsing localStorage error:", e);
-                        scheduleSavedData = {};
-                        showErrorMessage("Could not load saved schedule. Starting fresh."); // Inform user
-                    }
-                } else {
-                    scheduleSavedData = {};
-                }
-                 console.log("Loaded schedule data:", scheduleSavedData);
-
+                if (savedDataString) { try { scheduleSavedData = JSON.parse(savedDataString); if (typeof scheduleSavedData !== 'object' || scheduleSavedData === null) scheduleSavedData = {}; } catch (e) { console.error("Parsing localStorage error:", e); scheduleSavedData = {}; showErrorMessage("Could not load saved schedule."); } }
+                 else { scheduleSavedData = {}; } console.log("Loaded schedule data:", scheduleSavedData);
 
                 // 4. Set Initial Week
                  console.log("Step 4: Setting initial week...");
-                 const today = new Date();
-                 // Add null check for preferences
-                 const weekStartPref = scheduleCurrentUser?.preferences?.weekStart;
-                 const weekStartDay = weekStartPref === 'sun' ? 0 : 1; // Default to Mon if preference missing
-                 const dayOfWeek = today.getDay();
-                 let diff = today.getDate() - dayOfWeek + (dayOfWeek === weekStartDay ? 0 : (dayOfWeek < weekStartDay ? weekStartDay - 7 : weekStartDay));
-                 let potentialWeekStart = new Date(today.getFullYear(), today.getMonth(), diff);
-                 // Clamping logic...
-                 if (potentialWeekStart < scheduleMinDate) { scheduleCurrentWeekStart=new Date(scheduleMinDate.getFullYear(), scheduleMinDate.getMonth(), scheduleMinDate.getDate()); /* Simplified fallback */ }
-                  else if (potentialWeekStart > scheduleMaxDate) { scheduleCurrentWeekStart = new Date(scheduleMaxDate.getFullYear(), scheduleMaxDate.getMonth(), scheduleMaxDate.getDate() - 6); /* Simplified fallback */}
-                  else { scheduleCurrentWeekStart = potentialWeekStart; }
+                 const today = new Date(); const weekStartPref = scheduleCurrentUser?.preferences?.weekStart; const weekStartDay = weekStartPref === 'sun' ? 0 : 1; const dayOfWeek = today.getDay(); let diff = today.getDate() - dayOfWeek + (dayOfWeek === weekStartDay ? 0 : (dayOfWeek < weekStartDay ? weekStartDay - 7 : weekStartDay)); let potentialWeekStart = new Date(today.getFullYear(), today.getMonth(), diff);
+                 if (potentialWeekStart < scheduleMinDate) { scheduleCurrentWeekStart=new Date(scheduleMinDate); } else if (potentialWeekStart > scheduleMaxDate) { scheduleCurrentWeekStart = new Date(scheduleMaxDate); scheduleCurrentWeekStart.setDate(scheduleCurrentWeekStart.getDate() - 6); } else { scheduleCurrentWeekStart = potentialWeekStart; }
                  console.log("Initial week start calculated:", scheduleCurrentWeekStart.toDateString());
 
-                // 5. Initial UI Setup
+                // 5. Initial UI Setup - Pass queried elements
                 console.log("Step 5: Performing initial UI setup...");
-                if (typeof updateWeekDisplayUI !== 'function') throw new Error("updateWeekDisplayUI is not defined");
-                updateWeekDisplayUI();
-                if (typeof loadShiftsForCurrentWeekUI !== 'function') throw new Error("loadShiftsForCurrentWeekUI is not defined");
-                loadShiftsForCurrentWeekUI();
-                if (typeof setupScheduleEventListeners !== 'function') throw new Error("setupScheduleEventListeners is not defined");
-                setupScheduleEventListeners();
+                updateWeekDisplayUI(weekDisplayElem, prevWeekBtnElem, nextWeekBtnElem);
+                loadShiftsForCurrentWeekUI(scheduleTableBodyElem, scheduleEmployees); // Pass elements
+                setupScheduleEventListeners(); // Assumes this finds elements again or uses global vars
                 console.log("Employee Schedule Section Initialized Successfully.");
 
             // **** END TRY BLOCK / START CATCH BLOCK ****
             } catch (error) {
-                 console.error("<<<<< CAUGHT ERROR during schedule initialization >>>>>", error); // Log the specific error
-                 // Display a user-friendly error message within the schedule section
+                 console.error("<<<<< CAUGHT ERROR during schedule initialization >>>>>", error.name, error.message, error.stack); // Log more error details
                  if(scheduleContainer) {
-                      scheduleContainer.innerHTML = `<div style='padding:2rem;text-align:center;color:var(--danger);border:1px solid var(--danger); border-radius: 8px;'>
-                          <h2>Initialization Error</h2>
-                          <p>Failed to initialize the schedule module.</p>
-                          <p><small>Details: ${error.message}. Check console for more info.</small></p>
-                          </div>`;
+                      scheduleContainer.innerHTML = `<div style='padding:2rem;text-align:center;color:var(--danger);border:1px solid var(--danger); border-radius: 8px;'><h2>Initialization Error</h2><p>Failed to initialize the schedule module.</p><p><small>Details: ${error.message}. Check console.</small></p></div>`;
                  }
-                 // Also use dashboard error message system if available
-                  if (typeof showErrorMessage === 'function') {
-                       showErrorMessage(`Schedule Init Error: ${error.message}`);
-                  }
+                 showErrorMessage(`Schedule Init Error: ${error.message}`);
             }
         } // End of initialize function
 
-        // --- Execute Initialization ---
-        console.log("Calling internal initialize() function...");
-        initialize(); // <<< هذا الاستدعاء مهم لتشغيل الكود
+        // --- Execute Initialization after a short delay ---
+        console.log("Setting timeout to call initialize()...");
+        setTimeout(() => {
+            console.log("Timeout finished, calling initialize() now...");
+            initialize(); // Call the internal initialize function
+        }, 100); // 100ms delay
 
     } // <<< نهاية دالة initializeEmployeeSchedule
 
-    // --- رسالة للتحقق أن السكربت نفسه تم تحليله ---
     console.log("--- employee-scheduling.html script tag finished parsing ---");
-
 </script>
