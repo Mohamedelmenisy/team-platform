@@ -1833,170 +1833,136 @@
                  deleteAllNotificationsBtn.style.display = notifications.length > 0 && (currentUser.role === 'admin' || currentUser.role === 'supervisor') ? 'inline-flex' : 'none';
             }
 
-            // --- Feature/Section Loading (REVISED & SIMPLIFIED) ---
-            function setActiveFeature(featureId, settingsTab = null) {
-                 console.log(`setActiveFeature called for: ${featureId}, tab: ${settingsTab}`); // Log entry
+            // --- Feature/Section Loading --- FINAL VERSION ---
+function setActiveFeature(featureId, settingsTab = null) {
+    console.log(`setActiveFeature called for: ${featureId}, tab: ${settingsTab}`);
 
-                 // Role-based access check...
-                 if (featureId === 'settings') {
-                     const targetTab = settingsTab || currentSettingsTab || 'preferences';
-                     if (targetTab === 'danger' && currentUser.role !== 'admin') {
-                         console.warn("Access denied: Only admins can access the Danger Zone.");
-                         setActiveFeature('dashboard');
-                         return;
-                     }
+    // --- Role Check & State Update ---
+    if (featureId === 'settings') {
+        const targetTab = settingsTab || currentSettingsTab || 'preferences';
+        if (targetTab === 'danger' && currentUser.role !== 'admin') {
+            console.warn("Access denied: Only admins can access the Danger Zone.");
+            setActiveFeature('dashboard'); // Redirect non-admins
+            return;
+        }
+    }
+    currentFeature = featureId;
+    currentSettingsTab = settingsTab || (featureId === 'settings' ? (currentSettingsTab || 'preferences') : null);
+
+    // --- Update URL Hash ---
+    let hash = `#${featureId}`;
+    if (featureId === 'settings' && currentSettingsTab) {
+        hash += `-${currentSettingsTab}`;
+    }
+    if (window.location.hash !== hash) {
+        // Only push state if hash actually changes to avoid loops on initial load
+        console.log(`Pushing state: ${hash}`);
+        history.pushState({ feature: featureId, tab: currentSettingsTab }, '', hash);
+    }
+
+    // --- Update Sidebar Menu ---
+    menuItems.forEach(item => item.classList.remove('active'));
+    const activeMenuItem = document.querySelector(`.menu-item[data-feature="${featureId}"]`);
+    if (activeMenuItem) activeMenuItem.classList.add('active');
+
+    // --- Hide All Static Sections & Feature Container ---
+    contentSections.forEach(section => section.classList.remove('active'));
+    featureSectionsContainer.style.display = 'none'; // Hide dynamic container by default
+
+    // --- Activate Static Section OR Load Dynamic Section ---
+    if (featureId === 'dashboard' || featureId === 'profile' || featureId === 'settings') {
+         // Activate the corresponding static section
+         const staticSection = document.getElementById(`${featureId}Content`);
+         if (staticSection) {
+              console.log(`Activating static section: ${featureId}Content`);
+              staticSection.classList.add('active');
+              // Run specific updates if needed
+              if (featureId === 'dashboard') { updateStats(); loadActivities(); }
+              if (featureId === 'profile') updateUserUI();
+              if (featureId === 'settings') { applyRBAC(); activateSettingsTab(currentSettingsTab || 'preferences'); }
+         } else {
+              console.error(`Static section container #${featureId}Content not found!`);
+         }
+         setPlaceholderState('hidden'); // Ensure placeholder is hidden for static sections
+
+    } else {
+         // Load dynamic section
+         console.log(`Activating dynamic section: ${featureId}`);
+         featureSectionsContainer.style.display = 'block'; // Show the container
+         featureSections.innerHTML = ''; // Clear previous dynamic content
+         featureSections.appendChild(featurePlaceholder); // Show placeholder initially
+         setPlaceholderState('loading', `Loading ${featureId.replace(/-/g, ' ')}...`);
+
+         const htmlFilePath = `sections/${featureId}.html`;
+
+         fetch(htmlFilePath)
+             .then(response => {
+                 if (!response.ok) {
+                     if (response.status === 404) throw new Error(`File not found: ${htmlFilePath}`);
+                     throw new Error(`HTTP error! Status: ${response.status} for ${htmlFilePath}`);
                  }
+                 return response.text();
+             })
+             .then(html => {
+                 console.log(`Successfully fetched HTML for ${featureId}`);
 
-                currentFeature = featureId;
-                currentSettingsTab = settingsTab || (featureId === 'settings' ? (currentSettingsTab || 'preferences') : null);
+                 // Create a temporary div to parse the HTML
+                 const tempDiv = document.createElement('div');
+                 tempDiv.innerHTML = html;
 
-                let hash = `#${featureId}`;
-                if (featureId === 'settings' && currentSettingsTab) {
-                    hash += `-${currentSettingsTab}`;
-                }
-                 // Only push state if hash actually changes to avoid loops on initial load
-                 if (window.location.hash !== hash) {
-                     console.log(`Pushing state: ${hash}`);
-                    history.pushState({ feature: featureId, tab: currentSettingsTab }, '', hash);
+                 // Find the script content within the parsed HTML
+                 const scriptElement = tempDiv.querySelector('script');
+                 let scriptContent = '';
+                 if (scriptElement) {
+                     scriptContent = scriptElement.textContent;
+                     scriptElement.remove(); // Remove script tag from HTML before inserting
+                     console.log(`Found and extracted script content for ${featureId}.`);
                  } else {
-                    console.log(`Hash already matches: ${hash}, not pushing state.`);
+                     console.log(`No script tag found within loaded HTML for ${featureId}.`);
                  }
 
+                 // Insert the HTML (without the script tag) into the page
+                 featureSections.innerHTML = tempDiv.innerHTML; // innerHTML of tempDiv now has no script
+                 featureSections.classList.add('active');
+                 setPlaceholderState('hidden'); // Hide placeholder as HTML is loaded
 
-                menuItems.forEach(item => item.classList.remove('active'));
-                const activeMenuItem = document.querySelector(`.menu-item[data-feature="${featureId}"]`);
-                if (activeMenuItem) activeMenuItem.classList.add('active');
+                 // Execute the extracted script content *after* HTML is in the DOM
+                 if (scriptContent) {
+                     try {
+                         console.log(`Executing extracted script for ${featureId}...`);
+                         // IMPORTANT: Directly execute the script content.
+                         // This relies on the script defining initializeEmployeeSchedule globally
+                         // and calling its own internal initialize() or equivalent.
+                         const script = document.createElement('script');
+                         script.textContent = scriptContent;
+                         document.body.appendChild(script).parentNode.removeChild(script); // Execute and remove
+                         console.log(`Script execution attempt finished for ${featureId}.`);
 
-                contentSections.forEach(section => section.classList.remove('active'));
-                featureSectionsContainer.style.display = 'none';
+                         // *** We now rely on the executed script to run its own initialization ***
+                         // We no longer need to explicitly call initializeEmployeeSchedule from here,
+                         // assuming the script in employee-scheduling.html calls its internal initialize().
 
-                // --- Static Sections ---
-                if (featureId === 'dashboard') {
-                    console.log("Activating dashboard section.");
-                    dashboardContent.classList.add('active');
-                    updateStats();
-                    loadActivities();
-                    setPlaceholderState('hidden');
-                } else if (featureId === 'profile') {
-                     console.log("Activating profile section.");
-                    profileContent.classList.add('active');
-                    updateUserUI();
-                    setPlaceholderState('hidden');
-                } else if (featureId === 'settings') {
-                    console.log("Activating settings section.");
-                    settingsContent.classList.add('active');
-                    applyRBAC();
-                    activateSettingsTab(currentSettingsTab || 'preferences');
-                    setPlaceholderState('hidden');
-                }
-                // --- Dynamic Sections ---
-                else {
-                    console.log(`Activating dynamic section: ${featureId}`);
-                    featureSectionsContainer.style.display = 'block';
-                    featureSections.innerHTML = ''; // Clear previous dynamic content
-                    featureSections.appendChild(featurePlaceholder); // Show placeholder initially
-                    setPlaceholderState('loading', `Loading ${featureId.replace(/-/g, ' ')}...`);
+                     } catch (execError) {
+                         console.error(`Error executing script content for ${featureId}:`, execError);
+                         setPlaceholderState('error', `Script Execution Error`, `Failed to execute the feature's script. Check console. Error: ${execError.message}`);
+                         featureSections.classList.add('active'); // Keep section visible for error
+                     }
+                 } else {
+                     console.warn(`No script content to execute for ${featureId}. Displaying static HTML.`);
+                 }
+             })
+             .catch(error => {
+                 console.error(`Error loading feature '${featureId}':`, error);
+                 setPlaceholderState('error', `Error Loading ${featureId.replace(/-/g, ' ')}`, `Could not load content from <code>${htmlFilePath}</code>. <br><small>${error.message}</small>`);
+                 featureSectionsContainer.style.display = 'block'; // Show container for error message
+                 featureSections.classList.add('active');
+             });
+    }
 
-                    const htmlFilePath = `sections/${featureId}.html`;
+    backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none';
+    window.scrollTo(0, 0);
 
-                    fetch(htmlFilePath)
-                        .then(response => {
-                            if (!response.ok) {
-                                // Specific check for 404
-                                if (response.status === 404) {
-                                    throw new Error(`File not found at '${htmlFilePath}'. Please ensure the file exists in the 'sections' folder.`);
-                                } else {
-                                    throw new Error(`HTTP error! Status: ${response.status} ${response.statusText} for ${htmlFilePath}`);
-                                }
-                            }
-                            return response.text();
-                        })
-                        .then(html => {
-                            console.log(`Successfully fetched HTML for ${featureId}`);
-                            // 1. Insert HTML content using innerHTML
-                            featureSections.innerHTML = html; // This removes the placeholder too
-                            featureSections.classList.add('active');
-
-                            // 2. Find the script tag *within the inserted content*
-                            const scriptElement = featureSections.querySelector('script');
-                            let scriptContent = '';
-                            if (scriptElement && scriptElement.textContent) {
-                                scriptContent = scriptElement.textContent;
-                                // It's often better *not* to remove the original script tag
-                                // immediately, just extract its content.
-                                console.log(`Found script content for ${featureId}. Length: ${scriptContent.length}`);
-                            } else {
-                                console.log(`No script tag or script content found within loaded HTML for ${featureId}.`);
-                            }
-
-                            // 3. Execute the found script content (if any)
-                            if (scriptContent) {
-                                try {
-                                    // Create a new script element to execute the code
-                                    const script = document.createElement('script');
-                                    script.textContent = scriptContent;
-                                    // Append to head or body to execute, then remove it.
-                                    // Using head is generally fine.
-                                    document.head.appendChild(script).parentNode.removeChild(script);
-                                    console.log(`Executed script content for ${featureId}.`);
-
-                                    // 4. Now, *after* executing the script, check and call the init function
-                                    // Use a minimal timeout
-                                    setTimeout(() => {
-                                        console.log(`Timeout check for initialization function of ${featureId}`);
-                                        // Construct expected init function name (e.g., initializeEmployeeScheduling)
-                                        const expectedInitFunctionName = `initialize${featureId.replace(/-/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('')}`;
-
-                                        // Check if the function exists globally
-                                        if (typeof window[expectedInitFunctionName] === 'function') {
-                                            try {
-                                                console.log(`Calling ${expectedInitFunctionName}...`);
-                                                const currentUserData = window.dashboardApp.getCurrentUser();
-                                                const teamMembersData = window.dashboardApp.getTeamMembers();
-                                                if (!currentUserData || !teamMembersData) {
-                                                     throw new Error("Data (currentUser or teamMembers) is missing for init function");
-                                                }
-                                                // Call the specific init function
-                                                window[expectedInitFunctionName](currentUserData, teamMembersData);
-                                                // If successful, placeholder is already removed by innerHTML, no need to hide again.
-                                                // setPlaceholderState('hidden'); // Not needed here as innerHTML cleared it
-
-                                            } catch (initErr) {
-                                                console.error(`Error executing ${expectedInitFunctionName}:`, initErr);
-                                                // Display error *within* the feature section
-                                                featureSections.innerHTML = `<div class="placeholder-content error-message" style="display:flex; border-color: var(--danger); color: var(--danger);"><h2>Error Initializing ${featureId.replace(/-/g, ' ')}</h2><p>Initialization script failed. Check console. Error: ${initErr.message}</p></div>`;
-                                            }
-                                        } else {
-                                            console.error(`<<<<< FAILED: Initialization function '${expectedInitFunctionName}' NOT FOUND or NOT a function for ${featureId} after script execution. >>>>>`);
-                                             featureSections.innerHTML = `<div class="placeholder-content error-message" style="display:flex; border-color: var(--danger); color: var(--danger);"><h2>Initialization Error</h2><p>Could not find the required setup function ('${expectedInitFunctionName}') for this feature.</p></div>`;
-                                        }
-                                    }, 50); // Short timeout
-                                } catch (execError) {
-                                    console.error(`Error trying to execute script content for ${featureId}:`, execError);
-                                     featureSections.innerHTML = `<div class="placeholder-content error-message" style="display:flex; border-color: var(--danger); color: var(--danger);"><h2>Script Execution Error</h2><p>Failed to execute the feature's script. Check console for syntax errors within the script.</p></div>`;
-                                }
-                            } else {
-                                // No script found, assume static content. Placeholder already removed.
-                                console.warn(`No script content found for ${featureId}. Displaying as static HTML.`);
-                                // setPlaceholderState('hidden'); // Not needed
-                            }
-                        })
-                        .catch(error => {
-                            console.error(`Error loading or processing feature '${featureId}' from '${htmlFilePath}':`, error);
-                             setPlaceholderState('error',
-                                `Error Loading ${featureId.replace(/-/g, ' ')}`,
-                                `Could not load content from <code>${htmlFilePath}</code>. <br><small>${error.message}</small>`
-                            );
-                            // Ensure the container is still displayed to show the error
-                            featureSectionsContainer.style.display = 'block';
-                            featureSections.classList.add('active'); // Keep container marked active
-                        });
-                }
-
-                backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none';
-                window.scrollTo(0, 0);
-            } // <<< نهاية الدالة setActiveFeature
-
+} 
 
             function activateSettingsTab(tabId) {
                  // RBAC check before activating tab
