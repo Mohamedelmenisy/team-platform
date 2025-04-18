@@ -1,120 +1,634 @@
-<!-- Styles specific to Employee Scheduling -->
-<style>
-    /* IMPORTANT: Remove :root, body, header styles if they exist here */
-    /* Ensure styles below are scoped or don't conflict with dash1.html */
-
-    .employee-schedule-body { /* Top level container for scoping */ }
-    .employee-schedule-body .main-container { max-width: 100%; margin: 0; padding: 0; }
-    .employee-schedule-body .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
-    .employee-schedule-body .page-title { font-size: 1.5rem; color: var(--primary-dark); font-weight: 600; }
-    .employee-schedule-body .page-header > div { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-    .employee-schedule-body .schedule-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; background-color: var(--white); padding: 1rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); flex-wrap: wrap; gap: 1rem; }
-    .employee-schedule-body .week-navigation { display: flex; align-items: center; gap: 0.75rem; }
-    .employee-schedule-body .week-display { font-weight: 600; min-width: 180px; text-align: center; color: var(--dark); }
-    .employee-schedule-body .schedule-container { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); overflow-x: auto; border: 1px solid var(--light-gray); margin-top:1rem; }
-    .employee-schedule-body .schedule-table { width: 100%; min-width: 700px; border-collapse: collapse; }
-    .employee-schedule-body .schedule-table thead th { padding: 0.8rem 0.5rem; text-align: center; background-color: var(--primary); color: white; font-weight: 600; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--primary-dark); border-left: 1px solid var(--primary-light); }
-    .employee-schedule-body .schedule-table thead th:first-child { border-left: none; min-width: 150px; text-align: left; padding-left: 1rem; position: sticky; left: 0; z-index: 11; border-right: 1px solid var(--primary-dark); }
-    .employee-schedule-body .schedule-table tbody td { padding: 0.75rem 0.5rem; text-align: center; background-color: var(--white); border-bottom: 1px solid var(--light-gray); border-left: 1px solid var(--light-gray); color: var(--dark); vertical-align: middle; height: 60px; }
-    .employee-schedule-body .schedule-table tbody tr:last-child td { border-bottom: none; }
-     .employee-schedule-body .schedule-table tbody td:first-child { position: sticky; left: 0; background-color: var(--white); border-right: 1px solid var(--dark-gray, #6b7280); z-index: 5; font-weight: 500; text-align: left; padding-left: 1rem; white-space: nowrap; border-left: none; }
-    /* Add specific employee colors if needed */
-    .employee-schedule-body .employee-1 { color: #3b82f6; }
-    /* ... other employee colors ... */
-    .employee-schedule-body .shift { padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-weight: 500; white-space: nowrap; display: inline-block; margin-bottom: 0.25rem; }
-    .employee-schedule-body .shift-morning { background-color: #dbeafe; color: #1e40af; }
-    /* ... other shift styles ... */
-    .employee-schedule-body .day-header { display: flex; flex-direction: column; gap: 0.15rem; align-items: center; }
-    .employee-schedule-body .day-name { font-weight: 600; font-size: 0.85rem; }
-    .employee-schedule-body .day-date { font-size: 0.75rem; opacity: 0.8; }
-    .employee-schedule-body .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1050; justify-content: center; align-items: center; padding: 1rem; }
-    .employee-schedule-body .modal-content { background-color: var(--white); width: 90%; max-width: 500px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); padding: 1.5rem; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; }
-    .employee-schedule-body .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--light-gray); flex-shrink: 0; }
-    .employee-schedule-body .modal-title { font-size: 1.25rem; font-weight: 600; color: var(--dark); }
-    .employee-schedule-body .close-modal { background: none; border: none; font-size: 1.75rem; cursor: pointer; color: var(--gray); line-height: 1; padding: 0; }
-    .employee-schedule-body .close-modal:hover { color: var(--dark); }
-    .employee-schedule-body .modal-body { flex-grow: 1; overflow-y: auto; }
-    .employee-schedule-body .form-group { margin-bottom: 1rem; }
-    .employee-schedule-body .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark); font-size: 0.9rem; }
-    .employee-schedule-body .form-control { width: 100%; padding: 0.6rem 0.75rem; border: 1px solid var(--light-gray); border-radius: 6px; font-size: 0.95rem; background-color: var(--white); color: var(--dark); box-sizing: border-box; }
-    .employee-schedule-body .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(var(--primary-rgb, 59, 130, 246), 0.2); }
-    .employee-schedule-body .form-control[readonly] { background-color: var(--light-gray); cursor: not-allowed; }
-    .employee-schedule-body textarea.form-control { min-height: 80px; }
-    .employee-schedule-body .form-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--light-gray); flex-shrink: 0; }
-    .employee-schedule-body .edit-shift { cursor: pointer; color: var(--primary); font-size: 0.75rem; display: block; text-align: center; margin-top: 0.25rem; opacity: 0; transition: opacity 0.2s, height 0.2s; height: 0; overflow: hidden; }
-    .employee-schedule-body td.admin-controls:hover .edit-shift.admin-visible { opacity: 0.7; height: auto; }
-    .employee-schedule-body .edit-shift.admin-visible:hover { opacity: 1; text-decoration: underline; }
-    /* ... (Responsive styles @media ...) ... */
-</style>
-
-<div class="employee-schedule-body">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeamFlow | Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://img.icons8.com/fluency/48/000000/group-task.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://img.icons8.com/fluency/32/000000/group-task.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://img.icons8.com/fluency/180/000000/group-task.png">
+    <style>
+        :root {
+            --primary: #2563eb; --primary-dark: #1e3a8a; --primary-light: #dbeafe; --secondary: #10b981;
+            --danger: #ef4444; --warning: #f59e0b; --dark: #1e293b; --light: #f8fafc; --gray: #64748b;
+            --light-gray: #e2e8f0; --white: #ffffff; --sidebar-width: 280px; --sidebar-bg: #1e3a8a;
+            --sidebar-text: rgba(255,255,255,0.9); --sidebar-hover: rgba(255,255,255,0.1); --sidebar-active: rgba(255,255,255,0.2);
+            --sidebar-divider: rgba(255,255,255,0.1); --success: #10b981; --team-manager: #ef4444;
+            --compact-padding: 0.5rem; --normal-padding: 1rem; --spacious-padding: 1.5rem; --primary-rgb: 37, 99, 235;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--primary-light); color: var(--dark); display: flex; min-height: 100vh; transition: background-color 0.3s ease, color 0.3s ease; }
+        .sidebar { width: var(--sidebar-width); background-color: var(--sidebar-bg); height: 100vh; position: fixed; overflow-y: auto; transition: all 0.3s; z-index: 100; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--sidebar-divider); display: flex; align-items: center; justify-content: space-between; }
+        .logo { font-size: 1.25rem; font-weight: 700; color: var(--white); display: flex; align-items: center; gap: 0.75rem; }
+        .logo-icon { color: var(--white); font-size: 1.5rem; }
+        .sidebar-menu { padding: 1rem 0; flex-grow: 1; overflow-y: auto; }
+        .menu-title { padding: 0.75rem 1.5rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: rgba(255,255,255,0.6); letter-spacing: 0.5px; }
+        .menu-item { display: flex; align-items: center; padding: 0.75rem 1.5rem; color: var(--sidebar-text); text-decoration: none; transition: all 0.2s; border-left: 3px solid transparent; margin: 0.25rem 0; }
+        .menu-item:hover { background-color: var(--sidebar-hover); color: var(--white); }
+        .menu-item.active { background-color: var(--sidebar-active); color: var(--white); border-left-color: var(--white); }
+        .menu-item i { margin-right: 0.75rem; font-size: 1.1rem; width: 24px; text-align: center; }
+        .menu-divider { height: 1px; background-color: var(--sidebar-divider); margin: 1rem 1.5rem; }
+        .main-content { flex: 1; margin-left: var(--sidebar-width); transition: all 0.3s; }
+        .top-nav { background-color: var(--white); padding: var(--normal-padding) 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--light-gray); position: sticky; top: 0; z-index: 90; transition: padding 0.3s ease, background-color 0.3s ease, border-color 0.3s ease; }
+        body.compact .top-nav { padding: var(--compact-padding) 1rem; } body.spacious .top-nav { padding: var(--spacious-padding) 2rem; }
+        .search-bar { position: relative; width: 400px; }
+        .search-bar input { width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 1px solid var(--light-gray); border-radius: 6px; font-size: 0.9rem; transition: all 0.2s; background-color: var(--white); color: var(--dark); }
+        .search-bar input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1); }
+        .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gray); }
+        .search-results { position: absolute; top: 100%; left: 0; width: 100%; background-color: var(--white); border: 1px solid var(--light-gray); border-radius: 0 0 6px 6px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); z-index: 100; display: none; max-height: 300px; overflow-y: auto; }
+        .search-results.active { display: block; } .search-result-item { padding: 0.75rem 1rem; cursor: pointer; transition: background-color 0.2s; color: var(--dark); } .search-result-item:hover { background-color: var(--primary-light); }
+        .user-menu { display: flex; align-items: center; gap: 1.5rem; }
+        .notification-icon { position: relative; color: var(--gray); cursor: pointer; font-size: 1.1rem; }
+        .notification-badge { position: absolute; top: -5px; right: -5px; background-color: var(--danger); color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600; }
+        .user-profile { display: flex; align-items: center; gap: 0.75rem; position: relative; }
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; background-color: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer; background-size: cover; background-position: center; }
+        .user-profile-details { display: flex; align-items: center; cursor: pointer; } .user-name { font-weight: 500; color: var(--dark); }
+        .user-status { font-size: 0.8rem; color: var(--success); margin-left: 0.5rem; font-weight: 600; text-shadow: 0 0 4px rgba(16, 185, 129, 0.4); }
+        .user-dropdown { position: absolute; top: 100%; right: 0; background-color: var(--white); border: 1px solid var(--light-gray); border-radius: 6px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); width: 200px; z-index: 100; display: none; }
+        .user-dropdown.active { display: block; } .dropdown-item { padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem; color: var(--dark); text-decoration: none; transition: background-color 0.2s; } .dropdown-item:hover { background-color: var(--light); } .dropdown-item i { width: 20px; text-align: center; }
+        .content-area { padding: 2rem; min-height: calc(100vh - 70px); transition: padding 0.3s ease; }
+        body.compact .content-area { padding: 1rem; } body.spacious .content-area { padding: 3rem; }
+        .welcome-section { background-color: var(--primary-dark); color: var(--white); padding: 2rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: padding 0.3s ease, margin-bottom 0.3s ease, background-color 0.3s ease; }
+        body.compact .welcome-section { padding: 1rem; margin-bottom: 1rem; } body.spacious .welcome-section { padding: 3rem; margin-bottom: 3rem; }
+        .welcome-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; } body.compact .welcome-title { font-size: 1.25rem; }
+        .welcome-subtitle { font-size: 1rem; opacity: 0.9; margin-top: 0.25rem; margin-bottom: 1.5rem; font-weight: 400; } body.compact .welcome-subtitle { font-size: 0.9rem; margin-bottom: 1rem;}
+        .user-info { display: flex; align-items: center; gap: 1.5rem; margin-top: 1.5rem; } body.compact .user-info { flex-direction: column; text-align: center; gap: 1rem; margin-top: 1rem; }
+        .user-info-avatar { width: 80px; height: 80px; border-radius: 50%; background-color: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.75rem; background-size: cover; background-position: center; position: relative; cursor: default; } body.compact .user-info-avatar { width: 60px; height: 60px; font-size: 1.25rem; }
+        .user-info-details { flex: 1; } .user-info-name { font-weight: 600; font-size: 1.25rem; margin-bottom: 0.25rem; } body.compact .user-info-name { font-size: 1rem; }
+        .user-info-title { opacity: 0.9; font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--light-gray); font-weight: 600; } .user-info-title.role-admin { color: var(--team-manager); } body.compact .user-info-title { font-size: 0.8rem; }
+        .user-info-email { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; opacity: 0.9; }
+        .stats-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; transition: gap 0.3s ease, margin-bottom 0.3s ease; }
+        body.compact .stats-section { gap: 1rem; margin-bottom: 1rem; } body.spacious .stats-section { gap: 2rem; margin-bottom: 3rem; }
+        .stat-card { background-color: var(--white); border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08); transition: transform 0.2s, box-shadow 0.2s, padding 0.3s ease, background-color 0.3s ease; position: relative; overflow: hidden; }
+        body.compact .stat-card { padding: 1rem; } body.spacious .stat-card { padding: 2rem; } .stat-card:hover { transform: translateY(-4px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, var(--primary), var(--secondary)); opacity: 0.9; }
+        .stat-title { font-size: 0.9rem; color: var(--gray); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; } body.compact .stat-title { font-size: 0.8rem; } .stat-title i { color: var(--primary); }
+        .stat-value { font-size: 1.75rem; font-weight: 700; color: var(--primary-dark); display: flex; align-items: center; justify-content: space-between; } body.compact .stat-value { font-size: 1.5rem; }
+        .stat-trend { display: flex; align-items: center; font-size: 0.9rem; font-weight: 500; } body.compact .stat-trend { font-size: 0.8rem; } .trend-up { color: var(--secondary); } .trend-down { color: var(--danger); } .trend-neutral { color: var(--gray); }
+        .activity-section { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 1.5rem; transition: padding 0.3s ease, background-color 0.3s ease; }
+        body.compact .activity-section { padding: 1rem; } body.spacious .activity-section { padding: 2rem; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; transition: margin-bottom 0.3s ease; flex-wrap: wrap; gap: 0.5rem; } body.compact .section-header { margin-bottom: 1rem; } body.spacious .section-header { margin-bottom: 2rem; }
+        .section-title { font-size: 1.25rem; font-weight: 600; color: var(--dark); } body.compact .section-title { font-size: 1.1rem; }
+        .live-badge { display: inline-flex; align-items: center; background-color: var(--danger); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin-left: 0.5rem; animation: pulse 2s infinite; } @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+        .section-header > div { display: flex; align-items: center; gap: 1rem;} .view-all, .delete-all { font-weight: 500; cursor: pointer; transition: color 0.2s, background-color 0.2s; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; } .view-all { color: var(--primary); } .view-all:hover { color: var(--primary-dark); text-decoration: underline; background-color: var(--primary-light); } .delete-all { color: var(--danger); } .delete-all:hover { color: #dc2626; text-decoration: underline; background-color: rgba(239, 68, 68, 0.1); }
+        .activity-list { list-style: none; } .activity-item { display: flex; padding: 1rem 0; border-bottom: 1px solid var(--light-gray); align-items: center; transition: background-color 0.3s, padding 0.3s ease, border-color 0.3s ease; } body.compact .activity-item { padding: 0.75rem 0; } body.spacious .activity-item { padding: 1.25rem 0; } .activity-item:last-child { border-bottom: none; }
+        .activity-item.new-activity { background-color: rgba(var(--primary-rgb), 0.08); animation: highlightNewActivity 2.5s ease-out forwards; } @keyframes highlightNewActivity { 0% { background-color: rgba(var(--primary-rgb), 0.15); } 100% { background-color: transparent; } }
+        .activity-icon { width: 40px; height: 40px; border-radius: 50%; background-color: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0; transition: width 0.3s, height 0.3s, margin-right 0.3s, font-size 0.3s; } body.compact .activity-icon { width: 32px; height: 32px; margin-right: 0.75rem; font-size: 0.9rem; }
+        .activity-content { flex: 1; } .activity-message { margin-bottom: 0.25rem; color: var(--dark); } body.compact .activity-message { font-size: 0.9rem; }
+        .activity-time { font-size: 0.8rem; color: var(--gray); } body.compact .activity-time { font-size: 0.7rem; }
+        .activity-actions { display: flex; gap: 0.5rem; margin-left: auto; padding-left: 1rem; } .delete-activity { color: var(--danger); cursor: pointer; opacity: 1; transition: opacity 0.2s, background-color 0.2s; padding: 0.5rem; border-radius: 4px; } .delete-activity:hover { background-color: rgba(239, 68, 68, 0.1); }
+        .content-section { display: none; background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 2rem; transition: padding 0.3s ease, background-color 0.3s ease; } .content-section.active { display: block; } body.compact .content-section { padding: 1rem; } body.spacious .content-section { padding: 3rem; }
+        .section-main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; transition: margin-bottom 0.3s ease; } body.compact .section-main-header { margin-bottom: 1.5rem; } body.spacious .section-main-header { margin-bottom: 3rem; }
+        .section-main-title { font-size: 1.5rem; font-weight: 600; color: var(--primary-dark); } body.compact .section-main-title { font-size: 1.25rem; }
+        .profile-header-text { margin-bottom: 2rem; color: var(--gray); font-size: 0.95rem;} .profile-avatar-section { text-align: center; margin-bottom: 2rem; }
+        #profileAvatarLarge { width: 120px; height: 120px; border-radius: 50%; background-color: var(--primary-light); color: var(--primary-dark); display: inline-flex; align-items: center; justify-content: center; font-weight: 600; font-size: 3rem; background-size: cover; background-position: center; margin-bottom: 1rem; border: 3px solid var(--white); box-shadow: 0 2px 4px rgba(0,0,0,0.1); } #uploadPhotoButton { margin-top: 0.5rem;}
+        .data-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; transition: gap 0.3s ease; } body.compact .data-form { gap: 1rem; } body.spacious .data-form { gap: 2rem; }
+        .form-group { margin-bottom: 1rem; transition: margin-bottom 0.3s ease; } body.compact .form-group { margin-bottom: 0.75rem; } body.spacious .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark); transition: margin-bottom 0.3s ease, font-size 0.3s ease; } body.compact .form-group label { margin-bottom: 0.25rem; font-size: 0.9rem; }
+        .form-control { width: 100%; padding: 0.75rem; border: 1px solid var(--light-gray); border-radius: 6px; font-size: 1rem; background-color: var(--white); color: var(--dark); transition: border-color 0.2s, box-shadow 0.2s, padding 0.3s ease, font-size 0.3s ease, background-color 0.3s ease, color 0.3s ease; }
+        body.compact .form-control { padding: 0.5rem; font-size: 0.9rem; } body.spacious .form-control { padding: 1rem; } .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1); } .form-control[readonly] { background-color: var(--light-gray); cursor: not-allowed; }
+        .form-actions { grid-column: span 2; display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; transition: margin-top 0.3s ease; } body.compact .form-actions { margin-top: 0.5rem; } body.spacious .form-actions { margin-top: 2rem; }
+        .btn { padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 0.5rem; } body.compact .btn { padding: 0.5rem 1rem; font-size: 0.9rem; } body.spacious .btn { padding: 1rem 2rem; }
+        .btn-primary { background-color: var(--primary); color: white; } .btn-primary:hover:not(:disabled) { background-color: var(--primary-dark); } .btn-outline { background-color: transparent; border: 1px solid var(--primary); color: var(--primary); } .btn-outline:hover:not(:disabled) { background-color: var(--primary-light); } .btn-danger { background-color: var(--danger); color: white; } .btn-danger:hover:not(:disabled) { background-color: #dc2626; } .btn-success { background-color: var(--success); color: white; } .btn-success:hover:not(:disabled) { background-color: #0d9f6e; } .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .settings-tabs { display: flex; border-bottom: 1px solid var(--light-gray); margin-bottom: 2rem; transition: margin-bottom 0.3s ease, border-color 0.3s ease; overflow-x: auto; } body.compact .settings-tabs { margin-bottom: 1.5rem; } body.spacious .settings-tabs { margin-bottom: 3rem; }
+        .settings-tab { padding: 0.75rem 1.5rem; cursor: pointer; border-bottom: 2px solid transparent; font-weight: 500; color: var(--gray); transition: all 0.2s; white-space: nowrap; } body.compact .settings-tab { padding: 0.5rem 1rem; font-size: 0.9rem; } body.spacious .settings-tab { padding: 1rem 2rem; } .settings-tab:hover { color: var(--primary); } .settings-tab.active { color: var(--primary); border-bottom-color: var(--primary); } .settings-tab.disabled { color: var(--light-gray); cursor: not-allowed; pointer-events: none; }
+        .settings-panel { display: none; } .settings-panel.active { display: block; animation: fadeInPanel 0.5s ease-out; } @keyframes fadeInPanel { from { opacity: 0; } to { opacity: 1; } }
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; flex-shrink: 0; } body.compact .switch { width: 40px; height: 20px; } .switch input { opacity: 0; width: 0; height: 0; } .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; } .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; } body.compact .slider:before { height: 14px; width: 14px; left: 3px; bottom: 3px; } input:checked + .slider { background-color: var(--primary); } input:checked + .slider:before { transform: translateX(26px); } body.compact input:checked + .slider:before { transform: translateX(20px); } .slider.round { border-radius: 34px; } .slider.round:before { border-radius: 50%; }
+        .team-management { margin-top: 1.5rem; } body.compact .team-management { margin-top: 1rem; } body.spacious .team-management { margin-top: 2rem; } .team-management h3, .add-member-form h4 { color: var(--dark); margin-bottom: 1rem; }
+        .team-list { margin-top: 1rem; } body.compact .team-list { margin-top: 0.75rem; } body.spacious .team-list { margin-top: 1.5rem; }
+        .team-member-card { display: flex; align-items: center; padding: 1rem; border: 1px solid var(--light-gray); border-radius: 8px; margin-bottom: 1rem; transition: all 0.2s; background-color: var(--white); } body.compact .team-member-card { padding: 0.75rem; margin-bottom: 0.75rem; } body.spacious .team-member-card { padding: 1.25rem; margin-bottom: 1.25rem; } .team-member-card:hover { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); border-color: var(--primary); }
+        .member-avatar { width: 50px; height: 50px; border-radius: 50%; background-color: var(--light-gray); margin-right: 1rem; display: flex; align-items: center; justify-content: center; font-weight: 600; background-size: cover; background-position: center; color: var(--primary-dark); transition: width 0.3s, height 0.3s, margin-right 0.3s, font-size 0.3s; flex-shrink: 0; } body.compact .member-avatar { width: 40px; height: 40px; margin-right: 0.75rem; font-size: 0.9rem; }
+        .member-details { flex: 1; min-width: 0; } .member-name { font-weight: 500; margin-bottom: 0.25rem; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;} body.compact .member-name { font-size: 0.9rem; } .member-email { font-size: 0.9rem; color: var(--gray); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;} body.compact .member-email { font-size: 0.8rem; }
+        .member-role { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 500; margin: 0 1rem; flex-shrink: 0; } body.compact .member-role { font-size: 0.7rem; margin: 0 0.75rem; } .role-admin { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); } .role-senior { background-color: rgba(var(--primary-rgb), 0.1); color: var(--primary); } .role-supervisor { background-color: rgba(245, 158, 11, 0.1); color: var(--warning); } .role-member { background-color: rgba(16, 185, 129, 0.1); color: var(--secondary); }
+        .member-actions { display: flex; gap: 0.5rem; flex-shrink: 0; } .member-actions .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+        .add-member-form { margin-top: 2rem; padding: 1.5rem; border: 1px dashed var(--light-gray); border-radius: 8px; background-color: var(--light); } body.compact .add-member-form { margin-top: 1.5rem; padding: 1rem; } body.spacious .add-member-form { margin-top: 3rem; padding: 2rem; }
+        body.light-theme { /* ... */ } body.dark-theme { /* ... */ } body.blue-theme { /* ... */ }
+        .theme-option { /* ... */ } .theme-option div { /* ... */ } .theme-option span { /* ... */ } .theme-option:hover div { /* ... */ } .theme-option.selected div { /* ... */ }
+        .notifications-modal { /* ... */ } .notifications-container { /* ... */ } @keyframes slideIn { /* ... */ } .notifications-header { /* ... */ } .notifications-title { /* ... */ } .close-notifications { /* ... */ } .notifications-body { /* ... */ } .notification-list-item { /* ... */ } .notification-list-item:hover { /* ... */ } .notification-list-item.unread { /* ... */ } .notification-list-item:last-child { /* ... */ } .notification-icon-wrapper { /* ... */ } .notification-content { /* ... */ } .notification-message { /* ... */ } .notification-time { /* ... */ } .delete-notification { /* ... */ } .delete-notification:hover { /* ... */ } .no-notifications-message { /* ... */ } .notifications-footer { /* ... */ }
+        .confirm-modal { /* ... */ } .confirm-container { /* ... */ } @keyframes fadeInScale { /* ... */ } .confirm-title { /* ... */ } .confirm-message { /* ... */ } .confirm-actions { /* ... */ }
+        .success-message { /* ... */ } .success-message.show { /* ... */ } .success-message i { /* ... */ }
+        @media (max-width: 992px) { /* ... */ } @media (max-width: 768px) { /* ... */ } @media (max-width: 480px) { /* ... */ }
+        .back-button { /* ... */ } .back-button:hover { /* ... */ } .back-button i { /* ... */ } .back-button:hover i { /* ... */ }
+        #notificationSound { display: none; } .d-none { display: none !important; }
+        .connection-status { /* ... */ } .status-dot { /* ... */ } @keyframes pulseStatus { /* ... */ }
+        .password-error { /* ... */ } .spinner { /* ... */ } @keyframes spin { /* ... */ } .loading-text { /* ... */ } .btn-outline .spinner { /* ... */ }
+        .placeholder-content { /* ... */ } .placeholder-content h2 { /* ... */ } .placeholder-content .loading-indicator { /* ... */ } .placeholder-content .error-message { /* ... */ }
+    </style>
+</head>
+<body class="blue-theme">
+    <!-- Notification sound -->
+    <audio id="notificationSound" preload="auto"><source src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3" type="audio/mpeg"></audio>
+    <!-- Success message -->
+    <div class="success-message" id="successMessage"><i class="fas fa-check-circle"></i><span id="successMessageText">Action successful!</span></div>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar"> <!-- ... (Sidebar HTML) ... --> </aside>
     <!-- Main Content -->
-    <div class="main-container">
-        <div class="page-header">
-            <h1 class="page-title">Employee Schedule</h1>
-            <div>
-                <button class="btn btn-primary" id="schedule-addEmployeeBtn" style="display: none;"><i class="fas fa-plus"></i> Add Employee</button>
-                <button class="btn btn-secondary" id="schedule-sendRemindersBtn" style="display: none;"><i class="fas fa-envelope"></i> Send Reminders</button>
+    <main class="main-content">
+        <!-- Top Nav -->
+        <nav class="top-nav"> <!-- ... (Top Nav HTML) ... --> </nav>
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="back-button" id="backButton" style="display: none;"><i class="fas fa-arrow-left"></i><span>Back to Dashboard</span></div>
+            <!-- Dashboard Content -->
+            <div id="dashboardContent" class="content-section active"> <!-- ... (Dashboard Welcome, Stats, Activity HTML) ... --> </div>
+            <!-- Profile Content -->
+            <div class="content-section" id="profileContent"> <!-- ... (Profile HTML) ... --> </div>
+            <!-- Settings Content -->
+            <div class="content-section" id="settingsContent"> <!-- ... (Settings HTML) ... --> </div>
+            <!-- Feature Content Sections Container -->
+            <div id="featureSectionsContainer" style="display: none;">
+                <div id="featureSections" class="content-section"> <!-- Feature content loaded here -->
+                    <div class="placeholder-content" id="featurePlaceholder">
+                        <h2 id="featureTitle">Feature Loading...</h2><p id="featureDescription"></p>
+                        <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+                        <div class="error-message" style="display: none;"></div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="schedule-controls">
-            <div class="week-navigation">
-                <button class="btn btn-outline" id="schedule-prevWeekBtn"><i class="fas fa-chevron-left"></i></button>
-                <div class="week-display" id="schedule-weekDisplay">Loading...</div>
-                <button class="btn btn-outline" id="schedule-nextWeekBtn"><i class="fas fa-chevron-right"></i></button>
-            </div>
-            <button class="btn btn-primary" id="schedule-saveScheduleBtn" style="display: none;"><i class="fas fa-save"></i> Save Schedule</button>
-        </div>
-        <div class="schedule-container">
-            <table class="schedule-table">
-                <thead>
-                    <tr><th>Employee</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr>
-                </thead>
-                <tbody id="schedule-table-body">
-                    <tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--gray);">Initializing Schedule...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <!-- Add Employee Modal -->
-    <div class="modal" id="schedule-employeeModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Add New Employee</h2>
-                <button class="close-modal" id="schedule-closeEmployeeModal">×</button>
-            </div>
-            <form id="schedule-employeeForm">
-                <div class="modal-body">
-                    <div class="form-group"><label for="schedule-empName">Full Name</label><input type="text" id="schedule-empName" class="form-control" required></div>
-                    <div class="form-group"><label for="schedule-empEmail">Email</label><input type="email" id="schedule-empEmail" class="form-control" required></div>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-outline" id="schedule-cancelEmployeeBtn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Employee</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <!-- Edit Shift Modal -->
-    <div class="modal" id="schedule-shiftModal">
-        <div class="modal-content">
-            <div class="modal-header"><h2 class="modal-title">Edit Shift</h2><button class="close-modal" id="schedule-closeShiftModal">×</button></div>
-            <form id="schedule-shiftForm">
-                <div class="modal-body">
-                    <input type="hidden" id="schedule-shiftEmpId"><input type="hidden" id="schedule-shiftDateKey">
-                    <div class="form-group"><label for="schedule-shiftEmployee">Employee</label><input type="text" id="schedule-shiftEmployee" class="form-control" readonly></div>
-                    <div class="form-group"><label for="schedule-shiftDate">Date</label><input type="text" id="schedule-shiftDateDisplay" class="form-control" readonly><input type="date" id="schedule-shiftDate" class="form-control" required style="display:none;"></div>
-                    <div class="form-group"><label for="schedule-shiftType">Shift Type</label><select id="schedule-shiftType" class="form-control" required><option value="day-off">Day Off</option><option value="morning">Morning (9AM-5PM)</option><option value="afternoon">Afternoon (12PM-8PM)</option><option value="night">Night (5PM-1AM)</option><option value="sick-leave">Sick Leave</option><option value="vacation">Vacation</option><option value="custom">Custom</option></select></div>
-                    <div class="form-group" id="schedule-customShiftGroup" style="display: none;"><label for="schedule-customShift">Custom Shift Times</label><input type="text" id="schedule-customShift" class="form-control" placeholder="e.g., 10AM-6PM"></div>
-                    <div class="form-group"><label for="schedule-shiftNotes">Notes</label><textarea id="schedule-shiftNotes" class="form-control" rows="3"></textarea></div>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-danger" id="schedule-deleteShiftBtn">Delete Shift</button>
-                    <button type="button" class="btn btn-outline" id="schedule-cancelShiftBtn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<!-- NO SCRIPT TAG HERE -->
+    </main>
+    <!-- Modals -->
+    <div class="notifications-modal" id="notificationsModal"> <!-- ... (Notifications Modal HTML) ... --> </div>
+    <div class="confirm-modal" id="confirmModal"> <!-- ... (Confirm Modal HTML) ... --> </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- CORE DASHBOARD ELEMENTS & STATE ---
+            const sidebar = document.getElementById('sidebar');
+            const menuItems = document.querySelectorAll('.menu-item');
+            const contentSections = document.querySelectorAll('.content-section:not(#featureSections)'); // Select only static sections initially
+            const dashboardContent = document.getElementById('dashboardContent');
+            const profileContent = document.getElementById('profileContent');
+            const settingsContent = document.getElementById('settingsContent');
+            const featureSectionsContainer = document.getElementById('featureSectionsContainer');
+            const featureSections = document.getElementById('featureSections'); // The div *inside* the container
+            const featurePlaceholder = document.getElementById('featurePlaceholder');
+            // ... (all other const declarations for dashboard elements like search, user menu, modals etc.) ...
+             const teamList = document.getElementById('teamList'); // Make sure this is defined if used globally
+             let confirmBtn = document.getElementById('confirmBtn');
+             let cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
+             const backButton = document.getElementById('backButton');
+             // ... other element consts
+
+            let currentUser = {};
+            let teamMembers = [];
+            let activities = [];
+            let notifications = [];
+            let currentFeature = 'dashboard';
+            let currentSettingsTab = 'preferences';
+            let scheduleLogicInitialized = false; // Flag for schedule logic
+            let scheduleCurrentWeekStart = null; // Track schedule week
+            let scheduleSavedData = {}; // Track schedule shifts
+            const scheduleLocalStorageKey = 'employeeSchedule_May2025_final'; // Use a distinct key
+
+            // --- CORE DASHBOARD FUNCTIONS ---
+            function setPlaceholderState(state, title = '', description = '') {
+                 const featureLoadingIndicator = featurePlaceholder?.querySelector('.loading-indicator');
+                 const featureErrorMessage = featurePlaceholder?.querySelector('.error-message');
+                 const featureTitleEl = featurePlaceholder?.querySelector('#featureTitle');
+                 const featureDescEl = featurePlaceholder?.querySelector('#featureDescription');
+
+                 if (!featurePlaceholder || !featureLoadingIndicator || !featureErrorMessage || !featureTitleEl || !featureDescEl) return; // Exit if elements missing
+
+                 featureLoadingIndicator.style.display = (state === 'loading') ? 'block' : 'none';
+                 featureErrorMessage.style.display = (state === 'error') ? 'block' : 'none';
+                 featureTitleEl.textContent = title;
+                 featureDescEl.innerHTML = description;
+                 featurePlaceholder.style.display = (state === 'hidden') ? 'none' : 'flex';
+            }
+            function showConfirmModal(config) {
+                 const confirmModal = document.getElementById('confirmModal');
+                 const confirmTitle = document.getElementById('confirmTitle');
+                 const confirmMessage = document.getElementById('confirmMessage');
+                 if (!confirmModal || !confirmTitle || !confirmMessage || !confirmBtn || !cancelConfirmBtn) return;
+
+                 confirmTitle.textContent = config.title || 'Confirm Action';
+                 confirmMessage.innerHTML = config.message || 'Are you sure?';
+                 confirmBtn.textContent = config.confirmText || 'Confirm';
+                 cancelConfirmBtn.textContent = config.cancelText || 'Cancel';
+                 confirmBtn.className = `btn ${config.confirmClass || 'btn-danger'}`;
+                 cancelConfirmBtn.className = 'btn btn-outline'; // Ensure cancel is always outline
+
+                 // Clean up previous listeners
+                 const newConfirmBtn = confirmBtn.cloneNode(true); confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn); confirmBtn = newConfirmBtn;
+                 const newCancelBtn = cancelConfirmBtn.cloneNode(true); cancelConfirmBtn.parentNode.replaceChild(newCancelBtn, cancelConfirmBtn); cancelConfirmBtn = newCancelBtn;
+
+                 const confirmHandler = () => { if (config.onConfirm) config.onConfirm(); hideConfirmModal(); };
+                 const cancelHandler = () => { if (config.onCancel) config.onCancel(); hideConfirmModal(); };
+
+                 confirmBtn.addEventListener('click', confirmHandler, { once: true });
+                 cancelConfirmBtn.addEventListener('click', cancelHandler, { once: true });
+
+                 confirmModal.style.display = 'flex'; confirmBtn.focus();
+            }
+            function hideConfirmModal() { const confirmModal = document.getElementById('confirmModal'); if (confirmModal) confirmModal.style.display = 'none'; }
+            function showSuccessMessage(message) { /* ... */ }
+            const dashboardGlobals = { showConfirmModal, hideConfirmModal, showSuccessMessage, showErrorMessage: (msg) => showConfirmModal({title:"Error", message:msg, confirmText:"OK", confirmClass:"btn-warning", cancelText:""}), addActivity, getCurrentUser: () => JSON.parse(JSON.stringify(currentUser || {})), getTeamMembers: () => JSON.parse(JSON.stringify(teamMembers || [])), updateTeamMembers: (newTeam) => {if(Array.isArray(newTeam)){teamMembers=newTeam; saveData(); loadTeamMembers(); updateStats();}} };
+            window.dashboardApp = dashboardGlobals;
+            function loadData() { /* ... (Original loadData) ... */ }
+            function saveData() { /* ... (Original saveData) ... */ }
+            function updateUserUI() { /* ... (Original updateUserUI) ... */ }
+            function applyUserPreferences() { /* ... (Original applyUserPreferences) ... */ }
+            function applyRBAC() { /* ... (Original applyRBAC) ... */ }
+            function loadSettingsFormData() { /* ... (Original loadSettingsFormData) ... */ }
+            function updateStats() { /* ... (Original updateStats) ... */ }
+            function updateTrendIndicator(element, trend) { /* ... (Original updateTrendIndicator) ... */ }
+            function updateNotificationBadge() { /* ... (Original updateNotificationBadge) ... */ }
+            function loadActivities(showAll = false) { /* ... (Original loadActivities) ... */ }
+            function loadNotifications() { /* ... (Original loadNotifications) ... */ }
+            function getTimeAgo(timestamp) { /* ... (Original getTimeAgo) ... */ }
+            function updateActivityTimes() { /* ... (Original updateActivityTimes) ... */ }
+            function startActivityTimeUpdater() { /* ... (Original startActivityTimeUpdater) ... */ }
+            function loadTeamMembers() { /* ... (Original loadTeamMembers) ... */ }
+            function handleProfileSave(e) { /* ... (Original handleProfileSave) ... */ }
+            function handleProfileCancel() { /* ... (Original handleProfileCancel) ... */ }
+            function handleSettingsSave(formId, panelId, successMsg) { /* ... (Original handleSettingsSave) ... */ }
+            function handleSettingsCancel(panelId) { /* ... (Original handleSettingsCancel) ... */ }
+            function handleInviteMember(e) { /* ... (Original handleInviteMember) ... */ }
+            function handleEditMemberClick(e) { /* ... (Original handleEditMemberClick) ... */ }
+            function handleDeleteMemberClick(e) { /* ... (Original handleDeleteMemberClick) ... */ }
+            function handleDeleteActivityClick(e) { /* ... (Original handleDeleteActivityClick) ... */ }
+            function handleDeleteAllActivities() { /* ... (Original handleDeleteAllActivities) ... */ }
+            function markNotificationAsRead(notificationId, itemElement) { /* ... (Original markNotificationAsRead) ... */ }
+            function handleMarkAllNotificationsRead() { /* ... (Original handleMarkAllNotificationsRead) ... */ }
+            function handleDeleteNotificationClick(notificationId) { /* ... (Original handleDeleteNotificationClick) ... */ }
+            function handleDeleteAllNotifications() { /* ... (Original handleDeleteAllNotifications) ... */ }
+            function handleAvatarUpload(e) { /* ... (Original handleAvatarUpload) ... */ }
+            function handleLogout() { /* ... (Original handleLogout) ... */ }
+            function addActivity(icon, message) { /* ... (Original addActivity) ... */ }
+            function addNotification(icon, message) { /* ... (Original addNotification) ... */ }
+            function playNotificationSound() { /* ... (Original playNotificationSound) ... */ }
+            function handleSearch() { /* ... (Original handleSearch) ... */ }
+            function activateSettingsTab(tabId) { /* ... (Original activateSettingsTab) ... */ }
+
+
+            // --- EMPLOYEE SCHEDULING LOGIC (Integrated) ---
+
+            // Define schedule-specific functions *within* the main script scope
+            // No need for a separate initializeScheduleFeature function anymore
+
+            function formatDateKey_schedule(date) { if (!date?.getTime) return null; const y=date.getFullYear(); const m=(date.getMonth()+1).toString().padStart(2,'0'); const d=date.getDate().toString().padStart(2,'0'); return `${y}-${m}-${d}`; }
+            function getLocalDateFromKey_schedule(dateKey) { if (!dateKey?.match) return null; const p=dateKey.split('-'); return new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2])); }
+
+            function updateWeekDisplay_schedule() {
+                const weekDisplay = document.getElementById('schedule-weekDisplay');
+                const prevWeekBtn = document.getElementById('schedule-prevWeekBtn');
+                const nextWeekBtn = document.getElementById('schedule-nextWeekBtn');
+                if (!weekDisplay || !prevWeekBtn || !nextWeekBtn) return;
+
+                const scheduleMinDate = new Date(2025, 4, 1); const scheduleMaxDate = new Date(2025, 4, 31);
+                if (!scheduleCurrentWeekStart) { // Set initial week if not set
+                     const today = new Date(); const dayOfWeek = today.getDay(); const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); scheduleCurrentWeekStart = new Date(today.getFullYear(), today.getMonth(), diff);
+                     // Add clamping
+                     if (scheduleCurrentWeekStart < scheduleMinDate) scheduleCurrentWeekStart = new Date(scheduleMinDate);
+                     if (scheduleCurrentWeekStart > scheduleMaxDate) { scheduleCurrentWeekStart = new Date(scheduleMaxDate); scheduleCurrentWeekStart.setDate(scheduleCurrentWeekStart.getDate() - 6); }
+                }
+                 const weekEnd = new Date(scheduleCurrentWeekStart); weekEnd.setDate(weekEnd.getDate() + 6);
+                 const options = { month: 'short', day: 'numeric' };
+                 weekDisplay.textContent = `${scheduleCurrentWeekStart.toLocaleDateString('en-US', options)} - ${weekEnd.toLocaleDateString('en-US', options)}, ${scheduleCurrentWeekStart.getFullYear()}`;
+                 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                 const headerRow = document.querySelector('#featureSections .schedule-table thead tr'); // Scope query
+                 if (!headerRow) return; headerRow.innerHTML = '<th>Employee</th>';
+                 const tempDate = new Date(scheduleCurrentWeekStart);
+                 days.forEach(dayName => { const th=document.createElement('th'); const ds=tempDate.toLocaleDateString('en-US',{day:'numeric'}); const ms=tempDate.toLocaleDateString('en-US',{month:'short'}); th.innerHTML=`<div class="day-header"><span class="day-name">${dayName}</span><span class="day-date">${ms} ${ds}</span></div>`; headerRow.appendChild(th); tempDate.setDate(tempDate.getDate()+1); });
+                 const prevT=new Date(scheduleCurrentWeekStart); prevT.setDate(prevT.getDate()-1); prevWeekBtn.disabled=prevT<scheduleMinDate; const nextT=new Date(scheduleCurrentWeekStart); nextT.setDate(nextT.getDate()+7); nextWeekBtn.disabled=nextT>scheduleMaxDate;
+            }
+
+            function renderScheduleTable_schedule() {
+                 const scheduleTableBody = document.getElementById('schedule-table-body');
+                 if (!scheduleTableBody) { console.error("renderScheduleTable_schedule: Cannot find table body!"); return; }
+                 console.log(`Rendering schedule table. Current employees in dashboard scope: ${teamMembers.length}`);
+                 scheduleTableBody.innerHTML = ''; // Clear first
+                 if (!Array.isArray(teamMembers) || teamMembers.length === 0) {
+                     scheduleTableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--gray);">No employees found. Add members in Settings > Team Management.</td></tr>`;
+                     return;
+                 }
+                 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                 const scheduleIsAdminOrSupervisor = currentUser.role === 'admin' || currentUser.role === 'supervisor'; // Use global currentUser
+
+                 teamMembers.forEach((employee, index) => { // Use global teamMembers
+                     if (!employee?.id || !employee?.name) { console.warn("Skipping invalid employee in render:", employee); return; }
+                     const tr = document.createElement('tr'); tr.dataset.empId = employee.id;
+                     const nameTd = document.createElement('td'); nameTd.className = `employee-name employee-${(index % 6) + 1}`; nameTd.textContent = employee.name; tr.appendChild(nameTd);
+                     const tempDate = new Date(scheduleCurrentWeekStart);
+                     days.forEach((day, dayIndex) => {
+                         const td = document.createElement('td'); td.classList.add('admin-controls');
+                         const dateKey = formatDateKey_schedule(tempDate);
+                         if (!dateKey) { td.textContent = 'ERR'; tr.appendChild(td); tempDate.setDate(tempDate.getDate()+1); return; }
+                         const mobileLabel = `${days[dayIndex]} (${tempDate.toLocaleDateString('en-us',{month:'short',day:'numeric'})})`; td.dataset.label = mobileLabel; td.dataset.dateKey = dateKey;
+                         const empKey = `emp-${employee.id}`; const shiftData = scheduleSavedData[empKey]?.[dateKey]; // Use scheduleSavedData
+                         if (shiftData?.text && shiftData?.class) { const div = document.createElement('div'); div.className = `shift ${shiftData.class}`; div.textContent = shiftData.text; div.title = shiftData.notes || ''; td.appendChild(div); }
+                         if (scheduleIsAdminOrSupervisor) { const es = document.createElement('span'); es.className = 'edit-shift admin-visible'; es.dataset.empId = employee.id; es.dataset.dateKey = dateKey; es.textContent = shiftData ? '(edit)' : '(add)'; es.setAttribute('role','button'); es.setAttribute('tabindex','0'); es.onclick = handleEditShiftClick_schedule; es.onkeydown = (e)=>{if(e.key==='Enter'||e.key===' ')handleEditShiftClick_schedule(e);}; td.appendChild(es); }
+                         tr.appendChild(td); tempDate.setDate(tempDate.getDate() + 1);
+                     });
+                     scheduleTableBody.appendChild(tr);
+                 });
+                 console.log("Finished rendering schedule table.");
+            }
+
+            function updateShiftDisplayUI_schedule(empId, dateKey, shiftText, shiftClass, notes = '') {
+                 const scheduleTableBody = document.getElementById('schedule-table-body');
+                 if (!scheduleTableBody) return;
+                 const cellSelector = `tr[data-emp-id="${empId}"] td[data-date-key="${dateKey}"]`;
+                 const shiftCell = scheduleTableBody.querySelector(cellSelector);
+                 if (!shiftCell) return;
+                 let editSpan = shiftCell.querySelector('.edit-shift');
+                 const exists = shiftText && shiftClass;
+                 const oldShift = shiftCell.querySelector('.shift');
+                 if (oldShift) oldShift.remove();
+                 if (exists) { const div = document.createElement('div'); div.className = `shift ${shiftClass}`; div.textContent = shiftText; div.title = notes || ''; if (editSpan) shiftCell.insertBefore(div, editSpan); else shiftCell.appendChild(div); }
+                 if (editSpan) editSpan.textContent = exists ? '(edit)' : '(add)';
+            }
+
+            function handleWeekChange_schedule(direction) {
+                if (!scheduleCurrentWeekStart) return;
+                const scheduleMinDate = new Date(2025, 4, 1); const scheduleMaxDate = new Date(2025, 4, 31);
+                const newWeekStart = new Date(scheduleCurrentWeekStart);
+                newWeekStart.setDate(newWeekStart.getDate() + (direction * 7));
+                if (newWeekStart < scheduleMinDate || newWeekStart > scheduleMaxDate) return;
+                scheduleCurrentWeekStart = newWeekStart;
+                updateWeekDisplay_schedule(); // Update display
+                renderScheduleTable_schedule(); // Re-render table for new week
+            }
+
+            function handleAddEmployeeClick_schedule() {
+                const employeeModal = document.getElementById('schedule-employeeModal');
+                const employeeForm = document.getElementById('schedule-employeeForm');
+                if (!employeeModal || !employeeForm) return;
+                employeeForm.reset(); employeeModal.style.display = 'flex';
+                document.getElementById('schedule-empName')?.focus();
+            }
+
+            function handleSendRemindersClick_schedule() {
+                 const weekDisplay = document.getElementById('schedule-weekDisplay');
+                 const weekText = weekDisplay?.textContent || "Current Week";
+                 const subject = encodeURIComponent(`Reminder: Schedule ${weekText}`);
+                 let body = `Hi Team,\n\nSchedule for ${weekText}:\n\n`;
+                 teamMembers.forEach(emp => {
+                     body += `${emp.name}:\n`; let shifts = '';
+                     const tempD = new Date(scheduleCurrentWeekStart);
+                     for(let i=0; i<7; i++) { const dk = formatDateKey_schedule(tempD); const sd = scheduleSavedData[`emp-${emp.id}`]?.[dk]; if(sd && sd.type !== 'day-off') shifts += ` ${tempD.toLocaleDateString('en-US',{weekday:'short'})}: ${sd.text}`; tempD.setDate(tempD.getDate()+1); }
+                     body += shifts || ' (No shifts)\n'; body += '\n';
+                 });
+                 body += 'Thanks,\nManagement';
+                 const emails = teamMembers.map(e => e.email).filter(Boolean).join(',');
+                 if (!emails) { window.dashboardApp.showErrorMessage("No emails found."); return; }
+                 window.open(`mailto:${emails}?subject=${subject}&body=${encodeURIComponent(body)}`, '_blank');
+            }
+
+             function handleSaveScheduleClick_schedule() {
+                 localStorage.setItem(scheduleLocalStorageKey, JSON.stringify(scheduleSavedData));
+                 window.dashboardApp.showSuccessMessage("Schedule saved.");
+                 window.dashboardApp.addActivity('fa-calendar-check', `Schedule saved`);
+            }
+
+             function handleEmployeeFormSubmit_schedule(e) {
+                 e.preventDefault();
+                 const nameInput = document.getElementById('schedule-empName');
+                 const emailInput = document.getElementById('schedule-empEmail');
+                 const name = nameInput?.value.trim(); const email = emailInput?.value.trim();
+                 if (!name || !email || !/^\S+@\S+\.\S+$/.test(email)) { window.dashboardApp.showErrorMessage("Valid name/email needed."); return; }
+                 if (teamMembers.some(emp => emp.email.toLowerCase() === email.toLowerCase())) { window.dashboardApp.showErrorMessage(`Email ${email} exists.`); return; }
+                 const newEmployee = { id: Date.now(), name, email, role: 'member', initials: name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase(), avatar: '' };
+                 window.dashboardApp.updateTeamMembers([...teamMembers, newEmployee]); // Update global
+                 renderScheduleTable_schedule(); // Re-render schedule
+                 const employeeModal = document.getElementById('schedule-employeeModal'); if(employeeModal) employeeModal.style.display = 'none';
+                 window.dashboardApp.addActivity('fa-user-plus', `Added employee: ${name}`);
+                 window.dashboardApp.showSuccessMessage(`${name} added.`);
+            }
+
+             function handleEditShiftClick_schedule(event) {
+                 const target = event.currentTarget || event.target;
+                 const empId = parseInt(target?.dataset.empId); const dateKey = target?.dataset.dateKey;
+                 const shiftModal = document.getElementById('schedule-shiftModal'); const shiftForm = document.getElementById('schedule-shiftForm');
+                 const shiftEmployeeInput = document.getElementById('schedule-shiftEmployee'); const shiftDateDisplayInput = document.getElementById('schedule-shiftDateDisplay');
+                 const shiftDateInput = document.getElementById('schedule-shiftDate'); const shiftTypeSelect = document.getElementById('schedule-shiftType');
+                 const customShiftInput = document.getElementById('schedule-customShift'); const shiftNotesInput = document.getElementById('schedule-shiftNotes');
+                 const shiftEmpIdInput = document.getElementById('schedule-shiftEmpId'); const shiftDateKeyInput = document.getElementById('schedule-shiftDateKey');
+
+                 if (!empId || !dateKey || !shiftModal || !shiftForm || !shiftEmployeeInput || !shiftDateDisplayInput || !shiftDateInput || !shiftTypeSelect || !customShiftInput || !shiftNotesInput || !shiftEmpIdInput || !shiftDateKeyInput ) { window.dashboardApp.showErrorMessage("Edit shift modal error."); return; }
+
+                 const employee = teamMembers.find(e => e.id === empId); const shiftDate = getLocalDateFromKey_schedule(dateKey);
+                 if (!employee || !shiftDate) { window.dashboardApp.showErrorMessage("Invalid employee/date for edit."); return; }
+
+                 shiftForm.reset(); shiftEmpIdInput.value = empId; shiftDateKeyInput.value = dateKey; shiftForm.dataset.empId = empId; shiftForm.dataset.dateKey = dateKey;
+                 shiftEmployeeInput.value = employee.name;
+                 const dateFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                 shiftDateDisplayInput.value = shiftDate.toLocaleDateString(currentUser?.preferences?.language || 'en-US', dateFormatOptions);
+                 shiftDateInput.value = dateKey; shiftDateInput.min = '2025-05-01'; shiftDateInput.max = '2025-05-31';
+                 const empKey = `emp-${empId}`; const savedShift = scheduleSavedData[empKey]?.[dateKey];
+                 if (savedShift) { shiftTypeSelect.value = savedShift.type || 'day-off'; customShiftInput.value = savedShift.type === 'custom' ? savedShift.text : ''; shiftNotesInput.value = savedShift.notes || ''; }
+                 else { shiftTypeSelect.value = 'day-off'; customShiftInput.value = ''; shiftNotesInput.value = ''; }
+                 shiftTypeSelect.dispatchEvent(new Event('change'));
+                 shiftModal.style.display = 'flex'; shiftTypeSelect.focus();
+            }
+
+             function handleShiftFormSubmit_schedule(e) {
+                 e.preventDefault();
+                 const shiftModal = document.getElementById('schedule-shiftModal'); const shiftForm = document.getElementById('schedule-shiftForm');
+                 if (!shiftModal || !shiftForm) return;
+                 const empId = parseInt(document.getElementById('schedule-shiftEmpId')?.value || shiftForm.dataset.empId);
+                 const dateKey = document.getElementById('schedule-shiftDateKey')?.value || shiftForm.dataset.dateKey;
+                 const employee = teamMembers.find(e => e.id === empId);
+                 if (!employee || !dateKey) { window.dashboardApp.showErrorMessage("Save error."); shiftModal.style.display = 'none'; return; }
+                 const shiftTypeValue = document.getElementById('schedule-shiftType')?.value; const customShiftText = document.getElementById('schedule-customShift')?.value.trim();
+                 const notes = document.getElementById('schedule-shiftNotes')?.value.trim(); let shiftText = '', shiftClass = '';
+                 switch(shiftTypeValue) {
+                    case 'morning': shiftText='9AM-5PM'; shiftClass='shift-morning'; break; case 'afternoon': shiftText='12PM-8PM'; shiftClass='shift-afternoon'; break; case 'night': shiftText='5PM-1AM'; shiftClass='shift-night'; break;
+                    case 'day-off': shiftText='OFF'; shiftClass='day-off'; break; case 'sick-leave': shiftText='SICK'; shiftClass='sick-leave'; break; case 'vacation': shiftText='VAC'; shiftClass='vacation'; break;
+                    case 'custom': if(!customShiftText){ window.dashboardApp.showErrorMessage('Enter custom times.'); return; } shiftText=customShiftText; shiftClass='shift-morning'; break;
+                    default: window.dashboardApp.showErrorMessage('Invalid shift type.'); shiftModal.style.display='none'; return;
+                 }
+                 const empKey = `emp-${empId}`; if (!scheduleSavedData[empKey]) scheduleSavedData[empKey] = {};
+                 scheduleSavedData[empKey][dateKey] = { type: shiftTypeValue, text: shiftText, class: shiftClass, notes: notes };
+                 localStorage.setItem(scheduleLocalStorageKey, JSON.stringify(scheduleSavedData));
+                 updateShiftDisplayUI_schedule(empId, dateKey, shiftText, shiftClass, notes);
+                 shiftModal.style.display = 'none'; const displayDate = getLocalDateFromKey_schedule(dateKey);
+                 window.dashboardApp.addActivity('fa-clock', `Updated shift for ${employee.name}`); window.dashboardApp.showSuccessMessage(`Shift updated.`);
+            }
+
+             function handleDeleteShiftClick_schedule() {
+                 const shiftModal = document.getElementById('schedule-shiftModal'); const shiftForm = document.getElementById('schedule-shiftForm');
+                 if (!shiftModal || !shiftForm) return;
+                 const empId = parseInt(document.getElementById('schedule-shiftEmpId')?.value || shiftForm.dataset.empId);
+                 const dateKey = document.getElementById('schedule-shiftDateKey')?.value || shiftForm.dataset.dateKey;
+                 const employee = teamMembers.find(e => e.id === empId); const displayDate = getLocalDateFromKey_schedule(dateKey);
+                 if (!employee || !displayDate || !dateKey) { window.dashboardApp.showErrorMessage("Delete error."); shiftModal.style.display = 'none'; return; }
+                 window.dashboardApp.showConfirmModal({
+                     title: 'Delete Shift?', message: `Delete shift for <strong>${employee.name}</strong> on ${displayDate.toLocaleDateString()}?`, confirmText: 'Delete', confirmClass: 'btn-danger',
+                     onConfirm: () => {
+                         const empKey = `emp-${empId}`; let deleted = false; if (scheduleSavedData[empKey]?.[dateKey]) { delete scheduleSavedData[empKey][dateKey]; deleted = true; }
+                         if (deleted) { localStorage.setItem(scheduleLocalStorageKey, JSON.stringify(scheduleSavedData)); updateShiftDisplayUI_schedule(empId, dateKey, '', '', ''); window.dashboardApp.addActivity('fa-calendar-minus', `Deleted shift for ${employee.name}`); window.dashboardApp.showSuccessMessage(`Shift deleted.`); }
+                         else { window.dashboardApp.showSuccessMessage(`No shift found.`); } shiftModal.style.display = 'none';
+                     }
+                 });
+            }
+
+             function setupScheduleEventListeners_schedule() {
+                 console.log("Setting up schedule-specific listeners...");
+                 // Use specific IDs prefixed with 'schedule-'
+                 const prevBtn = document.getElementById('schedule-prevWeekBtn');
+                 const nextBtn = document.getElementById('schedule-nextWeekBtn');
+                 const addEmpBtn = document.getElementById('schedule-addEmployeeBtn');
+                 const sendRemBtn = document.getElementById('schedule-sendRemindersBtn');
+                 const saveBtn = document.getElementById('schedule-saveScheduleBtn');
+                 const closeEmpModalBtn = document.getElementById('schedule-closeEmployeeModal');
+                 const cancelEmpModalBtn = document.getElementById('schedule-cancelEmployeeBtn');
+                 const empForm = document.getElementById('schedule-employeeForm');
+                 const empModal = document.getElementById('schedule-employeeModal');
+                 const closeShiftModalBtn = document.getElementById('schedule-closeShiftModal');
+                 const cancelShiftModalBtn = document.getElementById('schedule-cancelShiftBtn');
+                 const shiftFormEl = document.getElementById('schedule-shiftForm');
+                 const deleteShiftBtnEl = document.getElementById('schedule-deleteShiftBtn');
+                 const shiftTypeSelectEl = document.getElementById('schedule-shiftType');
+                 const customShiftGroupEl = document.getElementById('schedule-customShiftGroup');
+                 const customShiftInputEl = document.getElementById('schedule-customShift');
+                 const shiftModalEl = document.getElementById('schedule-shiftModal');
+
+                 // Remove previous listeners before adding new ones to prevent duplicates
+                 prevBtn?.removeEventListener('click', handleWeekChange_schedule_wrapper_prev);
+                 prevBtn?.addEventListener('click', handleWeekChange_schedule_wrapper_prev);
+                 nextBtn?.removeEventListener('click', handleWeekChange_schedule_wrapper_next);
+                 nextBtn?.addEventListener('click', handleWeekChange_schedule_wrapper_next);
+
+                 if (scheduleIsAdminOrSupervisor) {
+                    addEmpBtn?.removeEventListener('click', handleAddEmployeeClick_schedule);
+                    addEmpBtn?.addEventListener('click', handleAddEmployeeClick_schedule);
+                    sendRemBtn?.removeEventListener('click', handleSendRemindersClick_schedule);
+                    sendRemBtn?.addEventListener('click', handleSendRemindersClick_schedule);
+                    saveBtn?.removeEventListener('click', handleSaveScheduleClick_schedule);
+                    saveBtn?.addEventListener('click', handleSaveScheduleClick_schedule);
+                    if(addEmpBtn) addEmpBtn.style.display = 'inline-flex'; if(sendRemBtn) sendRemBtn.style.display = 'inline-flex'; if(saveBtn) saveBtn.style.display = 'inline-flex';
+                 } else {
+                     if(addEmpBtn) addEmpBtn.style.display = 'none'; if(sendRemBtn) sendRemBtn.style.display = 'none'; if(saveBtn) saveBtn.style.display = 'none';
+                 }
+
+                 // Add listeners for dynamic elements (edit buttons) - This needs to be done *after* render
+                 // We'll call a separate function for this after render
+                 setupDynamicScheduleListeners();
+
+                 // Modal Listeners
+                closeEmpModalBtn?.removeEventListener('click', closeEmpModalHandler); closeEmpModalBtn?.addEventListener('click', closeEmpModalHandler);
+                cancelEmpModalBtn?.removeEventListener('click', closeEmpModalHandler); cancelEmpModalBtn?.addEventListener('click', closeEmpModalHandler);
+                empForm?.removeEventListener('submit', handleEmployeeFormSubmit_schedule); empForm?.addEventListener('submit', handleEmployeeFormSubmit_schedule);
+                empModal?.removeEventListener('click', empModalBackdropHandler); empModal?.addEventListener('click', empModalBackdropHandler);
+
+                closeShiftModalBtn?.removeEventListener('click', closeShiftModalHandler); closeShiftModalBtn?.addEventListener('click', closeShiftModalHandler);
+                cancelShiftModalBtn?.removeEventListener('click', closeShiftModalHandler); cancelShiftModalBtn?.addEventListener('click', closeShiftModalHandler);
+                shiftFormEl?.removeEventListener('submit', handleShiftFormSubmit_schedule); shiftFormEl?.addEventListener('submit', handleShiftFormSubmit_schedule);
+                deleteShiftBtnEl?.removeEventListener('click', handleDeleteShiftClick_schedule); deleteShiftBtnEl?.addEventListener('click', handleDeleteShiftClick_schedule);
+                shiftTypeSelectEl?.removeEventListener('change', shiftTypeChangeHandler); shiftTypeSelectEl?.addEventListener('change', shiftTypeChangeHandler);
+                shiftModalEl?.removeEventListener('click', shiftModalBackdropHandler); shiftModalEl?.addEventListener('click', shiftModalBackdropHandler);
+
+                 console.log("Schedule listeners attached.");
+            }
+
+             // Separate function to attach listeners to dynamically created edit buttons
+            function setupDynamicScheduleListeners() {
+                 const scheduleContainer = document.querySelector('.employee-schedule-body'); // Find container again
+                 if (!scheduleContainer) return;
+                 console.log("Setting up dynamic schedule listeners (edit buttons)...");
+                 scheduleContainer.querySelectorAll('.edit-shift').forEach(button => {
+                      // Remove first to prevent duplicates if called again
+                      button.removeEventListener('click', handleEditShiftClick_schedule);
+                      button.removeEventListener('keydown', editShiftKeydownHandler_schedule);
+                      // Add new listeners
+                      button.addEventListener('click', handleEditShiftClick_schedule);
+                      button.addEventListener('keydown', editShiftKeydownHandler_schedule);
+                 });
+                 console.log("Dynamic listeners attached.");
+            }
+
+             // Define wrapper functions for listeners needing specific arguments or context
+             const handleWeekChange_schedule_wrapper_prev = () => handleWeekChange_schedule(-1);
+             const handleWeekChange_schedule_wrapper_next = () => handleWeekChange_schedule(1);
+             const editShiftKeydownHandler_schedule = (e) => { if (e.key === 'Enter' || e.key === ' ') handleEditShiftClick_schedule(e); };
+             const closeEmpModalHandler = () => { const m = document.getElementById('schedule-employeeModal'); if(m) m.style.display = 'none'; };
+             const empModalBackdropHandler = (e) => { if (e.target.id === 'schedule-employeeModal') closeEmpModalHandler(); };
+             const closeShiftModalHandler = () => { const m = document.getElementById('schedule-shiftModal'); if(m) m.style.display = 'none'; };
+             const shiftModalBackdropHandler = (e) => { if (e.target.id === 'schedule-shiftModal') closeShiftModalHandler(); };
+             const shiftTypeChangeHandler = (e) => {
+                 const customGroup = document.getElementById('schedule-customShiftGroup');
+                 const customInput = document.getElementById('schedule-customShift');
+                 if (!customGroup || !customInput) return;
+                 const isCustom = e.target.value === 'custom';
+                 customGroup.style.display = isCustom ? 'block' : 'none';
+                 customInput.required = isCustom;
+                 if(isCustom) customInput.focus();
+             };
+
+
+            // --- NEW setActiveFeature (Loads HTML, then calls initializer) ---
+            function setActiveFeature(featureId, settingsTab = null) {
+                 console.log(`setActiveFeature: ${featureId}`);
+                 if (currentFeature === 'employee-scheduling' && featureId !== 'employee-scheduling') {
+                     scheduleLogicInitialized = false; // Reset flag when navigating away
+                     console.log("Reset scheduleLogicInitialized flag.");
+                 }
+
+                 currentFeature = featureId;
+                 currentSettingsTab = settingsTab || (featureId === 'settings' ? currentSettingsTab : null);
+                 let hash = `#${featureId}`; if (featureId === 'settings' && currentSettingsTab) hash += `-${currentSettingsTab}`;
+                 if (window.location.hash !== hash) history.pushState({ feature: featureId, tab: currentSettingsTab }, '', hash);
+
+                 menuItems.forEach(item => item.classList.remove('active'));
+                 document.querySelector(`.menu-item[data-feature="${featureId}"]`)?.classList.add('active');
+
+                 contentSections.forEach(section => section.classList.remove('active'));
+                 featureSectionsContainer.style.display = 'none';
+
+                 if (featureId === 'dashboard' || featureId === 'profile' || featureId === 'settings') {
+                     const staticSection = document.getElementById(`${featureId}Content`);
+                     if (staticSection) { staticSection.classList.add('active'); /* ... update static content ... */ }
+                     setPlaceholderState('hidden');
+                 } else {
+                     featureSectionsContainer.style.display = 'block';
+                     featureSections.innerHTML = ''; featureSections.appendChild(featurePlaceholder);
+                     setPlaceholderState('loading', `Loading ${featureId}...`);
+                     const htmlFilePath = `sections/${featureId}.html`;
+
+                     fetch(htmlFilePath)
+                         .then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.text(); })
+                         .then(html => {
+                             console.log(`HTML loaded for ${featureId}`);
+                             featureSections.innerHTML = html; featureSections.classList.add('active');
+                             setPlaceholderState('hidden');
+
+                             // Initialize the feature's logic AFTER HTML is loaded
+                             if (featureId === 'employee-scheduling') {
+                                 initializeScheduleFeature(currentUser, teamMembers);
+                             }
+                             // else if (featureId === 'otherFeature') { initializeOtherFeature(); }
+
+                         })
+                         .catch(error => { console.error(`Error loading ${featureId}:`, error); setPlaceholderState('error', `Error Loading ${featureId}`, `Could not load. ${error.message}`); });
+                 }
+                 backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none';
+                 window.scrollTo(0, 0);
+            }
+
+            // --- INIT DASHBOARD ---
+             function initDashboard() {
+                 loadData(); updateUserUI(); loadTeamMembers(); loadActivities(); loadNotifications(); updateStats(); applyUserPreferences(); applyRBAC(); setupEventListeners(); handleInitialNavigation(); startActivityTimeUpdater();
+                 console.log("Dashboard Initialized");
+             }
+
+             // --- Setup Core Event Listeners ---
+             function setupEventListeners() {
+                  console.log("Setting up CORE dashboard listeners...");
+                  menuItems.forEach(item => item.addEventListener('click', (e) => { e.preventDefault(); setActiveFeature(item.dataset.feature); }));
+                  backButton.addEventListener('click', () => setActiveFeature('dashboard'));
+                  window.addEventListener('popstate', (event) => { if (event.state?.feature) { setActiveFeature(event.state.feature, event.state.tab); } else { handleInitialNavigation(); } });
+                  // ... (ALL other original dashboard event listeners) ...
+                  console.log("CORE dashboard listeners attached.");
+             }
+
+            // --- Run Initialization ---
+            initDashboard();
+
+        }); // End DOMContentLoaded
+    </script>
+</body>
+</html>
