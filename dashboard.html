@@ -1,346 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- ... (Head content from dash1.html) ... -->
+    <!-- ... (Head content as before) ... -->
     <title>TeamFlow | Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" sizes="32x32" href="https://img.icons8.com/fluency/48/000000/group-task.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="https://img.icons8.com/fluency/32/000000/group-task.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="https://img.icons8.com/fluency/180/000000/group-task.png">
+    <!-- ... other links ... -->
     <style>
         /* ... (ALL CSS from dash1.html) ... */
-        :root { /* ... */ } * { /* ... */ } body { /* ... */ } /* ... ALL OTHER STYLES ... */
     </style>
 </head>
 <body class="blue-theme">
     <!-- ... (Audio, Success Message, Sidebar HTML, Main Content HTML, Top Nav HTML) ... -->
-
-     <!-- Content Area -->
-        <div class="content-area">
-            <div class="back-button" id="backButton" style="display: none;"><i class="fas fa-arrow-left"></i><span>Back to Dashboard</span></div>
-            <!-- Dashboard Content -->
-            <div id="dashboardContent" class="content-section active"> <!-- ... (Dashboard Welcome, Stats, Activity HTML) ... --> </div>
-            <!-- Profile Content -->
-            <div class="content-section" id="profileContent"> <!-- ... (Profile HTML) ... --> </div>
-            <!-- Settings Content -->
-            <div class="content-section" id="settingsContent"> <!-- ... (Settings HTML) ... --> </div>
-            <!-- Feature Content Sections Container -->
-            <div id="featureSectionsContainer" style="display: none;">
-                <div id="featureSections" class="content-section"> <!-- Feature content loaded here -->
-                    <div class="placeholder-content" id="featurePlaceholder">
-                        <h2 id="featureTitle">Feature Loading...</h2><p id="featureDescription"></p>
-                        <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
-                        <div class="error-message" style="display: none;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-    <!-- Modals -->
-    <div class="notifications-modal" id="notificationsModal"> <!-- ... (Notifications Modal HTML) ... --> </div>
-    <div class="confirm-modal" id="confirmModal"> <!-- ... (Confirm Modal HTML) ... --> </div>
+    <!-- ... (Content Area HTML including static sections and feature container) ... -->
+    <!-- ... (Modals HTML) ... -->
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // --- CORE DASHBOARD ELEMENTS & STATE ---
-            // ... (Define ALL element consts: sidebar, menuItems, contentSections, etc.) ...
+            // --- CORE DASHBOARD ELEMENTS & STATE (Define ALL const first)---
+            const sidebar = document.getElementById('sidebar');
+            const menuItems = document.querySelectorAll('.menu-item');
             const contentSections = document.querySelectorAll('.content-section:not(#featureSections)');
+            const dashboardContent = document.getElementById('dashboardContent');
+            const profileContent = document.getElementById('profileContent');
+            const settingsContent = document.getElementById('settingsContent');
             const featureSectionsContainer = document.getElementById('featureSectionsContainer');
             const featureSections = document.getElementById('featureSections');
             const featurePlaceholder = document.getElementById('featurePlaceholder');
-            const teamList = document.getElementById('teamList');
+            const teamList = document.getElementById('teamList'); // Ensure this exists if used
             const backButton = document.getElementById('backButton');
-            // ... other consts
+            // ... Add ALL OTHER dashboard element consts here ...
+            let confirmBtn = document.getElementById('confirmBtn'); // Use let for re-assignment
+            let cancelConfirmBtn = document.getElementById('cancelConfirmBtn'); // Use let for re-assignment
+
+            // --- State Variables ---
             let currentUser = {}; let teamMembers = []; let activities = []; let notifications = [];
             let currentFeature = 'dashboard'; let currentSettingsTab = 'preferences';
             let scheduleLogicInitialized = false; let scheduleCurrentWeekStart = null; let scheduleSavedData = {};
             const scheduleLocalStorageKey = 'employeeSchedule_May2025_final';
-             const DEFAULT_USER = { /* ... */ }; // Keep default user object
-             let confirmBtn = document.getElementById('confirmBtn'); let cancelConfirmBtn = document.getElementById('cancelConfirmBtn'); // Use let
+            const DEFAULT_USER = { /* ... */ }; // Keep definition
 
-            // --- GLOBAL HELPER FUNCTIONS (Keep all original ones) ---
+            // ============================================================
+            // === DEFINE ALL FUNCTIONS BEFORE CALLING ANY OF THEM ===
+            // ============================================================
+
+            // --- CORE DASHBOARD HELPER FUNCTIONS ---
             function setPlaceholderState(state, title = '', description = '') { /* ... */ }
             function showConfirmModal(config) { /* ... */ }
             function hideConfirmModal() { /* ... */ }
             function showSuccessMessage(message) { /* ... */ }
             function addActivity(icon, message) { /* ... */ }
-            const dashboardGlobals = { /* ... define globals ... */ }; window.dashboardApp = dashboardGlobals;
-            // ... other core helpers ...
+            const dashboardGlobals = { showConfirmModal, hideConfirmModal, showSuccessMessage, showErrorMessage: (msg) => showConfirmModal({title:"Error", message:msg, confirmText:"OK", confirmClass:"btn-warning", cancelText:""}), addActivity, getCurrentUser: () => JSON.parse(JSON.stringify(currentUser || {})), getTeamMembers: () => JSON.parse(JSON.stringify(teamMembers || [])), updateTeamMembers: (newTeam) => {if(Array.isArray(newTeam)){teamMembers=newTeam; saveData(); loadTeamMembers(); updateStats();}} };
+            window.dashboardApp = dashboardGlobals;
+            function loadData() { /* ... (Original loadData) ... */ }
+            function saveData() { /* ... (Original saveData) ... */ }
+            function updateUserUI() { /* ... (Original updateUserUI) ... */ }
+            function applyUserPreferences() { /* ... (Original applyUserPreferences) ... */ }
+            function applyRBAC() { /* ... (Original applyRBAC) ... */ }
+            function loadSettingsFormData() { /* ... (Original loadSettingsFormData) ... */ }
+            function updateStats() { /* ... (Original updateStats) ... */ }
+            function updateTrendIndicator(element, trend) { /* ... (Original updateTrendIndicator) ... */ }
+            function updateNotificationBadge() { /* ... (Original updateNotificationBadge) ... */ }
+            function loadActivities(showAll = false) { /* ... (Original loadActivities) ... */ }
+            function loadNotifications() { /* ... (Original loadNotifications) ... */ }
+            function getTimeAgo(timestamp) { /* ... (Original getTimeAgo) ... */ }
+            function updateActivityTimes() { /* ... (Original updateActivityTimes) ... */ }
+            function startActivityTimeUpdater() { /* ... (Original startActivityTimeUpdater) ... */ }
+            function loadTeamMembers() { /* ... (Original loadTeamMembers, ensure teamList check) ... */ }
+            function handleProfileSave(e) { /* ... (Original handleProfileSave) ... */ }
+            function handleProfileCancel() { /* ... (Original handleProfileCancel) ... */ }
+            function handleSettingsSave(formId, panelId, successMsg) { /* ... (Original handleSettingsSave) ... */ }
+            function handleSettingsCancel(panelId) { /* ... (Original handleSettingsCancel) ... */ }
+            function handleInviteMember(e) { /* ... (Original handleInviteMember) ... */ }
+            function handleEditMemberClick(e) { /* ... (Original handleEditMemberClick) ... */ }
+            function handleDeleteMemberClick(e) { /* ... (Original handleDeleteMemberClick) ... */ }
+            function handleDeleteActivityClick(e) { /* ... (Original handleDeleteActivityClick) ... */ }
+            function handleDeleteAllActivities() { /* ... (Original handleDeleteAllActivities) ... */ }
+            function markNotificationAsRead(notificationId, itemElement) { /* ... (Original markNotificationAsRead) ... */ }
+            function handleMarkAllNotificationsRead() { /* ... (Original handleMarkAllNotificationsRead) ... */ }
+            function handleDeleteNotificationClick(notificationId) { /* ... (Original handleDeleteNotificationClick) ... */ }
+            function handleDeleteAllNotifications() { /* ... (Original handleDeleteAllNotifications) ... */ }
+            function handleAvatarUpload(e) { /* ... (Original handleAvatarUpload) ... */ }
+            function handleLogout() { /* ... (Original handleLogout) ... */ }
+            function addNotification(icon, message) { /* ... (Original addNotification) ... */ }
+            function playNotificationSound() { /* ... (Original playNotificationSound) ... */ }
+            function handleSearch() { /* ... (Original handleSearch) ... */ }
+            function activateSettingsTab(tabId) { /* ... (Original activateSettingsTab) ... */ }
 
+            // --- EMPLOYEE SCHEDULING FUNCTIONS (Define them here) ---
+            function formatDateKey_schedule(date) { /* ... */ }
+            function getLocalDateFromKey_schedule(dateKey) { /* ... */ }
+            function updateWeekDisplay_schedule() { /* ... */ }
+            function renderScheduleTable_schedule() { /* ... (Ensure it calls setupDynamicScheduleListeners_schedule at the end) ... */ }
+            function updateShiftDisplayUI_schedule(/*...*/) { /* ... */ }
+            function handleWeekChange_schedule(direction) { /* ... */ }
+            function handleAddEmployeeClick_schedule() { /* ... */ }
+            function handleSendRemindersClick_schedule() { /* ... */ }
+            function handleSaveScheduleClick_schedule() { /* ... */ }
+            function handleEmployeeFormSubmit_schedule(e) { /* ... */ }
+            function handleEditShiftClick_schedule(event) { /* ... */ }
+            function handleShiftFormSubmit_schedule(e) { /* ... */ }
+            function handleDeleteShiftClick_schedule() { /* ... */ }
+            function setupDynamicScheduleListeners_schedule() { /* ... */ } // Listener for dynamic buttons
+            const shiftTypeChangeHandler_schedule = (e) => { /* ... */ }; // Define handler
+             const editShiftKeydownHandler_schedule = (e) => { /* ... */ }; // Define handler
 
-            // ============================================================
-            // === EMPLOYEE SCHEDULING LOGIC (DEFINE FUNCTIONS FIRST) ===
-            // ============================================================
-            console.log("Defining schedule functions..."); // Log definition phase
-
-            function formatDateKey_schedule(date) { if (!date?.getTime) return null; const y=date.getFullYear(); const m=(date.getMonth()+1).toString().padStart(2,'0'); const d=date.getDate().toString().padStart(2,'0'); return `${y}-${m}-${d}`; }
-            function getLocalDateFromKey_schedule(dateKey) { if (!dateKey?.match) return null; const p=dateKey.split('-'); return new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2])); }
-
-            function updateWeekDisplay_schedule() {
-                 const weekDisplay = document.getElementById('schedule-weekDisplay');
-                 const prevWeekBtn = document.getElementById('schedule-prevWeekBtn');
-                 const nextWeekBtn = document.getElementById('schedule-nextWeekBtn');
-                 if (!weekDisplay || !prevWeekBtn || !nextWeekBtn) {console.warn("updateWeekDisplay: Elements missing"); return;}
-                 const scheduleMinDate = new Date(2025, 4, 1); const scheduleMaxDate = new Date(2025, 4, 31);
-                 if (!scheduleCurrentWeekStart) { // Set initial week if not set
-                     const today = new Date(); const dayOfWeek = today.getDay(); const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); scheduleCurrentWeekStart = new Date(today.getFullYear(), today.getMonth(), diff);
-                     if (scheduleCurrentWeekStart < scheduleMinDate) scheduleCurrentWeekStart = new Date(scheduleMinDate);
-                     if (scheduleCurrentWeekStart > scheduleMaxDate) { scheduleCurrentWeekStart = new Date(scheduleMaxDate); scheduleCurrentWeekStart.setDate(scheduleCurrentWeekStart.getDate() - 6); }
-                 }
-                 const weekEnd = new Date(scheduleCurrentWeekStart); weekEnd.setDate(weekEnd.getDate() + 6);
-                 const options = { month: 'short', day: 'numeric' };
-                 weekDisplay.textContent = `${scheduleCurrentWeekStart.toLocaleDateString('en-US', options)} - ${weekEnd.toLocaleDateString('en-US', options)}, ${scheduleCurrentWeekStart.getFullYear()}`;
-                 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                 const headerRow = document.querySelector('#featureSections .schedule-table thead tr');
-                 if (!headerRow) return; headerRow.innerHTML = '<th>Employee</th>';
-                 const tempDate = new Date(scheduleCurrentWeekStart);
-                 days.forEach(dayName => { const th=document.createElement('th'); const ds=tempDate.toLocaleDateString('en-US',{day:'numeric'}); const ms=tempDate.toLocaleDateString('en-US',{month:'short'}); th.innerHTML=`<div class="day-header"><span class="day-name">${dayName}</span><span class="day-date">${ms} ${ds}</span></div>`; headerRow.appendChild(th); tempDate.setDate(tempDate.getDate()+1); });
-                 const prevT=new Date(scheduleCurrentWeekStart); prevT.setDate(prevT.getDate()-1); prevWeekBtn.disabled=prevT<scheduleMinDate; const nextT=new Date(scheduleCurrentWeekStart); nextT.setDate(nextT.getDate()+7); nextWeekBtn.disabled=nextT>scheduleMaxDate;
-            }
-
-            function renderScheduleTable_schedule() {
-                const scheduleTableBody = document.getElementById('schedule-table-body');
-                if (!scheduleTableBody) { console.error("renderScheduleTable_schedule: Cannot find table body!"); return; }
-                console.log(`Rendering schedule table. Global teamMembers count: ${teamMembers.length}`); // Use global teamMembers
-                scheduleTableBody.innerHTML = ''; // Clear first
-                if (!Array.isArray(teamMembers) || teamMembers.length === 0) { // Use global teamMembers
-                    scheduleTableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--gray);">No employees defined. Add in Settings > Team Management.</td></tr>`;
-                    return;
-                }
-                const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                const scheduleIsAdminOrSupervisor = currentUser.role === 'admin' || currentUser.role === 'supervisor'; // Use global currentUser
-
-                teamMembers.forEach((employee, index) => { // Use global teamMembers
-                    if (!employee?.id || !employee?.name) { console.warn("Skipping invalid employee in render:", employee); return; }
-                    const tr = document.createElement('tr'); tr.dataset.empId = employee.id;
-                    const nameTd = document.createElement('td'); nameTd.className = `employee-name employee-${(index % 6) + 1}`; nameTd.textContent = employee.name; tr.appendChild(nameTd);
-                    const tempDate = new Date(scheduleCurrentWeekStart);
-                    days.forEach((day, dayIndex) => {
-                        const td = document.createElement('td'); td.classList.add('admin-controls');
-                        const dateKey = formatDateKey_schedule(tempDate);
-                        if (!dateKey) { td.textContent = 'ERR'; tr.appendChild(td); tempDate.setDate(tempDate.getDate()+1); return; }
-                        const mobileLabel = `${days[dayIndex]} (${tempDate.toLocaleDateString('en-us',{month:'short',day:'numeric'})})`; td.dataset.label = mobileLabel; td.dataset.dateKey = dateKey;
-                        const empKey = `emp-${employee.id}`; const shiftData = scheduleSavedData[empKey]?.[dateKey]; // Use scheduleSavedData
-                        if (shiftData?.text && shiftData?.class) { const div = document.createElement('div'); div.className = `shift ${shiftData.class}`; div.textContent = shiftData.text; div.title = shiftData.notes || ''; td.appendChild(div); }
-                        if (scheduleIsAdminOrSupervisor) { const es = document.createElement('span'); es.className = 'edit-shift admin-visible'; es.dataset.empId = employee.id; es.dataset.dateKey = dateKey; es.textContent = shiftData ? '(edit)' : '(add)'; es.setAttribute('role','button'); es.setAttribute('tabindex','0'); es.onclick = handleEditShiftClick_schedule; es.onkeydown = editShiftKeydownHandler_schedule; td.appendChild(es); } // Assign handlers directly
-                        tr.appendChild(td); tempDate.setDate(tempDate.getDate() + 1);
-                    });
-                    scheduleTableBody.appendChild(tr);
-                });
-                 console.log("Finished rendering schedule table.");
-                 // Attach dynamic listeners AFTER rendering rows
-                 setupDynamicScheduleListeners_schedule();
-            }
-
-            function updateShiftDisplayUI_schedule(empId, dateKey, shiftText, shiftClass, notes = '') {
-                 const scheduleTableBody = document.getElementById('schedule-table-body'); if (!scheduleTableBody) return;
-                 const cellSelector = `tr[data-emp-id="${empId}"] td[data-date-key="${dateKey}"]`; const shiftCell = scheduleTableBody.querySelector(cellSelector); if (!shiftCell) return;
-                 let editSpan = shiftCell.querySelector('.edit-shift'); const exists = shiftText && shiftClass; const oldShift = shiftCell.querySelector('.shift'); if (oldShift) oldShift.remove();
-                 if (exists) { const div = document.createElement('div'); div.className = `shift ${shiftClass}`; div.textContent = shiftText; div.title = notes || ''; if (editSpan) shiftCell.insertBefore(div, editSpan); else shiftCell.appendChild(div); }
-                 if (editSpan) editSpan.textContent = exists ? '(edit)' : '(add)';
-            }
-
-            // --- Schedule Event Handlers (Defined in this scope) ---
-            function handleWeekChange_schedule(direction) { if (!scheduleCurrentWeekStart) return; const scheduleMinDate=new Date(2025,4,1); const scheduleMaxDate=new Date(2025,4,31); const newWeekStart=new Date(scheduleCurrentWeekStart); newWeekStart.setDate(newWeekStart.getDate()+(direction*7)); if(newWeekStart<scheduleMinDate||newWeekStart>scheduleMaxDate) return; scheduleCurrentWeekStart=newWeekStart; updateWeekDisplay_schedule(); renderScheduleTable_schedule(); }
-            function handleAddEmployeeClick_schedule() { const m=document.getElementById('schedule-employeeModal'); const f=document.getElementById('schedule-employeeForm'); if(m&&f){f.reset(); m.style.display='flex'; m.querySelector('#schedule-empName')?.focus();} }
-            function handleSendRemindersClick_schedule() { const wd=document.getElementById('schedule-weekDisplay'); const wt=wd?.textContent||"Current Week"; const subj=encodeURIComponent(`Reminder: ${wt}`); let body=`Hi Team,\nSchedule for ${wt}:\n\n`; teamMembers.forEach(e=>{body+=`${e.name}:\n`; let s=''; const tmp=new Date(scheduleCurrentWeekStart); for(let i=0;i<7;i++){const dk=formatDateKey_schedule(tmp); const sd=scheduleSavedData[`emp-${e.id}`]?.[dk]; if(sd&&sd.type!=='day-off')s+=` ${tmp.toLocaleDateString('en-US',{weekday:'short'})}: ${sd.text}`; tmp.setDate(tmp.getDate()+1);} body+=s||' (No shifts)\n'; body+='\n';}); body+='Thanks'; const emails=teamMembers.map(e=>e.email).filter(Boolean).join(','); if(!emails){window.dashboardApp.showErrorMessage("No emails."); return;} window.open(`mailto:${emails}?subject=${subj}&body=${encodeURIComponent(body)}`, '_blank'); }
-            function handleSaveScheduleClick_schedule() { localStorage.setItem(scheduleLocalStorageKey, JSON.stringify(scheduleSavedData)); window.dashboardApp.showSuccessMessage("Schedule saved."); window.dashboardApp.addActivity('fa-calendar-check', `Schedule saved`); }
-            function handleEmployeeFormSubmit_schedule(e) { e.preventDefault(); const m=document.getElementById('schedule-employeeModal'); const f=document.getElementById('schedule-employeeForm'); if(!m||!f) return; const ni=f.querySelector('#schedule-empName'); const ei=f.querySelector('#schedule-empEmail'); const name=ni?.value.trim(); const email=ei?.value.trim(); if(!name||!email||!/^\S+@\S+\.\S+$/.test(email)){window.dashboardApp.showErrorMessage("Valid name/email needed."); return;} if(teamMembers.some(em=>em.email.toLowerCase()===email.toLowerCase())){window.dashboardApp.showErrorMessage(`Email ${email} exists.`); return;} const ne={id:Date.now(), name, email, role:'member', initials:name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase(), avatar:''}; window.dashboardApp.updateTeamMembers([...teamMembers, ne]); renderScheduleTable_schedule(); m.style.display='none'; window.dashboardApp.addActivity('fa-user-plus', `Added ${name}`); window.dashboardApp.showSuccessMessage(`${name} added.`); }
-            function handleEditShiftClick_schedule(event) { const target=event.currentTarget||event.target; const empId=parseInt(target?.dataset.empId); const dateKey=target?.dataset.dateKey; const m=document.getElementById('schedule-shiftModal'); const f=document.getElementById('schedule-shiftForm'); /* ... query all modal inputs ... */ const sEmp=document.getElementById('schedule-shiftEmployee'); if(!empId||!dateKey||!m||!f||!sEmp) {window.dashboardApp.showErrorMessage("Edit modal error."); return;} const emp=teamMembers.find(e=>e.id===empId); const sd=getLocalDateFromKey_schedule(dateKey); if(!emp||!sd){window.dashboardApp.showErrorMessage("Invalid edit data."); return;} f.reset(); /* ... populate all modal inputs ... */ m.style.display='flex'; document.getElementById('schedule-shiftType')?.focus(); }
-            function handleShiftFormSubmit_schedule(e) { e.preventDefault(); const m=document.getElementById('schedule-shiftModal'); const f=document.getElementById('schedule-shiftForm'); if(!m||!f) return; const empId=parseInt(document.getElementById('schedule-shiftEmpId')?.value||f.dataset.empId); const dateKey=document.getElementById('schedule-shiftDateKey')?.value||f.dataset.dateKey; const emp=teamMembers.find(e=>e.id===empId); if(!emp||!dateKey){window.dashboardApp.showErrorMessage("Save error."); m.style.display='none'; return;} /* ... get values ... */ let shiftText='',shiftClass=''; switch(document.getElementById('schedule-shiftType')?.value) { /* ... cases ... */ } const ek=`emp-${empId}`; if(!scheduleSavedData[ek])scheduleSavedData[ek]={}; scheduleSavedData[ek][dateKey]={/* ... */}; localStorage.setItem(scheduleLocalStorageKey, JSON.stringify(scheduleSavedData)); updateShiftDisplayUI_schedule(empId,dateKey,shiftText,shiftClass,document.getElementById('schedule-shiftNotes')?.value.trim()); m.style.display='none'; /* ... add activity, show success ... */ }
-            function handleDeleteShiftClick_schedule() { const m=document.getElementById('schedule-shiftModal'); const f=document.getElementById('schedule-shiftForm'); if(!m||!f) return; const empId=parseInt(document.getElementById('schedule-shiftEmpId')?.value||f.dataset.empId); const dateKey=document.getElementById('schedule-shiftDateKey')?.value||f.dataset.dateKey; const emp=teamMembers.find(e=>e.id===empId); const dDate=getLocalDateFromKey_schedule(dateKey); if(!emp||!dDate||!dateKey){window.dashboardApp.showErrorMessage("Delete error."); m.style.display='none'; return;} window.dashboardApp.showConfirmModal({ title:'Delete Shift?', message:`Delete shift for <strong>${emp.name}</strong>?`, confirmText:'Delete', confirmClass:'btn-danger', onConfirm:()=>{/* ... delete logic ... */ m.style.display='none';}}); }
-
-            // --- Setup Schedule Event Listeners (Called when feature loads) ---
-            function setupScheduleEventListeners_schedule() {
-                 console.log("Setting up schedule listeners...");
-                 const prevBtn=document.getElementById('schedule-prevWeekBtn'); const nextBtn=document.getElementById('schedule-nextWeekBtn');
-                 const addEmpBtn=document.getElementById('schedule-addEmployeeBtn'); const sendRemBtn=document.getElementById('schedule-sendRemindersBtn'); const saveBtn=document.getElementById('schedule-saveScheduleBtn');
-                 const closeEmpModalBtn=document.getElementById('schedule-closeEmployeeModal'); const cancelEmpModalBtn=document.getElementById('schedule-cancelEmployeeBtn'); const empForm=document.getElementById('schedule-employeeForm'); const empModal=document.getElementById('schedule-employeeModal');
-                 const closeShiftModalBtn=document.getElementById('schedule-closeShiftModal'); const cancelShiftModalBtn=document.getElementById('schedule-cancelShiftBtn'); const shiftFormEl=document.getElementById('schedule-shiftForm'); const deleteShiftBtnEl=document.getElementById('schedule-deleteShiftBtn'); const shiftTypeSelectEl=document.getElementById('schedule-shiftType'); const shiftModalEl=document.getElementById('schedule-shiftModal');
-
-                 // Use simple assignment for static buttons, assuming init runs once per load
-                 if(prevBtn) prevBtn.onclick = () => handleWeekChange_schedule(-1);
-                 if(nextBtn) nextBtn.onclick = () => handleWeekChange_schedule(1);
-                 if(addEmpBtn) addEmpBtn.onclick = handleAddEmployeeClick_schedule;
-                 if(sendRemBtn) sendRemBtn.onclick = handleSendRemindersClick_schedule;
-                 if(saveBtn) saveBtn.onclick = handleSaveScheduleClick_schedule;
-                 if(closeEmpModalBtn) closeEmpModalBtn.onclick = () => { if(empModal) empModal.style.display = 'none'; };
-                 if(cancelEmpModalBtn) cancelEmpModalBtn.onclick = () => { if(empModal) empModal.style.display = 'none'; };
-                 if(empForm) empForm.onsubmit = handleEmployeeFormSubmit_schedule;
-                 if(empModal) empModal.onclick = (e) => { if (e.target === empModal) empModal.style.display = 'none'; };
-                 if(closeShiftModalBtn) closeShiftModalBtn.onclick = () => { if(shiftModalEl) shiftModalEl.style.display = 'none'; };
-                 if(cancelShiftModalBtn) cancelShiftModalBtn.onclick = () => { if(shiftModalEl) shiftModalEl.style.display = 'none'; };
-                 if(shiftFormEl) shiftFormEl.onsubmit = handleShiftFormSubmit_schedule;
-                 if(deleteShiftBtnEl) deleteShiftBtnEl.onclick = handleDeleteShiftClick_schedule;
-                 if(shiftTypeSelectEl) shiftTypeSelectEl.onchange = shiftTypeChangeHandler_schedule; // Use wrapper
-                 if(shiftModalEl) shiftModalEl.onclick = (e) => { if (e.target === shiftModalEl) shiftModalEl.style.display = 'none'; };
-
-                 // Dynamic listeners are attached in render function now
-                 console.log("Static schedule listeners attached.");
-            }
-
-            // Wrapper for shift type change
-            const shiftTypeChangeHandler_schedule = (e) => {
-                 const customGroup = document.getElementById('schedule-customShiftGroup');
-                 const customInput = document.getElementById('schedule-customShift');
-                 if (!customGroup || !customInput) return;
-                 const isCustom = e.target.value === 'custom';
-                 customGroup.style.display = isCustom ? 'block' : 'none';
-                 customInput.required = isCustom;
-                 if(isCustom) customInput.focus();
-            };
-            // Wrapper for edit keydown
-             const editShiftKeydownHandler_schedule = (e) => { if (e.key === 'Enter' || e.key === ' ') handleEditShiftClick_schedule(e); };
-
-             // Function to attach listeners to dynamic edit buttons (called after render)
-            function setupDynamicScheduleListeners_schedule() {
-                 document.querySelectorAll('#schedule-table-body .edit-shift').forEach(button => {
-                      button.removeEventListener('click', handleEditShiftClick_schedule); button.removeEventListener('keydown', editShiftKeydownHandler_schedule); // Prevent duplicates
-                      button.addEventListener('click', handleEditShiftClick_schedule); button.addEventListener('keydown', editShiftKeydownHandler_schedule);
-                 });
-                 console.log("Dynamic schedule listeners attached/updated.");
-            }
-
-
-            // ============================================================
-            // === CORE DASHBOARD NAVIGATION & INITIALIZATION LOGIC ===
-            // ============================================================
-
-             // --- setActiveFeature (Loads HTML, then calls specific initializer) ---
-            function setActiveFeature(featureId, settingsTab = null) {
-                 console.log(`setActiveFeature: ${featureId}`);
-                 // Reset schedule init flag ONLY if navigating AWAY from it
-                 if (currentFeature === 'employee-scheduling' && featureId !== 'employee-scheduling') {
-                     scheduleLogicInitialized = false;
-                     console.log("Reset scheduleLogicInitialized flag.");
-                     // Potentially remove schedule-specific listeners here if needed
-                 }
-
-                 currentFeature = featureId;
-                 currentSettingsTab = settingsTab || (featureId === 'settings' ? currentSettingsTab : null);
-                 let hash = `#${featureId}`; if (featureId === 'settings' && currentSettingsTab) hash += `-${currentSettingsTab}`;
-                 if (window.location.hash !== hash) history.pushState({ feature: featureId, tab: currentSettingsTab }, '', hash);
-
-                 menuItems.forEach(item => item.classList.remove('active'));
-                 document.querySelector(`.menu-item[data-feature="${featureId}"]`)?.classList.add('active');
-
-                 // Hide static sections and feature container
-                 contentSections.forEach(section => section.classList.remove('active'));
-                 featureSectionsContainer.style.display = 'none';
-
-                 if (featureId === 'dashboard' || featureId === 'profile' || featureId === 'settings') {
-                     const staticSection = document.getElementById(`${featureId}Content`);
-                     if (staticSection) { staticSection.classList.add('active'); /* ... update static content ... */ }
-                     setPlaceholderState('hidden');
-                 } else {
-                     // Load Dynamic Section
-                     featureSectionsContainer.style.display = 'block';
-                     featureSections.innerHTML = ''; featureSections.appendChild(featurePlaceholder);
-                     setPlaceholderState('loading', `Loading ${featureId}...`);
-                     const htmlFilePath = `sections/${featureId}.html`;
-
-                     fetch(htmlFilePath)
-                         .then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.text(); })
-                         .then(html => {
-                             console.log(`HTML loaded for ${featureId}`);
-                             featureSections.innerHTML = html; // Insert HTML
-                             featureSections.classList.add('active');
-                             setPlaceholderState('hidden');
-
-                             // **** Initialize the specific feature's logic ****
-                             if (featureId === 'employee-scheduling') {
-                                 // Load saved data specifically for schedule init
-                                 const savedScheduleData = localStorage.getItem(scheduleLocalStorageKey);
-                                 scheduleSavedData = savedScheduleData ? JSON.parse(savedScheduleData) : {};
-                                 // Call the integrated init function
-                                 initializeScheduleFeature_integrated(); // Call the *integrated* function
-                             }
-                             // else if (featureId === 'otherFeature') { initializeOtherFeature(); }
-
-                         })
-                         .catch(error => { console.error(`Error loading ${featureId}:`, error); setPlaceholderState('error', `Error Loading ${featureId}`, `Could not load. ${error.message}`); });
-                 }
-                 backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none';
-                 window.scrollTo(0, 0);
-            }
-
-             // --- Integrated Initialization Function for Schedule ---
+            // --- Main Schedule Initializer (Called by setActiveFeature) ---
              function initializeScheduleFeature_integrated() {
-                 if (scheduleLogicInitialized) {
-                     console.log("Re-rendering schedule (already initialized).");
-                     // Just re-render and update week display
-                     updateWeekDisplay_schedule();
-                     renderScheduleTable_schedule(); // Will use current global teamMembers
-                     return;
-                 }
+                 if (scheduleLogicInitialized) { /* ... re-render only ... */ return; }
                  console.log("--- Initializing Employee Scheduling Feature (Integrated) ---");
                  scheduleLogicInitialized = true;
-
-                 // Set state based on current global state
-                 scheduleCurrentUserState = currentUser; // Use global directly
-                 scheduleEmployeesState = teamMembers; // Use global directly
-                 scheduleIsAdminOrSupervisor = currentUser.role === 'admin' || currentUser.role === 'supervisor';
-
-                 // Load saved data
-                 const savedDataString = localStorage.getItem(scheduleLocalStorageKey);
-                 scheduleSavedData = savedDataString ? JSON.parse(savedDataString) : {};
-                 if(typeof scheduleSavedData !== 'object') scheduleSavedData = {};
-
-                  // Set initial week if not set
-                 if (!scheduleCurrentWeekStart) {
-                    const today = new Date(); const dayOfWeek = today.getDay(); const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); scheduleCurrentWeekStart = new Date(today.getFullYear(), today.getMonth(), diff);
-                    // Add clamping
-                    const scheduleMinDate = new Date(2025, 4, 1); const scheduleMaxDate = new Date(2025, 4, 31);
-                    if (scheduleCurrentWeekStart < scheduleMinDate) scheduleCurrentWeekStart = new Date(scheduleMinDate);
-                    if (scheduleCurrentWeekStart > scheduleMaxDate) { scheduleCurrentWeekStart = new Date(scheduleMaxDate); scheduleCurrentWeekStart.setDate(scheduleCurrentWeekStart.getDate() - 6); }
-                 }
-
+                 // ... (Set schedule state: currentUserState, employeesState, isAdmin) ...
+                 // ... (Load scheduleSavedData from localStorage) ...
+                 // ... (Set initial scheduleCurrentWeekStart) ...
                  try {
                      console.log("Running initial schedule UI setup...");
                      updateWeekDisplay_schedule();
-                     renderScheduleTable_schedule(); // Render initial table
-                     setupScheduleEventListeners_schedule(); // Setup listeners
-
-                     // Show admin buttons after setup
-                     const addEmpBtn=document.getElementById('schedule-addEmployeeBtn'); const sendRemBtn=document.getElementById('schedule-sendRemindersBtn'); const saveBtn=document.getElementById('schedule-saveScheduleBtn');
-                     if (scheduleIsAdminOrSupervisor) { if(addEmpBtn) addEmpBtn.style.display='inline-flex'; if(sendRemBtn) sendRemBtn.style.display='inline-flex'; if(saveBtn) saveBtn.style.display='inline-flex'; }
-                     else { if(addEmpBtn) addEmpBtn.style.display='none'; if(sendRemBtn) sendRemBtn.style.display='none'; if(saveBtn) saveBtn.style.display='none'; }
+                     renderScheduleTable_schedule(); // Renders table and calls setupDynamicScheduleListeners_schedule
+                     // Setup *static* listeners for the schedule section ONCE
+                     setupScheduleEventListeners_schedule_static();
+                     // Show/hide admin buttons
+                      const addEmpBtn=document.getElementById('schedule-addEmployeeBtn'); const sendRemBtn=document.getElementById('schedule-sendRemindersBtn'); const saveBtn=document.getElementById('schedule-saveScheduleBtn');
+                      const scheduleIsAdminOrSupervisor = currentUser.role === 'admin' || currentUser.role === 'supervisor';
+                      if (scheduleIsAdminOrSupervisor) { if(addEmpBtn) addEmpBtn.style.display='inline-flex'; if(sendRemBtn) sendRemBtn.style.display='inline-flex'; if(saveBtn) saveBtn.style.display='inline-flex'; }
+                      else { if(addEmpBtn) addEmpBtn.style.display='none'; if(sendRemBtn) sendRemBtn.style.display='none'; if(saveBtn) saveBtn.style.display='none'; }
 
                      console.log("--- Employee Scheduling Feature Initialized (Integrated) ---");
-                 } catch(error) {
-                     console.error("Error during integrated schedule init:", error);
-                     window.dashboardApp.showErrorMessage(`Schedule Init Error: ${error.message}`);
-                     const featureSections = document.getElementById('featureSections');
-                     if(featureSections) featureSections.innerHTML = `<div class='placeholder-content error-message' style='display:flex; border-color:red; color:red;'>Error initializing schedule.</div>`;
+                 } catch(error) { /* ... error handling ... */ }
+            }
+
+            // --- Setup STATIC Schedule Event Listeners (Called only ONCE by initializeScheduleFeature_integrated) ---
+             function setupScheduleEventListeners_schedule_static() {
+                 console.log("Setting up STATIC schedule listeners (modals, forms, nav)...");
+                 // Assign listeners to elements that exist once in the loaded HTML
+                 document.getElementById('schedule-prevWeekBtn')?.addEventListener('click', () => handleWeekChange_schedule(-1));
+                 document.getElementById('schedule-nextWeekBtn')?.addEventListener('click', () => handleWeekChange_schedule(1));
+                 document.getElementById('schedule-addEmployeeBtn')?.addEventListener('click', handleAddEmployeeClick_schedule);
+                 document.getElementById('schedule-sendRemindersBtn')?.addEventListener('click', handleSendRemindersClick_schedule);
+                 document.getElementById('schedule-saveScheduleBtn')?.addEventListener('click', handleSaveScheduleClick_schedule);
+                 // Modals
+                 document.getElementById('schedule-closeEmployeeModal')?.addEventListener('click', () => { document.getElementById('schedule-employeeModal').style.display = 'none'; });
+                 document.getElementById('schedule-cancelEmployeeBtn')?.addEventListener('click', () => { document.getElementById('schedule-employeeModal').style.display = 'none'; });
+                 document.getElementById('schedule-employeeForm')?.addEventListener('submit', handleEmployeeFormSubmit_schedule);
+                 document.getElementById('schedule-employeeModal')?.addEventListener('click', (e) => { if (e.target.id === 'schedule-employeeModal') e.target.style.display = 'none'; });
+                 document.getElementById('schedule-closeShiftModal')?.addEventListener('click', () => { document.getElementById('schedule-shiftModal').style.display = 'none'; });
+                 document.getElementById('schedule-cancelShiftBtn')?.addEventListener('click', () => { document.getElementById('schedule-shiftModal').style.display = 'none'; });
+                 document.getElementById('schedule-shiftForm')?.addEventListener('submit', handleShiftFormSubmit_schedule);
+                 document.getElementById('schedule-deleteShiftBtn')?.addEventListener('click', handleDeleteShiftClick_schedule);
+                 document.getElementById('schedule-shiftType')?.addEventListener('change', shiftTypeChangeHandler_schedule);
+                 document.getElementById('schedule-shiftModal')?.addEventListener('click', (e) => { if (e.target.id === 'schedule-shiftModal') e.target.style.display = 'none'; });
+                 console.log("STATIC schedule listeners attached.");
+             }
+
+
+            // --- setActiveFeature (Loads HTML, calls initializer) ---
+            function setActiveFeature(featureId, settingsTab = null) {
+                 console.log(`setActiveFeature: ${featureId}`);
+                 if (currentFeature === 'employee-scheduling' && featureId !== 'employee-scheduling') { scheduleLogicInitialized = false; console.log("Reset schedule init flag."); }
+                 currentFeature = featureId; currentSettingsTab = settingsTab || (featureId === 'settings' ? currentSettingsTab : null);
+                 let hash = `#${featureId}`; if (featureId === 'settings' && currentSettingsTab) hash += `-${currentSettingsTab}`;
+                 if (window.location.hash !== hash) history.pushState({ feature: featureId, tab: currentSettingsTab }, '', hash);
+                 menuItems.forEach(item => item.classList.remove('active')); document.querySelector(`.menu-item[data-feature="${featureId}"]`)?.classList.add('active');
+                 contentSections.forEach(section => section.classList.remove('active')); featureSectionsContainer.style.display = 'none';
+
+                 if (featureId === 'dashboard' || featureId === 'profile' || featureId === 'settings') {
+                     const staticSection = document.getElementById(`${featureId}Content`);
+                     if (staticSection) { staticSection.classList.add('active'); /* ... updates ... */ } setPlaceholderState('hidden');
+                 } else {
+                     featureSectionsContainer.style.display = 'block'; featureSections.innerHTML = ''; featureSections.appendChild(featurePlaceholder); setPlaceholderState('loading', `Loading ${featureId}...`);
+                     const htmlFilePath = `sections/${featureId}.html`;
+                     fetch(htmlFilePath)
+                         .then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.text(); })
+                         .then(html => {
+                             featureSections.innerHTML = html; featureSections.classList.add('active'); setPlaceholderState('hidden');
+                             // Initialize after loading HTML
+                             if (featureId === 'employee-scheduling') {
+                                 // **Crucially, pass the CURRENT data from the main scope**
+                                 initializeScheduleFeature_integrated(); // Call the integrated function
+                             }
+                             // else if (featureId === 'other') { initializeOtherFeature(); }
+                         })
+                         .catch(error => { console.error(`Error loading ${featureId}:`, error); setPlaceholderState('error', `Error Loading ${featureId}`, `Could not load. ${error.message}`); });
                  }
+                 backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none'; window.scrollTo(0, 0);
+            }
+
+            // --- handleInitialNavigation (Defined BEFORE initDashboard) ---
+            function handleInitialNavigation() {
+                 const hash = window.location.hash.substring(1); let featureId = 'dashboard'; let settingsTab = null;
+                 if (hash) { if (hash.startsWith('settings-')) { featureId = 'settings'; settingsTab = hash.split('-')[1] || 'preferences'; } else { const vf = [...menuItems].some(i=>i.dataset.feature===hash) || hash === 'profile'; if(vf) featureId=hash; } }
+                 console.log(`Initial navigation: feature='${featureId}', tab='${settingsTab}'`);
+                 setActiveFeature(featureId, settingsTab); // Load initial content
             }
 
 
-            // --- INIT DASHBOARD & LISTENERS ---
+            // --- INIT DASHBOARD (Defined, calls the now-defined handleInitialNavigation) ---
              function initDashboard() {
-                 loadData(); updateUserUI(); loadTeamMembers(); loadActivities(); loadNotifications(); updateStats(); applyUserPreferences(); applyRBAC(); setupEventListeners(); handleInitialNavigation(); startActivityTimeUpdater();
+                 loadData(); updateUserUI(); loadTeamMembers(); loadActivities(); loadNotifications(); updateStats(); applyUserPreferences(); applyRBAC(); setupEventListeners();
+                 handleInitialNavigation(); // CALL handleInitialNavigation HERE
+                 startActivityTimeUpdater();
                  console.log("Dashboard Initialized");
              }
+
+             // --- Setup Core Event Listeners (Defined) ---
              function setupEventListeners() {
                   console.log("Setting up CORE dashboard listeners...");
                   menuItems.forEach(item => item.addEventListener('click', (e) => { e.preventDefault(); setActiveFeature(item.dataset.feature); }));
                   backButton.addEventListener('click', () => setActiveFeature('dashboard'));
                   window.addEventListener('popstate', (event) => { if (event.state?.feature) { setActiveFeature(event.state.feature, event.state.tab); } else { handleInitialNavigation(); } });
-                  // ... (ALL other original dashboard event listeners: search, user dropdown, notifications, profile form, settings forms, etc.) ...
-                   // Example: Make sure profile form listener is here
-                   const profileForm = document.getElementById('profileForm');
-                   if (profileForm) profileForm.addEventListener('submit', handleProfileSave);
-                   // ... Add all other event listeners from the original dash1 script...
+                  // ... (ALL other original dashboard event listeners MUST BE defined here) ...
+                   const profileForm = document.getElementById('profileForm'); if (profileForm) profileForm.addEventListener('submit', handleProfileSave);
+                   // ... etc ...
                   console.log("CORE dashboard listeners attached.");
              }
-            function handleInitialNavigation() {
-                const hash = window.location.hash.substring(1); let featureId = 'dashboard'; let settingsTab = null;
-                if (hash) { if (hash.startsWith('settings-')) { featureId = 'settings'; settingsTab = hash.split('-')[1] || 'preferences'; } else { const vf = [...menuItems].some(i=>i.dataset.feature===hash) || hash === 'profile'; if(vf) featureId=hash; } }
-                console.log(`Initial navigation: feature='${featureId}', tab='${settingsTab}'`);
-                setActiveFeature(featureId, settingsTab); // Load initial content
-            }
 
-            // --- Run Initialization ---
+            // ============================================================
+            // === RUN INITIALIZATION (At the very end) ===
+            // ============================================================
             initDashboard();
 
         }); // End DOMContentLoaded
