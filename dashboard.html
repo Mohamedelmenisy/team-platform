@@ -1870,97 +1870,16 @@
 
             // --- Feature/Section Loading ---
           // --- Feature/Section Loading ---
-function setActiveFeature(featureId, settingsTab = null) {
-    // ... (الكود السابق للتحقق من الدور وتحديث الحالة) ...
-    currentFeature = featureId;
-    currentSettingsTab = settingsTab || (featureId === 'settings' ? (currentSettingsTab || 'preferences') : null);
-
-    let hash = `#${featureId}`;
-    if (featureId === 'settings' && currentSettingsTab) {
-        hash += `-${currentSettingsTab}`;
-    }
-    if (window.location.hash !== hash) {
-        history.pushState({ feature: featureId, tab: currentSettingsTab }, '', hash);
-    }
-
-    menuItems.forEach(item => item.classList.remove('active'));
-    const activeMenuItem = document.querySelector(`.menu-item[data-feature="${featureId}"]`);
-    if (activeMenuItem) activeMenuItem.classList.add('active');
-
-    contentSections.forEach(section => section.classList.remove('active'));
-    featureSectionsContainer.style.display = 'none';
-
-    if (featureId === 'dashboard') {
-        dashboardContent.classList.add('active');
-        updateStats();
-        loadActivities();
-        setPlaceholderState('hidden');
-    } else if (featureId === 'profile') {
-        profileContent.classList.add('active');
-        updateUserUI();
-        setPlaceholderState('hidden');
-    } else if (featureId === 'settings') {
-        settingsContent.classList.add('active');
-        applyRBAC();
-        activateSettingsTab(currentSettingsTab || 'preferences');
-        setPlaceholderState('hidden');
-    } else {
-        // Handle other features dynamically
-        featureSectionsContainer.style.display = 'block';
-        featureSections.innerHTML = ''; // Clear previous content
-        featureSections.appendChild(featurePlaceholder);
-        setPlaceholderState('loading', `Loading ${featureId.replace(/-/g, ' ')}...`);
-
-        const filePath = `sections/${featureId}.html`;
-
-        fetch(filePath)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
-                }
-                return response.text();
-            })
-            .then(html => {
-                // Use DOMParser to safely parse the HTML and handle scripts
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const newContent = doc.body.firstChild; // Assuming content is wrapped in one div
-
-                if (!newContent) {
-                    throw new Error("Failed to parse fetched HTML content correctly.");
-                }
-
-                // Clear placeholder and append the main content node
-                featureSections.innerHTML = '';
-                featureSections.appendChild(newContent);
-                featureSections.classList.add('active');
-
-                // Find and execute scripts *after* appending content
-                const scripts = newContent.querySelectorAll('script');
-                scripts.forEach(originalScript => {
-                    const script = document.createElement('script');
-                    // Copy attributes like src, type if they exist (though inline expected here)
-                    // originalScript.getAttributeNames().forEach(attr => script.setAttribute(attr, originalScript.getAttribute(attr)));
-
-                    // Copy inline script content
-                    if (originalScript.textContent) {
-                        script.textContent = originalScript.textContent;
-                    }
-                    // Remove the original script from the parsed content (optional, cleans up)
-                    // originalScript.remove();
-                    // Append the new script to the feature section to execute it
-                    featureSections.appendChild(script); // Append to the container so it executes in context
-                });
+                // ...الكود السابق داخل .then(html => ...) الذي يلحق السكربتات...
 
                  // Now, *after* potentially executing the scripts, check for the init function
                  // Use a small timeout to give the browser a moment to execute the appended scripts
                 setTimeout(() => {
-                    const initFunctionName = `initialize${featureId.replace(/-/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('')}`;
-                    const initFunc = window[initFunctionName] || window.initializeEmployeeSchedule; // Check both generic and specific names
+                    console.log("Checking for window.initializeEmployeeSchedule..."); // <<< رسالة تحقق جديدة
 
-                    if (typeof initFunc === 'function') {
+                    if (typeof window.initializeEmployeeSchedule === 'function') { // <<< تحقق فقط من الاسم المحدد مباشرة
                         try {
-                            console.log(`Calling ${initFunc.name || 'initialization function'} for ${featureId}...`);
+                            console.log("FOUND window.initializeEmployeeSchedule! Calling it."); // <<< تحقق إذا وجدها
                             const currentUserData = window.dashboardApp.getCurrentUser();
                             const teamMembersData = window.dashboardApp.getTeamMembers();
 
@@ -1968,37 +1887,35 @@ function setActiveFeature(featureId, settingsTab = null) {
                                 throw new Error("currentUserData or teamMembersData is missing before calling init function.");
                             }
 
-                            initFunc(currentUserData, teamMembersData);
-                            setPlaceholderState('hidden'); // Hide placeholder only if init starts successfully
+                            window.initializeEmployeeSchedule(currentUserData, teamMembersData); // <<< استدعاء مباشر
+                            setPlaceholderState('hidden');
 
                         } catch (err) {
-                            console.error(`Error executing ${initFunc.name || 'initialization function'}:`, err);
+                            console.error(`Error executing initializeEmployeeSchedule:`, err);
                             setPlaceholderState('error',
                                 `Error Initializing ${featureId.replace(/-/g, ' ')}`,
                                 `Initialization failed. Check console. Error: ${err.message}`
                             );
                         }
                     } else {
-                        console.warn(`Initialization function not found for ${featureId} after attempting script execution. Static content displayed.`);
-                        setPlaceholderState('hidden'); // Hide placeholder, assume static content
+                        console.error("<<<<< FAILED: window.initializeEmployeeSchedule is NOT defined or NOT a function >>>>>"); // <<< رسالة فشل أوضح
+                        setPlaceholderState('error',
+                            `Initialization Error`,
+                            `Function 'initializeEmployeeSchedule' was not found after script execution.`
+                        );
                     }
-                }, 50); // Small delay (50ms)
+                }, 100); // Increased timeout slightly just in case
 
             })
             .catch(error => {
-                console.error(`Error loading or processing feature '${featureId}' from '${filePath}':`, error);
-                setPlaceholderState('error',
-                    `Error Loading ${featureId.replace(/-/g, ' ')}`,
-                    `Could not load/process content from <code>${filePath}</code>. <br><small>Error: ${error.message}</small>`
-                );
-                featureSections.classList.add('active');
+               // ... معالجة الخطأ ...
             });
-    }
+    } // نهاية كتلة else
 
     backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none';
     window.scrollTo(0, 0);
-}
-
+} // نهاية دالة setActiveFeature
+        
             function activateSettingsTab(tabId) {
                  // RBAC check before activating tab
                  if (tabId === 'danger' && currentUser.role !== 'admin') {
