@@ -219,6 +219,7 @@
         /* Shift Styles */
         .shift-container {
             margin-bottom: 1.5rem; /* Space below shift info */
+            min-height: 25px; /* Give container minimum height */
         }
 
         .shift {
@@ -244,6 +245,7 @@
             max-width: 100px; /* Limit note width */
             margin-left: auto;
             margin-right: auto;
+            overflow-wrap: break-word; /* Break long words */
         }
 
         .shift-morning { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe;}
@@ -651,38 +653,38 @@
                 { id: 4, name: 'Bassant Badr', email: 'bassant@example.com', position: 'Manager', role: 'supervisor' }
             ];
 
-            // Store shifts in a structure like: { 'empId-dateString': { type: 'morning', notes: '...' } }
+            // Store shifts in a structure like: { 'empId-dateString': { type: 'morning', notes: '...', customText: '' } }
             // Date format: YYYY-MM-DD
             let scheduleData = {
                 // Example initial data for May 6-12, 2025
-                '1-2025-05-06': { type: 'morning', notes: '' },
-                '1-2025-05-07': { type: 'morning', notes: '' },
-                '1-2025-05-08': { type: 'afternoon', notes: '' },
-                '1-2025-05-09': { type: 'morning', notes: '' },
-                '1-2025-05-10': { type: 'day-off', notes: '' },
-                '1-2025-05-11': { type: 'night', notes: 'Late start' },
-                '1-2025-05-12': { type: 'night', notes: '' },
-                '2-2025-05-06': { type: 'afternoon', notes: '' },
-                '2-2025-05-07': { type: 'morning', notes: '' },
-                '2-2025-05-08': { type: 'morning', notes: '' },
-                '2-2025-05-09': { type: 'afternoon', notes: '' },
-                '2-2025-05-10': { type: 'morning', notes: '' },
-                '2-2025-05-11': { type: 'day-off', notes: '' },
-                '2-2025-05-12': { type: 'day-off', notes: '' },
-                '3-2025-05-06': { type: 'night', notes: '' },
-                '3-2025-05-07': { type: 'night', notes: '' },
-                '3-2025-05-08': { type: 'day-off', notes: '' },
-                '3-2025-05-09': { type: 'morning', notes: '' },
-                '3-2025-05-10': { type: 'afternoon', notes: '' },
-                '3-2025-05-11': { type: 'morning', notes: '' },
-                '3-2025-05-12': { type: 'sick-leave', notes: 'Fever' },
-                '4-2025-05-06': { type: 'vacation', notes: 'Annual leave' },
-                '4-2025-05-07': { type: 'vacation', notes: 'Annual leave' },
-                '4-2025-05-08': { type: 'morning', notes: '' },
-                '4-2025-05-09': { type: 'night', notes: '' },
-                '4-2025-05-10': { type: 'night', notes: '' },
-                '4-2025-05-11': { type: 'day-off', notes: '' },
-                '4-2025-05-12': { type: 'morning', notes: '' },
+                '1-2025-05-06': { type: 'morning', notes: '', customText: '' },
+                '1-2025-05-07': { type: 'morning', notes: '', customText: '' },
+                '1-2025-05-08': { type: 'afternoon', notes: '', customText: '' },
+                '1-2025-05-09': { type: 'morning', notes: '', customText: '' },
+                '1-2025-05-10': { type: 'day-off', notes: '', customText: '' },
+                '1-2025-05-11': { type: 'night', notes: 'Late start', customText: '' },
+                '1-2025-05-12': { type: 'night', notes: '', customText: '' },
+                '2-2025-05-06': { type: 'afternoon', notes: '', customText: '' },
+                '2-2025-05-07': { type: 'morning', notes: '', customText: '' },
+                '2-2025-05-08': { type: 'morning', notes: '', customText: '' },
+                '2-2025-05-09': { type: 'afternoon', notes: '', customText: '' },
+                '2-2025-05-10': { type: 'morning', notes: '', customText: '' },
+                '2-2025-05-11': { type: 'day-off', notes: '', customText: '' },
+                '2-2025-05-12': { type: 'day-off', notes: '', customText: '' },
+                '3-2025-05-06': { type: 'night', notes: '', customText: '' },
+                '3-2025-05-07': { type: 'night', notes: '', customText: '' },
+                '3-2025-05-08': { type: 'day-off', notes: '', customText: '' },
+                '3-2025-05-09': { type: 'morning', notes: '', customText: '' },
+                '3-2025-05-10': { type: 'afternoon', notes: '', customText: '' },
+                '3-2025-05-11': { type: 'morning', notes: '', customText: '' },
+                '3-2025-05-12': { type: 'sick-leave', notes: 'Fever', customText: '' },
+                '4-2025-05-06': { type: 'vacation', notes: 'Annual leave', customText: '' },
+                '4-2025-05-07': { type: 'vacation', notes: 'Annual leave', customText: '' },
+                '4-2025-05-08': { type: 'morning', notes: '', customText: '' },
+                '4-2025-05-09': { type: 'night', notes: '', customText: '' },
+                '4-2025-05-10': { type: 'night', notes: '', customText: '' },
+                '4-2025-05-11': { type: 'day-off', notes: '', customText: '' },
+                '4-2025-05-12': { type: 'morning', notes: '', customText: '' },
             };
 
             // Current user (replace with actual authentication)
@@ -700,7 +702,10 @@
 
             // --- Helper Functions ---
             const formatDate = (date) => {
-                return date.toISOString().split('T')[0]; // YYYY-MM-DD
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`; // YYYY-MM-DD
             };
 
             const formatDateReadable = (date) => {
@@ -764,17 +769,17 @@
 
                 // Update table headers
                 scheduleTableHead.innerHTML = '<th>Employee</th>'; // Clear previous headers except first
-                const tempDate = new Date(currentWeekStart);
+                const tempDateHeader = new Date(currentWeekStart);
                 for (let i = 0; i < 7; i++) {
                     const th = document.createElement('th');
                     th.innerHTML = `
                         <div class="day-header">
-                            <span class="day-name">${tempDate.toLocaleDateString('en-US', { weekday: 'short' })}</span>
-                            <span class="day-date">${tempDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                            <span class="day-name">${tempDateHeader.toLocaleDateString('en-US', { weekday: 'short' })}</span>
+                            <span class="day-date">${tempDateHeader.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                         </div>
                     `;
                     scheduleTableHead.appendChild(th);
-                    tempDate.setDate(tempDate.getDate() + 1);
+                    tempDateHeader.setDate(tempDateHeader.getDate() + 1);
                 }
 
                 // Re-render table body for the current week
@@ -809,9 +814,9 @@
                     const row = scheduleTableBody.insertRow();
                     row.insertCell().outerHTML = `<td class="employee-name">${emp.name}</td>`; // Use outerHTML to set class
 
-                    const tempDate = new Date(currentWeekStart);
+                    const tempDateCell = new Date(currentWeekStart);
                     for (let i = 0; i < 7; i++) {
-                        const cellDateStr = formatDate(tempDate);
+                        const cellDateStr = formatDate(tempDateCell);
                         const cellId = `cell-${emp.id}-${cellDateStr}`;
                         const cell = row.insertCell();
                         cell.id = cellId;
@@ -831,7 +836,7 @@
 
                          updateCellDisplay(cell, shift); // Update cell content
 
-                        tempDate.setDate(tempDate.getDate() + 1);
+                        tempDateCell.setDate(tempDateCell.getDate() + 1);
                     }
                 });
             }
@@ -857,8 +862,7 @@
                         shiftContainer.appendChild(notesSpan);
                     }
                  } else {
-                    // Optionally, display something like '-' for empty shifts
-                    // shiftContainer.innerHTML = '-';
+                    // Keep the container empty if no shift data
                  }
             }
 
@@ -887,7 +891,11 @@
                     targetCellIdInput.value = cellId; // Store cell ID
                     shiftEmployeeInput.value = employee.name;
                     shiftDateValueInput.value = dateStr;
-                    shiftDateDisplayInput.value = formatDateReadable(new Date(dateStr + 'T00:00:00')); // Display friendly date
+                     // Parse date string correctly for display
+                    const dateParts = dateStr.split('-'); // YYYY-MM-DD
+                    const displayDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]); // Month is 0-indexed
+                    shiftDateDisplayInput.value = formatDateReadable(displayDate); // Display friendly date
+
 
                     if (currentShift) {
                         shiftTypeSelect.value = currentShift.type;
@@ -1043,7 +1051,8 @@
 
 
             // --- Initialization ---
-            function initializeApp() {
+            // Renamed function to match the expected name from the error message
+            function initializeEmployeeSchedule() {
                  // Set user info in header
                 userEmail.textContent = currentUser.email;
                  userInitials.textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
@@ -1067,7 +1076,8 @@
                 updateWeekDisplayAndTable();
             }
 
-            initializeApp();
+            // Call the renamed initialization function
+            initializeEmployeeSchedule();
         });
     </script>
 </body>
