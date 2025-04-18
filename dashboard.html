@@ -1867,18 +1867,27 @@
                  // RBAC for 'Delete All' notifications button
                  deleteAllNotificationsBtn.style.display = notifications.length > 0 && (currentUser.role === 'admin' || currentUser.role === 'supervisor') ? 'inline-flex' : 'none';
             }
-// --- Feature/Section Loading --- [الكود الأصلي الذي كان يعمل جزئياً]
+// --- Feature/Section Loading ---
 function setActiveFeature(featureId, settingsTab = null) {
-    // Role-based access check... (الكود كما كان)
-    // ...
-    // Update URL hash... (الكود كما كان)
-    // ...
-    // Update Sidebar Menu Active State... (الكود كما كان)
-    // ...
-    // Show/Hide Content Sections... (الكود كما كان)
-    // ...
+    // ... (الكود السابق للتحقق من الدور وتحديث الحالة) ...
+    currentFeature = featureId;
+    currentSettingsTab = settingsTab || (featureId === 'settings' ? (currentSettingsTab || 'preferences') : null);
 
-    // --- Dynamic Loading Logic (النسخة البسيطة التي لا تنفذ السكربت) ---
+    let hash = `#${featureId}`;
+    if (featureId === 'settings' && currentSettingsTab) {
+        hash += `-${currentSettingsTab}`;
+    }
+    if (window.location.hash !== hash) {
+        history.pushState({ feature: featureId, tab: currentSettingsTab }, '', hash);
+    }
+
+    menuItems.forEach(item => item.classList.remove('active'));
+    const activeMenuItem = document.querySelector(`.menu-item[data-feature="${featureId}"]`);
+    if (activeMenuItem) activeMenuItem.classList.add('active');
+
+    contentSections.forEach(section => section.classList.remove('active'));
+    featureSectionsContainer.style.display = 'none';
+
     if (featureId === 'dashboard') {
         dashboardContent.classList.add('active');
         updateStats();
@@ -1910,37 +1919,76 @@ function setActiveFeature(featureId, settingsTab = null) {
                 return response.text();
             })
             .then(html => {
-                // <<< المشكلة هنا: innerHTML لا ينفذ السكربتات المضمنة >>>
-                featureSections.innerHTML = html;
+                // Use DOMParser to safely parse the HTML and handle scripts
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newContent = doc.body.firstChild; // Assuming content is wrapped in one div
+
+                if (!newContent) {
+                    throw new Error("Failed to parse fetched HTML content correctly.");
+                }
+
+                // Clear placeholder and append the main content node
+                featureSections.innerHTML = '';
+                featureSections.appendChild(newContent);
                 featureSections.classList.add('active');
 
-                // <<< الكود القديم الذي يبحث عن الدالة ويفشل >>>
+                // Find and execute scripts *after* appending content
+                const scripts = newContent.querySelectorAll('script');
+                scripts.forEach(originalScript => {
+                    const script = document.createElement('script');
+                    // Copy attributes like src, type if they exist (though inline expected here)
+                    // originalScript.getAttributeNames().forEach(attr => script.setAttribute(attr, originalScript.getAttribute(attr)));
+
+                    // Copy inline script content
+                    if (originalScript.textContent) {
+                        script.textContent = originalScript.textContent;
+                    }
+                    // Remove the original script from the parsed content (optional, cleans up)
+                    // originalScript.remove();
+                    // Append the new script to the feature section to execute it
+                    featureSections.appendChild(script); // Append to the container so it executes in context
+                });
+
+                 // Now, *after* potentially executing the scripts, check for the init function
+                 // Use a small timeout to give the browser a moment to execute the appended scripts
                 setTimeout(() => {
                     const initFunctionName = `initialize${featureId.replace(/-/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('')}`;
-                    const initFunc = window[initFunctionName] || window.initializeEmployeeSchedule;
+                    const initFunc = window[initFunctionName] || window.initializeEmployeeSchedule; // Check both generic and specific names
 
                     if (typeof initFunc === 'function') {
                         try {
-                            console.log(`Attempting to call ${initFunc.name || 'initialization function'} for ${featureId}...`);
+                            console.log(`Calling ${initFunc.name || 'initialization function'} for ${featureId}...`);
                             const currentUserData = window.dashboardApp.getCurrentUser();
                             const teamMembersData = window.dashboardApp.getTeamMembers();
-                            if (!currentUserData || !teamMembersData) throw new Error("Data missing");
+
+                            if (!currentUserData || !teamMembersData) {
+                                throw new Error("currentUserData or teamMembersData is missing before calling init function.");
+                            }
+
                             initFunc(currentUserData, teamMembersData);
-                            setPlaceholderState('hidden');
+                            setPlaceholderState('hidden'); // Hide placeholder only if init starts successfully
+
                         } catch (err) {
-                            console.error(`Error executing init function:`, err);
-                            setPlaceholderState('error', `Error Initializing ${featureId.replace(/-/g, ' ')}`, `Initialization failed. Check console. Error: ${err.message}`);
+                            console.error(`Error executing ${initFunc.name || 'initialization function'}:`, err);
+                            setPlaceholderState('error',
+                                `Error Initializing ${featureId.replace(/-/g, ' ')}`,
+                                `Initialization failed. Check console. Error: ${err.message}`
+                            );
                         }
                     } else {
-                        console.warn(`Initialization function not found for ${featureId}. Static content displayed.`);
-                        setPlaceholderState('hidden'); // Assume static content if no init function
+                        console.warn(`Initialization function not found for ${featureId} after attempting script execution. Static content displayed.`);
+                        setPlaceholderState('hidden'); // Hide placeholder, assume static content
                     }
-                }, 50); // Small delay
+                }, 50); // Small delay (50ms)
 
             })
             .catch(error => {
-                console.error(`Error loading feature '${featureId}' from '${filePath}':`, error);
-                setPlaceholderState('error', `Error Loading ${featureId.replace(/-/g, ' ')}`, `Could not load content from <code>${filePath}</code>. <br><small>Error: ${error.message}</small>`);
+                console.error(`Error loading or processing feature '${featureId}' from '${filePath}':`, error);
+                setPlaceholderState('error',
+                    `Error Loading ${featureId.replace(/-/g, ' ')}`,
+                    `Could not load/process content from <code>${filePath}</code>. <br><small>Error: ${error.message}</small>`
+                );
                 featureSections.classList.add('active');
             });
     }
