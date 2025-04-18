@@ -1,39 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl"> <!-- Set language to Arabic and direction to right-to-left -->
 <head>
     <meta charset="UTF-8">
-    <title>Employee Schedule - Notion Style</title>
+    <title>جدول دوام الموظفين - نمط Notion</title>
     <style>
-        body { font-family: 'Arial', sans-serif; background: #f9fafb; margin: 0; padding: 2rem; }
+        /* Using a more modern font stack that supports Arabic well */
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; background: #f9fafb; margin: 0; padding: 2rem; direction: rtl; } /* Added direction: rtl */
         .schedule-container { max-width: 1000px; margin: auto; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow-x: auto; }
-        .week-nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem; }
-        .week-nav button { padding: 8px 16px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; }
+        .week-nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid #e5e7eb; } /* Added border bottom for separation */
+        .week-nav button { padding: 8px 16px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; font-size: 14px; color: #374151; }
         .week-nav button:hover { background: #e5e7eb; }
         .week-nav span { font-size: 16px; font-weight: 500; color: #374151; }
         table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        thead th { background: #f9fafb; padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: left; font-size: 14px; color: #374151; }
-        tbody td { padding: 12px; border-top: 1px solid #e5e7eb; font-size: 14px; color: #4b5563; }
+        thead th { background: #f9fafb; padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right; font-size: 14px; font-weight: 600; color: #374151; } /* Changed text-align to right */
+        tbody td { padding: 12px; border-top: 1px solid #e5e7eb; font-size: 14px; color: #4b5563; text-align: right; } /* Changed text-align to right */
         tbody tr:hover { background: #f3f4f6; }
+        /* Added specific styling for the employee name column */
+        thead th:first-child, tbody td:first-child {
+            text-align: right; /* Ensure name is right-aligned */
+            font-weight: 500;
+            color: #1f2937;
+            position: sticky; /* Make employee name sticky */
+            left: 0; /* Stick to the left */
+            background: white; /* Ensure background covers scrolled content */
+            z-index: 1; /* Ensure it's above other cells */
+            border-right: 1px solid #e5e7eb; /* Add a separator line */
+        }
+        /* Adjust sticky header background */
+        thead th:first-child {
+             background: #f9fafb;
+             z-index: 2; /* Above sticky td */
+        }
+         /* Ensure hover style applies correctly to sticky column */
+        tbody tr:hover td:first-child {
+            background: #f3f4f6;
+        }
+        /* Style for OFF days */
+        .off-day {
+            color: #9ca3af; /* Lighter grey text */
+            font-style: italic;
+        }
+        /* Style for shift times */
+        .shift-time {
+            white-space: nowrap; /* Prevent wrapping */
+        }
     </style>
 </head>
 <body>
 
 <div class="schedule-container">
     <div class="week-nav">
-        <button id="prev-week">← Previous</button>
-        <span id="week-display">Loading...</span>
-        <button id="next-week">Next →</button>
+         <!-- Swapped button order for RTL -->
+        <button id="next-week">التالي ←</button>
+        <span id="week-display">جار التحميل...</span>
+        <button id="prev-week">→ السابق</button>
     </div>
 
     <table>
         <thead>
         <tr>
-            <th>Employee</th>
-            <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th>
+            <!-- Reordered days for RTL, assuming week starts Sunday or Saturday -->
+            <th>الموظف</th>
+            <th>الأحد</th>
+            <th>الإثنين</th>
+            <th>الثلاثاء</th>
+            <th>الأربعاء</th>
+            <th>الخميس</th>
+            <th>الجمعة</th>
+            <th>السبت</th>
         </tr>
         </thead>
         <tbody id="schedule-table-body">
-        <tr><td colspan="8" style="text-align:center; padding:20px;">Loading schedule...</td></tr>
+        <tr><td colspan="8" style="text-align:center; padding:20px;">جار تحميل الجدول...</td></tr>
         </tbody>
     </table>
 </div>
@@ -42,52 +80,130 @@
     document.addEventListener('DOMContentLoaded', () => {
         const weekDisplay = document.getElementById('week-display');
         const tableBody = document.getElementById('schedule-table-body');
-        let currentWeek = new Date();
+        let currentWeek = new Date(); // Start with the current date
 
+        // Define employees with Arabic names
         const employees = [
-            { id: 101, name: 'Ahmed Ali', email: 'ahmed@test.com' },
-            { id: 102, name: 'Sara Hassan', email: 'sara@test.com' }
+            { id: 101, name: 'أحمد علي', email: 'ahmed@test.com' },
+            { id: 102, name: 'سارة حسن', email: 'sara@test.com' },
+            { id: 103, name: 'خالد محمود', email: 'khaled@test.com' },
+            { id: 104, name: 'فاطمة زيد', email: 'fatima@test.com' }
         ];
 
+        // Function to get the start (Sunday) and end (Saturday) of the week for a given date
         function getWeekRange(date) {
-            const first = date.getDate() - date.getDay() + 1; // Monday
-            const start = new Date(date.setDate(first));
+            const currentDay = date.getDay(); // 0 for Sunday, 1 for Monday, ..., 6 for Saturday
+            const first = date.getDate() - currentDay; // Get the date of the Sunday
+            const start = new Date(date); // Create a copy
+            start.setDate(first);
+            start.setHours(0, 0, 0, 0); // Normalize start time
+
             const end = new Date(start);
             end.setDate(start.getDate() + 6);
+            end.setHours(23, 59, 59, 999); // Normalize end time
+
             return { start, end };
         }
 
-        function renderWeek() {
-            const { start, end } = getWeekRange(new Date(currentWeek));
-            weekDisplay.textContent = `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
-            renderSchedule();
+        // Function to format date in a user-friendly way (Arabic)
+        function formatDate(date) {
+            return date.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' });
         }
 
+        // Function to render the week display
+        function renderWeek() {
+            const { start, end } = getWeekRange(new Date(currentWeek)); // Use a copy to avoid modifying currentWeek directly in getWeekRange
+            weekDisplay.textContent = `${formatDate(start)} - ${formatDate(end)}`;
+            renderSchedule(); // Re-render the schedule for the new week
+        }
+
+        // Function to generate dummy shift data based on employee ID and date
+        function getDummyShift(employeeId, date) {
+            const dayOfWeek = date.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+            const dateSeed = date.getDate(); // Use day of month for some variation
+
+            // Simple logic for shifts - can be made more complex
+            // Using modulo for variety week by week based on dateSeed
+            switch (employeeId) {
+                case 101: // Ahmed Ali: Sun-Thu Morning Shift, Fri/Sat OFF
+                    if (dayOfWeek >= 0 && dayOfWeek <= 4) { // Sun-Thu
+                        return (dateSeed % 2 === 0) ? '9:00 ص - 5:00 م' : '8:30 ص - 4:30 م';
+                    } else { // Fri, Sat
+                        return 'إجازة';
+                    }
+                case 102: // Sara Hassan: Mon-Fri Afternoon Shift, Sun/Sat OFF
+                    if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Mon-Fri
+                         return (dateSeed % 2 === 0) ? '1:00 م - 9:00 م' : '12:00 م - 8:00 م';
+                    } else { // Sat, Sun
+                        return 'إجازة';
+                    }
+                 case 103: // Khaled Mahmoud: Rotating Shifts (e.g., 4 work days, 2 off)
+                    const cycleDay = (dayOfWeek + dateSeed) % 6; // Simple rotation based on day and date
+                    if (cycleDay < 4) { // Work day
+                         return (employeeId + dateSeed) % 2 === 0 ? '10:00 ص - 6:00 م' : '11:00 ص - 7:00 م';
+                    } else { // Off day
+                        return 'إجازة';
+                    }
+                case 104: // Fatima Zeid: Weekend focus
+                     if (dayOfWeek === 5 || dayOfWeek === 6) { // Fri, Sat
+                        return '10:00 ص - 8:00 م';
+                     } else if (dayOfWeek === 0) { // Sun
+                         return '12:00 م - 6:00 م';
+                     }
+                     else { // Mon-Thu OFF
+                        return 'إجازة';
+                     }
+                default:
+                    return 'غير محدد';
+            }
+        }
+
+        // Function to render the schedule table content
         function renderSchedule() {
-            tableBody.innerHTML = '';
+            tableBody.innerHTML = ''; // Clear previous entries
+            const { start } = getWeekRange(new Date(currentWeek)); // Get the start date (Sunday) for the current week
 
             if (!employees.length) {
-                tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">No employees found.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">لا يوجد موظفين لعرضهم.</td></tr>`;
                 return;
             }
 
             employees.forEach(emp => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${emp.name}</td>` + `<td></td>`.repeat(7);
-                tableBody.appendChild(tr);
+                let rowHTML = `<td class="employee-name">${emp.name}</td>`; // Add employee name cell first
+
+                for (let i = 0; i < 7; i++) { // Loop through Sunday (0) to Saturday (6)
+                    const dayDate = new Date(start);
+                    dayDate.setDate(start.getDate() + i); // Calculate the specific date for this cell
+
+                    const shift = getDummyShift(emp.id, dayDate); // Get the shift for this employee on this day
+
+                    // Apply different styles based on shift content
+                    let cellClass = 'shift-time';
+                    if (shift === 'إجازة') {
+                        cellClass = 'off-day';
+                    }
+
+                    rowHTML += `<td class="${cellClass}">${shift}</td>`; // Add shift cell with appropriate class
+                }
+
+                tr.innerHTML = rowHTML; // Set the complete row HTML
+                tableBody.appendChild(tr); // Add the row to the table body
             });
         }
 
+        // Event listeners for navigation buttons
         document.getElementById('prev-week').onclick = () => {
-            currentWeek.setDate(currentWeek.getDate() - 7);
-            renderWeek();
+            currentWeek.setDate(currentWeek.getDate() - 7); // Go back 7 days
+            renderWeek(); // Re-render everything for the previous week
         };
 
         document.getElementById('next-week').onclick = () => {
-            currentWeek.setDate(currentWeek.getDate() + 7);
-            renderWeek();
+            currentWeek.setDate(currentWeek.getDate() + 7); // Go forward 7 days
+            renderWeek(); // Re-render everything for the next week
         };
 
+        // Initial render on page load
         renderWeek();
     });
 </script>
