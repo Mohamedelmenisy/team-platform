@@ -1,21 +1,6 @@
 <!-- Styles specific to Employee Scheduling -->
 <style>
-    /* Styles specific to this section (employee schedule) */
-    .employee-schedule-body { }
-    .employee-schedule-body .main-container { max-width: 100%; margin: 0; padding: 0; }
-    .employee-schedule-body .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
-    .employee-schedule-body .page-title { font-size: 1.5rem; color: var(--primary-dark); font-weight: 600; }
-    .employee-schedule-body .schedule-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; background-color: var(--white); padding: 1rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); flex-wrap: wrap; gap: 1rem; }
-    .employee-schedule-body .week-navigation { display: flex; align-items: center; gap: 0.75rem; }
-    .employee-schedule-body .week-display { font-weight: 600; min-width: 180px; text-align: center; color: var(--dark); }
-    .employee-schedule-body .schedule-container { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); overflow-x: auto; border: 1px solid var(--light-gray); margin-top:1rem; }
-    .employee-schedule-body .schedule-table { width: 100%; min-width: 700px; border-collapse: collapse; }
-    .employee-schedule-body .schedule-table thead th { padding: 0.8rem 0.5rem; text-align: center; background-color: var(--primary); color: white; font-weight: 600; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--primary-dark); border-left: 1px solid var(--primary-light); }
-    .employee-schedule-body .schedule-table thead th:first-child { border-left: none; min-width: 150px; text-align: left; padding-left: 1rem; position: sticky; left: 0; z-index: 11; border-right: 1px solid var(--primary-dark); }
-    .employee-schedule-body .schedule-table tbody td { padding: 0.75rem 0.5rem; text-align: center; background-color: var(--white); border-bottom: 1px solid var(--light-gray); border-left: 1px solid var(--light-gray); color: var(--dark); vertical-align: middle; height: 60px; }
-    .employee-schedule-body .schedule-table tbody tr:last-child td { border-bottom: none; }
-    .employee-schedule-body .schedule-table tbody td:first-child { position: sticky; left: 0; background-color: var(--white); border-right: 1px solid var(--dark-gray, #6b7280); z-index: 5; font-weight: 500; text-align: left; padding-left: 1rem; white-space: nowrap; border-left: none; }
-    .employee-schedule-body .employee-1 { color: #3b82f6; } /* Example color */
+    /* ... (نفس كود الـ CSS) ... */
 </style>
 
 <!-- This container will be inserted into dash.html's #featureSections -->
@@ -23,41 +8,22 @@
     <!-- Main Content -->
     <div class="main-container">
         <div class="page-header">
-            <h1 class="page-title">Employee Schedule (Simplified)</h1>
+            <h1 class="page-title">Employee Schedule (Simplified V4)</h1>
         </div>
-
-        <!-- Schedule Controls -->
         <div class="schedule-controls">
             <div class="week-navigation">
-                <button class="btn btn-outline" id="schedule-prevWeekBtn" title="Previous Week" disabled> <!-- Disabled for test -->
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <div class="week-display" id="schedule-weekDisplay">Loading...</div>
-                <button class="btn btn-outline" id="schedule-nextWeekBtn" title="Next Week" disabled> <!-- Disabled for test -->
-                    <i class="fas fa-chevron-right"></i>
-                </button>
+                <button class="btn btn-outline" id="schedule-prevWeekBtn" disabled><i class="fas fa-chevron-left"></i></button>
+                <div class="week-display" id="schedule-weekDisplay">Waiting for JS...</div>
+                <button class="btn btn-outline" id="schedule-nextWeekBtn" disabled><i class="fas fa-chevron-right"></i></button>
             </div>
         </div>
-
-        <!-- Schedule Table -->
         <div class="schedule-container">
             <table class="schedule-table">
                 <thead>
-                    <tr>
-                        <th>Employee</th>
-                        <th>Mon</th>
-                        <th>Tue</th>
-                        <th>Wed</th>
-                        <th>Thu</th>
-                        <th>Fri</th>
-                        <th>Sat</th>
-                        <th>Sun</th>
-                    </tr>
+                    <tr><th>Employee</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr>
                 </thead>
                 <tbody id="schedule-table-body">
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">Initializing Simple Schedule...</td>
-                    </tr>
+                    <tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">Waiting for JS execution...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -65,72 +31,87 @@
 </div> <!-- End of .employee-schedule-body -->
 
 <script>
+    // Put a log *outside* any function first. Does this even appear?
+    console.log("!!! [SIMPLIFIED V4] Script tag STARTING to parse !!!");
+
     function initializeEmployeeSchedule(dashboardCurrentUser, dashboardTeamMembers) {
-        console.log("--- initializeEmployeeSchedule [SIMPLIFIED V3] ---");
+        // Log *immediately* upon entry
+        console.log(">>> [SIMPLIFIED V4] initializeEmployeeSchedule ENTERED <<<");
+        console.log("Received User Data:", dashboardCurrentUser);
+        console.log("Received Team Data:", dashboardTeamMembers);
 
-        // Find essential elements
-        const weekDisplay = document.getElementById('schedule-weekDisplay');
-        const scheduleTableBody = document.getElementById('schedule-table-body');
+        // Check for dashboardApp just in case
+        if (typeof window.dashboardApp?.showErrorMessage !== 'function') {
+             console.error("[SIMPLIFIED V4] dashboardApp or showErrorMessage is missing!");
+             alert("CRITICAL ERROR: dashboardApp missing!"); // Fallback alert
+             return;
+        }
+        const showErrorMessage = window.dashboardApp.showErrorMessage;
+        console.log("[SIMPLIFIED V4] dashboardApp seems ok.");
 
-        if (!weekDisplay || !scheduleTableBody) {
-            console.error("Simplified Error: Could not find weekDisplay or scheduleTableBody!");
-            if (scheduleTableBody) {
-                scheduleTableBody.innerHTML = '<tr><td colspan="8" style="color:red; text-align:center;">Error: UI Elements Missing!</td></tr>';
-            } else {
-                alert("Critical Error: Cannot find schedule table body.");
+        // Find elements *immediately* and log results
+        // Use a slight delay before trying to access DOM elements fully
+        setTimeout(() => {
+            console.log("[SIMPLIFIED V4 - Timeout] Attempting to find elements...");
+            const weekDisplay = document.getElementById('schedule-weekDisplay');
+            const scheduleTableBody = document.getElementById('schedule-table-body');
+            console.log("[SIMPLIFIED V4 - Timeout] Finding elements results:", { weekDisplay, scheduleTableBody });
+
+            if (!weekDisplay || !scheduleTableBody) {
+                console.error("[SIMPLIFIED V4 - Timeout] Critical elements weekDisplay or scheduleTableBody NOT FOUND!");
+                showErrorMessage("Error: Schedule UI elements could not be found even after delay.");
+                // Try updating a known element for visual feedback
+                 const titleElement = document.querySelector('.employee-schedule-body .page-title');
+                 if (titleElement) titleElement.innerHTML += ' <span style="color:red;">(Error finding elements!)</span>';
+                return;
             }
-            return; // Stop if elements aren't found
-        }
-        console.log("Simplified: Found essential elements.");
+            console.log("[SIMPLIFIED V4 - Timeout] Essential elements found.");
 
-        try {
-            // 1. Update Week Display (Static Text)
-            weekDisplay.textContent = "May 5 - May 11, 2025 (Test)";
-            console.log("Simplified: Week display updated.");
+            // Start the main logic within a try block
+            try {
+                console.log("[SIMPLIFIED V4 - Timeout] Entering try block...");
 
-            // 2. Clear Table Body
-            scheduleTableBody.innerHTML = '';
-            console.log("Simplified: Table body cleared.");
+                // 1. Update Week Display
+                console.log("[SIMPLIFIED V4 - Timeout] Attempting to update week display...");
+                weekDisplay.textContent = "Week Display OK (V4)"; // Changed text
+                console.log("[SIMPLIFIED V4 - Timeout] Week display updated.");
 
-            // 3. Define Fake Employee Data
-            const fakeEmployees = [
-                { id: 101, name: "Test Employee One" },
-                { id: 102, name: "Another Tester" }
-            ];
-            console.log("Simplified: Using fake employee data:", fakeEmployees);
+                // 2. Clear Table Body
+                console.log("[SIMPLIFIED V4 - Timeout] Attempting to clear table body...");
+                scheduleTableBody.innerHTML = ''; // Clear "Waiting..." message
+                console.log("[SIMPLIFIED V4 - Timeout] Table body cleared.");
 
-            // 4. Render Fake Data
-            fakeEmployees.forEach((employee, index) => {
-                const tr = document.createElement('tr');
-                tr.dataset.empId = employee.id;
+                // 3. Define Fake Employee Data
+                const fakeEmployees = [ { id: 1, name: "Tester Alpha" }, { id: 2, name: "Tester Beta" } ];
+                console.log("[SIMPLIFIED V4 - Timeout] Using fake data:", fakeEmployees);
 
-                // Employee Name Cell
-                const nameTd = document.createElement('td');
-                nameTd.className = `employee-name employee-${(index % 6) + 1}`;
-                nameTd.textContent = employee.name;
-                tr.appendChild(nameTd);
+                // 4. Render Fake Data
+                console.log("[SIMPLIFIED V4 - Timeout] Attempting to render fake data...");
+                fakeEmployees.forEach((employee, index) => {
+                    const tr = document.createElement('tr');
+                    const nameTd = document.createElement('td');
+                    nameTd.className = `employee-name employee-${index + 1}`;
+                    nameTd.textContent = employee.name;
+                    tr.appendChild(nameTd);
+                    for (let i = 0; i < 7; i++) {
+                        const td = document.createElement('td');
+                        td.textContent = `OK ${i+1}`; // Simple success indicator
+                        tr.appendChild(td);
+                    }
+                    scheduleTableBody.appendChild(tr);
+                });
+                console.log("[SIMPLIFIED V4 - Timeout] Fake data rendered.");
 
-                // Day Cells (Static Content)
-                for (let i = 0; i < 7; i++) {
-                    const td = document.createElement('td');
-                    td.textContent = (i % 3 === 0) ? "Work" : "OFF"; // Simple alternating text
-                    tr.appendChild(td);
-                }
-                scheduleTableBody.appendChild(tr);
-            });
-            console.log("Simplified: Fake data rendered.");
+                console.log("--- [SIMPLIFIED V4] Initialization Successful ---");
 
-            console.log("--- Simplified Initialization Successful ---");
+            } catch (error) {
+                 console.error("<<<<< CAUGHT ERROR during SIMPLIFIED V4 initialization >>>>>", error);
+                 if(scheduleTableBody) scheduleTableBody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">Error: ${error.message}</td></tr>`;
+                 showErrorMessage(`Simplified Init Error: ${error.message}`);
+            }
+        }, 200); // Increased delay slightly more to 200ms
 
-        } catch (error) {
-             console.error("<<<<< CAUGHT ERROR during SIMPLIFIED initialization >>>>>", error);
-             scheduleTableBody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">Error during initialization: ${error.message}</td></tr>`;
-             // Use dashboard error message if available
-             if (typeof window.dashboardApp?.showErrorMessage === 'function') {
-                 window.dashboardApp.showErrorMessage(`Simplified Init Error: ${error.message}`);
-             }
-        }
     } // End of initializeEmployeeSchedule
 
-    console.log("--- employee-scheduling.html script tag finished parsing [SIMPLIFIED V3] ---");
+    console.log("!!! [SIMPLIFIED V4] Script tag FINISHED parsing !!!");
 </script>
