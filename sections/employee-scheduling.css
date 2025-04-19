@@ -1,605 +1,247 @@
 // sections/employee-scheduling.js
+// FINAL DEBUGGING ATTEMPT - Simplified render, more logs
 
-// Wrap all code in the initialization function
 function initializeEmployeeSchedule(currentUser, teamMembers) {
-    console.log("%c--- initializeEmployeeSchedule STARTED ---", "color: blue; font-weight: bold;");
-    console.log("Received currentUser:", currentUser);
-    // Ensure teamMembers is an array before logging length or using spread
+    console.log("%c--- initializeEmployeeSchedule STARTED (Final Debug Attempt) ---", "color: orange; font-weight: bold;");
+
+    // --- Data Validation ---
+    if (!currentUser || typeof currentUser !== 'object') {
+        console.error("CRITICAL: currentUser invalid!", currentUser);
+        // Display error (implementation needed or rely on console)
+        return;
+    }
     const scheduleEmployees = Array.isArray(teamMembers) ? [...teamMembers] : [];
-    console.log("Received teamMembers (Count):", scheduleEmployees.length);
-     // console.log("Received teamMembers (Full Data):", JSON.stringify(scheduleEmployees)); // Uncomment for detailed view if needed
+    console.log(`Data Received: User Role: ${currentUser.role}, Employee Count: ${scheduleEmployees.length}`);
+    if (scheduleEmployees.length === 0) {
+        console.warn("WARNING: scheduleEmployees array is EMPTY. Table will show 'No employees'.");
+        // This is expected if teamMembers was actually empty.
+    }
+    // console.log("Employee Data:", JSON.stringify(scheduleEmployees)); // Uncomment if needed
 
-    // --- DOM Elements (Scoped to the #featureSections container) ---
+    // --- DOM Elements ---
     const featureContainer = document.getElementById('featureSections');
-    if (!featureContainer) {
-        console.error("CRITICAL: #featureSections container not found! Cannot initialize schedule.");
-        return; // Stop execution if the main container is missing
-    }
+    if (!featureContainer) { console.error("CRITICAL: #featureSections container missing!"); return; }
+    console.log("DOM: #featureSections found.");
 
-    // Find elements *within* the featureContainer
-    const employeeModal = featureContainer.querySelector('#employeeModal');
-    const shiftModal = featureContainer.querySelector('#shiftModal');
-    const addEmployeeBtn = featureContainer.querySelector('#addEmployeeBtn');
-    const sendRemindersBtn = featureContainer.querySelector('#sendRemindersBtn');
-    const closeEmployeeModal = featureContainer.querySelector('#closeEmployeeModal');
-    const closeShiftModal = featureContainer.querySelector('#closeShiftModal');
-    const cancelEmployeeBtn = featureContainer.querySelector('#cancelEmployeeBtn');
-    const cancelShiftBtn = featureContainer.querySelector('#cancelShiftBtn');
-    const employeeForm = featureContainer.querySelector('#employeeForm');
-    const shiftForm = featureContainer.querySelector('#shiftForm');
-    const shiftTypeSelect = featureContainer.querySelector('#shiftType');
-    const customShiftGroup = featureContainer.querySelector('#customShiftGroup');
-    const prevWeekBtn = featureContainer.querySelector('#prevWeekBtn');
-    const nextWeekBtn = featureContainer.querySelector('#nextWeekBtn');
-    const weekDisplay = featureContainer.querySelector('#weekDisplay');
-    const saveScheduleBtn = featureContainer.querySelector('#saveScheduleBtn');
     const scheduleTableBody = featureContainer.querySelector('#scheduleTableBody');
-    const scheduleTable = featureContainer.querySelector('#scheduleTable'); // Get table for headers
-    const toastNotification = featureContainer.querySelector('#toastNotification');
-    const shiftEmployeeDisplay = featureContainer.querySelector('#shiftEmployeeDisplay');
-    const shiftDateDisplay = featureContainer.querySelector('#shiftDateDisplay');
-    const customShiftInput = featureContainer.querySelector('#customShift');
-    const shiftNotesInput = featureContainer.querySelector('#shiftNotes');
-    const editShiftEmpIdInput = featureContainer.querySelector('#editShiftEmpId');
-    const editShiftDayIndexInput = featureContainer.querySelector('#editShiftDayIndex');
-    const empRoleSelect = featureContainer.querySelector('#empRole'); // For add employee modal
+    const weekDisplay = featureContainer.querySelector('#weekDisplay');
+    // Check ONLY essential elements for rendering
+    if (!scheduleTableBody) { console.error("CRITICAL: #scheduleTableBody missing!"); return; }
+    if (!weekDisplay) { console.error("CRITICAL: #weekDisplay missing!"); return; }
+    console.log("DOM: #scheduleTableBody and #weekDisplay found.");
+    // Other elements (modals, buttons) can be checked later if rendering works
 
-    // Verify crucial elements
-    if (!scheduleTableBody || !weekDisplay || !employeeModal || !shiftModal || !prevWeekBtn || !nextWeekBtn || !shiftTypeSelect) {
-         console.error("CRITICAL: One or more essential Schedule DOM elements not found within #featureSections. Check HTML structure and IDs.");
-         // Display error in UI
-         featureContainer.innerHTML = `<div class="placeholder-content error-message">Failed to initialize Schedule: Missing essential HTML elements.</div>`;
-         return;
-    }
-    console.log("All essential DOM elements found.");
+    // --- State & Config ---
+    let scheduleData = {}; // Assume loading from localStorage happens later if needed
+    let currentWeekStart = getStartOfWeek(new Date());
 
-
-    // --- State & Config (specific to this module) ---
-    let scheduleData = {}; // Stores { 'empId-yyyy-mm-dd': { type: '...', text: '...', notes: '' } }
-    let currentWeekStart = getStartOfWeek(new Date()); // Start with the current week (Monday)
-
-    // --- Permissions (Derived from passed currentUser) ---
-    const isAdmin = currentUser && currentUser.role === 'admin';
-    const isSupervisor = currentUser && currentUser.role === 'supervisor';
+    // --- Permissions ---
+    const isAdmin = currentUser.role === 'admin';
+    const isSupervisor = currentUser.role === 'supervisor';
     const canEditSchedule = isAdmin || isSupervisor;
-    console.log(`Permissions: isAdmin=${isAdmin}, isSupervisor=${isSupervisor}, canEditSchedule=${canEditSchedule}`);
+    console.log(`Permissions: canEditSchedule=${canEditSchedule}`);
 
     // --- Utility Functions ---
-    function showToast(message, type = 'success') {
-        if (!toastNotification) {
-            console.warn("Toast element not found, cannot show message:", message);
-            return;
-        }
-        toastNotification.textContent = message;
-        // Use theme variables for colors if defined, otherwise fallback
-        const successColor = getComputedStyle(document.documentElement).getPropertyValue('--success') || '#10b981';
-        const dangerColor = getComputedStyle(document.documentElement).getPropertyValue('--danger') || '#ef4444';
-        toastNotification.style.backgroundColor = type === 'success' ? successColor : dangerColor;
-        toastNotification.classList.add('show');
-        // Automatically remove after duration
-        setTimeout(() => {
-            toastNotification.classList.remove('show');
-        }, 3000);
-    }
-
     function getStartOfWeek(date) {
         const dt = new Date(date);
-        const day = dt.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-        const diff = dt.getDate() - day + (day === 0 ? -6 : 1); // Adjust Sunday to start on preceding Monday
+        const day = dt.getDay();
+        const diff = dt.getDate() - day + (day === 0 ? -6 : 1);
         dt.setDate(diff);
-        dt.setHours(0, 0, 0, 0); // Normalize to start of the day
+        dt.setHours(0, 0, 0, 0);
         return dt;
     }
-
     function formatDate(date, format = 'yyyy-mm-dd') {
-        try {
+         try {
+            if (!(date instanceof Date) || isNaN(date)) { return "Invalid Date"; }
             const yyyy = date.getFullYear();
             const mm = String(date.getMonth() + 1).padStart(2, '0');
             const dd = String(date.getDate()).padStart(2, '0');
+            if (format === 'short') { return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+            return `${yyyy}-${mm}-${dd}`;
+         } catch(e) { console.error("formatDate error:", e); return "Date Error"; }
+     }
+     // --- SIMPLIFIED getShift functions for this test ---
+     function getShiftClass(type) { return 'shift-morning'; } // Always return one class
+     function getShiftText(type, customText = '') { return type || 'Shift'; } // Return type or default
 
-            if (format === 'yyyy-mm-dd') {
-                return `${yyyy}-${mm}-${dd}`;
-            } else if (format === 'short') {
-                // More robust short format
-                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            } else if (format === 'weekday-short') {
-                 return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-            }
-            return `${yyyy}-${mm}-${dd}`; // Default
-        } catch (e) {
-            console.error("Error formatting date:", date, e);
-            return "Invalid Date";
-        }
-    }
-
-    function getShiftClass(type) {
-        const classes = {
-            'morning': 'shift-morning', 'afternoon': 'shift-afternoon', 'night': 'shift-night',
-            'day-off': 'day-off', 'sick-leave': 'sick-leave', 'vacation': 'vacation',
-            'custom': 'shift-custom' // Use a distinct class for custom
-        };
-        return classes[type] || 'shift-custom'; // Default to custom if type unknown
-    }
-
-    function getShiftText(type, customText = '') {
-        const texts = {
-            'morning': '9AM-5PM', 'afternoon': '12PM-8PM', 'night': '5PM-1AM',
-            'day-off': 'OFF', 'sick-leave': 'SICK', 'vacation': 'VAC'
-        };
-        if (type === 'custom') {
-            return customText || 'Custom'; // Return provided custom text or default
-        }
-        return texts[type] || type; // Return standard text or the type itself if unknown
-    }
 
     // --- Core Logic ---
-    function updateWeekDisplay() {
-        console.log(`updateWeekDisplay: Updating for week starting: ${currentWeekStart.toDateString()}`);
-        const weekEnd = new Date(currentWeekStart);
-        weekEnd.setDate(weekEnd.getDate() + 6);
-
-        const startStr = formatDate(currentWeekStart, 'short');
-        const endStr = formatDate(weekEnd, 'short');
-        const year = currentWeekStart.getFullYear();
-        weekDisplay.textContent = `${startStr} - ${endStr}, ${year}`;
-
-        // Update table header dates
-        const dateHeaders = scheduleTable?.querySelectorAll('thead .day-date'); // Be more specific
-        if (dateHeaders && dateHeaders.length === 7) {
-             const tempDate = new Date(currentWeekStart);
-             dateHeaders.forEach(cell => {
-                 cell.textContent = formatDate(tempDate, 'short');
-                 tempDate.setDate(tempDate.getDate() + 1);
-             });
-        } else {
-            console.warn("Could not find exactly 7 '.day-date' elements in table header.");
-        }
-
-
-        // Disable navigation buttons if needed (adjust range as necessary)
-        // const minDate = new Date(2023, 0, 1); // Example min
-        // const maxDate = new Date(2026, 11, 31); // Example max
-        // prevWeekBtn.disabled = currentWeekStart <= minDate;
-        // nextWeekBtn.disabled = weekEnd >= maxDate;
-         prevWeekBtn.disabled = false; // Enable for now
-         nextWeekBtn.disabled = false;
-
-        // Render the schedule table for the new week
-        renderScheduleTable();
-    }
 
     function renderScheduleTable() {
-        console.log("renderScheduleTable: Starting render...");
+        console.log(`%c--- renderScheduleTable CALLED --- Employee Count: ${scheduleEmployees.length}`, "color: green;");
+        // debugger; // <--- UNCOMMENT THIS LINE to pause execution here in dev tools
+
         if (!scheduleTableBody) {
-            console.error("renderScheduleTable: CRITICAL - scheduleTableBody element not found!");
+            console.error("renderScheduleTable: FATAL - scheduleTableBody element lost!");
             return;
         }
-        scheduleTableBody.innerHTML = ''; // Clear previous rows
+        console.log("renderScheduleTable: Clearing scheduleTableBody...");
+        scheduleTableBody.innerHTML = ''; // Clear previous content reliably
 
         if (scheduleEmployees.length === 0) {
-            console.log("renderScheduleTable: No employees array or empty array.");
-            scheduleTableBody.innerHTML = `<tr><td colspan="8">No employees found. Add employees via Settings > Team Management.</td></tr>`;
+            console.log("renderScheduleTable: No employees. Displaying message.");
+            const row = scheduleTableBody.insertRow();
+            const cell = row.insertCell();
+            cell.colSpan = 8;
+            cell.textContent = "No employees available in the schedule.";
+            cell.style.textAlign = 'center'; cell.style.padding = '2rem'; cell.style.color = 'var(--gray)'; cell.style.fontStyle = 'italic';
+            console.log("renderScheduleTable: 'No employees' message displayed.");
             return;
         }
 
-        console.log(`renderScheduleTable: Rendering ${scheduleEmployees.length} employee rows...`);
-        scheduleEmployees.forEach((emp, empIndex) => {
-             if (!emp || typeof emp.id === 'undefined' || !emp.name) {
-                  console.warn(`renderScheduleTable: Skipping invalid employee data at index ${empIndex}:`, emp);
-                  return; // Skip invalid employee entries
-             }
-            console.log(`  Rendering row ${empIndex + 1}: ID=${emp.id}, Name=${emp.name}`);
-            const row = document.createElement('tr');
-            row.dataset.employeeId = emp.id;
-
-            // Employee Name Cell
-            const nameCell = document.createElement('td');
-            nameCell.className = 'employee-name';
-            nameCell.textContent = emp.name;
-            row.appendChild(nameCell);
-
-            // Day Cells
-            for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
-                const cellDate = new Date(currentWeekStart);
-                cellDate.setDate(cellDate.getDate() + dayIndex);
-                const dateStr = formatDate(cellDate); // Get 'yyyy-mm-dd'
-                const key = `${emp.id}-${dateStr}`;
-                const shiftInfo = scheduleData[key]; // Get shift data for this specific cell
-
-                const cell = document.createElement('td');
-                cell.dataset.date = dateStr;
-                cell.dataset.dayIndex = dayIndex; // Store 0-6 index
-
-                let cellContent = '';
-                if (shiftInfo) {
-                    cellContent = `<div class="shift ${getShiftClass(shiftInfo.type)}" title="${shiftInfo.notes || ''}">${getShiftText(shiftInfo.type, shiftInfo.text)}</div>`;
-                }
-
-                if (canEditSchedule) {
-                    cell.classList.add('admin-controls');
-                    // Add the edit span regardless of whether there's a shift, so it can be clicked to *add* a shift
-                    cellContent += `<span class="edit-shift" title="Edit Shift"></span>`;
-                     cell.innerHTML = cellContent;
-                    // Add listener directly to the span AFTER setting innerHTML
-                     const editSpan = cell.querySelector('.edit-shift');
-                     if (editSpan) {
-                         editSpan.addEventListener('click', handleEditShiftClick);
-                     }
-                } else {
-                     cell.innerHTML = cellContent; // Just show the shift div if it exists
-                }
-                row.appendChild(cell);
-            }
-            scheduleTableBody.appendChild(row);
-        });
-        console.log("renderScheduleTable: Finished rendering rows.");
-    }
-
-    // --- Event Handlers ---
-    function handlePrevWeek() {
-        console.log("handlePrevWeek clicked");
-        currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-        updateWeekDisplay();
-    }
-
-    function handleNextWeek() {
-        console.log("handleNextWeek clicked");
-        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-        updateWeekDisplay();
-    }
-
-    function handleShiftTypeChange() {
-        console.log("handleShiftTypeChange:", this.value);
-        if (customShiftGroup) {
-             customShiftGroup.style.display = this.value === 'custom' ? 'block' : 'none';
-        }
-    }
-
-    function openEmployeeModal() {
-        console.log("openEmployeeModal clicked");
-        if (!isAdmin) { // Security check
-            showToast("Only Admins can add employees here.", "danger");
-            return;
-        }
-        if (!employeeModal) return;
-        employeeForm.reset(); // Clear form
-        // Optional: Set default role or apply role restrictions based on current user
-        if (empRoleSelect) {
-            const adminOption = empRoleSelect.querySelector('option[value="admin"]');
-            const supervisorOption = empRoleSelect.querySelector('option[value="supervisor"]');
-            if(adminOption) adminOption.disabled = !isAdmin; // Only admins can add admins
-            if(supervisorOption) supervisorOption.disabled = !isAdmin; // Only admins can add supervisors
-        }
-        employeeModal.classList.add('active'); // Use class to show modal
-        featureContainer.querySelector('#empName')?.focus(); // Optional chaining for safety
-    }
-
-    function closeEmployeeModalHandler() {
-        console.log("closeEmployeeModalHandler called");
-        if (!employeeModal) return;
-        employeeModal.classList.remove('active'); // Use class to hide
-    }
-
-    function handleAddEmployeeSubmit(e) {
-        e.preventDefault();
-        console.log("handleAddEmployeeSubmit called");
-         if (!isAdmin) { // Security check
-              showToast("Permission denied.", "danger");
-              return;
-         }
-
-        const nameInput = featureContainer.querySelector('#empName');
-        const emailInput = featureContainer.querySelector('#empEmail');
-        const positionInput = featureContainer.querySelector('#empPosition');
-        const roleInput = featureContainer.querySelector('#empRole');
-
-        if(!nameInput || !emailInput || !roleInput) {
-            console.error("Could not find employee form inputs.");
-            return;
-        }
-
-        const name = nameInput.value.trim();
-        const email = emailInput.value.trim();
-        const position = positionInput?.value.trim() || ''; // Position is optional
-        const role = roleInput.value;
-
-        if (!name || !email || !role) {
-            showToast("Please fill in Name, Email, and Role.", "danger");
-            return;
-        }
-        if (!/\S+@\S+\.\S+/.test(email)) { // Basic email validation
-             showToast("Please enter a valid email address.", "danger");
-             return;
-        }
-
-        if (scheduleEmployees.some(emp => emp.email.toLowerCase() === email.toLowerCase())) {
-            showToast("An employee with this email already exists in the schedule view.", "danger");
-            return;
-        }
-
-        // IMPORTANT: This adds locally ONLY. Needs mechanism to update main dashboard data.
-        const newEmployee = {
-            id: `temp-${Date.now()}`, // Temporary ID for local rendering
-            name: name,
-            email: email,
-            role: role,
-            position: position,
-            // Add initials if needed: initials: name.split(' ').map(n=>n[0]).join('').toUpperCase()
-        };
-        console.log("Adding new employee locally:", newEmployee);
-        scheduleEmployees.push(newEmployee);
-        renderScheduleTable(); // Re-render table
-        closeEmployeeModalHandler();
-        showToast(`Employee ${name} added to schedule view.`);
-
-        // Emit an event to notify dashboard.js (requires dashboard.js to listen)
-         console.log("Dispatching teamMemberAdded event");
-         document.dispatchEvent(new CustomEvent('teamMemberAdded', {
-             detail: { ...newEmployee } // Send a copy
-         }));
-    }
-
-
-    function handleEditShiftClick(event) {
-        console.log("handleEditShiftClick called");
-        if (!canEditSchedule) return; // Permission check
-
-        const targetCell = event.target.closest('td');
-        if (!targetCell) {
-            console.error("Could not find parent cell for edit click.");
-            return;
-        }
-        const targetRow = targetCell.closest('tr');
-        if (!targetRow) {
-            console.error("Could not find parent row for edit click.");
-            return;
-        }
-
-        const empIdStr = targetRow.dataset.employeeId; // ID might be string if temporary
-        const dateStr = targetCell.dataset.date; // 'yyyy-mm-dd'
-        const dayIndexStr = targetCell.dataset.dayIndex; // '0'-'6'
-
-        if (typeof empIdStr === 'undefined' || typeof dateStr === 'undefined' || typeof dayIndexStr === 'undefined') {
-            console.error("Missing data attributes on cell/row:", { empIdStr, dateStr, dayIndexStr });
-            return;
-        }
-
-        const dayIndex = parseInt(dayIndexStr, 10);
-        // Find employee (handle potential string/number ID difference if using temporary IDs)
-        const employee = scheduleEmployees.find(e => String(e.id) === empIdStr);
-
-        if (!employee) {
-            console.error(`Employee not found for ID: ${empIdStr}`);
-            return;
-        }
-        console.log(`Editing shift for Employee: ${employee.name} (${empIdStr}), Date: ${dateStr}, DayIndex: ${dayIndex}`);
-
-        const key = `${empIdStr}-${dateStr}`;
-        const currentShift = scheduleData[key];
-        console.log("Current shift data for this cell:", currentShift);
-
-        // --- Populate Modal ---
-        if (!editShiftEmpIdInput || !editShiftDayIndexInput || !shiftEmployeeDisplay || !shiftDateDisplay || !shiftForm || !shiftTypeSelect || !customShiftInput || !shiftNotesInput) {
-            console.error("One or more shift modal elements not found!");
-            return;
-        }
-
-        editShiftEmpIdInput.value = empIdStr;
-        editShiftDayIndexInput.value = dayIndex; // Store index
-        shiftEmployeeDisplay.value = employee.name;
-        // Display a more readable date in the modal
-        const displayDate = new Date(dateStr + 'T00:00:00'); // Ensure correct date parsing
-        shiftDateDisplay.value = formatDate(displayDate, 'weekday-short');
-
-        if (currentShift) {
-            shiftTypeSelect.value = currentShift.type || 'morning'; // Default if type missing
-            customShiftInput.value = currentShift.type === 'custom' ? currentShift.text : '';
-            shiftNotesInput.value = currentShift.notes || '';
-        } else {
-            // Reset form if no current shift exists for this cell
-            shiftForm.reset();
-            shiftTypeSelect.value = 'morning'; // Default to morning shift
-        }
-
-        // Trigger change event manually to ensure custom field visibility updates
-         shiftTypeSelect.dispatchEvent(new Event('change'));
-
-
-        shiftModal.classList.add('active'); // Show modal using class
-        shiftTypeSelect.focus();
-    }
-
-    function closeShiftModalHandler() {
-        console.log("closeShiftModalHandler called");
-        if (!shiftModal) return;
-        shiftModal.classList.remove('active'); // Hide modal using class
-    }
-
-    function handleShiftFormSubmit(e) {
-        e.preventDefault();
-        console.log("handleShiftFormSubmit called");
-
-        const empId = editShiftEmpIdInput.value; // Keep as string to match temp IDs
-        const dayIndex = parseInt(editShiftDayIndexInput.value, 10);
-        const shiftType = shiftTypeSelect.value;
-        const customText = customShiftInput.value.trim();
-        const notes = shiftNotesInput.value.trim();
-
-        if (isNaN(dayIndex) || dayIndex < 0 || dayIndex > 6) {
-            console.error("Invalid dayIndex retrieved from form:", dayIndex);
-            return;
-        }
-
-        // Reconstruct the date string based on the *current* week start and the stored dayIndex
-        const targetDate = new Date(currentWeekStart);
-        targetDate.setDate(targetDate.getDate() + dayIndex);
-        const dateStr = formatDate(targetDate); // 'yyyy-mm-dd'
-
-        const key = `${empId}-${dateStr}`;
-        console.log(`Saving shift for key: ${key}, Type: ${shiftType}`);
-
-        if (shiftType === 'delete') {
-            delete scheduleData[key]; // Remove the entry
-            console.log(`Deleted shift data for key: ${key}`);
-        } else {
-            scheduleData[key] = {
-                type: shiftType,
-                text: shiftType === 'custom' ? (customText || 'Custom') : getShiftText(shiftType), // Use custom text or standard
-                notes: notes
-            };
-            console.log(`Saved shift data for key ${key}:`, scheduleData[key]);
-        }
-
-        // --- Update the specific cell in the table (Direct DOM Manipulation) ---
-        const cellToUpdate = scheduleTableBody?.querySelector(`tr[data-employee-id="${empId}"] td[data-day-index="${dayIndex}"]`);
-
-        if (cellToUpdate) {
-             console.log("Found cell to update directly.");
-             const updatedShiftInfo = scheduleData[key]; // Get the potentially new/deleted info
-             let newCellContent = '';
-
-             if (updatedShiftInfo) {
-                 newCellContent = `<div class="shift ${getShiftClass(updatedShiftInfo.type)}" title="${updatedShiftInfo.notes || ''}">${getShiftText(updatedShiftInfo.type, updatedShiftInfo.text)}</div>`;
-             }
-
-             if (canEditSchedule) {
-                 newCellContent += `<span class="edit-shift" title="Edit Shift"></span>`;
-                 cellToUpdate.innerHTML = newCellContent;
-                 // Re-attach listener to the new edit span
-                 const newEditSpan = cellToUpdate.querySelector('.edit-shift');
-                 if (newEditSpan) {
-                     newEditSpan.addEventListener('click', handleEditShiftClick);
-                 }
-             } else {
-                 cellToUpdate.innerHTML = newCellContent; // Just update shift div
-             }
-        } else {
-            console.warn(`Could not find cell to update: [empId="${empId}", dayIndex="${dayIndex}"]. Performing full table re-render as fallback.`);
-            renderScheduleTable(); // Fallback if direct update fails
-        }
-
-        closeShiftModalHandler();
-        showToast(`Shift for ${shiftEmployeeDisplay.value} on ${dateStr} updated!`);
-        // Consider marking schedule as 'dirty' / needing save
-        if(saveScheduleBtn) saveScheduleBtn.style.border = '2px solid var(--warning)'; // Visual indicator
-    }
-
-
-    function handleSaveSchedule() {
-        console.log("handleSaveSchedule clicked. Saving data:", scheduleData);
-        // Simulate saving to backend/localStorage
+        // --- SIMPLIFIED RENDERING LOOP ---
+        console.log("renderScheduleTable: Starting simplified employee loop...");
         try {
-            localStorage.setItem('employeeScheduleData', JSON.stringify(scheduleData));
-            showToast('Schedule saved successfully!');
-             if(saveScheduleBtn) saveScheduleBtn.style.border = 'none'; // Remove indicator
-        } catch (e) {
-            console.error("Error saving schedule data to localStorage:", e);
-            showToast('Error saving schedule.', 'danger');
+            scheduleEmployees.forEach((emp, empIndex) => {
+                console.log(`  Looping employee ${empIndex + 1}: ID=${emp?.id}, Name=${emp?.name}`); // Use optional chaining
+                if (!emp || typeof emp.id === 'undefined' || typeof emp.name === 'undefined') {
+                     console.warn(`    Skipping invalid employee data at index ${empIndex}`);
+                     return; // Skip this iteration
+                 }
+
+                // 1. Create Row
+                const row = scheduleTableBody.insertRow();
+                 if (!row) { throw new Error(`Failed to insert row for employee ${emp.id}`); }
+                 row.dataset.employeeId = emp.id;
+                 //console.log(`    Row created for ${emp.name}`);
+
+                // 2. Add Name Cell (Simplified)
+                const nameCell = row.insertCell();
+                 if (!nameCell) { throw new Error(`Failed to insert name cell for employee ${emp.id}`); }
+                nameCell.className = 'employee-name';
+                nameCell.textContent = emp.name;
+                 //console.log(`    Name cell added for ${emp.name}`);
+
+                // 3. Add Basic Day Cells (Just Day Index for now)
+                for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+                    const cell = row.insertCell();
+                     if (!cell) { throw new Error(`Failed to insert day cell ${dayIndex} for employee ${emp.id}`); }
+                    cell.textContent = `Day ${dayIndex}`; // Put *something* simple
+                    // Add basic data attributes
+                     const cellDate = new Date(currentWeekStart);
+                     cellDate.setDate(cellDate.getDate() + dayIndex);
+                     cell.dataset.date = formatDate(cellDate);
+                     cell.dataset.dayIndex = dayIndex;
+
+                    // Add edit span if needed (simplified content)
+                     if(canEditSchedule) {
+                         cell.classList.add('admin-controls');
+                         cell.innerHTML += ' <span class="edit-shift" title="Edit">✎</span>'; // Simple edit symbol
+                         // Listener should be attached separately if needed for debugging later
+                     }
+                }
+                 //console.log(`    Day cells added for ${emp.name}`);
+            }); // End forEach employee
+            console.log("renderScheduleTable: Finished simplified employee loop successfully.");
+
+        } catch (error) {
+            console.error("!!! CRITICAL ERROR inside renderScheduleTable loop !!!:", error);
+             scheduleTableBody.innerHTML = `<tr><td colspan="8" style="color: red; text-align: center; padding: 1rem;">ERROR: Failed to render schedule rows. Check console.</td></tr>`;
         }
-        // In a real app, you'd send `scheduleData` to your server API.
     }
 
-    function handleSendReminders() {
-         console.log("handleSendReminders clicked");
-         if (!canEditSchedule) { // Only admins/supervisors
-             showToast("Permission denied.", "danger");
-             return;
-         }
-         const subject = encodeURIComponent(`Work Schedule: Week of ${formatDate(currentWeekStart, 'short')}`);
-         const body = encodeURIComponent(`Hi Team,\n\nPlease find your schedule for the upcoming week (${formatDate(currentWeekStart, 'short')} - ${formatDate(new Date(currentWeekStart).setDate(currentWeekStart.getDate() + 6), 'short')}).\n\n[You might add a link to the schedule or specific details here if possible]\n\nBest regards,\n${currentUser.name || 'Management'}`);
-         const recipientEmails = scheduleEmployees.map(e => e.email).filter(Boolean).join(',');
+    function updateWeekDisplay() {
+        console.log(`%c--- updateWeekDisplay CALLED --- Week Start: ${currentWeekStart.toDateString()}`, "color: blue;");
+        // debugger; // <--- UNCOMMENT THIS LINE to pause execution here
+        if (!weekDisplay) { console.error("updateWeekDisplay: weekDisplay element missing!"); return; }
 
-         if (!recipientEmails) {
-             showToast('No employee emails found to send reminders.', 'danger');
-             return;
-         }
+        try {
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            const startStr = formatDate(currentWeekStart, 'short');
+            const endStr = formatDate(weekEnd, 'short');
+            const year = currentWeekStart.getFullYear();
 
-         const mailtoLink = `mailto:?bcc=${recipientEmails}&subject=${subject}&body=${body}`;
-         console.log("Generated mailto link (length):", mailtoLink.length); // Check length limits if issues
+            if (startStr === "Invalid Date" || endStr === "Invalid Date") throw new Error("Date formatting failed");
 
-         try {
-             // Attempt to open mail client
-             // window.open(mailtoLink); // Can be blocked
-             const link = document.createElement('a');
-             link.href = mailtoLink;
-             link.style.display = 'none';
-             document.body.appendChild(link);
-             link.click();
-             document.body.removeChild(link);
-             showToast('Email client should be opening...');
-         } catch (e) {
-             console.error("Error opening mailto link:", e);
-             showToast('Could not open mail client.', 'danger');
-             // Fallback or provide link
-             prompt("Copy mailto link:", mailtoLink);
-         }
-     }
+            weekDisplay.textContent = `${startStr} - ${endStr}, ${year}`;
+            console.log(`updateWeekDisplay: Week text set to: ${weekDisplay.textContent}`);
 
+            // Update header dates
+            const dateHeaders = featureContainer.querySelector('#scheduleTable thead')?.querySelectorAll('.day-date');
+            if (dateHeaders && dateHeaders.length === 7) {
+                const tempDate = new Date(currentWeekStart);
+                dateHeaders.forEach(cell => {
+                    const formatted = formatDate(tempDate, 'short');
+                    cell.textContent = formatted !== "Invalid Date" ? formatted : "Error";
+                    tempDate.setDate(tempDate.getDate() + 1);
+                });
+                 console.log("updateWeekDisplay: Header dates updated.");
+            } else { console.warn("updateWeekDisplay: Could not find header date cells."); }
+
+            // Update button states (keep simple for now)
+             const prevBtn = featureContainer.querySelector('#prevWeekBtn');
+             const nextBtn = featureContainer.querySelector('#nextWeekBtn');
+             if(prevBtn) prevBtn.disabled = false;
+             if(nextBtn) nextBtn.disabled = false;
+
+            // Call render AFTER updating display logic
+            console.log("updateWeekDisplay: Calling renderScheduleTable...");
+            renderScheduleTable();
+
+            console.log("updateWeekDisplay: Finished successfully.");
+        } catch (error) {
+             console.error("Error during updateWeekDisplay:", error);
+             weekDisplay.textContent = "Error";
+             if(scheduleTableBody) scheduleTableBody.innerHTML = `<tr><td colspan="8" style="color: red; text-align: center; padding: 1rem;">Error updating week display.</td></tr>`;
+        }
+    }
+
+    // --- Event Handlers (Keep simplified or stubbed for now) ---
+    function handlePrevWeek() { console.log("Prev Week Clicked"); currentWeekStart.setDate(currentWeekStart.getDate() - 7); updateWeekDisplay(); }
+    function handleNextWeek() { console.log("Next Week Clicked"); currentWeekStart.setDate(currentWeekStart.getDate() + 7); updateWeekDisplay(); }
+    // ... other handlers (modals, save, etc.) can be added back later ...
 
     // --- Event Listener Setup ---
     function setupScheduleEventListeners() {
-        console.log("setupScheduleEventListeners: Attaching listeners...");
-
-        prevWeekBtn?.addEventListener('click', handlePrevWeek);
-        nextWeekBtn?.addEventListener('click', handleNextWeek);
-        shiftTypeSelect?.addEventListener('change', handleShiftTypeChange);
-
-        // Modals
-        addEmployeeBtn?.addEventListener('click', openEmployeeModal);
-        closeEmployeeModal?.addEventListener('click', closeEmployeeModalHandler);
-        cancelEmployeeBtn?.addEventListener('click', closeEmployeeModalHandler);
-        closeShiftModal?.addEventListener('click', closeShiftModalHandler);
-        cancelShiftBtn?.addEventListener('click', closeShiftModalHandler);
-
-        // Close modals on background click
-        employeeModal?.addEventListener('click', (event) => { if (event.target === employeeModal) closeEmployeeModalHandler(); });
-        shiftModal?.addEventListener('click', (event) => { if (event.target === shiftModal) closeShiftModalHandler(); });
-
-        // Forms
-        employeeForm?.addEventListener('submit', handleAddEmployeeSubmit);
-        shiftForm?.addEventListener('submit', handleShiftFormSubmit);
-
-        // Action Buttons
-        saveScheduleBtn?.addEventListener('click', handleSaveSchedule);
-        sendRemindersBtn?.addEventListener('click', handleSendReminders);
-
-         // Listeners for dynamically added '.edit-shift' are attached in renderScheduleTable/handleShiftFormSubmit
-        console.log("setupScheduleEventListeners: Listeners attached.");
+        console.log("setupScheduleEventListeners: Attaching minimal listeners...");
+        try {
+            featureContainer.querySelector('#prevWeekBtn')?.addEventListener('click', handlePrevWeek);
+            featureContainer.querySelector('#nextWeekBtn')?.addEventListener('click', handleNextWeek);
+            // Add listeners for modals/buttons later if base rendering works
+            console.log("setupScheduleEventListeners: Minimal listeners attached.");
+        } catch (error) {
+            console.error("ERROR attaching schedule event listeners:", error);
+        }
     }
 
-    // --- Initial Setup Called Once ---
+    // --- Initial Setup ---
     function init() {
         console.log("init: Starting Employee Schedule module initialization...");
-        // 1. Load any saved schedule state specific to this module
-        const savedData = localStorage.getItem('employeeScheduleData');
-        if (savedData) {
-            try {
-                scheduleData = JSON.parse(savedData);
-                console.log("init: Successfully loaded schedule data from localStorage.");
-            } catch (e) {
-                console.error("init: Error parsing saved schedule data:", e);
-                scheduleData = {}; // Reset if parsing fails
-            }
-        } else {
-            console.log("init: No schedule data found in localStorage, starting fresh.");
-            scheduleData = {}; // Ensure it's an empty object
-        }
+        // Load minimal data needed for rendering test (scheduleData can be empty initially)
+        try {
+             const savedData = localStorage.getItem('employeeScheduleData');
+             if (savedData) { scheduleData = JSON.parse(savedData); } else { scheduleData = {}; }
+             console.log("init: Schedule data loaded/initialized.");
+        } catch(e) { console.error("init: Error loading scheduleData", e); scheduleData = {}; }
 
-        // 2. Apply Permissions (Show/hide buttons)
-        if (addEmployeeBtn) addEmployeeBtn.style.display = isAdmin ? 'flex' : 'none'; // Only admin adds directly here
-        if (sendRemindersBtn) sendRemindersBtn.style.display = canEditSchedule ? 'flex' : 'none';
-        if (saveScheduleBtn) saveScheduleBtn.style.display = canEditSchedule ? 'flex' : 'none';
 
-        // 3. Setup Event Listeners for the schedule section
+        // Apply Permissions (minimal for now)
+        console.log("init: Applying permissions visibility...");
+         const addBtn = featureContainer.querySelector('#addEmployeeBtn');
+         const sendBtn = featureContainer.querySelector('#sendRemindersBtn');
+         const saveBtn = featureContainer.querySelector('#saveScheduleBtn');
+         if(addBtn) addBtn.style.display = isAdmin ? 'flex' : 'none';
+         if(sendBtn) sendBtn.style.display = canEditSchedule ? 'flex' : 'none';
+         if(saveBtn) saveBtn.style.display = canEditSchedule ? 'flex' : 'none';
+
+        // Setup MINIMAL listeners
         setupScheduleEventListeners();
 
-        // 4. Initial Render
-        updateWeekDisplay(); // This will render the table for the current week
+        // Initial Render
+        console.log("init: Performing initial call to updateWeekDisplay...");
+        updateWeekDisplay(); // This should trigger the first render
 
-        console.log("%c--- initializeEmployeeSchedule FINISHED ---", "color: blue; font-weight: bold;");
+        console.log("%c--- initializeEmployeeSchedule FINISHED (Final Debug Attempt) ---", "color: green; font-weight: bold;");
     }
 
     // --- Run Initialization ---
-    init();
+    try {
+        init();
+    } catch (error) {
+        console.error("CRITICAL ERROR during Schedule init():", error);
+        if (scheduleTableBody) { scheduleTableBody.innerHTML = `<tr><td colspan="8" style="color: red; text-align: center; padding: 1rem;">Fatal error during init. Check console.</td></tr>`; }
+        else if (featureContainer) { featureContainer.innerHTML = `<div class="placeholder-content error-message">Fatal error initializing schedule. Check console.</div>`; }
+    }
 
 } // End of initializeEmployeeSchedule function
