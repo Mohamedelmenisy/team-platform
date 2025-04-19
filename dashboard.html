@@ -1,1 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Team Management</title>
+    <!-- رابط Font Awesome للأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- متغيرات الألوان الأساسية (من ملفاتك) --- */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e3a8a;
+            --secondary: #10b981;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --light-gray: #e2e8f0;
+        }
 
+        /* --- أنماط أساسية --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            display: flex; /* لترتيب القائمة والمحتوى جنباً إلى جنب */
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+        }
+
+        /* --- تنسيق القائمة الجانبية (Sidebar) --- */
+        .sidebar {
+            width: 250px; /* عرض القائمة */
+            background-color: var(--dark); /* خلفية داكنة */
+            color: white; /* لون النص أبيض */
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column; /* لترتيب العناصر رأسياً */
+            flex-shrink: 0; /* لمنع القائمة من الانكماش */
+        }
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+        .sidebar nav ul {
+            list-style: none; /* إزالة نقاط القائمة */
+            padding: 0;
+            margin: 0;
+            flex-grow: 1; /* لجعل القائمة تملأ المساحة المتاحة */
+        }
+        .sidebar nav li a {
+            display: flex; /* لتوسيط الأيقونة والنص */
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8); /* لون الروابط (أبيض شفاف قليلاً) */
+            text-decoration: none; /* إزالة الخط تحت الروابط */
+            padding: 0.9rem 1rem; /* هوامش داخلية للروابط */
+            margin-bottom: 0.5rem; /* مسافة بين الروابط */
+            border-radius: 6px; /* حواف دائرية */
+            transition: background-color 0.3s ease, color 0.3s ease; /* تأثير انتقال سلس */
+            font-weight: 500;
+        }
+        .sidebar nav li a i { /* تنسيق الأيقونات */
+            margin-right: 12px; /* مسافة بين الأيقونة والنص */
+            width: 20px; /* تحديد عرض للأيقونة لمحاذاة النص */
+            text-align: center;
+        }
+        .sidebar nav li a:hover { /* عند مرور الماوس فوق الرابط */
+            background-color: rgba(255, 255, 255, 0.1); /* تغيير لون الخلفية قليلاً */
+            color: white;
+        }
+        .sidebar nav li a.active { /* الرابط النشط (القسم المفتوح حالياً) */
+            background-color: var(--primary); /* لون الخلفية أزرق */
+            color: white; /* لون النص أبيض */
+            font-weight: 600;
+        }
+
+        /* --- تنسيق زر تسجيل الخروج --- */
+        .sidebar .logout-link {
+             margin-top: auto; /* يدفع الزر لأسفل القائمة */
+             padding-top: 1rem;
+             border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sidebar .logout-link a {
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             padding: 0.8rem 1rem;
+             background-color: var(--primary-dark);
+             color: white;
+             text-decoration: none;
+             border-radius: 6px;
+             text-align: center;
+             transition: background-color 0.3s ease;
+        }
+         .sidebar .logout-link a i {
+             margin-right: 8px;
+         }
+         .sidebar .logout-link a:hover {
+            background-color: var(--primary);
+        }
+
+        /* --- تنسيق منطقة المحتوى الرئيسي (Main Content) --- */
+        .main-content {
+            flex: 1; /* يأخذ باقي المساحة الأفقية المتاحة */
+            padding: 2rem 3rem; /* هوامش داخلية للمحتوى */
+            overflow-y: auto; /* للسماح بالتمرير إذا كان المحتوى طويلاً */
+        }
+
+        /* --- القاعدة الأساسية: إخفاء جميع أقسام المحتوى --- */
+        .content-section {
+            display: none; /* يخفي العنصر تماماً */
+            animation: fadeInContent 0.5s ease-in-out; /* تأثير ظهور لطيف */
+        }
+
+        /* --- القاعدة الثانية: إظهار القسم الذي يحتوي على كلاس 'active' --- */
+        .content-section.active {
+            display: block; /* يظهر العنصر */
+        }
+
+        /* --- تنسيقات داخل المحتوى (أمثلة) --- */
+        .main-content h1 {
+            color: var(--primary-dark);
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--light-gray);
+            padding-bottom: 0.5rem;
+        }
+        .main-content p {
+            margin-bottom: 1rem;
+            line-height: 1.7;
+            color: var(--gray);
+        }
+        .main-content ul {
+            margin-bottom: 1rem;
+            padding-left: 20px;
+            color: var(--gray);
+        }
+        .main-content li {
+             margin-bottom: 0.5rem;
+        }
+        .main-content form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        .main-content form input[type="text"],
+        .main-content form input[type="email"],
+        .main-content form textarea {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        .main-content form textarea {
+            min-height: 100px;
+        }
+        .main-content form button {
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        .main-content form button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* --- تأثير الظهور للمحتوى --- */
+        @keyframes fadeInContent {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- تصميم متجاوب (اختياري لتحسين العرض على الشاشات الصغيرة) --- */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column; /* ترتيب العناصر رأسياً */
+            }
+            .sidebar {
+                width: 100%; /* القائمة تأخذ كامل العرض */
+                height: auto; /* ارتفاع تلقائي */
+                padding: 1rem;
+            }
+            .sidebar h2 {
+                margin-bottom: 1rem;
+                font-size: 1.3rem;
+            }
+             .sidebar nav ul {
+                 display: flex; /* جعل الروابط أفقية */
+                 overflow-x: auto; /* السماح بالتمرير الأفقي إذا لم تتسع */
+                 padding-bottom: 10px; /* مسافة للتمرير */
+                 flex-grow: 0; /* إلغاء التمدد */
+             }
+             .sidebar nav li {
+                  flex-shrink: 0; /* منع الروابط من الانكماش */
+                  margin-right: 0.5rem; /* مسافة بين الروابط الأفقية */
+             }
+             .sidebar nav li a {
+                 padding: 0.7rem 0.9rem;
+                 margin-bottom: 0;
+             }
+             .sidebar .logout-link {
+                 display: none; /* إخفاء زر الخروج هنا (يمكن وضعه في مكان آخر) */
+             }
+            .main-content {
+                padding: 1.5rem; /* تقليل الهوامش */
+            }
+            .main-content h1 {
+                 font-size: 1.8rem;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 1. القائمة الجانبية -->
+    <aside class="sidebar">
+        <h2>Dashboard</h2>
+        <nav>
+            <ul>
+                <!-- الروابط:
+                     - href="#" لمنع الانتقال.
+                     - data-target="id" لتحديد أي قسم سيتم إظهاره (الـ id يجب أن يطابق id القسم).
+                     - class="nav-link" لتطبيق الأنماط المشتركة.
+                     - class="active" للرابط الأول فقط (الافتراضي).
+                -->
+                <li><a href="#" data-target="home" class="nav-link active"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="#" data-target="features" class="nav-link"><i class="fas fa-star"></i> Features</a></li>
+                <li><a href="#" data-target="profile" class="nav-link"><i class="fas fa-user"></i> My Profile</a></li>
+                <li><a href="#" data-target="settings" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
+                <li><a href="#" data-target="about" class="nav-link"><i class="fas fa-info-circle"></i> About</a></li>
+                <li><a href="#" data-target="contact" class="nav-link"><i class="fas fa-envelope"></i> Contact</a></li>
+            </ul>
+        </nav>
+        <!-- زر تسجيل الخروج -->
+        <div class="logout-link">
+             <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+         </div>
+    </aside>
+
+    <!-- 2. منطقة المحتوى الرئيسي -->
+    <main class="main-content" id="main-content-area">
+        <!-- هنا نضع جميع أقسام المحتوى -->
+        <!-- كل قسم له id فريد وكلاس "content-section" -->
+        <!-- القسم الأول (home) له كلاس "active" ليكون ظاهرًا افتراضيًا -->
+
+        <section id="home" class="content-section active">
+            <h1>Welcome, [User Name]!</h1>
+            <p>This is your main dashboard view. You can find your key information and navigate to other sections using the sidebar.</p>
+            <p>Select an option from the menu to get started.</p>
+            <!-- يمكن إضافة ملخصات سريعة هنا -->
+            <div style="margin-top: 2rem; padding: 1rem; background-color: #eef2ff; border-left: 4px solid var(--primary); border-radius: 4px;">
+                <strong>Quick Tip:</strong> Use the sidebar to access different management tools like Features, Profile settings, and more.
+            </div>
+        </section>
+
+        <section id="features" class="content-section">
+            <h1>Platform Features</h1>
+            <p>Explore the powerful features available in the Team Management Platform:</p>
+            <ul>
+                <li><strong>Task Management:</strong> Assign, track, and manage tasks efficiently.</li>
+                <li><strong>Employee Scheduling:</strong> Create and manage shifts, view availability.</li>
+                <li><strong>File Sharing:</strong> Securely share documents with version control.</li>
+                <li><strong>Data Management:</strong> Centralized data storage and reporting.</li>
+                <li><strong>Project Tracking:</strong> Oversee project progress with Gantt charts and milestones.</li>
+                <li><strong>Team Calendar:</strong> Integrated calendar for meetings and deadlines.</li>
+                <li><strong>Deadline Tracking:</strong> Visual reminders for upcoming deadlines.</li>
+                <li><strong>Innovation Hub:</strong> Collaborative space for ideas and suggestions.</li>
+            </ul>
+             <p>These tools are designed to streamline your workflow and boost team productivity.</p>
+        </section>
+
+        <section id="profile" class="content-section">
+            <h1>My Profile</h1>
+            <p>View and update your personal information.</p>
+            <form>
+                <div>
+                    <label for="profile-name">Full Name:</label>
+                    <input type="text" id="profile-name" value="[User's Current Name]" disabled>
+                </div>
+                <div>
+                    <label for="profile-email">Email Address:</label>
+                    <input type="email" id="profile-email" value="[User's Current Email]" disabled>
+                </div>
+                 <div>
+                    <label for="profile-phone">Phone Number (Optional):</label>
+                    <input type="text" id="profile-phone" placeholder="Add your phone number">
+                </div>
+                <button type="button">Edit Profile</button> <!-- لاحقاً يمكن تفعيل التعديل -->
+            </form>
+        </section>
+
+        <section id="settings" class="content-section">
+            <h1>Settings</h1>
+            <p>Configure your application settings.</p>
+            <form>
+                <div>
+                     <label>Notifications:</label>
+                     <input type="checkbox" id="email-notifications" checked>
+                     <label for="email-notifications" style="display: inline-block; margin-right: 1rem;"> Receive email notifications</label>
+                     <br>
+                     <input type="checkbox" id="app-notifications">
+                     <label for="app-notifications" style="display: inline-block;"> Receive in-app notifications</label>
+                 </div>
+                 <div style="margin-top: 1.5rem;">
+                    <label for="timezone">Timezone:</label>
+                    <select id="timezone" style="padding: 0.8rem; border: 1px solid var(--light-gray); border-radius: 6px;">
+                        <option value="utc">UTC</option>
+                        <option value="cairo" selected>Africa/Cairo (EET)</option>
+                         <option value="riyadh">Asia/Riyadh (AST)</option>
+                         <!-- Add more timezones -->
+                    </select>
+                 </div>
+                <button type="submit" style="margin-top: 1.5rem;">Save Settings</button>
+            </form>
+        </section>
+
+        <section id="about" class="content-section">
+            <h1>About This Platform</h1>
+            <p>The Team Management Platform is an all-in-one solution designed by <strong>Elmenisy Leadership Coaching</strong> to help modern businesses streamline workflows, manage tasks, schedule employees, and foster collaboration.</p>
+            <p>Our goal is to provide intuitive and powerful tools to enhance team productivity and efficiency.</p>
+            <p>Version: 1.0.0</p>
+             <p>© 2025 Elmenisy Leadership Coaching - All Rights Reserved.</p>
+        </section>
+
+        <section id="contact" class="content-section">
+            <h1>Contact Support</h1>
+            <p>Need help or have a question? Reach out to our support team.</p>
+            <form>
+                <div>
+                    <label for="contact-subject">Subject:</label>
+                    <input type="text" id="contact-subject" required>
+                </div>
+                <div>
+                    <label for="contact-message">Your Message:</label>
+                    <textarea id="contact-message" rows="5" required></textarea>
+                </div>
+                <button type="submit">Send Message</button>
+            </form>
+             <p style="margin-top: 2rem;">You can also contact us directly via:</p>
+             <ul>
+                 <li>Email: support@elmenisycoaching.com (Example)</li>
+                 <li>Phone: +20 XXX XXX XXXX (Example)</li>
+             </ul>
+        </section>
+
+    </main>
+
+    <!-- 3. الكود JavaScript في نهاية الـ body -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- التحقق من تسجيل الدخول ---
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const currentUser = JSON.parse(localStorage.getItem('currentUser')); // للحصول على اسم المستخدم
+
+            if (isLoggedIn !== 'true' || !currentUser) {
+                // إذا لم يكن المستخدم مسجل دخوله أو لا توجد بيانات مستخدم
+                alert('Please log in to access the dashboard.');
+                window.location.href = 'login.html'; // أعد توجيهه لصفحة الدخول
+                return; // أوقف تنفيذ باقي الكود
+            }
+
+            // --- تحديث اسم المستخدم في الترحيب (إذا كان موجوداً) ---
+            const welcomeHeading = document.querySelector('#home h1');
+            if (welcomeHeading && currentUser.name) {
+                welcomeHeading.textContent = `Welcome, ${currentUser.name}!`;
+            }
+            // --- تحديث معلومات البروفايل (إذا كانت موجودة) ---
+            const profileNameInput = document.getElementById('profile-name');
+            const profileEmailInput = document.getElementById('profile-email');
+            if (profileNameInput && currentUser.name) profileNameInput.value = currentUser.name;
+            if (profileEmailInput && currentUser.email) profileEmailInput.value = currentUser.email;
+
+
+            // --- إعدادات التبديل بين الأقسام ---
+            const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
+            const contentSections = document.querySelectorAll('.main-content .content-section');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            // وظيفة تبديل المحتوى
+            function switchContent(targetId) {
+                // 1. إخفاء جميع أقسام المحتوى
+                contentSections.forEach(section => {
+                    section.classList.remove('active'); // يزيل كلاس 'active' فتُخفى بالـ CSS
+                });
+
+                // 2. إزالة كلاس 'active' من جميع روابط القائمة
+                sidebarLinks.forEach(link => {
+                    link.classList.remove('active');
+                });
+
+                // 3. إظهار القسم المطلوب
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.classList.add('active'); // إضافة كلاس 'active' ليظهر بالـ CSS
+                } else {
+                    console.error(`Content section with id "${targetId}" not found.`);
+                    // إظهار القسم الافتراضي كحل بديل
+                    document.getElementById('home').classList.add('active');
+                     document.querySelector('.sidebar .nav-link[data-target="home"]').classList.add('active');
+                    return; // الخروج من الدالة إذا لم نجد القسم
+                }
+
+                // 4. إضافة كلاس 'active' للرابط الذي تم الضغط عليه
+                const targetLink = document.querySelector(`.sidebar .nav-link[data-target="${targetId}"]`);
+                if (targetLink) {
+                    targetLink.classList.add('active');
+                }
+            }
+
+            // إضافة مستمع حدث النقر لكل رابط في القائمة
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault(); // منع السلوك الافتراضي للرابط (#)
+                    const targetId = this.dataset.target; // الحصول على قيمة data-target (مثلاً: 'features')
+                    if (targetId) {
+                        switchContent(targetId); // استدعاء دالة التبديل
+                    }
+                });
+            });
+
+            // --- وظيفة تسجيل الخروج ---
+             if(logoutBtn) {
+                 logoutBtn.addEventListener('click', function(e) {
+                     e.preventDefault(); // منع السلوك الافتراضي للرابط
+                     // عرض رسالة تأكيد (اختياري)
+                     if (confirm('Are you sure you want to logout?')) {
+                         // إزالة بيانات المستخدم من localStorage
+                         localStorage.removeItem('currentUser');
+                         localStorage.removeItem('isLoggedIn');
+                         // إعادة التوجيه لصفحة تسجيل الدخول
+                         alert('You have been logged out.');
+                         window.location.href = 'login.html';
+                     }
+                 });
+             }
+
+            // --- التأكد من أن القسم الافتراضي (home) ظاهر عند التحميل الأول ---
+            // الكود أعلاه يعتني بهذا بالفعل لأننا وضعنا كلاس active عليه في HTML
+            // لكن يمكنك التأكيد هنا إذا أردت
+            // switchContent('home'); // يمكنك استدعاء هذا لضمان الحالة الأولية
+
+        });
+    </script>
+</body>
+</html>
