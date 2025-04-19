@@ -1,247 +1,76 @@
-// sections/employee-scheduling.js
-// FINAL DEBUGGING ATTEMPT - Simplified render, more logs
+/* sections/employee-scheduling.css */
+/* ENSURE THIS FILE IS LOADED AND APPLIED */
 
-function initializeEmployeeSchedule(currentUser, teamMembers) {
-    console.log("%c--- initializeEmployeeSchedule STARTED (Final Debug Attempt) ---", "color: orange; font-weight: bold;");
+/* Add ID prefix for higher specificity */
+#featureSections .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+#featureSections .page-title { font-size: 1.8rem; color: var(--primary-dark); font-weight: 700; }
+#featureSections .page-header > div { display: flex; gap: 1rem; }
+#featureSections .schedule-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; background-color: var(--white); padding: 1rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); flex-wrap: wrap; gap: 1rem; }
+#featureSections .week-navigation { display: flex; align-items: center; gap: 1rem; }
+#featureSections .week-display { font-weight: 600; min-width: 180px; text-align: center; white-space: nowrap; }
+#featureSections .schedule-controls .btn { padding: 0.5rem 1rem; /* Assuming base styles from dashboard.css */ }
+#featureSections .schedule-container { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); overflow-x: auto; width: 100%; }
+#featureSections .schedule-table { width: 100%; min-width: 800px; border-collapse: separate; border-spacing: 0; }
+#featureSections .schedule-table thead th { padding: 1rem 0.5rem; text-align: center; background-color: var(--primary); color: white; font-weight: 600; position: sticky; top: 0; z-index: 10; white-space: nowrap; border-bottom: 1px solid var(--primary-dark); }
+#featureSections #scheduleTableBody td[colspan="8"] { text-align: center; padding: 2rem; color: var(--gray); font-style: italic; background-color: var(--white); border: 1px solid var(--light-gray); }
+#featureSections .schedule-table tbody td { padding: 0.5rem; text-align: center; background-color: var(--white); border: 1px solid var(--light-gray); border-top: none; border-right: none; vertical-align: middle; height: 50px; }
+#featureSections .schedule-table tbody td:first-child { border-left: none; }
+#featureSections .schedule-table tbody tr:last-child td { border-bottom: none; }
+#featureSections .employee-name { font-weight: 600; text-align: left; position: sticky; left: 0; background-color: var(--white); z-index: 5; padding: 0.5rem 1rem !important; white-space: nowrap; border-right: 1px solid var(--light-gray) !important; }
+#featureSections .shift { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; white-space: nowrap; display: inline-block; border: 1px solid transparent; line-height: 1.4; }
+#featureSections .shift-morning { background-color: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+#featureSections .shift-afternoon { background-color: #e0f2fe; color: #0c4a6e; border-color: #bae6fd; }
+#featureSections .shift-night { background-color: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
+#featureSections .day-off { background-color: #f0fdf4; color: #166534; border-color: #dcfce7; }
+#featureSections .sick-leave { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; }
+#featureSections .vacation { background-color: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+#featureSections .shift-custom { background-color: #e5e7eb; color: #374151; border-color: #d1d5db; }
+#featureSections .day-header { display: flex; flex-direction: column; gap: 0.25rem; }
+#featureSections .day-name { font-weight: 600; font-size: 0.9rem; }
+#featureSections .day-date { font-size: 0.8rem; opacity: 0.9; }
 
-    // --- Data Validation ---
-    if (!currentUser || typeof currentUser !== 'object') {
-        console.error("CRITICAL: currentUser invalid!", currentUser);
-        // Display error (implementation needed or rely on console)
-        return;
-    }
-    const scheduleEmployees = Array.isArray(teamMembers) ? [...teamMembers] : [];
-    console.log(`Data Received: User Role: ${currentUser.role}, Employee Count: ${scheduleEmployees.length}`);
-    if (scheduleEmployees.length === 0) {
-        console.warn("WARNING: scheduleEmployees array is EMPTY. Table will show 'No employees'.");
-        // This is expected if teamMembers was actually empty.
-    }
-    // console.log("Employee Data:", JSON.stringify(scheduleEmployees)); // Uncomment if needed
+/* --- MODAL STYLES --- */
+/* >>>>>>>> CRITICAL RULE <<<<<<<<<< */
+#featureSections .modal {
+    display: none !important; /* ADD !important FOR TESTING - REMOVE LATER IF POSSIBLE */
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1050; justify-content: center; align-items: center;
+    padding: 20px; overflow-y: auto;
+}
+#featureSections .modal.active { display: flex !important; /* Use !important for testing */ animation: fadeInModalBackground 0.3s ease-out; }
+@keyframes fadeInModalBackground { from { background-color: rgba(0, 0, 0, 0); } to { background-color: rgba(0, 0, 0, 0.6); } }
+#featureSections .modal-content { background-color: var(--white); width: 100%; max-width: 600px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); padding: 2rem; animation: fadeInModalContent 0.3s ease-out; position: relative; margin: auto; }
+@keyframes fadeInModalContent { from { opacity: 0; transform: translateY(-20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+#featureSections .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--light-gray); }
+#featureSections .modal-title { font-size: 1.5rem; font-weight: 600; color: var(--primary-dark); }
+#featureSections .close-modal { background: none; border: none; font-size: 1.8rem; font-weight: 300; line-height: 1; cursor: pointer; color: var(--gray); padding: 0.5rem; position: absolute; top: 1rem; right: 1rem; }
+#featureSections .close-modal:hover { color: var(--dark); }
+#featureSections .modal .form-group { margin-bottom: 1.5rem; }
+#featureSections .modal .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark); }
+#featureSections .modal .form-control { width: 100%; /* Inherits */ }
+#featureSections .modal .form-control[readonly] { background-color: #e9ecef; }
+#featureSections .modal .form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--light-gray); }
 
-    // --- DOM Elements ---
-    const featureContainer = document.getElementById('featureSections');
-    if (!featureContainer) { console.error("CRITICAL: #featureSections container missing!"); return; }
-    console.log("DOM: #featureSections found.");
+/* --- ADMIN/EDIT CONTROLS --- */
+#featureSections .admin-controls { position: relative; cursor: default; }
+#featureSections .edit-shift { opacity: 0; position: absolute; top: 4px; right: 4px; cursor: pointer; color: var(--primary); background-color: rgba(255, 255, 255, 0.8); border-radius: 3px; padding: 2px 4px; font-size: 0.7rem; font-weight: bold; transition: opacity 0.2s ease-in-out; z-index: 1; }
+#featureSections .edit-shift::before { content: "✎"; margin-right: 2px; }
+#featureSections .admin-controls:hover .edit-shift { opacity: 1; }
 
-    const scheduleTableBody = featureContainer.querySelector('#scheduleTableBody');
-    const weekDisplay = featureContainer.querySelector('#weekDisplay');
-    // Check ONLY essential elements for rendering
-    if (!scheduleTableBody) { console.error("CRITICAL: #scheduleTableBody missing!"); return; }
-    if (!weekDisplay) { console.error("CRITICAL: #weekDisplay missing!"); return; }
-    console.log("DOM: #scheduleTableBody and #weekDisplay found.");
-    // Other elements (modals, buttons) can be checked later if rendering works
+/* --- TOAST NOTIFICATION --- */
+#featureSections .toast { position: fixed; bottom: 20px; right: 20px; background-color: var(--primary); color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); z-index: 1100; display: none; max-width: 300px; font-size: 0.9rem; }
+#featureSections .toast.show { display: block; animation: slideInToast 0.3s ease-out, fadeOutToast 0.3s 2.7s ease-in forwards; }
+@keyframes slideInToast { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeOutToast { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(20px); } }
 
-    // --- State & Config ---
-    let scheduleData = {}; // Assume loading from localStorage happens later if needed
-    let currentWeekStart = getStartOfWeek(new Date());
-
-    // --- Permissions ---
-    const isAdmin = currentUser.role === 'admin';
-    const isSupervisor = currentUser.role === 'supervisor';
-    const canEditSchedule = isAdmin || isSupervisor;
-    console.log(`Permissions: canEditSchedule=${canEditSchedule}`);
-
-    // --- Utility Functions ---
-    function getStartOfWeek(date) {
-        const dt = new Date(date);
-        const day = dt.getDay();
-        const diff = dt.getDate() - day + (day === 0 ? -6 : 1);
-        dt.setDate(diff);
-        dt.setHours(0, 0, 0, 0);
-        return dt;
-    }
-    function formatDate(date, format = 'yyyy-mm-dd') {
-         try {
-            if (!(date instanceof Date) || isNaN(date)) { return "Invalid Date"; }
-            const yyyy = date.getFullYear();
-            const mm = String(date.getMonth() + 1).padStart(2, '0');
-            const dd = String(date.getDate()).padStart(2, '0');
-            if (format === 'short') { return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
-            return `${yyyy}-${mm}-${dd}`;
-         } catch(e) { console.error("formatDate error:", e); return "Date Error"; }
-     }
-     // --- SIMPLIFIED getShift functions for this test ---
-     function getShiftClass(type) { return 'shift-morning'; } // Always return one class
-     function getShiftText(type, customText = '') { return type || 'Shift'; } // Return type or default
-
-
-    // --- Core Logic ---
-
-    function renderScheduleTable() {
-        console.log(`%c--- renderScheduleTable CALLED --- Employee Count: ${scheduleEmployees.length}`, "color: green;");
-        // debugger; // <--- UNCOMMENT THIS LINE to pause execution here in dev tools
-
-        if (!scheduleTableBody) {
-            console.error("renderScheduleTable: FATAL - scheduleTableBody element lost!");
-            return;
-        }
-        console.log("renderScheduleTable: Clearing scheduleTableBody...");
-        scheduleTableBody.innerHTML = ''; // Clear previous content reliably
-
-        if (scheduleEmployees.length === 0) {
-            console.log("renderScheduleTable: No employees. Displaying message.");
-            const row = scheduleTableBody.insertRow();
-            const cell = row.insertCell();
-            cell.colSpan = 8;
-            cell.textContent = "No employees available in the schedule.";
-            cell.style.textAlign = 'center'; cell.style.padding = '2rem'; cell.style.color = 'var(--gray)'; cell.style.fontStyle = 'italic';
-            console.log("renderScheduleTable: 'No employees' message displayed.");
-            return;
-        }
-
-        // --- SIMPLIFIED RENDERING LOOP ---
-        console.log("renderScheduleTable: Starting simplified employee loop...");
-        try {
-            scheduleEmployees.forEach((emp, empIndex) => {
-                console.log(`  Looping employee ${empIndex + 1}: ID=${emp?.id}, Name=${emp?.name}`); // Use optional chaining
-                if (!emp || typeof emp.id === 'undefined' || typeof emp.name === 'undefined') {
-                     console.warn(`    Skipping invalid employee data at index ${empIndex}`);
-                     return; // Skip this iteration
-                 }
-
-                // 1. Create Row
-                const row = scheduleTableBody.insertRow();
-                 if (!row) { throw new Error(`Failed to insert row for employee ${emp.id}`); }
-                 row.dataset.employeeId = emp.id;
-                 //console.log(`    Row created for ${emp.name}`);
-
-                // 2. Add Name Cell (Simplified)
-                const nameCell = row.insertCell();
-                 if (!nameCell) { throw new Error(`Failed to insert name cell for employee ${emp.id}`); }
-                nameCell.className = 'employee-name';
-                nameCell.textContent = emp.name;
-                 //console.log(`    Name cell added for ${emp.name}`);
-
-                // 3. Add Basic Day Cells (Just Day Index for now)
-                for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
-                    const cell = row.insertCell();
-                     if (!cell) { throw new Error(`Failed to insert day cell ${dayIndex} for employee ${emp.id}`); }
-                    cell.textContent = `Day ${dayIndex}`; // Put *something* simple
-                    // Add basic data attributes
-                     const cellDate = new Date(currentWeekStart);
-                     cellDate.setDate(cellDate.getDate() + dayIndex);
-                     cell.dataset.date = formatDate(cellDate);
-                     cell.dataset.dayIndex = dayIndex;
-
-                    // Add edit span if needed (simplified content)
-                     if(canEditSchedule) {
-                         cell.classList.add('admin-controls');
-                         cell.innerHTML += ' <span class="edit-shift" title="Edit">✎</span>'; // Simple edit symbol
-                         // Listener should be attached separately if needed for debugging later
-                     }
-                }
-                 //console.log(`    Day cells added for ${emp.name}`);
-            }); // End forEach employee
-            console.log("renderScheduleTable: Finished simplified employee loop successfully.");
-
-        } catch (error) {
-            console.error("!!! CRITICAL ERROR inside renderScheduleTable loop !!!:", error);
-             scheduleTableBody.innerHTML = `<tr><td colspan="8" style="color: red; text-align: center; padding: 1rem;">ERROR: Failed to render schedule rows. Check console.</td></tr>`;
-        }
-    }
-
-    function updateWeekDisplay() {
-        console.log(`%c--- updateWeekDisplay CALLED --- Week Start: ${currentWeekStart.toDateString()}`, "color: blue;");
-        // debugger; // <--- UNCOMMENT THIS LINE to pause execution here
-        if (!weekDisplay) { console.error("updateWeekDisplay: weekDisplay element missing!"); return; }
-
-        try {
-            const weekEnd = new Date(currentWeekStart);
-            weekEnd.setDate(weekEnd.getDate() + 6);
-            const startStr = formatDate(currentWeekStart, 'short');
-            const endStr = formatDate(weekEnd, 'short');
-            const year = currentWeekStart.getFullYear();
-
-            if (startStr === "Invalid Date" || endStr === "Invalid Date") throw new Error("Date formatting failed");
-
-            weekDisplay.textContent = `${startStr} - ${endStr}, ${year}`;
-            console.log(`updateWeekDisplay: Week text set to: ${weekDisplay.textContent}`);
-
-            // Update header dates
-            const dateHeaders = featureContainer.querySelector('#scheduleTable thead')?.querySelectorAll('.day-date');
-            if (dateHeaders && dateHeaders.length === 7) {
-                const tempDate = new Date(currentWeekStart);
-                dateHeaders.forEach(cell => {
-                    const formatted = formatDate(tempDate, 'short');
-                    cell.textContent = formatted !== "Invalid Date" ? formatted : "Error";
-                    tempDate.setDate(tempDate.getDate() + 1);
-                });
-                 console.log("updateWeekDisplay: Header dates updated.");
-            } else { console.warn("updateWeekDisplay: Could not find header date cells."); }
-
-            // Update button states (keep simple for now)
-             const prevBtn = featureContainer.querySelector('#prevWeekBtn');
-             const nextBtn = featureContainer.querySelector('#nextWeekBtn');
-             if(prevBtn) prevBtn.disabled = false;
-             if(nextBtn) nextBtn.disabled = false;
-
-            // Call render AFTER updating display logic
-            console.log("updateWeekDisplay: Calling renderScheduleTable...");
-            renderScheduleTable();
-
-            console.log("updateWeekDisplay: Finished successfully.");
-        } catch (error) {
-             console.error("Error during updateWeekDisplay:", error);
-             weekDisplay.textContent = "Error";
-             if(scheduleTableBody) scheduleTableBody.innerHTML = `<tr><td colspan="8" style="color: red; text-align: center; padding: 1rem;">Error updating week display.</td></tr>`;
-        }
-    }
-
-    // --- Event Handlers (Keep simplified or stubbed for now) ---
-    function handlePrevWeek() { console.log("Prev Week Clicked"); currentWeekStart.setDate(currentWeekStart.getDate() - 7); updateWeekDisplay(); }
-    function handleNextWeek() { console.log("Next Week Clicked"); currentWeekStart.setDate(currentWeekStart.getDate() + 7); updateWeekDisplay(); }
-    // ... other handlers (modals, save, etc.) can be added back later ...
-
-    // --- Event Listener Setup ---
-    function setupScheduleEventListeners() {
-        console.log("setupScheduleEventListeners: Attaching minimal listeners...");
-        try {
-            featureContainer.querySelector('#prevWeekBtn')?.addEventListener('click', handlePrevWeek);
-            featureContainer.querySelector('#nextWeekBtn')?.addEventListener('click', handleNextWeek);
-            // Add listeners for modals/buttons later if base rendering works
-            console.log("setupScheduleEventListeners: Minimal listeners attached.");
-        } catch (error) {
-            console.error("ERROR attaching schedule event listeners:", error);
-        }
-    }
-
-    // --- Initial Setup ---
-    function init() {
-        console.log("init: Starting Employee Schedule module initialization...");
-        // Load minimal data needed for rendering test (scheduleData can be empty initially)
-        try {
-             const savedData = localStorage.getItem('employeeScheduleData');
-             if (savedData) { scheduleData = JSON.parse(savedData); } else { scheduleData = {}; }
-             console.log("init: Schedule data loaded/initialized.");
-        } catch(e) { console.error("init: Error loading scheduleData", e); scheduleData = {}; }
-
-
-        // Apply Permissions (minimal for now)
-        console.log("init: Applying permissions visibility...");
-         const addBtn = featureContainer.querySelector('#addEmployeeBtn');
-         const sendBtn = featureContainer.querySelector('#sendRemindersBtn');
-         const saveBtn = featureContainer.querySelector('#saveScheduleBtn');
-         if(addBtn) addBtn.style.display = isAdmin ? 'flex' : 'none';
-         if(sendBtn) sendBtn.style.display = canEditSchedule ? 'flex' : 'none';
-         if(saveBtn) saveBtn.style.display = canEditSchedule ? 'flex' : 'none';
-
-        // Setup MINIMAL listeners
-        setupScheduleEventListeners();
-
-        // Initial Render
-        console.log("init: Performing initial call to updateWeekDisplay...");
-        updateWeekDisplay(); // This should trigger the first render
-
-        console.log("%c--- initializeEmployeeSchedule FINISHED (Final Debug Attempt) ---", "color: green; font-weight: bold;");
-    }
-
-    // --- Run Initialization ---
-    try {
-        init();
-    } catch (error) {
-        console.error("CRITICAL ERROR during Schedule init():", error);
-        if (scheduleTableBody) { scheduleTableBody.innerHTML = `<tr><td colspan="8" style="color: red; text-align: center; padding: 1rem;">Fatal error during init. Check console.</td></tr>`; }
-        else if (featureContainer) { featureContainer.innerHTML = `<div class="placeholder-content error-message">Fatal error initializing schedule. Check console.</div>`; }
-    }
-
-} // End of initializeEmployeeSchedule function
+/* --- RESPONSIVE ADJUSTMENTS --- */
+@media (max-width: 768px) {
+    #featureSections .schedule-controls { flex-direction: column; gap: 1rem; align-items: stretch; }
+    #featureSections .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    #featureSections .employee-name { position: static; white-space: normal; border-right: none !important; }
+    #featureSections .schedule-table { min-width: auto; }
+    #featureSections .modal-content { width: 95%; padding: 1.5rem; }
+    #featureSections .modal-title { font-size: 1.3rem; }
+}
+/* ... other media queries if needed ... */
