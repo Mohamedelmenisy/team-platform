@@ -1,18 +1,18 @@
-/* eslint-disable no-unused-vars */ // Example: Disable warnings for unused mock functions if needed
+/* eslint-disable no-unused-vars */
 // ==================================
-// === dashboard.js (REVISED) ===
+// === dashboard.js (REVISED with Event Delegation for Settings Tabs) ===
 // ==================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log("🚀 DOM Ready. Dashboard JS Initializing...");
 
     // --- DOM Elements ---
-    // Get references robustly, logging errors if not found
+    // Helper functions to get elements robustly
     const getElement = (id, required = true) => {
         const el = document.getElementById(id);
         if (!el && required) {
             console.error(`Critical Error: Element with ID '${id}' not found!`);
-        } else if (!el) {
-             console.warn(`Warning: Element with ID '${id}' not found.`);
+        } else if (!el && !required) {
+             // console.warn(`Optional element with ID '${id}' not found.`); // Make optional warnings less verbose if needed
         }
         return el;
     };
@@ -20,129 +20,81 @@ document.addEventListener('DOMContentLoaded', function() {
     const querySelector = (selector, required = true, scope = document) => {
         const el = scope.querySelector(selector);
          if (!el && required) {
-            console.error(`Critical Error: Element with selector '${selector}' not found!`);
-        } else if (!el) {
-             console.warn(`Warning: Element with selector '${selector}' not found.`);
+            console.error(`Critical Error: Element with selector '${selector}' not found in scope`, scope);
+        } else if (!el && !required) {
+             // console.warn(`Optional element with selector '${selector}' not found.`);
         }
         return el;
     }
 
     const querySelectorAll = (selector, scope = document) => {
         const els = scope.querySelectorAll(selector);
-        if (els.length === 0) {
-            // This might be expected in some cases, make it a warn or info
-            // console.warn(`Warning: No elements found with selector '${selector}'.`);
-        }
+        // No warning needed here generally, as empty lists are common
         return els;
     }
 
-
     // Core Layout Elements
-    const sidebar = getElement('sidebar');
-    const mainContent = querySelector('.main-content');
-    const topNav = querySelector('.top-nav');
-    const contentArea = querySelector('.content-area');
+    const sidebar = getElement('sidebar', false);
+    const mainContent = querySelector('.main-content', true); // Assume main content must exist
+    const topNav = querySelector('.top-nav', false);
+    const contentArea = querySelector('.content-area', true); // Assume content area must exist
 
     // Navigation Elements
-    const sidebarMenu = querySelector('.sidebar-menu');
+    const sidebarMenu = querySelector('.sidebar-menu', true); // Sidebar menu is crucial
     const menuButtons = querySelectorAll('.sidebar-menu button[data-section]');
-    const userDropdownToggle = querySelector('.user-profile-details'); // Element to click to open dropdown
-    const userDropdown = getElement('userDropdown', false); // Dropdown itself might not always be present/needed
+    const userDropdownToggle = querySelector('.user-profile-details', false); // Element to click to open dropdown
+    const userDropdown = getElement('userDropdown', false);
     const dropdownButtons = querySelectorAll('.user-dropdown button[data-section]');
     const backButton = getElement('backButton', false);
     const logoutLink = getElement('logoutLink', false);
 
-    // Content Section Elements
-    const staticContentSections = querySelectorAll('.content-area > .content-section'); // Select only direct children with the class
-    const dashboardContent = getElement('dashboardContent', false); // Allow optional sections
-    const profileContent = getElement('profileContent', false);
-    const settingsContent = getElement('settingsContent', false);
+    // Content Section Elements (Static)
+    const staticContentSections = querySelectorAll('.content-area > .content-section');
+    const dashboardContent = getElement('dashboardContent', true); // Assume dashboard exists
+    const profileContent = getElement('profileContent', false); // Profile might be optional initially
+    const settingsContent = getElement('settingsContent', false); // Settings might be optional initially
 
     // Dynamic Content Elements
-    const featureSectionsContainer = getElement('featureSectionsContainer'); // Required for dynamic loading
-    const featureSections = getElement('featureSections');                 // Required for dynamic loading
-    const featurePlaceholder = getElement('featurePlaceholder');           // Required for dynamic loading
-    const featureTitle = getElement('featureTitle', false); // Optional within placeholder
-    const featureDescription = getElement('featureDescription', false); // Optional
+    const featureSectionsContainer = getElement('featureSectionsContainer', true); // Crucial for dynamic loading
+    const featureSections = getElement('featureSections', true);                 // Crucial
+    const featurePlaceholder = getElement('featurePlaceholder', true);           // Crucial
+    const featureTitle = getElement('featureTitle', false, featurePlaceholder); // Search within placeholder
+    const featureDescription = getElement('featureDescription', false, featurePlaceholder);
     const featureLoadingIndicator = featurePlaceholder ? querySelector('.loading-indicator', false, featurePlaceholder) : null;
     const featureErrorMessage = featurePlaceholder ? querySelector('.error-message', false, featurePlaceholder) : null;
 
-    // Settings Specific Elements (Optional, depends on settings complexity)
-    const settingsTabs = querySelectorAll('.settings-tab');
-    const settingsPanels = querySelectorAll('.settings-panel');
+    // Settings Specific Elements (Container for event delegation)
+    const settingsTabsContainer = querySelector('.settings-tabs', false); // Find container for delegation
 
     // --- State Variables ---
-    let currentUser = null; // Initialize as null until loaded
+    let currentUser = null;
     let teamMembers = [];
     let activities = [];
     let notifications = [];
-    let currentSectionName = null; // Start with null, set during initial nav
+    let currentSectionName = null;
     let currentSettingsTab = null;
     let currentSectionScript = null;
-    let isInitialLoad = true; // Flag for first navigation
+    let isInitialLoad = true;
 
     // --- Section Initialization Map ---
-    // Maps section 'data-section' values to their JS initialization function names
     const sectionsWithJS = {
         'employee-scheduling': 'initializeEmployeeSchedule',
-        // 'task-management': 'initializeTasks', // Example
-        // Add other dynamic sections and their init functions here
+        // Add other dynamic sections here
     };
 
     // --- MOCK/Placeholder Functions ---
-    // Replace these with your actual data fetching and logic
-    function loadData() {
-        console.log("🔄 Mock loadData called - Simulating fetching user and team...");
-        return new Promise(resolve => {
-             setTimeout(() => {
-                currentUser = { id: 1, role: 'admin', name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', preferences: { theme: 'blue', layoutDensity: 'normal' } };
-                teamMembers = [ // Add some sample data
-                    { id: 101, name: 'Alice Smith', email: 'alice@example.com', role: 'member', position: 'Developer' },
-                    { id: 102, name: 'Bob Johnson', email: 'bob@example.com', role: 'supervisor', position: 'Team Lead' },
-                    { id: currentUser.id, name: currentUser.name, email: currentUser.email, role: currentUser.role, position: 'Administrator'} // Include current user if applicable
-                ];
-                 console.log("   📊 Mock Data Loaded:", { currentUser, teamMembers });
-                resolve();
-            }, 50); // Simulate network delay
-        });
-    }
-    function updateUserUI() { console.log("🔄 Mock updateUserUI called"); /* Update top nav, profile page */ }
+    // (Keep the same mock functions as before)
+    function loadData() { console.log("🔄 Mock loadData called - Simulating fetching user and team..."); return new Promise(resolve => { setTimeout(() => { currentUser = { id: 1, role: 'admin', name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', preferences: { theme: 'blue', layoutDensity: 'normal' } }; teamMembers = [ { id: 101, name: 'Alice Smith', email: 'alice@example.com', role: 'member', position: 'Developer' }, { id: 102, name: 'Bob Johnson', email: 'bob@example.com', role: 'supervisor', position: 'Team Lead' }, { id: currentUser.id, name: currentUser.name, email: currentUser.email, role: currentUser.role, position: 'Administrator'} ]; console.log("   📊 Mock Data Loaded:", { currentUser, teamMembers }); resolve(); }, 50); }); }
+    function updateUserUI() { console.log("🔄 Mock updateUserUI called"); }
     function loadTeamMembers() { console.log("🔄 Mock loadTeamMembers called (e.g., for settings page)"); }
     function loadActivities() { console.log("🔄 Mock loadActivities called (for dashboard)"); }
     function loadNotifications() { console.log("🔄 Mock loadNotifications called"); }
     function updateStats() { console.log("🔄 Mock updateStats called (for dashboard)"); }
-    function applyUserPreferences() {
-         console.log("🎨 Applying User Preferences...");
-         // Example: Apply theme and density from currentUser.preferences
-         if (currentUser && currentUser.preferences) {
-            // Apply theme
-            document.body.classList.remove('light-theme', 'dark-theme', 'blue-theme');
-            document.body.classList.add(`${currentUser.preferences.theme || 'blue'}-theme`);
-            console.log(`   Applied theme: ${currentUser.preferences.theme || 'blue'}-theme`);
-
-             // Apply density (using CSS variable)
-            const density = currentUser.preferences.layoutDensity || 'normal';
-            let paddingVar;
-            switch (density) {
-                case 'compact': paddingVar = 'var(--compact-padding)'; break;
-                case 'spacious': paddingVar = 'var(--spacious-padding)'; break;
-                default: paddingVar = 'var(--normal-padding)';
-            }
-            document.documentElement.style.setProperty('--current-padding', paddingVar);
-             document.body.classList.remove('compact', 'normal', 'spacious');
-             document.body.classList.add(density);
-             console.log(`   Applied density: ${density} (padding: ${paddingVar})`);
-         } else {
-             console.warn("   User preferences not available to apply.");
-              document.documentElement.style.setProperty('--current-padding', 'var(--normal-padding)'); // Ensure default
-               document.body.classList.add('normal'); // Ensure default class
-         }
-    }
-    function applyRBAC() { console.log("🔒 Applying RBAC (Role-Based Access Control)..."); /* Show/hide elements based on currentUser.role */ }
+    function applyUserPreferences() { console.log("🎨 Applying User Preferences..."); if (currentUser && currentUser.preferences) { document.body.classList.remove('light-theme', 'dark-theme', 'blue-theme'); document.body.classList.add(`${currentUser.preferences.theme || 'blue'}-theme`); console.log(`   Applied theme: ${currentUser.preferences.theme || 'blue'}-theme`); const density = currentUser.preferences.layoutDensity || 'normal'; let paddingVar; switch (density) { case 'compact': paddingVar = 'var(--compact-padding)'; break; case 'spacious': paddingVar = 'var(--spacious-padding)'; break; default: paddingVar = 'var(--normal-padding)'; } document.documentElement.style.setProperty('--current-padding', paddingVar); document.body.classList.remove('compact', 'normal', 'spacious'); document.body.classList.add(density); console.log(`   Applied density: ${density} (padding: ${paddingVar})`); } else { console.warn("   User preferences not available to apply."); document.documentElement.style.setProperty('--current-padding', 'var(--normal-padding)'); document.body.classList.add('normal'); } }
+    function applyRBAC() { console.log("🔒 Applying RBAC..."); }
     function loadSettingsFormData() { console.log("🔄 Mock loadSettingsFormData called"); }
-    function handleLogout() { console.log("🚪 Logout clicked"); alert("Logout functionality placeholder"); window.location.hash = ''; /* Clear hash on logout */ }
+    function handleLogout() { console.log("🚪 Logout clicked"); alert("Logout functionality placeholder"); window.location.hash = ''; }
     function startActivityTimeUpdater() { console.log("⏱️ Mock startActivityTimeUpdater called"); }
-    // function handleSearch() { console.log("🔍 Search input changed"); }
 
     // --- Helper Functions ---
     function hideAllContentSections() {
@@ -152,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
              console.log("   Hiding dynamic feature container...");
              featureSectionsContainer.style.display = 'none';
         }
-         if (featureSections) { // Also ensure inner dynamic content is inactive
+         if (featureSections) {
              featureSections.classList.remove('active');
          }
     }
@@ -177,86 +129,53 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateActiveNav(sectionName) {
         console.log(`   Navigating UI to: ${sectionName}`);
-        // Sidebar buttons
         menuButtons.forEach(btn => {
             btn.classList.toggle('active', btn.dataset.section === sectionName);
         });
-        // Dropdown buttons
         dropdownButtons.forEach(btn => {
             btn.classList.toggle('active', btn.dataset.section === sectionName);
         });
-        // Back button visibility
         if (backButton) {
             backButton.style.display = sectionName !== 'dashboard' ? 'inline-flex' : 'none';
         }
     }
 
     // --- Core Navigation Logic ---
-    // Renamed to navigateToSection for clarity
     function navigateToSection(sectionName, settingsTab = null) {
         console.log(`▶️ navigateToSection called: section=${sectionName}, tab=${settingsTab}`);
 
-        // Prevent navigation if already on the same section (unless it's settings tab change)
-        // if (!isInitialLoad && sectionName === currentSectionName && sectionName !== 'settings') {
-        //     console.log(`   Already on section '${sectionName}'. Navigation skipped.`);
-        //     return;
-        // }
-
-        // **1. Update State**
         currentSectionName = sectionName;
-        currentSettingsTab = (sectionName === 'settings') ? (settingsTab || 'preferences') : null; // Default settings tab
+        currentSettingsTab = (sectionName === 'settings') ? (settingsTab || 'preferences') : null;
         console.log(`   New State: currentSectionName='${currentSectionName}', currentSettingsTab='${currentSettingsTab}'`);
 
-        // **2. Update UI - Hide everything first**
         hideAllContentSections();
 
-        // **3. Update UI - Show the correct section**
         if (sectionName === 'dashboard') {
             showStaticSection(dashboardContent);
-            // Load dashboard specific data if needed
-            // updateStats();
-            // loadActivities();
+            // updateStats(); loadActivities();
         } else if (sectionName === 'profile') {
             showStaticSection(profileContent);
-            // Load profile data if needed
             // updateUserUI();
         } else if (sectionName === 'settings') {
             showStaticSection(settingsContent);
-            // Activate the correct settings tab
-            if (settingsContent) { // Ensure settings content exists before activating tab
+            if (settingsContent) {
                  activateSettingsTab(currentSettingsTab);
-                 applyRBAC(); // Apply roles specific to settings
+                 applyRBAC();
             }
         } else if (sectionsWithJS.hasOwnProperty(sectionName)) {
-            // It's a known dynamic section
-             showDynamicContainer();
-             loadSection(sectionName); // Load the dynamic content
+            showDynamicContainer();
+            loadSection(sectionName);
         } else {
-             // Unknown section - show dashboard or an error placeholder
-             console.warn(`   Unknown section '${sectionName}'. Displaying dashboard as fallback.`);
-             showStaticSection(dashboardContent); // Fallback to dashboard
-             sectionName = 'dashboard'; // Update state to reflect fallback
-             currentSectionName = 'dashboard';
-             // Or display a dedicated "Not Found" message in the placeholder
-            //  if (featurePlaceholder && featureTitle && featureDescription) {
-            //      hideAllContentSections(); // Ensure everything else is hidden
-            //      showDynamicContainer();
-            //      featureSections.innerHTML = ''; // Clear dynamic content
-            //      featureSections.appendChild(featurePlaceholder);
-            //      featureTitle.textContent = "Section Not Found";
-            //      featureDescription.textContent = `The section '${sectionName}' does not exist.`;
-            //      if(featureLoadingIndicator) featureLoadingIndicator.style.display = 'none';
-            //      if(featureErrorMessage) featureErrorMessage.style.display = 'none';
-            //      featurePlaceholder.style.display = 'flex';
-            //      featureSections.classList.add('active');
-            //  }
+            console.warn(`   Unknown section '${sectionName}'. Displaying dashboard as fallback.`);
+            showStaticSection(dashboardContent);
+            sectionName = 'dashboard';
+            currentSectionName = 'dashboard';
+            updateActiveNav(sectionName); // Update nav to show dashboard active
         }
 
-        // **4. Update Navigation UI (Active buttons, back button)**
-        updateActiveNav(sectionName);
+        updateActiveNav(sectionName); // Ensure nav active state is correct
 
-        // **5. Update URL Hash and History (Carefully)**
-        if (!isInitialLoad) { // Avoid pushing state during the very first load triggered by handleInitialNavigation
+        if (!isInitialLoad) {
             let hash = `#${sectionName}`;
              if (sectionName === 'settings' && currentSettingsTab) {
                  hash += `-${currentSettingsTab}`;
@@ -264,36 +183,21 @@ document.addEventListener('DOMContentLoaded', function() {
              console.log(`   Updating URL Hash. Target: ${hash}, Current: ${window.location.hash}`);
              if (window.location.hash !== hash) {
                  try {
-                     // Use replaceState for internal tab changes within settings to avoid messy history
                      if (sectionName === 'settings' && window.location.hash.startsWith('#settings-')) {
-                         console.log(`   Replacing state: section=${sectionName}, tab=${currentSettingsTab}`);
                          history.replaceState({ section: sectionName, tab: currentSettingsTab }, '', hash);
                      } else {
-                         console.log(`   Pushing state: section=${sectionName}, tab=${currentSettingsTab}`);
                          history.pushState({ section: sectionName, tab: currentSettingsTab }, '', hash);
                      }
                  } catch (error) {
                       console.error("   Error updating history state:", error);
                  }
-             } else {
-                 console.log("   Hash is already correct, not updating history.");
              }
         }
 
-
-        // **6. Scroll to Top**
         window.scrollTo(0, 0);
-
-        // **7. Save Last Active Section (Optional)**
-        // localStorage.setItem('lastActiveSection', sectionName === 'settings' ? 'settings' : sectionName);
-        // if (sectionName === 'settings') localStorage.setItem('lastActiveSettingsTab', currentSettingsTab);
-
-         // Reset initial load flag after the first navigation
-         isInitialLoad = false;
-
-         console.log(`◀️ navigateToSection finished for: ${sectionName}`);
-    } // --- End navigateToSection ---
-
+        isInitialLoad = false;
+        console.log(`◀️ navigateToSection finished for: ${sectionName}`);
+    }
 
     // --- Dynamic Section Loading ---
     function loadSection(sectionName) {
@@ -302,212 +206,179 @@ document.addEventListener('DOMContentLoaded', function() {
         const jsPath = `sections/${sectionName}.js`;
         const initFunctionName = sectionsWithJS[sectionName];
 
-        // Basic check
         if (!featureSectionsContainer || !featureSections || !featurePlaceholder) {
              console.error("   ❌ Cannot load section: Core dynamic elements missing.");
              return;
         }
 
-        // --- Display Loading State ---
         console.log("   ⏳ Displaying loading state...");
-        featureSections.innerHTML = ''; // Clear previous content immediately
+        featureSections.innerHTML = '';
         featureSections.appendChild(featurePlaceholder);
         if(featureTitle) featureTitle.textContent = `Loading ${sectionName.replace(/-/g, ' ')}...`;
         if(featureDescription) featureDescription.textContent = 'Please wait...';
-        if(featureLoadingIndicator) featureLoadingIndicator.style.display = 'flex'; // Use flex if that's how it's styled
+        if(featureLoadingIndicator) featureLoadingIndicator.style.display = 'flex';
         if(featureErrorMessage) featureErrorMessage.style.display = 'none';
-        featurePlaceholder.style.display = 'flex'; // Ensure placeholder itself is visible
-        featureSections.classList.remove('active'); // Content not ready yet
+        featurePlaceholder.style.display = 'flex';
+        featureSections.classList.remove('active');
 
-        // --- Remove Previous Script ---
         if (currentSectionScript && currentSectionScript.parentNode) {
             console.log("   🧹 Removing previous section script:", currentSectionScript.src);
             currentSectionScript.remove();
             currentSectionScript = null;
-        } else {
-             console.log("   🧹 No previous script to remove.");
         }
 
-        // --- 1️⃣ Fetch HTML ---
         console.log(`   1️⃣ Fetching HTML: ${htmlPath}`);
         fetch(htmlPath)
             .then(response => {
                 console.log(`      Fetch status for ${htmlPath}: ${response.status}`);
-                if (!response.ok) {
-                    throw new Error(`HTML Load Error: ${response.status} ${response.statusText} for ${htmlPath}`);
-                }
+                if (!response.ok) { throw new Error(`HTML Load Error: ${response.status} ${response.statusText} for ${htmlPath}`); }
                 return response.text();
             })
             .then(html => {
                 console.log(`      ✅ HTML for '${sectionName}' fetched successfully.`);
-                // --- Inject HTML ---
-                featureSections.innerHTML = html; // Place the new HTML content
-                featureSections.classList.add('active'); // Show the content wrapper now
-                // featurePlaceholder is now gone because of innerHTML, no need to hide explicitly
+                featureSections.innerHTML = html;
+                featureSections.classList.add('active');
                 console.log(`      HTML injected into #featureSections.`);
 
-                // --- 2️⃣ Load JavaScript ---
                 if (initFunctionName) {
                     console.log(`   2️⃣ Loading JS: ${jsPath} (Expecting function: ${initFunctionName})`);
                     const script = document.createElement('script');
                     script.src = jsPath;
-                    // script.async = true; // Consider async or defer based on needs
 
-                    // --- 3️⃣ Execute Initialization on Script Load ---
                     script.onload = () => {
                         console.log(`      ✅ Script loaded: ${jsPath}`);
                         console.log(`   3️⃣ Executing init function: window['${initFunctionName}']`);
-
-                        // Check if the function exists globally
                         if (typeof window[initFunctionName] === 'function') {
                             try {
-                                // --- Pass current data to the init function ---
-                                 console.log("      Passing data:", { currentUser, teamMembers });
-                                window[initFunctionName](
-                                    // Use deep cloning if the init function might modify the objects
-                                    // JSON.parse(JSON.stringify(currentUser || {})),
-                                    // JSON.parse(JSON.stringify(teamMembers || []))
-                                    // Or pass directly if modifications are not a concern
-                                    currentUser,
-                                    teamMembers
-                                );
+                                console.log("      Passing data:", { currentUser, teamMembers });
+                                window[initFunctionName](currentUser, teamMembers);
                                 console.log(`      🚀 SUCCESS: ${initFunctionName} executed!`);
                             } catch (error) {
                                 console.error(`      ❌ ERROR executing ${initFunctionName}:`, error);
-                                // Show error in placeholder (Need to re-add placeholder)
-                                featureSections.innerHTML = ''; // Clear broken content
+                                featureSections.innerHTML = '';
                                 featureSections.appendChild(featurePlaceholder);
                                 if(featureTitle) featureTitle.textContent = `Error Initializing ${sectionName}`;
                                 if(featureDescription) featureDescription.textContent = `Failed run script: ${error.message}. Check console.`;
                                 if(featureLoadingIndicator) featureLoadingIndicator.style.display = 'none';
-                                if(featureErrorMessage) featureErrorMessage.style.display = 'block';
+                                if(featureErrorMessage) { featureErrorMessage.textContent = `Error: ${error.message}`; featureErrorMessage.style.display = 'block'; }
                                 featurePlaceholder.style.display = 'flex';
                             }
                         } else {
                             console.error(`      ❌ ERROR: Function '${initFunctionName}' NOT FOUND in window scope after loading ${jsPath}.`);
-                             featureSections.innerHTML = ''; // Clear content
-                             featureSections.appendChild(featurePlaceholder);
-                             if(featureTitle) featureTitle.textContent = `Initialization Error`;
-                             if(featureDescription) featureDescription.textContent = `Script loaded, but function '${initFunctionName}' is missing. Cannot activate section functionality.`;
-                             if(featureLoadingIndicator) featureLoadingIndicator.style.display = 'none';
-                             if(featureErrorMessage) featureErrorMessage.style.display = 'block'; // Show error message div
-                             featurePlaceholder.style.display = 'flex';
+                            featureSections.innerHTML = '';
+                            featureSections.appendChild(featurePlaceholder);
+                            if(featureTitle) featureTitle.textContent = `Initialization Error`;
+                            if(featureDescription) featureDescription.textContent = `Script loaded, but function '${initFunctionName}' is missing. Cannot activate section functionality.`;
+                            if(featureLoadingIndicator) featureLoadingIndicator.style.display = 'none';
+                            if(featureErrorMessage) { featureErrorMessage.textContent = `Function ${initFunctionName} not found.`; featureErrorMessage.style.display = 'block'; }
+                            featurePlaceholder.style.display = 'flex';
                         }
-                    }; // --- End script.onload ---
+                    };
 
-                    // --- Handle Script Loading Error ---
                     script.onerror = (event) => {
                         console.error(`      ❌ ERROR loading script: ${jsPath}`, event);
-                        featureSections.innerHTML = ''; // Clear content
+                        featureSections.innerHTML = '';
                         featureSections.appendChild(featurePlaceholder);
                         if(featureTitle) featureTitle.textContent = `Script Load Error`;
                         if(featureDescription) featureDescription.textContent = `Failed to load the required script: ${jsPath}. The section cannot be fully activated. Check network tab or console.`;
                         if(featureLoadingIndicator) featureLoadingIndicator.style.display = 'none';
-                        if(featureErrorMessage) featureErrorMessage.style.display = 'block';
+                         if(featureErrorMessage) { featureErrorMessage.textContent = `Failed to load ${jsPath}`; featureErrorMessage.style.display = 'block'; }
                         featurePlaceholder.style.display = 'flex';
-                        if (script.parentNode) script.remove(); // Clean up failed script tag
+                        if (script.parentNode) script.remove();
                         currentSectionScript = null;
                     };
 
-                    // --- Append Script to Body to Start Loading ---
                     document.body.appendChild(script);
                     currentSectionScript = script;
                     console.log(`      Script element for ${jsPath} appended to body.`);
-
                 } else {
                     console.log(`   Skipping JS load for '${sectionName}' as no init function is defined.`);
-                    // If HTML loaded okay and no JS, ensure placeholder is effectively hidden
-                     featurePlaceholder.style.display = 'none'; // Hide if still somehow visible
-                     featureSections.classList.add('active'); // Ensure content is shown
+                     // Ensure placeholder is hidden if HTML loaded successfully without JS
+                     if(featurePlaceholder && featurePlaceholder.parentNode === featureSections) {
+                         featurePlaceholder.style.display = 'none';
+                     }
+                     featureSections.classList.add('active'); // Still show the HTML content
                 }
             })
-            .catch(error => { // Catch errors from fetch() or .then() blocks
+            .catch(error => {
                 console.error(`--- ❌ ERROR loading section '${sectionName}' (Fetch/Inject/JS Setup):`, error);
-                featureSections.innerHTML = ''; // Clear potentially broken content
+                featureSections.innerHTML = '';
                 featureSections.appendChild(featurePlaceholder);
                 if(featureTitle) featureTitle.textContent = `Error Loading ${sectionName}`;
-                if(featureDescription) featureDescription.textContent = `Could not load section content: ${error.message}.`;
+                if(featureDescription) featureDescription.textContent = `Could not load section content.`;
                 if(featureLoadingIndicator) featureLoadingIndicator.style.display = 'none';
-                if(featureErrorMessage) featureErrorMessage.textContent = `Error: ${error.message}`; // Show the error
-                if(featureErrorMessage) featureErrorMessage.style.display = 'block';
+                if(featureErrorMessage) { featureErrorMessage.textContent = `Error: ${error.message}`; featureErrorMessage.style.display = 'block'; }
                 featurePlaceholder.style.display = 'flex';
-                featureSections.classList.add('active'); // Make error visible
+                featureSections.classList.add('active');
             });
-    } // --- End loadSection ---
+    }
 
     // --- Settings Tab Activation ---
     function activateSettingsTab(tabId) {
         console.log(`⚙️ Activating settings tab: ${tabId}`);
-         if (!tabId) {
-             console.warn("   activateSettingsTab called with null/undefined tabId, defaulting to 'preferences'");
-             tabId = 'preferences';
-         }
-        currentSettingsTab = tabId; // Update state
+        if (!tabId) { tabId = 'preferences'; } // Default tab
+        currentSettingsTab = tabId;
 
-        // Update tab appearances
-        settingsTabs.forEach(t => {
+        // Need to re-query these inside as they might be inside settingsContent which might just have become visible
+        const currentSettingsTabs = querySelectorAll('.settings-tab', settingsContent); // Search within settingsContent
+        const currentSettingsPanels = querySelectorAll('.settings-panel', settingsContent); // Search within settingsContent
+
+        currentSettingsTabs.forEach(t => {
             t.classList.toggle('active', t.dataset.tab === tabId);
         });
-        // Update panel visibility
-        settingsPanels.forEach(p => {
+        currentSettingsPanels.forEach(p => {
             p.classList.toggle('active', p.id === `${tabId}Panel`);
         });
 
-        // Update Hash silently (using replaceState) if different
         const hash = `#settings-${tabId}`;
-         if (window.location.hash !== hash && !isInitialLoad) { // Don't replace during initial nav
-             console.log(`   Replacing state for settings tab: section=settings, tab=${tabId}`);
-             history.replaceState({ section: 'settings', tab: tabId }, '', hash);
-         }
+        if (window.location.hash !== hash && !isInitialLoad) {
+            history.replaceState({ section: 'settings', tab: tabId }, '', hash);
+        }
 
-         // Load data relevant to the specific settings tab
-         console.log(`   Loading data/UI for settings tab: ${tabId}`);
-         if (tabId === 'team') loadTeamMembers();
-         else if (tabId === 'account') updateUserUI(); // Ensure latest data shown
-         else if (['preferences', 'security', 'notifications'].includes(tabId)) loadSettingsFormData();
-         else if (tabId === 'danger' || tabId === 'collaboration') applyRBAC(); // Re-apply permissions if needed
+        console.log(`   Loading data/UI for settings tab: ${tabId}`);
+        if (tabId === 'team') loadTeamMembers();
+        else if (tabId === 'account') updateUserUI();
+        else if (['preferences', 'security', 'notifications'].includes(tabId)) loadSettingsFormData();
+        else if (tabId === 'danger' || tabId === 'collaboration') applyRBAC();
     }
 
     // --- Initial Page Load Navigation ---
     function handleInitialNavigation() {
         console.log("🧭 --- handleInitialNavigation ---");
-        isInitialLoad = true; // Set flag
+        isInitialLoad = true;
         const hash = window.location.hash.substring(1);
         console.log(`   Initial hash found: "${hash}"`);
-        let initialSection = 'dashboard'; // Default section
+        let initialSection = 'dashboard';
         let initialTab = null;
 
         if (hash) {
             if (hash.startsWith('settings-')) {
                  const parts = hash.split('-');
-                 if (parts.length > 1 && document.getElementById(`${parts[1]}Panel`)) { // Check if tab exists
+                 // Basic check if the tab might exist, activateSettingsTab handles non-existent panel gracefully
+                 if (parts.length > 1) {
                      initialSection = 'settings';
                      initialTab = parts[1];
                      console.log(`   Parsed hash as settings section, tab: ${initialTab}`);
                  } else {
-                     console.warn(`   Invalid settings tab in hash: '${hash}'. Falling back.`);
-                     initialSection = 'settings'; // Go to settings...
-                     initialTab = 'preferences'; // ...but default tab
-                     history.replaceState(null, '', '#settings-preferences'); // Correct hash
+                     initialSection = 'settings'; initialTab = 'preferences'; // Fallback tab
+                     history.replaceState(null, '', '#settings-preferences');
                  }
             } else {
-                // Check if hash corresponds to a known section button (sidebar or dropdown)
-                const isValidSection = [...menuButtons, ...dropdownButtons].some(btn => btn.dataset.section === hash);
-                if (isValidSection || sectionsWithJS.hasOwnProperty(hash)) { // Include known dynamic sections
+                 const isValidStatic = [dashboardContent, profileContent, settingsContent].some(el => el && el.id === `${hash}Content`);
+                 const isValidDynamic = sectionsWithJS.hasOwnProperty(hash);
+                if (isValidStatic || isValidDynamic) {
                     initialSection = hash;
                     console.log(`   Parsed hash as standard/dynamic section: ${initialSection}`);
                 } else {
                     console.warn(`   Invalid section in hash: '#${hash}'. Loading default.`);
-                    history.replaceState(null, '', window.location.pathname + window.location.search); // Clear invalid hash
+                    history.replaceState(null, '', window.location.pathname + window.location.search);
                 }
             }
         } else {
              console.log("   No hash found. Defaulting to 'dashboard'.");
-             // Could add localStorage check here as before if desired
         }
 
         console.log(`   🏁 Final initial navigation target: Section=${initialSection}, Tab=${initialTab}`);
-        // Call navigateToSection to display the initial content
         navigateToSection(initialSection, initialTab);
     }
 
@@ -519,99 +390,52 @@ document.addEventListener('DOMContentLoaded', function() {
         if (sidebarMenu) {
             sidebarMenu.addEventListener('click', function(event) {
                 const button = event.target.closest('button[data-section]');
-                if (button) {
-                    event.preventDefault();
-                    const sectionName = button.dataset.section;
-                    console.log(`Sidebar button clicked: ${sectionName}`);
-                    navigateToSection(sectionName);
-                }
+                if (button) { event.preventDefault(); navigateToSection(button.dataset.section); }
             });
             console.log("   Sidebar listeners attached.");
         } else { console.error("   Sidebar menu not found for listeners."); }
 
-
         // User Dropdown Toggle & Navigation
         if (userDropdownToggle && userDropdown) {
-            userDropdownToggle.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent click from reaching document listener immediately
-                userDropdown.classList.toggle('active');
-                console.log(`User dropdown toggled: ${userDropdown.classList.contains('active') ? 'ON' : 'OFF'}`);
-            });
-
+            userDropdownToggle.addEventListener('click', (e) => { e.stopPropagation(); userDropdown.classList.toggle('active'); });
             userDropdown.addEventListener('click', function(event) {
                  const button = event.target.closest('button[data-section]');
-                 if (button) {
-                     event.preventDefault();
-                     const sectionName = button.dataset.section;
-                     console.log(`Dropdown button clicked: ${sectionName}`);
-                     userDropdown.classList.remove('active'); // Close dropdown
-                     navigateToSection(sectionName);
-                 } else if (event.target.closest('#logoutLink')) { // Handle logout link specifically if needed
-                      event.preventDefault();
-                      userDropdown.classList.remove('active'); // Close dropdown
-                      handleLogout();
-                 }
+                 if (button) { event.preventDefault(); userDropdown.classList.remove('active'); navigateToSection(button.dataset.section); }
+                 else if (event.target.closest('#logoutLink')) { event.preventDefault(); userDropdown.classList.remove('active'); handleLogout(); }
             });
+            document.addEventListener('click', (event) => { if (userDropdown.classList.contains('active') && !userDropdownToggle.contains(event.target) && !userDropdown.contains(event.target)) { userDropdown.classList.remove('active'); } });
             console.log("   User dropdown listeners attached.");
-
-            // Close dropdown if clicking outside
-             document.addEventListener('click', (event) => {
-                 if (userDropdown.classList.contains('active') && !userDropdownToggle.contains(event.target) && !userDropdown.contains(event.target)) {
-                     userDropdown.classList.remove('active');
-                      console.log("   User dropdown closed via outside click.");
-                 }
-             });
-
         } else { console.warn("   User profile toggle/dropdown elements missing for listeners."); }
 
         // Back Button
-        if (backButton) {
-             backButton.addEventListener('click', () => {
-                 console.log("Back button clicked.");
-                 navigateToSection('dashboard'); // Simple navigation back to dashboard
-             });
-             console.log("   Back button listener attached.");
-        }
+        if (backButton) { backButton.addEventListener('click', () => navigateToSection('dashboard')); console.log("   Back button listener attached."); }
 
-        // Browser Back/Forward (Popstate)
+        // Popstate (Browser Back/Forward)
         window.addEventListener('popstate', (event) => {
             console.log("🌀 --- popstate event triggered ---", event.state);
             if (event.state && event.state.section) {
-                // Navigate based on the restored state
-                 console.log(`   Popstate: Navigating via history state to section=${event.state.section}, tab=${event.state.tab}`);
-                 isInitialLoad = true; // Treat popstate like an initial load to avoid pushing state again
-                 navigateToSection(event.state.section, event.state.tab);
-            } else {
-                // If state is null (e.g., manual hash change, initial page), re-run initial logic
-                console.log("   Popstate: event.state is missing or invalid. Re-evaluating navigation.");
-                isInitialLoad = true; // Treat like initial load
-                handleInitialNavigation();
-            }
+                isInitialLoad = true; navigateToSection(event.state.section, event.state.tab);
+            } else { isInitialLoad = true; handleInitialNavigation(); }
         });
-         console.log("   Popstate listener attached.");
+        console.log("   Popstate listener attached.");
 
-        // Settings Tabs
-        if (settingsTabs.length > 0) {
-           settingsTabs.forEach(tab => {
-               tab.addEventListener('click', () => {
-                   if (!tab.classList.contains('active') && !tab.classList.contains('disabled')) {
-                       const tabId = tab.dataset.tab;
-                       console.log(`Settings tab clicked: ${tabId}`);
-                       activateSettingsTab(tabId); // Activate the specific tab panel
-                   }
-               });
-           });
-            console.log("   Settings tab listeners attached.");
+        // --- ★★★ Settings Tabs (Using Event Delegation) ★★★ ---
+        if (settingsTabsContainer) {
+            settingsTabsContainer.addEventListener('click', (event) => {
+                const tab = event.target.closest('.settings-tab');
+                if (tab && !tab.classList.contains('active') && !tab.classList.contains('disabled')) {
+                    const tabId = tab.dataset.tab;
+                    console.log(`Settings tab clicked (delegated): ${tabId}`);
+                    activateSettingsTab(tabId);
+                }
+            });
+            console.log("   Settings tab listener attached (delegated to .settings-tabs container).");
+        } else {
+             console.warn("   Settings tabs container (.settings-tabs) not found for delegated listener.");
         }
 
-        // Logout Link (if not handled by dropdown listener)
-        if (logoutLink && !userDropdown) { // Only add if not part of dropdown logic above
-             logoutLink.addEventListener('click', (e) => {
-                 e.preventDefault();
-                 handleLogout();
-             });
-             console.log("   Standalone logout listener attached.");
-        }
+        // Logout Link (if not in dropdown)
+        if (logoutLink && !userDropdown) { logoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); }); console.log("   Standalone logout listener attached."); }
 
         console.log("🎧 --- setupEventListeners Finished ---");
     } // --- End setupEventListeners ---
@@ -620,22 +444,16 @@ document.addEventListener('DOMContentLoaded', function() {
     async function initializeApp() {
         console.log("🚀 --- Initializing App ---");
         try {
-            await loadData(); // Wait for user/team data to be loaded
-             console.log("   Initial data loaded successfully.");
-             applyUserPreferences(); // Apply theme/density
-             applyRBAC(); // Apply initial role restrictions
-             setupEventListeners(); // Setup all event listeners
-             handleInitialNavigation(); // Determine and display the initial section
-             startActivityTimeUpdater(); // Start background tasks
-             console.log("✅ --- Dashboard Initialized Successfully ---");
+            await loadData(); // Load critical data first
+            applyUserPreferences(); // Apply visual prefs
+            applyRBAC(); // Apply role restrictions
+            setupEventListeners(); // Setup interactions
+            handleInitialNavigation(); // Display initial view
+            startActivityTimeUpdater(); // Start background tasks
+            console.log("✅ --- Dashboard Initialized Successfully ---");
         } catch (error) {
              console.error("❌ CRITICAL ERROR during app initialization:", error);
-             // Display a critical error message to the user
-             if(contentArea) {
-                 contentArea.innerHTML = `<div style='padding: 2rem; text-align: center; color: var(--danger);'>
-                     <h2>Application Error</h2><p>Could not initialize the dashboard. Please try refreshing the page.</p>
-                     <p><small>Error: ${error.message}</small></p></div>`;
-             }
+             if(contentArea) { contentArea.innerHTML = `<div style='padding: 2rem; text-align: center; color: var(--danger);'><h2>Application Error</h2><p>Could not initialize the dashboard. Please try refreshing the page.</p><p><small>Error: ${error.message}</small></p></div>`; }
         }
     }
 
