@@ -548,7 +548,7 @@
     </style>
 </head>
 <body class="blue-theme">
-    <!-- HTML Structure Remains the Same -->
+    <!-- HTML Structure -->
     <audio id="notificationSound" preload="auto">...</audio>
     <div class="success-message" id="successMessage">...</div>
     <aside class="sidebar" id="sidebar">...</aside>
@@ -611,7 +611,6 @@
 
             // --- State & Data ---
             let currentUser = currentUserData;
-            // Use the reference passed from the dashboard for employees, but map for safety
             let employees = Array.isArray(teamMembersDataRef)
                 ? teamMembersDataRef.map(member => ({ id: member.id, name: member.name, email: member.email, role: member.role }))
                 : [];
@@ -622,76 +621,107 @@
             const maxDate = new Date(currentWeekStart.getFullYear() + 1, 11, 31);
 
             // --- Helper Functions ---
-            function showToast(message, type = 'success') { /* ... Same as before ... */ }
-            function getStartOfWeek(date) { /* ... Same as before ... */ }
-            function createShiftDiv(type, text) { /* ... Same as before ... */ }
-            function updateWeekDisplayAndHeaders() { /* ... Same as before ... */ }
-            function applyRolePermissions() { /* ... Same as before ... */ }
-            function handleTableBodyClick(event) { if (event.target.classList.contains('edit-shift')) handleEditShiftClick(event.target); }
-            function handleEditShiftClick(buttonElement) { /* ... Same as before ... */ }
-
-            // --- Key Function: Add Employee (Interacts with Dashboard) ---
-            function addEmployeeToSystem(name, email, role) {
-                if (!name || !email || !email.includes('@') || !role) { showToast('Name, valid email, and role required.', 'danger'); return false; }
-                // Check against the *main* list passed by reference
-                if (teamMembersDataRef.some(m => m.email.toLowerCase() === email.toLowerCase())) { showToast('Email already exists.', 'danger'); return false; }
-
-                // Call the globally exposed dashboard function to handle adding/saving
-                if (typeof window.dashboardAddTeamMember === 'function') {
-                    const success = window.dashboardAddTeamMember({ name, email, role });
-                    if (success) {
-                        // Update the local `employees` array AFTER successful addition to main list
-                        employees = teamMembersDataRef.map(member => ({ ...member }));
-                        renderSchedule(); // Re-render this view
-                        showToast(`Employee ${name} added.`, 'success');
-                        return true;
-                    } else {
-                        showToast('Failed to add employee to system.', 'danger');
-                        return false;
-                    }
-                } else {
-                    console.error("Dashboard integration function 'dashboardAddTeamMember' not found.");
-                    showToast('Error: Cannot add employee.', 'danger');
-                    return false;
-                }
+            function showToast(message, type = 'success') { /* ... Same as before ... */
+                if (!toastNotification) { console.warn("Toast element not found."); return; }
+                toastNotification.textContent = message;
+                toastNotification.className = 'toast'; // Reset classes
+                toastNotification.classList.add(type === 'danger' ? 'toast-danger' : 'toast-success'); // Use type for class
+                toastNotification.classList.add('show');
+                if (toastNotification.timerId) clearTimeout(toastNotification.timerId);
+                toastNotification.timerId = setTimeout(() => { toastNotification.classList.remove('show'); toastNotification.timerId = null; }, 3000);
             }
-
+            function getStartOfWeek(date) { /* ... Same as before ... */
+                 const dt = new Date(date);
+                 const weekStartDay = currentUserData?.preferences?.weekStart === 'sun' ? 0 : 0; // Default Sunday
+                 const dayOfWeek = dt.getDay(); // 0=Sun, 1=Mon...
+                 const diff = dt.getDate() - dayOfWeek + (dayOfWeek < weekStartDay ? weekStartDay - 7 : weekStartDay);
+                 dt.setDate(diff);
+                 dt.setHours(0, 0, 0, 0);
+                 return dt;
+            }
+            function createShiftDiv(type, text) { /* ... Same as before ... */
+                 const d = document.createElement('div'); d.className = 'shift'; d.textContent = text || '';
+                 const map = {'morning':'shift-morning','afternoon':'shift-afternoon','night':'shift-night','day-off':'day-off','sick-leave':'sick-leave','vacation':'vacation','custom':'shift-morning'};
+                 d.classList.add(map[type] || 'shift-morning'); return d;
+            }
+            function updateWeekDisplayAndHeaders() { /* ... Same as before ... */
+                if (!weekDisplay) return;
+                const end = new Date(currentWeekStart); end.setDate(end.getDate() + 6);
+                const opts = { month: 'short', day: 'numeric' }; const lang = currentUserData?.preferences?.language || 'en-US';
+                weekDisplay.textContent = `${currentWeekStart.toLocaleDateString(lang, opts)} - ${end.toLocaleDateString(lang, opts)}, ${currentWeekStart.getFullYear()}`;
+                const dateCells = container.querySelectorAll('.day-date'); const nameCells = container.querySelectorAll('.day-name');
+                const temp = new Date(currentWeekStart); const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+                dateCells.forEach((c, i) => { if (i<days.length && c && nameCells[i]) { c.textContent = temp.toLocaleDateString(lang, opts); nameCells[i].textContent=days[i]; temp.setDate(temp.getDate()+1); } });
+                const prev = new Date(currentWeekStart); prev.setDate(prev.getDate()-7); if(prevWeekBtn) prevWeekBtn.disabled = prev < minDate;
+                const nextEnd = new Date(end); nextEnd.setDate(nextEnd.getDate()+1); if(nextWeekBtn) nextWeekBtn.disabled = nextEnd > maxDate;
+            }
+            function applyRolePermissions() { /* ... Same as before ... */
+                 const canManage = currentUser?.role === 'admin' || currentUser?.role === 'supervisor';
+                 if(addEmployeeBtn) addEmployeeBtn.style.display = canManage ? 'inline-flex' : 'none';
+                 if(sendRemindersBtn) sendRemindersBtn.style.display = canManage ? 'inline-flex' : 'none';
+                 if(saveScheduleBtn) saveScheduleBtn.style.display = canManage ? 'inline-flex' : 'none';
+                 container.querySelectorAll('.edit-shift').forEach(el => el.style.display = canManage ? 'inline' : 'none');
+            }
+            function handleTableBodyClick(event) { if (event.target.classList.contains('edit-shift')) handleEditShiftClick(event.target); }
+            function handleEditShiftClick(buttonElement) { /* ... Same as before ... */
+                 if (!buttonElement) return;
+                 const cell = buttonElement.closest('td.admin-controls'); if (!cell) { console.error("No parent cell."); return; }
+                 const empId = parseInt(cell.dataset.emp); const day = cell.dataset.day; const cellId = cell.id;
+                 if (isNaN(empId) || !day) { console.error("Invalid cell data."); return; }
+                 if (!shiftModal || !shiftEmployeeDisplayInput || !editEmpIdInput || !editDayInput || !editCellIdInput || !shiftDateInput || !shiftTypeSelect || !customShiftGroup) { console.error("Shift modal elements missing."); return; }
+                 const employee = employees.find(e => e.id === empId); const days = ['mon','tue','wed','thu','fri','sat','sun']; const dayIndex = days.indexOf(day);
+                 if (employee && dayIndex !== -1) {
+                     const date = new Date(currentWeekStart); date.setDate(date.getDate() + dayIndex);
+                     shiftEmployeeDisplayInput.value = employee.name || 'N/A'; editEmpIdInput.value = empId; editDayInput.value = day; editCellIdInput.value = cellId;
+                     shiftDateInput.value = date.toISOString().split('T')[0];
+                     const key = `${empId}-${day}`; const info = scheduleData[key];
+                     const type = info?.type || 'clear'; const custom = (info?.type === 'custom' ? info.text : ''); const notes = info?.notes || '';
+                     shiftTypeSelect.value = type; customShiftGroup.style.display = type === 'custom' ? 'block' : 'none';
+                     container.querySelector('#customShift').value = custom; container.querySelector('#shiftNotes').value = notes;
+                     shiftModal.style.display = 'flex';
+                 } else { console.error(`Employee ${empId} or day ${day} not found.`); }
+            }
+            function addEmployeeToSystem(name, email, role) { /* ... Same as before, calls window.dashboardAddTeamMember ... */
+                 if (!name || !email || !email.includes('@') || !role) { showToast('Name, valid email, and role required.', 'danger'); return false; }
+                 if (teamMembersDataRef.some(m => m.email.toLowerCase() === email.toLowerCase())) { showToast('Email already exists.', 'danger'); return false; }
+                 if (typeof window.dashboardAddTeamMember === 'function') {
+                     const success = window.dashboardAddTeamMember({ name, email, role });
+                     if (success) {
+                         employees = teamMembersDataRef.map(member => ({ ...member })); // Update local copy
+                         renderSchedule();
+                         showToast(`Employee ${name} added.`, 'success');
+                         return true;
+                     } else { showToast('Failed to add employee to system.', 'danger'); return false; }
+                 } else { console.error("Dashboard integration missing."); showToast('Error: Cannot add employee.', 'danger'); return false; }
+            }
 
             // --- Event Listener Setup ---
             let scheduleBodyClickListener = null;
-            function setupEditShiftListeners() {
-                 if (!scheduleTableBody) return;
-                 if (scheduleBodyClickListener) { scheduleTableBody.removeEventListener('click', scheduleBodyClickListener); }
-                 scheduleBodyClickListener = handleTableBodyClick;
-                 scheduleTableBody.addEventListener('click', scheduleBodyClickListener);
-                 console.log("Added schedule table body listener.");
-             }
-            window.cleanupScheduleListeners = function() { // Expose cleanup globally
-                if (scheduleTableBody && scheduleBodyClickListener) {
-                    scheduleTableBody.removeEventListener('click', scheduleBodyClickListener);
-                    scheduleBodyClickListener = null;
-                    console.log("Cleaned up schedule table body listener.");
-                }
-                 // Add cleanup for other schedule listeners if needed (modals, buttons, etc.)
-                 // It might be simpler to just let them be garbage collected when the HTML is removed.
-            };
+            function setupEditShiftListeners() { /* ... Same as before ... */ }
+            window.cleanupScheduleListeners = function() { /* ... Same as before ... */ };
 
-            // Other Listeners (Modal buttons, Week Nav, Save, Reminders, Forms)
-            // ... (Keep the event listener setup for modals, week nav, save, reminders, forms as before) ...
-            if (prevWeekBtn) prevWeekBtn.addEventListener('click', () => { /* ... */ renderSchedule(); });
-            if (nextWeekBtn) nextWeekBtn.addEventListener('click', () => { /* ... */ renderSchedule(); });
+            // Other Listeners
+            if (prevWeekBtn) prevWeekBtn.addEventListener('click', () => { const d=new Date(currentWeekStart); d.setDate(d.getDate()-7); if(d>=minDate){currentWeekStart=d;renderSchedule();} });
+            if (nextWeekBtn) nextWeekBtn.addEventListener('click', () => { const d=new Date(currentWeekStart); d.setDate(d.getDate()+7); const e=new Date(d); e.setDate(e.getDate()+6); if(e<=maxDate){currentWeekStart=d;renderSchedule();} });
             if (shiftTypeSelect) shiftTypeSelect.addEventListener('change', function() { if(customShiftGroup) customShiftGroup.style.display=this.value==='custom'?'block':'none'; });
             if (addEmployeeBtn) addEmployeeBtn.addEventListener('click', () => { if(employeeModal) employeeModal.style.display='flex'; });
             if (closeEmployeeModal) closeEmployeeModal.addEventListener('click', () => { if(employeeModal) employeeModal.style.display='none'; });
             if (cancelEmployeeBtn) cancelEmployeeBtn.addEventListener('click', () => { if(employeeModal) employeeModal.style.display='none'; });
             if (closeShiftModal) closeShiftModal.addEventListener('click', () => { if(shiftModal) shiftModal.style.display='none'; });
             if (cancelShiftBtn) cancelShiftBtn.addEventListener('click', () => { if(shiftModal) shiftModal.style.display='none'; });
-            container.addEventListener('click', function(event) { if(event.target===employeeModal)employeeModal.style.display='none'; if(event.target===shiftModal)shiftModal.style.display='none'; }); // Container-level listener for modals
-            if (employeeForm) employeeForm.addEventListener('submit', (e) => { /* ... calls addEmployeeToSystem ... */ });
-            if (shiftForm) shiftForm.addEventListener('submit', (e) => { /* ... updates scheduleData, calls saveScheduleData, updates UI ... */ });
+            container.addEventListener('click', function(event) { if(event.target===employeeModal)employeeModal.style.display='none'; if(event.target===shiftModal)shiftModal.style.display='none'; });
+            if (employeeForm) employeeForm.addEventListener('submit', (e) => { e.preventDefault(); const n=container.querySelector('#empName'); const em=container.querySelector('#empEmail'); const r=container.querySelector('#empRole'); if(n&&em&&r&&addEmployeeToSystem(n.value.trim(),em.value.trim(),r.value)){ employeeForm.reset(); if(employeeModal)employeeModal.style.display='none'; } });
+            if (shiftForm) shiftForm.addEventListener('submit', (e) => {
+                e.preventDefault(); const id=parseInt(editEmpIdInput.value); const day=editDayInput.value; const cId=editCellIdInput.value; const type=shiftTypeSelect.value; const custom=container.querySelector('#customShift').value.trim(); const notes=container.querySelector('#shiftNotes').value.trim(); const cell=container.querySelector(`#${cId}`);
+                if(!cell||isNaN(id)||!day){ showToast('Error saving. Cell ref lost.','danger'); return; }
+                const key=`${id}-${day}`; let text=''; let effType=type;
+                switch(type){ case 'morning':text='9AM-5PM';break; case 'afternoon':text='12PM-8PM';break; case 'night':text='5PM-1AM';break; case 'day-off':text='OFF';break; case 'sick-leave':text='SICK';break; case 'vacation':text='VAC';break; case 'custom':text=custom||'Custom';if(!custom)effType='morning';break; case 'clear': delete scheduleData[key];saveScheduleData(); const ex=cell.querySelector('.shift'); if(ex)cell.removeChild(ex); showToast('Shift cleared.','success'); if(shiftModal)shiftModal.style.display='none'; return; }
+                scheduleData[key]={type:effType,text,notes}; saveScheduleData();
+                const exUp=cell.querySelector('.shift'); if(exUp)cell.removeChild(exUp); const div=createShiftDiv(effType,text); const span=cell.querySelector('.edit-shift'); if(span)cell.insertBefore(div,span); else cell.appendChild(div);
+                showToast('Shift updated.','success'); if(shiftModal)shiftModal.style.display='none';
+            });
             if (saveScheduleBtn) saveScheduleBtn.addEventListener('click', () => { saveScheduleData(); showToast('Schedule saved.','success'); });
             if (sendRemindersBtn) sendRemindersBtn.addEventListener('click', () => { /* ... reminder logic ... */ });
-
 
             // --- Initial Setup ---
             try { renderSchedule(); } catch (error) { console.error("Error rendering schedule:", error); showToast("Failed to load schedule.", "danger"); }
@@ -709,8 +739,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log("DOM Content Loaded. Initializing Dashboard...");
             // --- DOM Elements ---
+            // ... (All dashboard DOM element definitions remain here) ...
             const sidebar = document.getElementById('sidebar');
-            const menuItems = document.querySelectorAll('.menu-item'); // Keep NodeList
+            const menuItems = document.querySelectorAll('.menu-item');
             const searchInput = document.getElementById('searchInput');
             const searchResults = document.getElementById('searchResults');
             const notificationIcon = document.getElementById('notificationIcon');
@@ -723,13 +754,13 @@
             const userAvatar = document.getElementById('userAvatar');
             const userProfileDetails = document.querySelector('.user-profile-details');
             const userName = document.getElementById('userName');
-            const userEmail = document.getElementById('userEmail');
+            const userEmail = document.getElementById('userEmail'); // Welcome email
             const welcomeName = document.getElementById('welcomeName');
             const userDropdown = document.getElementById('userDropdown');
             const profileLink = document.getElementById('profileLink');
             const settingsLink = document.getElementById('settingsLink');
             const logoutLink = document.getElementById('logoutLink');
-            const contentSections = document.querySelectorAll('.content-section'); // Keep NodeList
+            const contentSections = document.querySelectorAll('.content-section');
             const dashboardContent = document.getElementById('dashboardContent');
             const profileContent = document.getElementById('profileContent');
             const settingsContent = document.getElementById('settingsContent');
@@ -743,21 +774,21 @@
             const profileForm = document.getElementById('profileForm');
             const cancelProfileBtn = document.getElementById('cancelProfileBtn');
             const profileAvatarInput = document.getElementById('profileAvatarInput');
-            const profileAvatar = document.getElementById('profileAvatar');
-            const profileAvatarLarge = document.getElementById('profileAvatarLarge');
+            const profileAvatar = document.getElementById('profileAvatar'); // Welcome avatar
+            const profileAvatarLarge = document.getElementById('profileAvatarLarge'); // Profile avatar
             const uploadPhotoButton = document.getElementById('uploadPhotoButton');
             const activityList = document.getElementById('activityList');
             const viewAllActivity = document.getElementById('viewAllActivity');
             const deleteAllActivity = document.getElementById('deleteAllActivity');
-            const settingsTabs = document.querySelectorAll('.settings-tab'); // Keep NodeList
-            const settingsPanels = document.querySelectorAll('.settings-panel'); // Keep NodeList
+            const settingsTabs = document.querySelectorAll('.settings-tab');
+            const settingsPanels = document.querySelectorAll('.settings-panel');
             const preferencesForm = document.getElementById('preferencesForm');
             const accountForm = document.getElementById('accountForm');
             const securityForm = document.getElementById('securityForm');
             const notificationsForm = document.getElementById('notificationsForm');
             const teamList = document.getElementById('teamList');
             const inviteMemberForm = document.getElementById('inviteMemberForm');
-            const themeOptions = document.querySelectorAll('.theme-option'); // Keep NodeList
+            const themeOptions = document.querySelectorAll('.theme-option');
             const layoutDensitySelect = document.getElementById('layoutDensity');
             const weekStartSelect = document.getElementById('weekStart');
             const confirmModal = document.getElementById('confirmModal');
@@ -794,7 +825,7 @@
 
             // --- State Variables ---
             let currentUser = {};
-            let teamMembers = []; // Main source of truth for team members
+            let teamMembers = []; // Main source of truth
             let activities = [];
             let notifications = [];
             let currentFeature = 'dashboard';
@@ -814,7 +845,7 @@
             // --- Initialization ---
             function initDashboard() {
                 try {
-                    loadData();
+                    loadData(); // Load first
                     updateUserUI();
                     loadTeamMembers();
                     loadActivities();
@@ -824,42 +855,46 @@
                     applyRBAC();
                     handleInitialNavigation();
                     startActivityTimeUpdater();
-                    setupEventListeners(); // Setup listeners AFTER everything else
+                    setupEventListeners(); // Setup last
                     console.log("Dashboard Initialized Successfully. User:", JSON.parse(JSON.stringify(currentUser)), "Team:", JSON.parse(JSON.stringify(teamMembers)));
                 } catch (error) {
                     console.error("CRITICAL ERROR during Dashboard Initialization:", error);
-                    // Display a user-friendly error message, perhaps replacing the body content
                     document.body.innerHTML = `<div style="padding: 2rem; text-align: center; color: red;"><h1>Initialization Failed</h1><p>An unexpected error occurred. Please try refreshing the page or contact support.</p><pre>${error.message}\n${error.stack}</pre></div>`;
                 }
             }
 
-             // --- Data Handling ---
+            // --- Data Handling ---
+            // *** USE CORRECTED loadData from previous response ***
              function loadData() {
-                 console.log("Loading data...");
-                 const storedUser = JSON.parse(localStorage.getItem('currentUser')) || DEFAULT_USER;
-                 currentUser = deepMerge(DEFAULT_USER, storedUser);
+                 console.log("Loading data from localStorage...");
+                 const safeParse = (key, defaultValue = null) => {
+                     const itemString = localStorage.getItem(key);
+                     if (itemString === null || itemString === 'undefined') {
+                         console.log(`LS key "${key}" not found or 'undefined', using default.`);
+                         if (itemString === 'undefined') { localStorage.removeItem(key); console.log(`Removed invalid 'undefined' for "${key}".`); }
+                         return defaultValue;
+                     }
+                     try {
+                         const parsed = JSON.parse(itemString);
+                         if (Array.isArray(defaultValue) && !Array.isArray(parsed)){ console.warn(`LS key "${key}" not array. Value:`,itemString,"Using default."); localStorage.removeItem(key); return defaultValue; }
+                         return parsed;
+                     } catch (error) { console.error(`Error parsing LS key "${key}":`, error, "Value:", itemString); localStorage.removeItem(key); return defaultValue; }
+                 };
 
-                 // Load or set default team members
-                 teamMembers = JSON.parse(localStorage.getItem('teamMembers')) || [
-                      { id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', role: 'admin', initials: 'ME', avatar: '', title: 'Administrator', department: 'Management', phone: '+201234567890' },
-                      { id: 2, name: 'Yousef Ahmed', email: 'yousef@example.com', role: 'member', initials: 'YA', avatar: '', title: 'Developer', department: 'IT', phone: '' },
-                      { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com', role: 'senior', initials: 'EL', avatar: '', title: 'Senior Designer', department: 'Design', phone: '' },
-                      { id: 4, name: 'Bassant Badr', email: 'bassant@example.com', role: 'supervisor', initials: 'BB', avatar: '', title: 'Team Lead', department: 'Marketing', phone: '' }
-                 ];
-                 // Ensure minimum required fields for members
-                 teamMembers = teamMembers.map(m => ({
-                     id: m.id ?? Date.now() + Math.random(), // Ensure ID exists
-                     name: m.name || 'Unnamed',
-                     email: m.email || 'no-email-' + Date.now(), // Ensure email exists
-                     role: m.role || 'member',
-                     initials: m.initials || m.name?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || '??',
-                     avatar: m.avatar || ''
-                     // Add other fields with defaults if necessary
-                 }));
+                 const storedUserObject = safeParse('currentUser');
+                 currentUser = deepMerge(DEFAULT_USER, storedUserObject);
 
-                 activities = JSON.parse(localStorage.getItem('activities')) || [];
-                 notifications = JSON.parse(localStorage.getItem('notifications')) || [];
-                 console.log("Data loaded.");
+                 teamMembers = safeParse('teamMembers', [ /* Default team members array */
+                     { id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', role: 'admin', initials: 'ME', avatar: '', title: 'Administrator', department: 'Management', phone: '+201234567890' },
+                     { id: 2, name: 'Yousef Ahmed', email: 'yousef@example.com', role: 'member', initials: 'YA', avatar: '', title: 'Developer', department: 'IT', phone: '' },
+                     { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com', role: 'senior', initials: 'EL', avatar: '', title: 'Senior Designer', department: 'Design', phone: '' },
+                     { id: 4, name: 'Bassant Badr', email: 'bassant@example.com', role: 'supervisor', initials: 'BB', avatar: '', title: 'Team Lead', department: 'Marketing', phone: '' }
+                 ]);
+                 teamMembers = teamMembers.map(m => ({ id: m.id ?? Date.now()+Math.random(), name: m.name||'Unnamed', email: m.email||'no-email-'+Date.now(), role: m.role||'member', initials: m.initials||m.name?.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase()||'??', avatar: m.avatar||'' }));
+
+                 activities = safeParse('activities', []);
+                 notifications = safeParse('notifications', []);
+                 console.log("Data loading complete.");
              }
              function deepMerge(target, source) { /* ... keep as is ... */ }
              function isObject(item) { /* ... keep as is ... */ }
@@ -867,70 +902,8 @@
              function clearUserData() { /* ... keep as is ... */ }
 
 
-             // --- UI Update Functions ---
-            function updateUserUI() {
-                 console.log("Updating User UI...");
-                 try {
-                    const nameParts = currentUser.name?.split(' ') || ['User'];
-                    const firstName = nameParts[0] || 'User';
-                    const lastName = nameParts.slice(1).join(' ') || '';
-
-                    // Top Nav & Welcome
-                    if (userName) userName.textContent = currentUser.name || 'User';
-                    const welcomeEmailEl = document.getElementById('userEmail'); // Target specific welcome email
-                    if (welcomeEmailEl) welcomeEmailEl.textContent = currentUser.email || 'No Email';
-                    if (welcomeName) welcomeName.textContent = firstName;
-
-                    // User Info Section (in Dashboard Welcome)
-                    const userInfoNameEl = dashboardContent.querySelector('.user-info-name');
-                    if(userInfoNameEl) userInfoNameEl.textContent = currentUser.name || 'User';
-                    const roleTitles = { 'admin': 'Administrator', 'senior': 'Senior', 'supervisor': 'Supervisor', 'member': 'Member' };
-                    const roleTitle = roleTitles[currentUser.role] || 'Member';
-                    if(userInfoRoleTitle) userInfoRoleTitle.textContent = roleTitle;
-                    if(userInfoRoleTitle) userInfoRoleTitle.className = `user-info-title ${currentUser.role === 'admin' ? 'role-admin' : ''}`; // Set class directly
-
-                    // Profile Form
-                    if(profileForm){
-                        const firstNameInput = profileForm.querySelector('#firstName');
-                        const lastNameInput = profileForm.querySelector('#lastName');
-                        if (firstNameInput) firstNameInput.value = firstName;
-                        if (lastNameInput) lastNameInput.value = lastName;
-                        const jobTitleInput = profileForm.querySelector('#jobTitle');
-                        if (jobTitleInput) jobTitleInput.value = currentUser.title || '';
-                        const phoneInput = profileForm.querySelector('#phone');
-                        if (phoneInput) phoneInput.value = currentUser.phone || '';
-                        const departmentInput = profileForm.querySelector('#department');
-                        if (departmentInput) departmentInput.value = currentUser.department || '';
-                        const emailInput = profileForm.querySelector('#email');
-                        if (emailInput) emailInput.value = currentUser.email || '';
-                        if (fullNameDisplay) fullNameDisplay.value = currentUser.name || 'User';
-                    }
-
-                    // Account Settings Form
-                    if(accountForm){
-                        const accFirstName = accountForm.querySelector('#acc_firstName');
-                        if (accFirstName) accFirstName.value = firstName;
-                        const accLastName = accountForm.querySelector('#acc_lastName');
-                        if (accLastName) accLastName.value = lastName;
-                        const accEmail = accountForm.querySelector('#acc_email');
-                        if (accEmail) accEmail.value = currentUser.email || '';
-                    }
-
-                    // Avatars
-                    const initials = currentUser.initials || (firstName ? firstName[0] : '') + (lastName ? lastName[0] : '');
-                    [userAvatar, profileAvatar, profileAvatarLarge].forEach(el => {
-                        if(el){
-                            if (currentUser.avatar) {
-                                el.style.backgroundImage = `url(${currentUser.avatar})`; el.textContent = ''; el.style.backgroundColor = '';
-                            } else {
-                                el.style.backgroundImage = 'none'; el.textContent = initials.toUpperCase();
-                                el.style.backgroundColor = el===profileAvatarLarge ? 'var(--primary-light)' : 'var(--primary)';
-                                el.style.color = el===profileAvatarLarge ? 'var(--primary-dark)' : 'white';
-                            }
-                        }
-                    });
-                 } catch (error) { console.error("Error in updateUserUI:", error); }
-             }
+            // --- UI Update Functions ---
+            function updateUserUI() { /* ... keep as is ... */ }
             function applyUserPreferences() { /* ... keep as is ... */ }
             function applyRBAC() { /* ... keep as is ... */ }
             function loadSettingsFormData() { /* ... keep as is ... */ }
@@ -938,126 +911,52 @@
             function updateTrendIndicator(element, trendValue) { /* ... keep as is ... */ }
             function updateNotificationBadge() { /* ... keep as is ... */ }
 
-             // --- Feature/Section Loading ---
-             function setActiveFeature(featureId, settingsTab = null) {
-                 console.log(`Activating feature: ${featureId}, Tab: ${settingsTab}`);
-                 try {
-                     // --- Cleanup previous ---
-                     if (window.cleanupScheduleListeners) { window.cleanupScheduleListeners(); }
 
-                     // --- RBAC Checks ---
-                     if (featureId === 'settings') { /* ... RBAC checks ... */ }
-
-                     currentFeature = featureId;
-                     currentSettingsTab = settingsTab || (featureId === 'settings' ? (currentSettingsTab || 'preferences') : null);
-
-                     // Update URL & Sidebar
-                     let hash = `#${featureId}`; if (featureId === 'settings' && currentSettingsTab) hash += `-${currentSettingsTab}`;
-                     if (window.location.hash !== hash) history.pushState({ feature: featureId, tab: currentSettingsTab }, '', hash);
-                     menuItems.forEach(item => item.classList.remove('active'));
-                     const activeMenuItem = document.querySelector(`.menu-item[data-feature="${featureId}"]`);
-                     if (activeMenuItem) activeMenuItem.classList.add('active');
-
-                     // Show/Hide Content
-                     contentSections.forEach(section => section.classList.remove('active'));
-                     if(featureSectionsContainer) featureSectionsContainer.style.display = 'none';
-
-                     // --- Load Content ---
-                     if (featureId === 'dashboard') { if(dashboardContent) dashboardContent.classList.add('active'); updateStats(); loadActivities(); }
-                     else if (featureId === 'profile') { if(profileContent) profileContent.classList.add('active'); updateUserUI(); }
-                     else if (featureId === 'settings') { if(settingsContent) settingsContent.classList.add('active'); applyRBAC(); activateSettingsTab(currentSettingsTab || 'preferences'); }
-                     else {
-                         if(!featureSectionsContainer || !featureSections){ console.error("Feature container missing!"); return; }
-                         featureSectionsContainer.style.display = 'block'; featureSections.innerHTML = '';
-                         if (featurePlaceholder && featureTitle && featureDescription && featureLoadingIndicator && featureErrorMessage) {
-                             featureSections.appendChild(featurePlaceholder); featureTitle.textContent=`Loading ${featureId}...`; featureDescription.textContent=''; featureLoadingIndicator.style.display='block'; featureErrorMessage.style.display='none'; featurePlaceholder.style.display='flex';
-                         } else { featureSections.innerHTML = '<p>Loading...</p>'; }
-
-                         const filePath = `sections/${featureId}.html`;
-                         fetch(filePath)
-                             .then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.text(); })
-                             .then(html => {
-                                 featureSections.innerHTML = html; featureSections.classList.add('active');
-                                 // --- Call Initializer ---
-                                 if (featureId === 'employee-scheduling') {
-                                     if (typeof initializeEmployeeSchedule === 'function') {
-                                         console.log("Calling initializeEmployeeSchedule with teamMembers reference:", teamMembers);
-                                         initializeEmployeeSchedule(JSON.parse(JSON.stringify(currentUser || DEFAULT_USER)), teamMembers); // Pass reference
-                                     } else { console.error(`Init function 'initializeEmployeeSchedule' not found!`); /* Show error */ }
-                                 }
-                                  // --- Hide Placeholder ---
-                                 if (featureLoadingIndicator) featureLoadingIndicator.style.display = 'none';
-                                 if (featurePlaceholder && featureErrorMessage && featureErrorMessage.style.display !== 'block') { featurePlaceholder.style.display = 'none'; }
-                             })
-                             .catch(error => { console.error(`Error loading ${featureId}:`, error); /* Show error */ });
-                     }
-                     if(backButton) backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none';
-                     window.scrollTo(0, 0);
-                 } catch (error) {
-                      console.error("Error in setActiveFeature:", error);
-                      // Attempt to reset to dashboard state as fallback
-                      if(dashboardContent) dashboardContent.classList.add('active');
-                      if(featureSectionsContainer) featureSectionsContainer.style.display = 'none';
-                      currentFeature = 'dashboard'; currentSettingsTab = null;
-                      if(backButton) backButton.style.display = 'none';
-                      alert("An error occurred while loading the section. Returning to dashboard.");
-                 }
-             }
+            // --- Feature/Section Loading ---
+             function setActiveFeature(featureId, settingsTab = null) { /* ... keep as is (with the call to initializeEmployeeSchedule) ... */ }
 
 
-             // --- Other Dashboard Functions ---
-             // (Ensure checks for element existence before use)
-             function activateSettingsTab(tabId) { /* ... keep as is, maybe add checks for settingsTabs/settingsPanels existence ... */ }
-             function handleInitialNavigation() { /* ... keep as is ... */ }
-             function loadActivities(showAll = false) { /* ... keep as is ... */ }
-             function loadNotifications() { /* ... keep as is ... */ }
-             function getTimeAgo(timestamp) { /* ... keep as is ... */ }
-             function updateActivityTimes() { /* ... keep as is ... */ }
-             function startActivityTimeUpdater() { /* ... keep as is ... */ }
-             function loadTeamMembers() { /* ... keep as is (uses global teamMembers) ... */ }
-             function showConfirmModal(config) { /* ... keep as is ... */ }
-             function hideConfirmModal() { /* ... keep as is ... */ }
-             function handleProfileSave(e) { /* ... keep as is ... */ }
-             function handleProfileCancel() { /* ... keep as is ... */ }
-             function handleSettingsSave(formId, panelId, successMsg) { /* ... keep as is ... */ }
-             function handleSettingsCancel(panelId) { /* ... keep as is ... */ }
+            // --- Other Dashboard Functions ---
+            function activateSettingsTab(tabId) { /* ... keep as is ... */ }
+            function handleInitialNavigation() { /* ... keep as is ... */ }
+            function loadActivities(showAll = false) { /* ... keep as is ... */ }
+            function loadNotifications() { /* ... keep as is ... */ }
+            function getTimeAgo(timestamp) { /* ... keep as is ... */ }
+            function updateActivityTimes() { /* ... keep as is ... */ }
+            function startActivityTimeUpdater() { /* ... keep as is ... */ }
+            function loadTeamMembers() { /* ... keep as is ... */ }
+            function showConfirmModal(config) { /* ... keep as is ... */ }
+            function hideConfirmModal() { /* ... keep as is ... */ }
+            function handleProfileSave(e) { /* ... keep as is ... */ }
+            function handleProfileCancel() { /* ... keep as is ... */ }
+            function handleSettingsSave(formId, panelId, successMsg) { /* ... keep as is ... */ }
+            function handleSettingsCancel(panelId) { /* ... keep as is ... */ }
 
              // --- Integration Function for Schedule Add ---
               window.dashboardAddTeamMember = (newMemberData) => {
-                  console.log("dashboardAddTeamMember called by schedule view with:", newMemberData);
+                  console.log("Dashboard receiving add request:", newMemberData);
                   if (newMemberData && typeof newMemberData === 'object') {
                       if (!teamMembers.some(m => m.email === newMemberData.email)) {
                           const newId = teamMembers.length > 0 ? Math.max(0, ...teamMembers.map(m => m.id)) + 1 : 1;
-                          const fullNewMember = {
-                              ...newMemberData,
-                              id: newId, // Assign a new ID
-                              initials: newMemberData.name?.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() || '??', // Generate initials
-                              // Add other default fields if necessary
-                              avatar: newMemberData.avatar || '',
-                              title: newMemberData.title || '',
-                              department: newMemberData.department || '',
-                              phone: newMemberData.phone || ''
-                          };
-                          teamMembers.push(fullNewMember); // Add to main array
-                          saveData(); // Save the updated main array
-                          loadTeamMembers(); // Refresh the team list in settings
-                          console.log("Team member added successfully via dashboard function:", fullNewMember);
-                          return true;
+                          const fullNewMember = { ...DEFAULT_USER, ...newMemberData, id: newId, initials: newMemberData.name?.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() || '??' }; // Ensure all fields exist
+                          teamMembers.push(fullNewMember);
+                          saveData(); loadTeamMembers(); updateStats(); // Update stats after adding
+                          console.log("Member added to main list:", fullNewMember); return true;
                       } else { console.warn("Member already exists:", newMemberData.email); return false; }
                   } return false;
               };
               // --- End Integration Function ---
 
              function handleInviteMember(e) { /* ... keep as is ... */ }
-             function handleEditMemberClick(e) { /* ... keep as is (updates global teamMembers) ... */ }
-             function handleDeleteMemberClick(e) { /* ... keep as is (updates global teamMembers) ... */ }
+             function handleEditMemberClick(e) { /* ... keep as is ... */ }
+             function handleDeleteMemberClick(e) { /* ... keep as is ... */ }
              function handleDeleteActivityClick(e) { /* ... keep as is ... */ }
              function handleDeleteAllActivities() { /* ... keep as is ... */ }
              function markNotificationAsRead(id, itemEl) { /* ... keep as is ... */ }
              function handleMarkAllNotificationsRead() { /* ... keep as is ... */ }
              function handleDeleteNotificationClick(id) { /* ... keep as is ... */ }
              function handleDeleteAllNotifications() { /* ... keep as is ... */ }
-             // *** CORRECTED handleAvatarUpload ***
+             // *** Use CORRECTED handleAvatarUpload ***
              function handleAvatarUpload(e) {
                  const file = e.target.files?.[0]; if (!file) return;
                  if (!file.type.startsWith('image/')) { alert('Image files only.'); return; }
@@ -1068,8 +967,8 @@
                      showConfirmModal({ title:'Update Profile Picture?', message:'Set this image?', confirmText:'Set Picture', confirmClass:'btn-primary',
                          onConfirm: () => { currentUser.avatar = url; saveData(); updateUserUI(); addActivity('fa-camera','Changed profile picture.'); showSuccessMessage('Picture updated.'); hideConfirmModal(); },
                          onCancel: () => { if (profileAvatarInput) profileAvatarInput.value = null; hideConfirmModal(); } });
-                 }; // Semicolon is important
-                 reader.onerror = () => { alert('Error reading file.'); }; // Semicolon IS NEEDED HERE
+                 };
+                 reader.onerror = () => { alert('Error reading file.'); }; // Semicolon added
                  reader.readAsDataURL(file);
              }
              function handleLogout() { /* ... keep as is ... */ }
@@ -1081,22 +980,8 @@
              // --- Setup Event Listeners ---
              function setupEventListeners() {
                  console.log("Setting up dashboard event listeners...");
-                 // Sidebar Navigation (Crucial for navigation)
-                 menuItems.forEach(item => {
-                     if (item) { // Check if item exists
-                         item.addEventListener('click', (e) => {
-                             e.preventDefault();
-                             const feature = item.dataset.feature;
-                             if (feature) {
-                                 setActiveFeature(feature);
-                             } else {
-                                 console.warn("Menu item clicked without data-feature attribute:", item);
-                             }
-                         });
-                     }
-                 });
-
-                 // Other listeners (ensure elements exist before adding listeners)
+                 // Use Array.from for NodeLists if needed, or direct iteration
+                 menuItems.forEach(item => { if(item) item.addEventListener('click', (e) => { e.preventDefault(); const feature = item.dataset.feature; if (feature) setActiveFeature(feature); }); });
                  if(backButton) backButton.addEventListener('click',()=>setActiveFeature('dashboard'));
                  window.addEventListener('popstate',e=>{ if(e.state)setActiveFeature(e.state.feature,e.state.tab); else handleInitialNavigation(); });
                  if(searchInput){ searchInput.addEventListener('input',handleSearch); searchInput.addEventListener('focus',handleSearch); }
@@ -1127,16 +1012,16 @@
                  if(cancelSecurityBtn) cancelSecurityBtn.addEventListener('click',()=>handleSettingsCancel('securityPanel'));
                  if(notificationsForm) notificationsForm.addEventListener('submit',e=>{e.preventDefault();handleSettingsSave('notificationsForm','notificationsPanel','Notification settings saved.');});
                  if(cancelNotificationsBtn) cancelNotificationsBtn.addEventListener('click',()=>handleSettingsCancel('notificationsPanel'));
-                 themeOptions.forEach(option=>option.addEventListener('click',function(){ /* ... theme logic ... */ }));
-                 if(layoutDensitySelect) layoutDensitySelect.addEventListener('change',function(){ /* ... layout logic ... */ });
+                 themeOptions.forEach(option=>option.addEventListener('click',function(){ const theme=this.dataset.theme; if(document.getElementById('selectedTheme'))document.getElementById('selectedTheme').value=theme; themeOptions.forEach(opt=>opt.classList.remove('selected')); this.classList.add('selected'); document.body.className=''; document.body.classList.add(`${theme}-theme`); document.body.classList.add(layoutDensitySelect?.value||'normal'); applyRBAC(); }));
+                 if(layoutDensitySelect) layoutDensitySelect.addEventListener('change',function(){ const density=this.value; document.body.classList.remove('compact','normal','spacious'); document.body.classList.add(density); const currentTheme=document.getElementById('selectedTheme')?.value||'blue'; document.body.classList.add(`${currentTheme}-theme`); applyRBAC(); });
                  if(inviteMemberForm) inviteMemberForm.addEventListener('submit',handleInviteMember);
                  if(confirmBtn) confirmBtn.addEventListener('click',()=>{ if(confirmCallback)confirmCallback(); });
                  if(cancelConfirmBtn) cancelConfirmBtn.addEventListener('click',()=>{ if(cancelCallback)cancelCallback(); hideConfirmModal(); });
                  if(confirmModal) confirmModal.addEventListener('click',e=>{ if(e.target===confirmModal)hideConfirmModal(); });
                  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&confirmModal?.style.display==='flex')hideConfirmModal(); });
-
                  console.log("Dashboard Event Listeners Setup Complete.");
              }
+
 
              // --- Search Function ---
              function handleSearch() { /* ... keep as is ... */ }
