@@ -1866,36 +1866,47 @@
                              // --- ***** MODIFICATION: Load and Execute Feature-Specific JS ***** ---
                              // Check if a corresponding JS file should exist based on featureId
                              // For example, only load JS for 'employee-scheduling'
-                             if (featureId === 'employee-scheduling') {
-                                 // Check if the initialization function already exists (if JS was included via <script> tag)
-                                 if (typeof initializeEmployeeSchedule === 'function') {
-                                     try {
-                                         console.log("Calling initializeEmployeeSchedule directly...");
-                                          // Pass deep copies to prevent accidental modification
-                                         initializeEmployeeSchedule(
-                                              JSON.parse(JSON.stringify(currentUser)),
-                                              JSON.parse(JSON.stringify(teamMembers))
-                                         );
-                                         featurePlaceholder.style.display = 'none'; // Hide placeholder on success
-                                     } catch (initError) {
-                                         console.error(`Error executing initializeEmployeeSchedule for ${featureId}:`, initError);
-                                         showFeatureError(`Error initializing ${readableFeatureName}: ${initError.message}`);
-                                     }
-                                 } else {
-                                     console.warn(`initializeEmployeeSchedule function not found globally for ${featureId}. Script might need loading or is missing.`);
-                                     // You could attempt to dynamically load the script here if needed,
-                                     // but including it via <script src> is often simpler if it's always needed with the HTML.
-                                      showFeatureError(`${readableFeatureName} content loaded, but its setup script seems missing or failed to run.`);
+                                                      // --- ***** MODIFICATION: Load and Execute Feature-Specific JS ***** ---
+                         const featureContainerElement = document.getElementById('featureSections'); // Get the container element
+
+                         if (featureId === 'employee-scheduling') {
+                             if (typeof initializeEmployeeSchedule === 'function') {
+                                 try {
+                                     console.log("Calling initializeEmployeeSchedule with container:", featureContainerElement);
+                                     // Pass the container element as the FIRST argument
+                                     initializeEmployeeSchedule(
+                                          featureContainerElement,
+                                          JSON.parse(JSON.stringify(currentUser)),
+                                          JSON.parse(JSON.stringify(teamMembers))
+                                     );
+                                     // Placeholder hiding might happen inside initializeEmployeeSchedule on success now, or keep it here
+                                     // featurePlaceholder.style.display = 'none';
+                                 } catch (initError) {
+                                     console.error(`Error executing initializeEmployeeSchedule for ${featureId}:`, initError);
+                                     showFeatureError(`Error initializing ${readableFeatureName}: ${initError.message}`);
                                  }
+                             } else {
+                                 console.warn(`initializeEmployeeSchedule function not found globally for ${featureId}. Script might need loading or is missing.`);
+                                 showFeatureError(`${readableFeatureName} content loaded, but its setup script seems missing or failed to run.`);
                              }
-                              // Add `else if` blocks here for other features needing JS initialization
-                              // else if (featureId === 'other-feature') { ... load other-feature.js and call its init function ... }
-                              else {
-                                   // Feature loaded, but no specific JS initialization defined for it here
-                                   console.log(`Feature ${featureId} loaded. No specific JS initialization defined in dashboard.`);
-                                   featurePlaceholder.style.display = 'none'; // Hide placeholder
+                         }
+                         // Add `else if` for other features needing JS initialization
+                         // Example:
+                         // else if (featureId === 'another-feature') {
+                         //    if (typeof initializeAnotherFeature === 'function') {
+                         //        initializeAnotherFeature(featureContainerElement, other_data);
+                         //    } else { console.warn(...); }
+                         // }
+                         else {
+                               // Feature loaded, but no specific JS initialization defined for it here
+                               // or initialization doesn't require the container
+                               console.log(`Feature ${featureId} loaded. No specific container-based JS initialization defined.`);
+                               // Hide placeholder if no specific error occurred during HTML load
+                               if(featureErrorMessage.style.display !== 'block') {
+                                   featurePlaceholder.style.display = 'none';
+                               }
+                         // --- ***** END MODIFICATION ***** ---
                               }
-                             // --- ***** END MODIFICATION ***** ---
 
                          })
                          .catch(error => {
