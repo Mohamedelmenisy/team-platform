@@ -4,271 +4,352 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | Team Management</title>
-    <!-- رابط Font Awesome للأيقونات -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* --- متغيرات الألوان الأساسية (من ملفاتك) --- */
         :root {
             --primary: #2563eb;
             --primary-dark: #1e3a8a;
-            --secondary: #10b981;
+            --secondary: #10b981; /* موجود في ملف الجدول */
+            --danger: #ef4444;    /* موجود في ملف الجدول */
+            --warning: #f59e0b;   /* موجود في ملف الجدول */
             --dark: #1e293b;
             --light: #f8fafc;
             --gray: #64748b;
             --light-gray: #e2e8f0;
+            --white: #ffffff;     /* موجود في ملف الجدول */
         }
 
-        /* --- أنماط أساسية --- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            display: flex; /* لترتيب القائمة والمحتوى جنباً إلى جنب */
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light);
-            color: var(--dark);
-        }
+        /* --- أنماط أساسية (كما هي) --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { display: flex; min-height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--light); color: var(--dark); }
 
-        /* --- تنسيق القائمة الجانبية (Sidebar) --- */
-        .sidebar {
-            width: 250px; /* عرض القائمة */
-            background-color: var(--dark); /* خلفية داكنة */
-            color: white; /* لون النص أبيض */
-            padding: 1.5rem 1rem;
-            display: flex;
-            flex-direction: column; /* لترتيب العناصر رأسياً */
-            flex-shrink: 0; /* لمنع القائمة من الانكماش */
-        }
-        .sidebar h2 {
-            text-align: center;
-            margin-bottom: 2rem;
-            color: white;
-            font-size: 1.5rem;
-        }
-        .sidebar nav ul {
-            list-style: none; /* إزالة نقاط القائمة */
-            padding: 0;
-            margin: 0;
-            flex-grow: 1; /* لجعل القائمة تملأ المساحة المتاحة */
-        }
-        .sidebar nav li a {
-            display: flex; /* لتوسيط الأيقونة والنص */
-            align-items: center;
-            color: rgba(255, 255, 255, 0.8); /* لون الروابط (أبيض شفاف قليلاً) */
-            text-decoration: none; /* إزالة الخط تحت الروابط */
-            padding: 0.9rem 1rem; /* هوامش داخلية للروابط */
-            margin-bottom: 0.5rem; /* مسافة بين الروابط */
-            border-radius: 6px; /* حواف دائرية */
-            transition: background-color 0.3s ease, color 0.3s ease; /* تأثير انتقال سلس */
-            font-weight: 500;
-        }
-        .sidebar nav li a i { /* تنسيق الأيقونات */
-            margin-right: 12px; /* مسافة بين الأيقونة والنص */
-            width: 20px; /* تحديد عرض للأيقونة لمحاذاة النص */
-            text-align: center;
-        }
-        .sidebar nav li a:hover { /* عند مرور الماوس فوق الرابط */
-            background-color: rgba(255, 255, 255, 0.1); /* تغيير لون الخلفية قليلاً */
-            color: white;
-        }
-        .sidebar nav li a.active { /* الرابط النشط (القسم المفتوح حالياً) */
-            background-color: var(--primary); /* لون الخلفية أزرق */
-            color: white; /* لون النص أبيض */
-            font-weight: 600;
-        }
+        /* --- تنسيق القائمة الجانبية (Sidebar) (كما هي) --- */
+        .sidebar { width: 250px; background-color: var(--dark); color: white; padding: 1.5rem 1rem; display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar h2 { text-align: center; margin-bottom: 2rem; color: white; font-size: 1.5rem; }
+        .sidebar nav ul { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+        .sidebar nav li a { display: flex; align-items: center; color: rgba(255, 255, 255, 0.8); text-decoration: none; padding: 0.9rem 1rem; margin-bottom: 0.5rem; border-radius: 6px; transition: background-color 0.3s ease, color 0.3s ease; font-weight: 500; }
+        .sidebar nav li a i { margin-right: 12px; width: 20px; text-align: center; }
+        .sidebar nav li a:hover { background-color: rgba(255, 255, 255, 0.1); color: white; }
+        .sidebar nav li a.active { background-color: var(--primary); color: white; font-weight: 600; }
+        .sidebar .logout-link { margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .sidebar .logout-link a { display: flex; align-items: center; justify-content: center; padding: 0.8rem 1rem; background-color: var(--primary-dark); color: white; text-decoration: none; border-radius: 6px; text-align: center; transition: background-color 0.3s ease; }
+        .sidebar .logout-link a i { margin-right: 8px; }
+        .sidebar .logout-link a:hover { background-color: var(--primary); }
 
-        /* --- تنسيق زر تسجيل الخروج --- */
-        .sidebar .logout-link {
-             margin-top: auto; /* يدفع الزر لأسفل القائمة */
-             padding-top: 1rem;
-             border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .sidebar .logout-link a {
-             display: flex;
-             align-items: center;
-             justify-content: center;
-             padding: 0.8rem 1rem;
-             background-color: var(--primary-dark);
-             color: white;
-             text-decoration: none;
-             border-radius: 6px;
-             text-align: center;
-             transition: background-color 0.3s ease;
-        }
-         .sidebar .logout-link a i {
-             margin-right: 8px;
-         }
-         .sidebar .logout-link a:hover {
-            background-color: var(--primary);
-        }
+        /* --- تنسيق منطقة المحتوى الرئيسي (Main Content) (كما هي) --- */
+        .main-content { flex: 1; padding: 2rem 3rem; overflow-y: auto; }
 
-        /* --- تنسيق منطقة المحتوى الرئيسي (Main Content) --- */
-        .main-content {
-            flex: 1; /* يأخذ باقي المساحة الأفقية المتاحة */
-            padding: 2rem 3rem; /* هوامش داخلية للمحتوى */
-            overflow-y: auto; /* للسماح بالتمرير إذا كان المحتوى طويلاً */
-        }
+        /* --- القاعدة الأساسية: إخفاء جميع أقسام المحتوى (كما هي) --- */
+        .content-section { display: none; animation: fadeInContent 0.5s ease-in-out; }
+        .content-section.active { display: block; }
 
-        /* --- القاعدة الأساسية: إخفاء جميع أقسام المحتوى --- */
-        .content-section {
-            display: none; /* يخفي العنصر تماماً */
-            animation: fadeInContent 0.5s ease-in-out; /* تأثير ظهور لطيف */
-        }
+        /* --- تنسيقات داخل المحتوى (أمثلة) (كما هي) --- */
+        .main-content h1 { color: var(--primary-dark); margin-bottom: 1.5rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem; }
+        .main-content p { margin-bottom: 1rem; line-height: 1.7; color: var(--gray); }
+        .main-content ul { margin-bottom: 1rem; padding-left: 20px; color: var(--gray); }
+        .main-content li { margin-bottom: 0.5rem; }
+        .main-content form label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--dark); }
+        .main-content form input[type="text"], .main-content form input[type="email"], .main-content form input[type="date"], .main-content form textarea, .main-content form select { width: 100%; padding: 0.8rem; margin-bottom: 1rem; border: 1px solid var(--light-gray); border-radius: 6px; font-size: 1rem; }
+        .main-content form textarea { min-height: 100px; }
+        .main-content form button { padding: 0.8rem 1.5rem; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; transition: background-color 0.3s ease; }
+        .main-content form button:hover { background-color: var(--primary-dark); }
+        .main-content .form-group { margin-bottom: 1.5rem; } /* Added from schedule CSS */
+        .main-content .form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; } /* Added from schedule CSS */
 
-        /* --- القاعدة الثانية: إظهار القسم الذي يحتوي على كلاس 'active' --- */
-        .content-section.active {
-            display: block; /* يظهر العنصر */
-        }
+        /* --- تأثير الظهور للمحتوى (كما هي) --- */
+        @keyframes fadeInContent { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- تنسيقات داخل المحتوى (أمثلة) --- */
-        .main-content h1 {
-            color: var(--primary-dark);
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid var(--light-gray);
-            padding-bottom: 0.5rem;
-        }
-        .main-content p {
-            margin-bottom: 1rem;
-            line-height: 1.7;
-            color: var(--gray);
-        }
-        .main-content ul {
-            margin-bottom: 1rem;
-            padding-left: 20px;
-            color: var(--gray);
-        }
-        .main-content li {
-             margin-bottom: 0.5rem;
-        }
-        .main-content form label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-        .main-content form input[type="text"],
-        .main-content form input[type="email"],
-        .main-content form textarea {
-            width: 100%;
-            padding: 0.8rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--light-gray);
-            border-radius: 6px;
-            font-size: 1rem;
-        }
-        .main-content form textarea {
-            min-height: 100px;
-        }
-        .main-content form button {
-            padding: 0.8rem 1.5rem;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s ease;
-        }
-        .main-content form button:hover {
-            background-color: var(--primary-dark);
-        }
-
-        /* --- تأثير الظهور للمحتوى --- */
-        @keyframes fadeInContent {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- تصميم متجاوب (اختياري لتحسين العرض على الشاشات الصغيرة) --- */
+        /* --- تصميم متجاوب (كما هي) --- */
         @media (max-width: 768px) {
-            body {
-                flex-direction: column; /* ترتيب العناصر رأسياً */
-            }
-            .sidebar {
-                width: 100%; /* القائمة تأخذ كامل العرض */
-                height: auto; /* ارتفاع تلقائي */
-                padding: 1rem;
-            }
-            .sidebar h2 {
-                margin-bottom: 1rem;
-                font-size: 1.3rem;
-            }
-             .sidebar nav ul {
-                 display: flex; /* جعل الروابط أفقية */
-                 overflow-x: auto; /* السماح بالتمرير الأفقي إذا لم تتسع */
-                 padding-bottom: 10px; /* مسافة للتمرير */
-                 flex-grow: 0; /* إلغاء التمدد */
-             }
-             .sidebar nav li {
-                  flex-shrink: 0; /* منع الروابط من الانكماش */
-                  margin-right: 0.5rem; /* مسافة بين الروابط الأفقية */
-             }
-             .sidebar nav li a {
-                 padding: 0.7rem 0.9rem;
-                 margin-bottom: 0;
-             }
-             .sidebar .logout-link {
-                 display: none; /* إخفاء زر الخروج هنا (يمكن وضعه في مكان آخر) */
-             }
-            .main-content {
-                padding: 1.5rem; /* تقليل الهوامش */
-            }
-            .main-content h1 {
-                 font-size: 1.8rem;
-            }
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; padding: 1rem; }
+            .sidebar h2 { margin-bottom: 1rem; font-size: 1.3rem; }
+            .sidebar nav ul { display: flex; overflow-x: auto; padding-bottom: 10px; flex-grow: 0; }
+            .sidebar nav li { flex-shrink: 0; margin-right: 0.5rem; }
+            .sidebar nav li a { padding: 0.7rem 0.9rem; margin-bottom: 0; }
+            .sidebar .logout-link { display: none; }
+            .main-content { padding: 1.5rem; }
+            .main-content h1 { font-size: 1.8rem; }
+            /* Schedule specific responsive adjustments */
+            .schedule-controls { flex-direction: column; gap: 1rem; align-items: flex-start; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .employee-name { position: static; } /* Important for mobile table view */
         }
+
+        /* --- أنماط CSS المنسوخة من employee-schedule.txt --- */
+        /* (تجاهل الهيدر والبودي والمتغيرات المكررة) */
+        .page-header { /* Defined in schedule, adjust if needed or merge */
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+             margin-bottom: 2rem;
+        }
+        .page-title { /* Defined in schedule, usually handled by .main-content h1 */
+             font-size: 1.8rem; /* Keep if you want this specific size */
+             color: var(--primary-dark);
+             font-weight: 700;
+        }
+        .schedule-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            background-color: var(--white);
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .week-navigation {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .week-display {
+            font-weight: 600;
+            min-width: 200px;
+            text-align: center;
+        }
+        .btn { /* Defined in schedule, might override/complement dashboard .btn */
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex; /* Use inline-flex for button content alignment */
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem; /* Slightly smaller buttons for controls */
+        }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-dark); }
+        .btn-outline { background-color: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background-color: rgba(37, 99, 235, 0.1); } /* Lighter hover */
+        .btn-danger { background-color: var(--danger); color: white; }
+        .btn-danger:hover { background-color: #dc2626; }
+        .btn-secondary { background-color: var(--secondary); color: white; } /* Added based on schedule HTML */
+        .btn-secondary:hover { background-color: #059669; } /* Darker green hover */
+
+        .schedule-container {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow-x: auto; /* Important for wide tables */
+            margin-top: 1rem; /* Added space */
+        }
+        .schedule-table {
+            width: 100%;
+            min-width: 800px; /* Ensure table has minimum width for horizontal scroll */
+            border-collapse: collapse; /* Use collapse for cleaner borders */
+            border-spacing: 0;
+            /* border-collapse: separate; border-spacing: 0 8px; */ /* Alternative spacing */
+        }
+        .schedule-table thead th {
+            padding: 1rem 0.75rem; /* Adjusted padding */
+            text-align: center;
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+            position: sticky; /* Make header sticky */
+            top: 0;
+            z-index: 10; /* Ensure header is above content */
+            border-bottom: 2px solid var(--primary-dark);
+        }
+        .schedule-table tbody td {
+            padding: 0.75rem; /* Adjusted padding */
+            text-align: center;
+            /* background-color: var(--white); */ /* Remove default background */
+            border: 1px solid var(--light-gray); /* Apply border to all cells */
+            vertical-align: middle; /* Align content vertically */
+        }
+        .schedule-table tbody tr:nth-child(even) td {
+            background-color: #f9fafb; /* Subtle striping */
+        }
+        .schedule-table tbody tr:hover td {
+             background-color: #f0f9ff; /* Hover effect */
+        }
+        /* .schedule-table tbody tr { margin-bottom: 8px; } */ /* Removed with border-collapse */
+
+        .employee-name {
+            font-weight: 600;
+            text-align: left;
+            position: sticky; /* Make employee name column sticky */
+            left: 0;
+            background-color: var(--white); /* Ensure background for sticky */
+            z-index: 5; /* Below header but above other cells */
+            border-right: 2px solid var(--light-gray);
+            white-space: nowrap; /* Prevent name wrapping */
+        }
+         /* Apply striping background to sticky column too */
+         .schedule-table tbody tr:nth-child(even) td.employee-name {
+            background-color: #f9fafb;
+        }
+        .schedule-table tbody tr:hover td.employee-name {
+             background-color: #f0f9ff;
+        }
+
+
+        .shift {
+            padding: 0.3rem 0.6rem; /* Adjusted padding */
+            border-radius: 12px; /* Pill shape */
+            font-size: 0.8rem; /* Slightly larger font */
+            font-weight: 500;
+            white-space: nowrap;
+            display: inline-block; /* Ensure it doesn't take full width */
+            min-width: 60px; /* Minimum width for consistency */
+        }
+        .shift-morning { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+        .shift-afternoon { background-color: #e0f2fe; color: #0c4a6e; border: 1px solid #bae6fd;}
+        .shift-night { background-color: #ede9fe; color: #5b21b6; border: 1px solid #ddd6fe; }
+        .day-off { background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+        .sick-leave { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .vacation { background-color: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
+
+        .day-header {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            align-items: center; /* Center header content */
+        }
+        .day-name { font-weight: 600; font-size: 0.9rem; }
+        .day-date { font-size: 0.8rem; opacity: 0.8; } /* Slightly less opaque */
+
+        /* --- Modal Styles (Copied from schedule) --- */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px; /* Add padding for smaller screens */
+        }
+        .modal.active { /* Use .active to show modal via JS */
+             display: flex;
+        }
+        .modal-content {
+            background-color: var(--white);
+            width: 100%; /* Responsive width */
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+            max-height: 90vh; /* Limit height */
+            overflow-y: auto; /* Allow scrolling */
+            animation: zoomIn 0.3s ease-out;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem; /* Add padding */
+            border-bottom: 1px solid var(--light-gray); /* Add separator */
+        }
+        .modal-title { font-size: 1.5rem; font-weight: 600; color: var(--primary-dark); }
+        .close-modal { background: none; border: none; font-size: 1.8rem; /* Larger close button */ cursor: pointer; color: var(--gray); line-height: 1;}
+         .close-modal:hover { color: var(--danger); }
+
+        .modal .form-control:focus { /* Ensure focus style is visible in modal */
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* More prominent focus */
+        }
+
+        .admin-controls { /* Container for shift + edit link */
+             position: relative;
+             padding: 5px 0; /* Add some padding */
+        }
+        .edit-shift {
+            cursor: pointer;
+            color: var(--primary);
+            font-size: 0.75rem; /* Smaller edit link */
+            display: none; /* Hidden by default */
+            margin-left: 5px;
+            font-weight: 500;
+             /* Position absolutely for better control if needed */
+            /* position: absolute;
+             bottom: -10px;
+             right: 5px;
+             background: white;
+             padding: 1px 3px;
+             border-radius: 3px; */
+        }
+        .admin-controls:hover .edit-shift,
+        .admin-controls.editable .edit-shift { /* Show on hover or if admin */
+             display: inline;
+        }
+
+        /* --- Toast Notification Styles (Copied from schedule) --- */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 1.5rem; /* More padding */
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1100;
+            display: none;
+            max-width: 350px; /* Wider toast */
+            font-size: 0.95rem;
+        }
+        .toast.show {
+            display: block;
+            animation: slideInUp 0.4s ease-out, fadeOutToast 0.4s ease-in 3.6s forwards; /* Use forwards */
+        }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOutToast { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(20px); } }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
     </style>
 </head>
 <body>
-    <!-- 1. القائمة الجانبية -->
+    <!-- 1. القائمة الجانبية (Sidebar) -->
     <aside class="sidebar">
         <h2>Dashboard</h2>
         <nav>
             <ul>
-                <!-- الروابط:
-                     - href="#" لمنع الانتقال.
-                     - data-target="id" لتحديد أي قسم سيتم إظهاره (الـ id يجب أن يطابق id القسم).
-                     - class="nav-link" لتطبيق الأنماط المشتركة.
-                     - class="active" للرابط الأول فقط (الافتراضي).
-                -->
+                <!-- الروابط الحالية -->
                 <li><a href="#" data-target="home" class="nav-link active"><i class="fas fa-home"></i> Home</a></li>
                 <li><a href="#" data-target="features" class="nav-link"><i class="fas fa-star"></i> Features</a></li>
+                <!-- *** إضافة رابط جديد للجدول *** -->
+                <li><a href="#" data-target="schedule" class="nav-link"><i class="fas fa-calendar-alt"></i> Schedule</a></li>
+                <!-- ****************************** -->
                 <li><a href="#" data-target="profile" class="nav-link"><i class="fas fa-user"></i> My Profile</a></li>
                 <li><a href="#" data-target="settings" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
                 <li><a href="#" data-target="about" class="nav-link"><i class="fas fa-info-circle"></i> About</a></li>
                 <li><a href="#" data-target="contact" class="nav-link"><i class="fas fa-envelope"></i> Contact</a></li>
             </ul>
         </nav>
-        <!-- زر تسجيل الخروج -->
+        <!-- زر تسجيل الخروج (كما هو) -->
         <div class="logout-link">
              <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-         </div>
+        </div>
     </aside>
 
-    <!-- 2. منطقة المحتوى الرئيسي -->
+    <!-- 2. منطقة المحتوى الرئيسي (Main Content) -->
     <main class="main-content" id="main-content-area">
-        <!-- هنا نضع جميع أقسام المحتوى -->
-        <!-- كل قسم له id فريد وكلاس "content-section" -->
-        <!-- القسم الأول (home) له كلاس "active" ليكون ظاهرًا افتراضيًا -->
-
+        <!-- الأقسام الحالية (home, features, profile, etc.) تبقى كما هي -->
         <section id="home" class="content-section active">
-            <h1>Welcome, [User Name]!</h1>
-            <p>This is your main dashboard view. You can find your key information and navigate to other sections using the sidebar.</p>
-            <p>Select an option from the menu to get started.</p>
-            <!-- يمكن إضافة ملخصات سريعة هنا -->
-            <div style="margin-top: 2rem; padding: 1rem; background-color: #eef2ff; border-left: 4px solid var(--primary); border-radius: 4px;">
+             <h1>Welcome, [User Name]!</h1>
+             <p>This is your main dashboard view. You can find your key information and navigate to other sections using the sidebar.</p>
+             <p>Select an option from the menu to get started.</p>
+             <div style="margin-top: 2rem; padding: 1rem; background-color: #eef2ff; border-left: 4px solid var(--primary); border-radius: 4px;">
                 <strong>Quick Tip:</strong> Use the sidebar to access different management tools like Features, Profile settings, and more.
-            </div>
+             </div>
         </section>
 
         <section id="features" class="content-section">
-            <h1>Platform Features</h1>
-            <p>Explore the powerful features available in the Team Management Platform:</p>
-            <ul>
+             <h1>Platform Features</h1>
+             <p>Explore the powerful features available in the Team Management Platform:</p>
+             <ul>
                 <li><strong>Task Management:</strong> Assign, track, and manage tasks efficiently.</li>
                 <li><strong>Employee Scheduling:</strong> Create and manage shifts, view availability.</li>
                 <li><strong>File Sharing:</strong> Securely share documents with version control.</li>
@@ -277,82 +358,197 @@
                 <li><strong>Team Calendar:</strong> Integrated calendar for meetings and deadlines.</li>
                 <li><strong>Deadline Tracking:</strong> Visual reminders for upcoming deadlines.</li>
                 <li><strong>Innovation Hub:</strong> Collaborative space for ideas and suggestions.</li>
-            </ul>
+             </ul>
              <p>These tools are designed to streamline your workflow and boost team productivity.</p>
         </section>
 
+         <!-- *** إضافة قسم جديد لمحتوى الجدول *** -->
+        <section id="schedule" class="content-section">
+            <!-- هنا ننسخ محتوى الجدول من employee-schedule.txt -->
+            <!-- (بدون <html>, <head>, <body>, <header>) -->
+
+             <div class="page-header">
+                 <h1 class="page-title" style="border-bottom: none; margin-bottom: 0;">Employee Schedule</h1> <!-- Reuse h1 style but remove border -->
+                 <div>
+                     <button class="btn btn-primary" id="addEmployeeBtn">
+                         <i class="fas fa-plus"></i> Add Employee
+                     </button>
+                     <button class="btn btn-secondary" id="sendRemindersBtn">
+                         <i class="fas fa-envelope"></i> Send Reminders
+                     </button>
+                 </div>
+             </div>
+
+             <div class="schedule-controls">
+                 <div class="week-navigation">
+                     <button class="btn btn-outline" id="prevWeekBtn" aria-label="Previous Week">
+                         <i class="fas fa-chevron-left"></i>
+                     </button>
+                     <div class="week-display" id="weekDisplay">Loading...</div>
+                     <button class="btn btn-outline" id="nextWeekBtn" aria-label="Next Week">
+                         <i class="fas fa-chevron-right"></i>
+                     </button>
+                 </div>
+                 <button class="btn btn-primary" id="saveScheduleBtn">
+                     <i class="fas fa-save"></i> Save Schedule
+                 </button>
+             </div>
+
+             <div class="schedule-container">
+                 <table class="schedule-table">
+                     <thead>
+                         <tr>
+                             <!-- استخدمنا id للأعمدة لتسهيل التحديث -->
+                             <th id="col-employee">Employee</th>
+                             <th id="col-day-0"> <div class="day-header"> <span class="day-name">Mon</span> <span class="day-date">Date</span> </div> </th>
+                             <th id="col-day-1"> <div class="day-header"> <span class="day-name">Tue</span> <span class="day-date">Date</span> </div> </th>
+                             <th id="col-day-2"> <div class="day-header"> <span class="day-name">Wed</span> <span class="day-date">Date</span> </div> </th>
+                             <th id="col-day-3"> <div class="day-header"> <span class="day-name">Thu</span> <span class="day-date">Date</span> </div> </th>
+                             <th id="col-day-4"> <div class="day-header"> <span class="day-name">Fri</span> <span class="day-date">Date</span> </div> </th>
+                             <th id="col-day-5"> <div class="day-header"> <span class="day-name">Sat</span> <span class="day-date">Date</span> </div> </th>
+                             <th id="col-day-6"> <div class="day-header"> <span class="day-name">Sun</span> <span class="day-date">Date</span> </div> </th>
+                         </tr>
+                     </thead>
+                     <tbody id="scheduleTableBody">
+                         <!-- سيتم ملء الصفوف هنا بواسطة JavaScript -->
+                         <!-- مثال مبدئي للصف (سيتم استبداله) -->
+                          <tr>
+                             <td class="employee-name">Loading Employees...</td>
+                             <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                          </tr>
+                         <!-- نهاية المثال -->
+                     </tbody>
+                 </table>
+             </div>
+
+             <!-- Modals and Toast (Copied from schedule HTML) -->
+             <div class="toast" id="toastNotification"></div>
+
+             <div class="modal" id="employeeModal">
+                 <div class="modal-content">
+                     <div class="modal-header">
+                         <h2 class="modal-title">Add New Employee</h2>
+                         <button class="close-modal" id="closeEmployeeModal" aria-label="Close">×</button>
+                     </div>
+                     <form id="employeeForm">
+                         <div class="form-group">
+                             <label for="empName">Full Name</label>
+                             <input type="text" id="empName" class="form-control" required>
+                         </div>
+                         <div class="form-group">
+                             <label for="empEmail">Email</label>
+                             <input type="email" id="empEmail" class="form-control" required>
+                         </div>
+                         <div class="form-group">
+                             <label for="empPosition">Position</label>
+                             <input type="text" id="empPosition" class="form-control" required>
+                         </div>
+                         <div class="form-group">
+                             <label for="empRole">Role</label>
+                             <select id="empRole" class="form-control" required>
+                                 <option value="employee" selected>Employee</option>
+                                 <option value="supervisor">Supervisor</option>
+                                 <option value="admin">Admin</option>
+                             </select>
+                         </div>
+                         <div class="form-actions">
+                             <button type="button" class="btn btn-outline" id="cancelEmployeeBtn">Cancel</button>
+                             <button type="submit" class="btn btn-primary">Add Employee</button>
+                         </div>
+                     </form>
+                 </div>
+             </div>
+
+             <div class="modal" id="shiftModal">
+                 <div class="modal-content">
+                     <div class="modal-header">
+                         <h2 class="modal-title">Edit Shift</h2>
+                         <button class="close-modal" id="closeShiftModal" aria-label="Close">×</button>
+                     </div>
+                     <form id="shiftForm">
+                         <input type="hidden" id="editingEmpId">
+                         <input type="hidden" id="editingDayIndex">
+                         <div class="form-group">
+                             <label for="shiftEmployee">Employee</label>
+                             <input type="text" id="shiftEmployee" class="form-control" readonly style="background-color: var(--light-gray);">
+                         </div>
+                         <div class="form-group">
+                             <label for="shiftDate">Date</label>
+                             <input type="date" id="shiftDate" class="form-control" required readonly style="background-color: var(--light-gray);">
+                         </div>
+                         <div class="form-group">
+                             <label for="shiftType">Shift Type</label>
+                             <select id="shiftType" class="form-control" required>
+                                 <option value="none">-- Select Shift --</option>
+                                 <option value="morning">Morning (9AM-5PM)</option>
+                                 <option value="afternoon">Afternoon (12PM-8PM)</option>
+                                 <option value="night">Night (5PM-1AM)</option>
+                                 <option value="day-off">Day Off</option>
+                                 <option value="sick-leave">Sick Leave</option>
+                                 <option value="vacation">Vacation</option>
+                                 <option value="custom">Custom</option>
+                             </select>
+                         </div>
+                         <div class="form-group" id="customShiftGroup" style="display: none;">
+                             <label for="customShift">Custom Shift Times / Label</label>
+                             <input type="text" id="customShift" class="form-control" placeholder="e.g., 10AM-6PM or Training">
+                         </div>
+                         <div class="form-group">
+                             <label for="shiftNotes">Notes (Optional)</label>
+                             <textarea id="shiftNotes" class="form-control" rows="3" placeholder="Add any relevant notes"></textarea>
+                         </div>
+                         <div class="form-actions">
+                             <button type="button" class="btn btn-danger" id="deleteShiftBtn"> <i class="fas fa-trash-alt"></i> Delete Shift</button>
+                             <button type="button" class="btn btn-outline" id="cancelShiftBtn">Cancel</button>
+                             <button type="submit" class="btn btn-primary"> <i class="fas fa-save"></i> Save Changes</button>
+                         </div>
+                     </form>
+                 </div>
+             </div>
+             <!-- End of Copied Content -->
+        </section>
+        <!-- ************************************** -->
+
+        <!-- باقي الأقسام (profile, settings, about, contact) تبقى كما هي -->
         <section id="profile" class="content-section">
             <h1>My Profile</h1>
             <p>View and update your personal information.</p>
-            <form>
-                <div>
-                    <label for="profile-name">Full Name:</label>
-                    <input type="text" id="profile-name" value="[User's Current Name]" disabled>
-                </div>
-                <div>
-                    <label for="profile-email">Email Address:</label>
-                    <input type="email" id="profile-email" value="[User's Current Email]" disabled>
-                </div>
-                 <div>
-                    <label for="profile-phone">Phone Number (Optional):</label>
-                    <input type="text" id="profile-phone" placeholder="Add your phone number">
-                </div>
-                <button type="button">Edit Profile</button> <!-- لاحقاً يمكن تفعيل التعديل -->
-            </form>
+             <form>
+                 <div><label for="profile-name">Full Name:</label><input type="text" id="profile-name" value="[User's Current Name]" disabled></div>
+                 <div><label for="profile-email">Email Address:</label><input type="email" id="profile-email" value="[User's Current Email]" disabled></div>
+                 <div><label for="profile-phone">Phone Number (Optional):</label><input type="text" id="profile-phone" placeholder="Add your phone number"></div>
+                 <button type="button">Edit Profile</button>
+             </form>
         </section>
 
         <section id="settings" class="content-section">
             <h1>Settings</h1>
             <p>Configure your application settings.</p>
-            <form>
-                <div>
-                     <label>Notifications:</label>
-                     <input type="checkbox" id="email-notifications" checked>
-                     <label for="email-notifications" style="display: inline-block; margin-right: 1rem;"> Receive email notifications</label>
-                     <br>
-                     <input type="checkbox" id="app-notifications">
-                     <label for="app-notifications" style="display: inline-block;"> Receive in-app notifications</label>
-                 </div>
-                 <div style="margin-top: 1.5rem;">
-                    <label for="timezone">Timezone:</label>
-                    <select id="timezone" style="padding: 0.8rem; border: 1px solid var(--light-gray); border-radius: 6px;">
-                        <option value="utc">UTC</option>
-                        <option value="cairo" selected>Africa/Cairo (EET)</option>
-                         <option value="riyadh">Asia/Riyadh (AST)</option>
-                         <!-- Add more timezones -->
-                    </select>
-                 </div>
-                <button type="submit" style="margin-top: 1.5rem;">Save Settings</button>
-            </form>
+             <form>
+                 <div><label>Notifications:</label><input type="checkbox" id="email-notifications" checked><label for="email-notifications" style="display: inline-block; margin-right: 1rem;"> Receive email notifications</label><br><input type="checkbox" id="app-notifications"><label for="app-notifications" style="display: inline-block;"> Receive in-app notifications</label></div>
+                 <div style="margin-top: 1.5rem;"><label for="timezone">Timezone:</label><select id="timezone" style="padding: 0.8rem; border: 1px solid var(--light-gray); border-radius: 6px;"><option value="utc">UTC</option><option value="cairo" selected>Africa/Cairo (EET)</option><option value="riyadh">Asia/Riyadh (AST)</option></select></div>
+                 <button type="submit" style="margin-top: 1.5rem;">Save Settings</button>
+             </form>
         </section>
 
         <section id="about" class="content-section">
             <h1>About This Platform</h1>
             <p>The Team Management Platform is an all-in-one solution designed by <strong>Elmenisy Leadership Coaching</strong> to help modern businesses streamline workflows, manage tasks, schedule employees, and foster collaboration.</p>
             <p>Our goal is to provide intuitive and powerful tools to enhance team productivity and efficiency.</p>
-            <p>Version: 1.0.0</p>
-             <p>© 2025 Elmenisy Leadership Coaching - All Rights Reserved.</p>
+            <p>Version: 1.0.1</p>
+            <p>© 2025 Elmenisy Leadership Coaching - All Rights Reserved.</p>
         </section>
 
         <section id="contact" class="content-section">
             <h1>Contact Support</h1>
             <p>Need help or have a question? Reach out to our support team.</p>
-            <form>
-                <div>
-                    <label for="contact-subject">Subject:</label>
-                    <input type="text" id="contact-subject" required>
-                </div>
-                <div>
-                    <label for="contact-message">Your Message:</label>
-                    <textarea id="contact-message" rows="5" required></textarea>
-                </div>
-                <button type="submit">Send Message</button>
-            </form>
+             <form>
+                 <div><label for="contact-subject">Subject:</label><input type="text" id="contact-subject" required></div>
+                 <div><label for="contact-message">Your Message:</label><textarea id="contact-message" rows="5" required></textarea></div>
+                 <button type="submit">Send Message</button>
+             </form>
              <p style="margin-top: 2rem;">You can also contact us directly via:</p>
-             <ul>
-                 <li>Email: support@elmenisycoaching.com (Example)</li>
-                 <li>Phone: +20 XXX XXX XXXX (Example)</li>
-             </ul>
+             <ul><li>Email: support@elmenisycoaching.com (Example)</li><li>Phone: +20 XXX XXX XXXX (Example)</li></ul>
         </section>
 
     </main>
@@ -360,98 +556,438 @@
     <!-- 3. الكود JavaScript في نهاية الـ body -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // --- التحقق من تسجيل الدخول ---
+            // --- الجزء الأول: كود الداشبورد الأساسي (التحقق، الترحيب، تبديل المحتوى، الخروج) ---
             const isLoggedIn = localStorage.getItem('isLoggedIn');
-            const currentUser = JSON.parse(localStorage.getItem('currentUser')); // للحصول على اسم المستخدم
+            const currentUserData = JSON.parse(localStorage.getItem('currentUser'));
 
-            if (isLoggedIn !== 'true' || !currentUser) {
-                // إذا لم يكن المستخدم مسجل دخوله أو لا توجد بيانات مستخدم
+            if (isLoggedIn !== 'true' || !currentUserData) {
                 alert('Please log in to access the dashboard.');
-                window.location.href = 'login.html'; // أعد توجيهه لصفحة الدخول
-                return; // أوقف تنفيذ باقي الكود
+                window.location.href = 'login.html';
+                return;
             }
 
-            // --- تحديث اسم المستخدم في الترحيب (إذا كان موجوداً) ---
             const welcomeHeading = document.querySelector('#home h1');
-            if (welcomeHeading && currentUser.name) {
-                welcomeHeading.textContent = `Welcome, ${currentUser.name}!`;
+            if (welcomeHeading && currentUserData.name) {
+                welcomeHeading.textContent = `Welcome, ${currentUserData.name}!`;
             }
-            // --- تحديث معلومات البروفايل (إذا كانت موجودة) ---
             const profileNameInput = document.getElementById('profile-name');
             const profileEmailInput = document.getElementById('profile-email');
-            if (profileNameInput && currentUser.name) profileNameInput.value = currentUser.name;
-            if (profileEmailInput && currentUser.email) profileEmailInput.value = currentUser.email;
+            if (profileNameInput && currentUserData.name) profileNameInput.value = currentUserData.name;
+            if (profileEmailInput && currentUserData.email) profileEmailInput.value = currentUserData.email;
 
-
-            // --- إعدادات التبديل بين الأقسام ---
             const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
             const contentSections = document.querySelectorAll('.main-content .content-section');
             const logoutBtn = document.getElementById('logoutBtn');
 
-            // وظيفة تبديل المحتوى
             function switchContent(targetId) {
-                // 1. إخفاء جميع أقسام المحتوى
-                contentSections.forEach(section => {
-                    section.classList.remove('active'); // يزيل كلاس 'active' فتُخفى بالـ CSS
-                });
-
-                // 2. إزالة كلاس 'active' من جميع روابط القائمة
-                sidebarLinks.forEach(link => {
-                    link.classList.remove('active');
-                });
-
-                // 3. إظهار القسم المطلوب
+                contentSections.forEach(section => section.classList.remove('active'));
+                sidebarLinks.forEach(link => link.classList.remove('active'));
                 const targetSection = document.getElementById(targetId);
-                if (targetSection) {
-                    targetSection.classList.add('active'); // إضافة كلاس 'active' ليظهر بالـ CSS
-                } else {
-                    console.error(`Content section with id "${targetId}" not found.`);
-                    // إظهار القسم الافتراضي كحل بديل
-                    document.getElementById('home').classList.add('active');
-                     document.querySelector('.sidebar .nav-link[data-target="home"]').classList.add('active');
-                    return; // الخروج من الدالة إذا لم نجد القسم
-                }
-
-                // 4. إضافة كلاس 'active' للرابط الذي تم الضغط عليه
                 const targetLink = document.querySelector(`.sidebar .nav-link[data-target="${targetId}"]`);
-                if (targetLink) {
-                    targetLink.classList.add('active');
-                }
+                if (targetSection) targetSection.classList.add('active');
+                else document.getElementById('home').classList.add('active'); // Fallback to home
+                if (targetLink) targetLink.classList.add('active');
+                else document.querySelector('.sidebar .nav-link[data-target="home"]').classList.add('active'); // Activate home link fallback
             }
 
-            // إضافة مستمع حدث النقر لكل رابط في القائمة
             sidebarLinks.forEach(link => {
                 link.addEventListener('click', function(event) {
-                    event.preventDefault(); // منع السلوك الافتراضي للرابط (#)
-                    const targetId = this.dataset.target; // الحصول على قيمة data-target (مثلاً: 'features')
-                    if (targetId) {
-                        switchContent(targetId); // استدعاء دالة التبديل
-                    }
+                    event.preventDefault();
+                    const targetId = this.dataset.target;
+                    if (targetId) switchContent(targetId);
                 });
             });
 
-            // --- وظيفة تسجيل الخروج ---
-             if(logoutBtn) {
+            if(logoutBtn) {
                  logoutBtn.addEventListener('click', function(e) {
-                     e.preventDefault(); // منع السلوك الافتراضي للرابط
-                     // عرض رسالة تأكيد (اختياري)
+                     e.preventDefault();
                      if (confirm('Are you sure you want to logout?')) {
-                         // إزالة بيانات المستخدم من localStorage
                          localStorage.removeItem('currentUser');
                          localStorage.removeItem('isLoggedIn');
-                         // إعادة التوجيه لصفحة تسجيل الدخول
                          alert('You have been logged out.');
                          window.location.href = 'login.html';
                      }
                  });
+            }
+            // --- نهاية كود الداشبورد الأساسي ---
+
+
+            // --- الجزء الثاني: كود جدولة الموظفين المدمج ---
+            // (الكود المنسوخ من employee-schedule مع تعديلات)
+
+            // الحصول على العناصر الخاصة بالجدول (تأكد من أنها داخل القسم الصحيح)
+            const scheduleSection = document.getElementById('schedule'); // Get the schedule section
+            if (scheduleSection) { // Only run schedule code if the section exists
+                const employeeModal = scheduleSection.querySelector('#employeeModal');
+                const shiftModal = scheduleSection.querySelector('#shiftModal');
+                const addEmployeeBtn = scheduleSection.querySelector('#addEmployeeBtn');
+                const sendRemindersBtn = scheduleSection.querySelector('#sendRemindersBtn');
+                const closeEmployeeModal = scheduleSection.querySelector('#closeEmployeeModal');
+                const closeShiftModal = scheduleSection.querySelector('#closeShiftModal');
+                const cancelEmployeeBtn = scheduleSection.querySelector('#cancelEmployeeBtn');
+                const cancelShiftBtn = scheduleSection.querySelector('#cancelShiftBtn');
+                const employeeForm = scheduleSection.querySelector('#employeeForm');
+                const shiftForm = scheduleSection.querySelector('#shiftForm');
+                const shiftType = scheduleSection.querySelector('#shiftType');
+                const customShiftGroup = scheduleSection.querySelector('#customShiftGroup');
+                const customShiftInput = scheduleSection.querySelector('#customShift'); // Defined customShift input
+                const deleteShiftBtn = scheduleSection.querySelector('#deleteShiftBtn');
+                const prevWeekBtn = scheduleSection.querySelector('#prevWeekBtn');
+                const nextWeekBtn = scheduleSection.querySelector('#nextWeekBtn');
+                const weekDisplay = scheduleSection.querySelector('#weekDisplay');
+                const saveScheduleBtn = scheduleSection.querySelector('#saveScheduleBtn');
+                // Removed userEmail & userInitials as they are handled by dashboard code now
+                const scheduleTableBody = scheduleSection.querySelector('#scheduleTableBody'); // Get the table body
+                const shiftDateInput = scheduleSection.querySelector('#shiftDate'); // Re-select within section
+                const shiftEmployeeInput = scheduleSection.querySelector('#shiftEmployee'); // Re-select within section
+                const shiftNotesInput = scheduleSection.querySelector('#shiftNotes'); // Re-select within section
+                const editingEmpIdInput = scheduleSection.querySelector('#editingEmpId');
+                const editingDayIndexInput = scheduleSection.querySelector('#editingDayIndex');
+                const toastNotification = scheduleSection.querySelector('#toastNotification'); // Re-select within section
+
+                // --- بيانات افتراضية للجدول (يمكن استبدالها بـ API call لاحقاً) ---
+                let employees = [
+                    { id: 1, name: 'Mohamed Elmenisy', email: 'mohamed@example.com', position: 'Developer', role: 'employee' },
+                    { id: 2, name: 'Yousef Ahmed', email: 'yousef@example.com', position: 'Designer', role: 'employee' },
+                    { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com', position: 'QA Tester', role: 'employee' },
+                    { id: 4, name: 'Bassant Badr', email: 'bassant@example.com', position: 'Project Manager', role: 'supervisor' }
+                ];
+                // Schedule data structure: { 'empId-dayIndex': { type: 'morning', text: '9AM-5PM', notes: '' } }
+                let scheduleData = {
+                    '1-0': { type: 'morning', text: '9AM-5PM' }, '1-1': { type: 'morning', text: '9AM-5PM' }, '1-2': { type: 'afternoon', text: '12PM-8PM' }, '1-3': { type: 'morning', text: '9AM-5PM' }, '1-4': { type: 'day-off', text: 'OFF' }, '1-5': { type: 'night', text: '5PM-1AM' }, '1-6': { type: 'night', text: '5PM-1AM' },
+                    '2-0': { type: 'afternoon', text: '12PM-8PM' }, '2-1': { type: 'morning', text: '9AM-5PM' }, '2-2': { type: 'morning', text: '9AM-5PM' }, '2-3': { type: 'afternoon', text: '12PM-8PM' }, '2-4': { type: 'morning', text: '9AM-5PM' }, '2-5': { type: 'day-off', text: 'OFF' }, '2-6': { type: 'day-off', text: 'OFF' },
+                    '3-0': { type: 'night', text: '5PM-1AM' }, '3-1': { type: 'night', text: '5PM-1AM' }, '3-2': { type: 'day-off', text: 'OFF' }, '3-3': { type: 'morning', text: '9AM-5PM' }, '3-4': { type: 'afternoon', text: '12PM-8PM' }, '3-5': { type: 'morning', text: '9AM-5PM' }, '3-6': { type: 'sick-leave', text: 'SICK' },
+                    '4-0': { type: 'vacation', text: 'VAC' }, '4-1': { type: 'vacation', text: 'VAC' }, '4-2': { type: 'morning', text: '9AM-5PM' }, '4-3': { type: 'night', text: '5PM-1AM' }, '4-4': { type: 'night', text: '5PM-1AM' }, '4-5': { type: 'day-off', text: 'OFF' }, '4-6': { type: 'morning', text: '9AM-5PM' },
+                };
+
+                // استخدام بيانات المستخدم المسجل دخوله (من الجزء الأول)
+                const loggedInUserRole = currentUserData.role || 'employee'; // Assume employee if role not set
+
+                // إظهار/إخفاء عناصر التحكم بناءً على دور المستخدم
+                 const isAdminOrSupervisor = loggedInUserRole === 'admin' || loggedInUserRole === 'supervisor';
+                 addEmployeeBtn.style.display = isAdminOrSupervisor ? 'inline-flex' : 'none';
+                 sendRemindersBtn.style.display = isAdminOrSupervisor ? 'inline-flex' : 'none';
+                 saveScheduleBtn.style.display = isAdminOrSupervisor ? 'inline-flex' : 'none';
+
+                let currentWeekStart = getStartOfWeek(new Date()); // Start with the current week's Monday
+                const dateOptions = { month: 'short', day: 'numeric' };
+
+                // --- الدوال المساعدة ---
+                function getStartOfWeek(date) {
+                    const dt = new Date(date);
+                    const day = dt.getDay(); // 0 = Sunday, 1 = Monday, ...
+                    const diff = dt.getDate() - day + (day === 0 ? -6 : 1); // Adjust to Monday
+                    return new Date(dt.setDate(diff));
+                }
+
+                function showToast(message, type = 'success') {
+                    if (!toastNotification) return;
+                    toastNotification.textContent = message;
+                    toastNotification.style.backgroundColor = type === 'success' ? 'var(--secondary)' : 'var(--danger)'; // Use secondary for success
+                    toastNotification.classList.add('show');
+                    // إعادة تعيين الـ animation ليعمل مجدداً
+                    toastNotification.style.animation = 'none';
+                    toastNotification.offsetHeight; // Trigger reflow
+                    toastNotification.style.animation = '';
+                    // Set timeout to remove the class
+                    setTimeout(() => {
+                        toastNotification.classList.remove('show');
+                    }, 4000); // Longer duration (match animation)
+                }
+
+                 function openModal(modalElement) {
+                     if(modalElement) modalElement.classList.add('active');
+                 }
+                 function closeModal(modalElement) {
+                     if(modalElement) modalElement.classList.remove('active');
+                 }
+
+                // --- تحديث عرض الأسبوع ورأس الجدول ---
+                function updateWeekDisplay() {
+                    const weekEnd = new Date(currentWeekStart);
+                    weekEnd.setDate(weekEnd.getDate() + 6);
+
+                    const startStr = currentWeekStart.toLocaleDateString('en-US', dateOptions);
+                    const endStr = weekEnd.toLocaleDateString('en-US', dateOptions);
+                    const year = currentWeekStart.getFullYear();
+                    weekDisplay.textContent = `${startStr} - ${endStr}, ${year}`;
+
+                    // تحديث تواريخ الأعمدة
+                    const tempDate = new Date(currentWeekStart);
+                    for (let i = 0; i < 7; i++) {
+                        const dateCell = scheduleSection.querySelector(`#col-day-${i} .day-date`);
+                        if (dateCell) {
+                            dateCell.textContent = tempDate.toLocaleDateString('en-US', dateOptions);
+                        }
+                        tempDate.setDate(tempDate.getDate() + 1);
+                    }
+                    // Re-render table content for the new week
+                    renderScheduleTable();
+                }
+
+                // --- عرض جدول المواعيد ---
+                function renderScheduleTable() {
+                    if (!scheduleTableBody) return;
+                    scheduleTableBody.innerHTML = ''; // مسح المحتوى القديم
+
+                    employees.forEach(emp => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="employee-name">${emp.name}</td>
+                            ${[0, 1, 2, 3, 4, 5, 6].map(dayIndex => {
+                                const scheduleKey = `${emp.id}-${dayIndex}`;
+                                const shiftInfo = scheduleData[scheduleKey];
+                                let shiftHTML = '';
+                                let shiftClass = '';
+                                if (shiftInfo) {
+                                    shiftClass = `shift-${shiftInfo.type}`;
+                                    shiftHTML = `<div class="shift ${shiftClass}">${shiftInfo.text || shiftInfo.type}</div>`;
+                                }
+                                return `<td class="admin-controls ${isAdminOrSupervisor ? 'editable' : ''}" data-emp-id="${emp.id}" data-day-index="${dayIndex}">
+                                            ${shiftHTML}
+                                            ${isAdminOrSupervisor ? '<span class="edit-shift">(edit)</span>' : ''}
+                                        </td>`;
+                            }).join('')}
+                        `;
+                        scheduleTableBody.appendChild(row);
+                    });
+
+                    // Re-attach event listeners for the newly created edit buttons
+                    attachEditListeners();
+                }
+
+                // --- إضافة مستمعي الأحداث لأزرار التعديل ---
+                function attachEditListeners() {
+                     scheduleSection.querySelectorAll('.edit-shift').forEach(button => {
+                        // Remove old listener before adding new one to prevent duplicates
+                        button.replaceWith(button.cloneNode(true));
+                     });
+                     // Add new listener to the cloned buttons
+                     scheduleSection.querySelectorAll('.edit-shift').forEach(button => {
+                         button.addEventListener('click', handleEditClick);
+                     });
+                }
+
+                function handleEditClick(event) {
+                     const button = event.target;
+                     const cell = button.closest('td');
+                     const empId = parseInt(cell.getAttribute('data-emp-id'));
+                     const dayIndex = parseInt(cell.getAttribute('data-day-index'));
+                     const employee = employees.find(e => e.id === empId);
+
+                     if (employee) {
+                         const date = new Date(currentWeekStart);
+                         date.setDate(date.getDate() + dayIndex);
+
+                         // Store data for the form
+                         editingEmpIdInput.value = empId;
+                         editingDayIndexInput.value = dayIndex;
+                         shiftEmployeeInput.value = employee.name;
+                         shiftDateInput.value = date.toISOString().split('T')[0]; // YYYY-MM-DD
+
+                         // Populate form based on existing data
+                         const scheduleKey = `${empId}-${dayIndex}`;
+                         const shiftInfo = scheduleData[scheduleKey];
+                         if (shiftInfo) {
+                             shiftType.value = shiftInfo.type || 'none';
+                             shiftNotesInput.value = shiftInfo.notes || '';
+                             if (shiftInfo.type === 'custom') {
+                                 customShiftInput.value = shiftInfo.text || '';
+                                 customShiftGroup.style.display = 'block';
+                             } else {
+                                 customShiftGroup.style.display = 'none';
+                                 customShiftInput.value = '';
+                             }
+                         } else {
+                             // Reset form for empty cell
+                             shiftType.value = 'none';
+                             shiftNotesInput.value = '';
+                             customShiftGroup.style.display = 'none';
+                             customShiftInput.value = '';
+                         }
+
+                         openModal(shiftModal);
+                     }
+                 }
+
+
+                // --- التنقل بين الأسابيع ---
+                prevWeekBtn.addEventListener('click', function() {
+                    currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+                    updateWeekDisplay();
+                });
+                nextWeekBtn.addEventListener('click', function() {
+                    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+                    updateWeekDisplay();
+                });
+
+                // --- التعامل مع المودالات ---
+                addEmployeeBtn.addEventListener('click', function() {
+                    employeeForm.reset(); // Clear form before showing
+                    openModal(employeeModal);
+                });
+                closeEmployeeModal.addEventListener('click', () => closeModal(employeeModal));
+                cancelEmployeeBtn.addEventListener('click', () => closeModal(employeeModal));
+                closeShiftModal.addEventListener('click', () => closeModal(shiftModal));
+                cancelShiftBtn.addEventListener('click', () => closeModal(shiftModal));
+
+                // إغلاق المودال عند النقر خارجه
+                 window.addEventListener('click', function(event) {
+                     if (event.target === employeeModal) closeModal(employeeModal);
+                     if (event.target === shiftModal) closeModal(shiftModal);
+                 });
+
+                // --- إضافة موظف جديد ---
+                employeeForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const name = scheduleSection.querySelector('#empName').value.trim();
+                    const email = scheduleSection.querySelector('#empEmail').value.trim();
+                    const position = scheduleSection.querySelector('#empPosition').value.trim();
+                    const role = scheduleSection.querySelector('#empRole').value;
+
+                    if (name && email && position) {
+                        const newEmployee = {
+                            id: employees.length > 0 ? Math.max(...employees.map(e => e.id)) + 1 : 1,
+                            name: name,
+                            email: email,
+                            position: position,
+                            role: role
+                        };
+                        employees.push(newEmployee);
+                        renderScheduleTable(); // Re-render the table with the new employee
+                        closeModal(employeeModal);
+                        showToast(`Employee ${name} added successfully!`);
+                    } else {
+                        showToast('Please fill in all required fields.', 'danger');
+                    }
+                });
+
+                 // --- حفظ تغييرات الـ Shift ---
+                 shiftForm.addEventListener('submit', function(e) {
+                     e.preventDefault();
+                     const empId = parseInt(editingEmpIdInput.value);
+                     const dayIndex = parseInt(editingDayIndexInput.value);
+                     const typeValue = shiftType.value;
+                     const customText = customShiftInput.value.trim();
+                     const notes = shiftNotesInput.value.trim();
+                     const scheduleKey = `${empId}-${dayIndex}`;
+
+                     if (typeValue === 'none') {
+                         // If 'none' is selected, treat it as deleting the shift
+                         if (scheduleData[scheduleKey]) {
+                             delete scheduleData[scheduleKey];
+                             showToast('Shift cleared successfully.');
+                         }
+                     } else {
+                         let shiftText = '';
+                         // Get default text based on type
+                         const selectedOption = shiftType.options[shiftType.selectedIndex];
+                         shiftText = selectedOption.textContent.split('(')[0].trim(); // e.g., "Morning"
+                         if (typeValue.includes('(')) { // Handle options like Morning (9AM-5PM)
+                             shiftText = typeValue.split('(')[0].trim();
+                         }
+
+                         if (typeValue === 'custom') {
+                             shiftText = customText || 'Custom'; // Use custom text or default 'Custom'
+                             if (!customText) {
+                                showToast('Please enter custom shift details.', 'danger');
+                                return;
+                             }
+                         }
+
+                         // Update schedule data
+                         scheduleData[scheduleKey] = {
+                             type: typeValue,
+                             text: shiftText,
+                             notes: notes
+                         };
+                         showToast('Shift updated successfully!');
+                     }
+
+                     renderScheduleTable(); // Re-render the table with changes
+                     closeModal(shiftModal);
+                 });
+
+                // --- حذف الـ Shift ---
+                deleteShiftBtn.addEventListener('click', function() {
+                     const empId = parseInt(editingEmpIdInput.value);
+                     const dayIndex = parseInt(editingDayIndexInput.value);
+                     const scheduleKey = `${empId}-${dayIndex}`;
+
+                     if (scheduleData[scheduleKey]) {
+                         delete scheduleData[scheduleKey];
+                         renderScheduleTable();
+                         closeModal(shiftModal);
+                         showToast('Shift deleted successfully!', 'danger');
+                     } else {
+                         showToast('No shift to delete.', 'warning');
+                         closeModal(shiftModal);
+                     }
+                 });
+
+
+                // --- إظهار/إخفاء حقل الـ Custom Shift ---
+                shiftType.addEventListener('change', function() {
+                    customShiftGroup.style.display = this.value === 'custom' ? 'block' : 'none';
+                });
+
+                // --- حفظ الجدول (محاكاة) ---
+                saveScheduleBtn.addEventListener('click', function() {
+                    // في تطبيق حقيقي، سترسل بيانات scheduleData و employees إلى السيرفر
+                    console.log("Saving schedule data:", scheduleData);
+                    console.log("Current employees:", employees);
+                    showToast('Schedule saved successfully!');
+                    // أضف هنا كود إرسال البيانات للسيرفر باستخدام fetch أو XMLHttpRequest
+                });
+
+                // --- إرسال التذكيرات (يفتح برنامج الإيميل) ---
+                 sendRemindersBtn.addEventListener('click', function() {
+                     const subject = encodeURIComponent(`Upcoming Work Schedule: ${weekDisplay.textContent}`);
+                     let body = `Dear Team,\n\nPlease find your schedule for the week of ${weekDisplay.textContent}:\n\n`;
+
+                     // يمكنك إضافة تفاصيل الجدول هنا إذا أردت
+                     // body += generateScheduleSummaryForEmail(); // مثال لدالة تقوم بذلك
+
+                     body += `\nBest regards,\n${currentUserData.name}`;
+
+                     const recipientEmails = employees.map(e => e.email).filter(Boolean).join(','); // Get valid emails
+                     if (!recipientEmails) {
+                         showToast('No employee emails found to send reminders.', 'warning');
+                         return;
+                     }
+                     const mailtoLink = `mailto:?bcc=${recipientEmails}&subject=${subject}&body=${encodeURIComponent(body)}`;
+
+                     // Check length before opening - mailto links have limits
+                     if (mailtoLink.length > 2000) {
+                         showToast('Email content too long for mailto link. Consider server-side sending.', 'warning');
+                     } else {
+                          // محاولة فتح برنامج البريد الافتراضي
+                         try {
+                           window.open(mailtoLink, '_blank');
+                            showToast('Reminder email prepared. Please review and send.');
+                         } catch (error) {
+                            console.error("Failed to open mailto link:", error);
+                            showToast('Could not automatically open email client.', 'danger');
+                         }
+                     }
+                 });
+
+
+                // --- التهيئة الأولية ---
+                updateWeekDisplay(); // عرض الأسبوع الحالي والجدول عند التحميل الأول للداشبورد
+
+            } // End of: if (scheduleSection)
+
+            // --- تأكد من أن القسم الافتراضي (home) ظاهر عند التحميل الأول ---
+             const initialTarget = window.location.hash.substring(1);
+             if (initialTarget && document.getElementById(initialTarget)) {
+                 switchContent(initialTarget);
+             } else {
+                 // Ensure default 'home' is active if no hash or invalid hash
+                 switchContent('home');
              }
 
-            // --- التأكد من أن القسم الافتراضي (home) ظاهر عند التحميل الأول ---
-            // الكود أعلاه يعتني بهذا بالفعل لأننا وضعنا كلاس active عليه في HTML
-            // لكن يمكنك التأكيد هنا إذا أردت
-            // switchContent('home'); // يمكنك استدعاء هذا لضمان الحالة الأولية
-
-        });
+        }); // End of DOMContentLoaded
     </script>
 </body>
 </html>
