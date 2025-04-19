@@ -1,396 +1,356 @@
-// dashboard.js
-// FINAL CORRECTED VERSION - Focused on ensuring teamMembers data exists and is passed
-
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("DOM fully loaded and parsed");
+    // Initialize the schedule section
+    initEmployeeScheduling();
+});
 
-    // --- DOM Elements (Assume they exist based on previous steps) ---
-    const sidebar = document.getElementById('sidebar');
-    const menuButtons = document.querySelectorAll('.sidebar-menu button[data-section]');
-    const userDropdown = document.getElementById('userDropdown');
-    const dropdownButtons = document.querySelectorAll('.user-dropdown button[data-section]');
-    const contentSections = document.querySelectorAll('.content-area > .content-section');
-    const featureSectionsContainer = document.getElementById('featureSectionsContainer');
-    const featureSections = document.getElementById('featureSections');
-    const featurePlaceholder = document.getElementById('featurePlaceholder');
-    const featureTitle = document.getElementById('featureTitle');
-    const featureDescription = document.getElementById('featureDescription');
-    const featureLoadingIndicator = featurePlaceholder?.querySelector('.loading-indicator');
-    const featureErrorMessage = featurePlaceholder?.querySelector('.error-message');
-    const backButton = document.getElementById('backButton');
-    const dashboardContent = document.getElementById('dashboardContent');
-    const profileContent = document.getElementById('profileContent');
-    const settingsContent = document.getElementById('settingsContent');
-    const settingsTabs = document.querySelectorAll('.settings-tab');
-    const settingsPanels = document.querySelectorAll('.settings-panel');
-    const activityList = document.getElementById('activityList');
-    const notificationsBody = document.getElementById('notificationsBody');
-    const notificationBadge = document.querySelector('.notification-badge');
-    const teamMembersCount = document.getElementById('teamMembersCount');
-    const tasksCompleted = document.getElementById('tasksCompleted');
-    const activeProjects = document.getElementById('activeProjects');
-    const upcomingDeadlines = document.getElementById('upcomingDeadlines');
-    const teamMembersTrend = document.getElementById('teamMembersTrend');
-    const tasksCompletedTrend = document.getElementById('tasksCompletedTrend');
-    const activeProjectsTrend = document.getElementById('activeProjectsTrend');
-    const upcomingDeadlinesTrend = document.getElementById('upcomingDeadlinesTrend');
-    const teamList = document.getElementById('teamList'); // Needed for Settings -> Team
-    const logoutLink = document.getElementById('logoutLink');
-    const userName = document.getElementById('userName'); // For updateUserUI
-    const userEmail = document.getElementById('userEmail'); // For updateUserUI
-    const welcomeName = document.getElementById('welcomeName'); // For updateUserUI
-    const userAvatar = document.getElementById('userAvatar'); // For updateUserUI
-    const profileAvatar = document.getElementById('profileAvatar'); // For updateUserUI
-    const userInfoRoleTitle = document.getElementById('userInfoRoleTitle'); // For updateUserUI
-    // Add any other elements needed by your full implementation
-
-    // --- State Variables ---
-    let currentUser = {};
-    let teamMembers = []; // <<<< ENSURE THIS GETS POPULATED
-    let activities = [];
-    let notifications = [];
-    let currentSectionName = 'dashboard';
-    let currentSettingsTab = null;
-    let currentSectionScript = null;
-    let activityIntervalId = null;
-    let confirmCallback = null;
-    let cancelCallback = null;
-
-    // Define known sections that have dedicated JS files and initialization functions
-    const sectionsWithJS = {
-        'employee-scheduling': 'initializeEmployeeSchedule',
-        // 'task-management': 'initializeTasks', // Example
-    };
-
-    // --- Constants ---
-    const MAX_ACTIVITIES_DISPLAYED = 5;
-    const UPDATE_INTERVAL = 60000;
-    const DEFAULT_USER = {
-        id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co',
-        title: 'Administrator', department: 'Management', phone: '+201234567890',
-        avatar: '', initials: 'ME', role: 'admin', password: 'password123',
-        preferences: { language: 'en', timezone: 'cairo', dateFormat: 'dd/mm/yyyy', theme: 'blue', layoutDensity: 'normal', soundNotifications: true, weekStart: 'sun' },
-        notificationPreferences: { email: { tasks: true, deadlines: true, updates: false }, push: { messages: true, teamUpdates: false } },
-        security: { twoFactorEnabled: true },
-        stats: { teamMembers: 0, tasksCompleted: 0, activeProjects: 0, upcomingDeadlines: 0, teamMembersTrend: 'neutral', tasksCompletedTrend: 'neutral', activeProjectsTrend: 'neutral', upcomingDeadlinesTrend: 'neutral' }
-    };
-
-    // --- FAKE DATA GENERATION (Use this if localStorage is empty) ---
-    function generateFakeTeam() {
-        console.warn("generateFakeTeam: Generating fake team data because localStorage was empty or invalid.");
-        return [
-            // Ensure these objects have the properties needed by employee-scheduling.js (id, name, email, role maybe?)
-            { id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', role: 'admin', title: 'Administrator', initials: 'ME' },
-            { id: 2, name: 'Yousef Ahmed', email: 'y.ahmed@example.com', role: 'supervisor', title: 'Supervisor', initials: 'YA' },
-            { id: 3, name: 'Esraa Lashin', email: 'e.lashin@example.com', role: 'senior', title: 'Senior Developer', initials: 'EL' },
-            { id: 4, name: 'Bassant Badr', email: 'b.badr@example.com', role: 'member', title: 'Designer', initials: 'BB' },
-            { id: 5, name: 'Ali Hassan', email: 'a.hassan@example.com', role: 'member', title: 'Developer', initials: 'AH' }
-        ];
+function initEmployeeScheduling() {
+    // DOM Elements
+    const employeeModal = document.getElementById('employeeModal');
+    const shiftModal = document.getElementById('shiftModal');
+    const addEmployeeBtn = document.getElementById('addEmployeeBtn');
+    const sendRemindersBtn = document.getElementById('sendRemindersBtn');
+    const closeEmployeeModal = document.getElementById('closeEmployeeModal');
+    const closeShiftModal = document.getElementById('closeShiftModal');
+    const cancelEmployeeBtn = document.getElementById('cancelEmployeeBtn');
+    const cancelShiftBtn = document.getElementById('cancelShiftBtn');
+    const employeeForm = document.getElementById('employeeForm');
+    const shiftForm = document.getElementById('shiftForm');
+    const shiftType = document.getElementById('shiftType');
+    const customShiftGroup = document.getElementById('customShiftGroup');
+    const deleteShiftBtn = document.getElementById('deleteShiftBtn');
+    const prevWeekBtn = document.getElementById('prevWeekBtn');
+    const nextWeekBtn = document.getElementById('nextWeekBtn');
+    const weekDisplay = document.getElementById('weekDisplay');
+    const saveScheduleBtn = document.getElementById('saveScheduleBtn');
+    const additionalEmployeesRow = document.getElementById('additionalEmployeesRow');
+    const shiftDateInput = document.getElementById('shiftDate');
+    const toastNotification = document.getElementById('toastNotification');
+    
+    // Employee data
+    const employees = [
+        { id: 1, name: 'Mohamed Elmenisy', email: 'mohamed@example.com' },
+        { id: 2, name: 'Yousef', email: 'yousef@example.com' },
+        { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com' },
+        { id: 4, name: 'Bassant Badr', email: 'bassant@example.com' }
+    ];
+    
+    // Current week tracking
+    let currentWeekStart = new Date(2025, 4, 5);
+    const minDate = new Date(2025, 4, 1);
+    const maxDate = new Date(2025, 4, 31);
+    
+    // Show toast notification
+    function showToast(message, type = 'success') {
+        toastNotification.textContent = message;
+        toastNotification.style.backgroundColor = type === 'success' ? 'var(--primary)' : 'var(--danger)';
+        toastNotification.classList.add('show');
+        
+        setTimeout(() => {
+            toastNotification.classList.remove('show');
+        }, 3000);
     }
-    function generateFakeActivities() { return []; }
-    function generateFakeNotifications() { return []; }
-
-    // --- Utility for Deep Merging ---
-    function isObject(item) { return (item && typeof item === 'object' && !Array.isArray(item)); }
-    function mergeDeep(target, ...sources) {
-        sources.forEach(source => {
-             if (!source) return; // Skip null/undefined sources
-            Object.keys(source).forEach(key => {
-                const targetValue = target[key];
-                const sourceValue = source[key];
-                if (isObject(targetValue) && isObject(sourceValue)) {
-                    mergeDeep(targetValue, sourceValue);
-                } else if (sourceValue !== undefined) { // Only overwrite if source value is defined
-                    target[key] = sourceValue;
-                }
-            });
+    
+    // Update week display
+    function updateWeekDisplay() {
+        const weekEnd = new Date(currentWeekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        
+        const options = { month: 'short', day: 'numeric' };
+        const startStr = currentWeekStart.toLocaleDateString('en-US', options);
+        const endStr = weekEnd.toLocaleDateString('en-US', options);
+        const year = currentWeekStart.getFullYear();
+        
+        weekDisplay.textContent = `${startStr} - ${endStr}, ${year}`;
+        
+        // Update table headers with dates
+        const dateCells = document.querySelectorAll('.day-date');
+        const tempDate = new Date(currentWeekStart);
+        
+        dateCells.forEach((cell) => {
+            const dateStr = tempDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            cell.textContent = dateStr;
+            tempDate.setDate(tempDate.getDate() + 1);
         });
-        return target;
+        
+        // Disable navigation buttons when at limits
+        const prevWeek = new Date(currentWeekStart);
+        prevWeek.setDate(prevWeek.getDate() - 7);
+        prevWeekBtn.disabled = prevWeek < minDate;
+        
+        const nextWeek = new Date(weekEnd);
+        nextWeek.setDate(nextWeek.getDate() + 1);
+        nextWeekBtn.disabled = nextWeek > maxDate;
     }
-
-
-    // --- Data Handling ---
-    function loadData() {
-        console.log("--- loadData ---");
-        let storedUser = null;
-        try {
-            storedUser = JSON.parse(localStorage.getItem('currentUser'));
-        } catch (e) { console.error("Error parsing currentUser from localStorage:", e); }
-        // Perform a deep merge to ensure all default properties exist
-        currentUser = mergeDeep(JSON.parse(JSON.stringify(DEFAULT_USER)), storedUser);
-        console.log("loadData: currentUser loaded/merged:", currentUser);
-
-
-        // --->>> Load Team Members with Logging and GUARANTEED Fallback <<<---
-        let storedTeam = null;
-        try {
-            const teamData = localStorage.getItem('teamMembers');
-             if(teamData) { // Only parse if data exists
-                storedTeam = JSON.parse(teamData);
-                console.log("loadData: Parsed teamMembers from localStorage.");
-             } else {
-                 console.log("loadData: No teamMembers found in localStorage.");
-             }
-        } catch (e) {
-            console.error("Error parsing teamMembers from localStorage:", e);
-            storedTeam = null; // Treat parse error as no data
+    
+    // Navigation between weeks
+    prevWeekBtn.addEventListener('click', function() {
+        currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+        updateWeekDisplay();
+    });
+    
+    nextWeekBtn.addEventListener('click', function() {
+        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+        updateWeekDisplay();
+    });
+    
+    // Show/hide custom shift input
+    shiftType.addEventListener('change', function() {
+        customShiftGroup.style.display = this.value === 'custom' ? 'block' : 'none';
+    });
+    
+    // Modal controls
+    addEmployeeBtn.addEventListener('click', function() {
+        employeeModal.style.display = 'flex';
+    });
+    
+    closeEmployeeModal.addEventListener('click', function() {
+        employeeModal.style.display = 'none';
+    });
+    
+    cancelEmployeeBtn.addEventListener('click', function() {
+        employeeModal.style.display = 'none';
+    });
+    
+    closeShiftModal.addEventListener('click', function() {
+        shiftModal.style.display = 'none';
+    });
+    
+    cancelShiftBtn.addEventListener('click', function() {
+        shiftModal.style.display = 'none';
+    });
+    
+    // Close modals when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === employeeModal) {
+            employeeModal.style.display = 'none';
         }
-
-        // **Check if storedTeam is a valid, non-empty array**
-        if (storedTeam && Array.isArray(storedTeam) && storedTeam.length > 0) {
-            teamMembers = storedTeam;
-            console.log(`loadData: Using ${teamMembers.length} team members from localStorage.`);
-        } else {
-             // **If not valid or empty, ALWAYS generate fake data for testing**
-            console.log("loadData: Using generateFakeTeam() as fallback.");
-            teamMembers = generateFakeTeam();
+        if (event.target === shiftModal) {
+            shiftModal.style.display = 'none';
         }
-        console.log(`loadData: Final teamMembers count: ${teamMembers.length}`);
-        // console.log("loadData: Final teamMembers data:", JSON.stringify(teamMembers)); // For detailed check
-
-        // Load other data
-        activities = JSON.parse(localStorage.getItem('activities') || '[]') || generateFakeActivities(); // Safer parsing
-        notifications = JSON.parse(localStorage.getItem('notifications') || '[]') || generateFakeNotifications(); // Safer parsing
-
-        // Ensure stats reflect the potentially generated team members
-        if (currentUser.stats) currentUser.stats.teamMembers = teamMembers.length;
-        console.log("--- loadData finished ---");
-    }
-
-    function saveData() {
-         try {
-             localStorage.setItem('currentUser', JSON.stringify(currentUser));
-             localStorage.setItem('teamMembers', JSON.stringify(teamMembers)); // Save current team (including fake if generated)
-             localStorage.setItem('activities', JSON.stringify(activities));
-             localStorage.setItem('notifications', JSON.stringify(notifications));
-             console.log("saveData: Data saved to localStorage.");
-         } catch (e) {
-             console.error("Error saving data to localStorage:", e);
-         }
-     }
-
-    // --- UI Update Functions ---
-    function updateUserUI() {
-         console.log("updateUserUI executing...");
-         if (!userName || !userEmail || !welcomeName || !userAvatar || !profileAvatar || !userInfoRoleTitle) {
-              console.warn("updateUserUI: Missing one or more UI elements to update.");
-              return;
-         }
-         const nameParts = currentUser.name ? currentUser.name.split(' ') : ['User'];
-         const firstName = nameParts[0];
-         const lastName = nameParts.slice(1).join(' ');
-         userName.textContent = currentUser.name || 'User';
-         userEmail.textContent = currentUser.email || 'No Email';
-         welcomeName.textContent = firstName;
-         document.querySelector('.user-info-name').textContent = currentUser.name || 'User';
-
-         const roleTitles = { 'admin': 'Administrator', 'senior': 'Senior', 'supervisor': 'Supervisor', 'member': 'Member' };
-         const roleTitle = roleTitles[currentUser.role] || 'Member';
-         userInfoRoleTitle.textContent = roleTitle;
-         userInfoRoleTitle.className = 'user-info-title'; // Reset
-         if (currentUser.role === 'admin') userInfoRoleTitle.classList.add('role-admin');
-
-         const initials = currentUser.initials || (firstName ? firstName[0] : '') + (lastName ? lastName[0] : '');
-         [userAvatar, profileAvatar].forEach(el => { // Removed profileAvatarLarge assumption
-             if(!el) return;
-             if (currentUser.avatar) {
-                 el.style.backgroundImage = `url(${currentUser.avatar})`;
-                 el.textContent = '';
-                 el.style.backgroundColor = '';
-             } else {
-                 el.style.backgroundImage = 'none';
-                 el.textContent = initials.toUpperCase() || 'U';
-                 el.style.backgroundColor = 'var(--primary)'; // Revert to default style
-                 el.style.color = 'white';
-             }
-         });
-         // Update profile page avatar separately if needed
-         const profileLarge = document.getElementById('profileAvatarLarge');
-          if(profileLarge) {
-             if (currentUser.avatar) {
-                  profileLarge.style.backgroundImage = `url(${currentUser.avatar})`;
-                  profileLarge.textContent = '';
-                  profileLarge.style.backgroundColor = '';
-              } else {
-                  profileLarge.style.backgroundImage = 'none';
-                  profileLarge.textContent = initials.toUpperCase() || 'U';
-                  profileLarge.style.backgroundColor = 'var(--primary-light)';
-                  profileLarge.style.color = 'var(--primary-dark)';
-              }
-          }
-         // ... (Update profile form, settings forms if necessary) ...
-     }
-    function applyUserPreferences() { /* ... implementation ... */ }
-    function applyRBAC() { /* ... implementation ... */ }
-    function loadSettingsFormData() { /* ... implementation ... */ }
-    function updateStats() {
-        console.log("updateStats executing...");
-        if (!teamMembersCount) { console.warn("updateStats: teamMembersCount element missing."); return; }
-        const stats = currentUser.stats || {};
-        teamMembersCount.textContent = teamMembers.length; // Use the *actual current* length
-        if(tasksCompleted) tasksCompleted.textContent = stats.tasksCompleted ?? 0;
-        if(activeProjects) activeProjects.textContent = stats.activeProjects ?? 0;
-        if(upcomingDeadlines) upcomingDeadlines.textContent = stats.upcomingDeadlines ?? 0;
-        updateTrendIndicator(teamMembersTrend, stats.teamMembersTrend);
-        updateTrendIndicator(tasksCompletedTrend, stats.tasksCompletedTrend);
-        updateTrendIndicator(activeProjectsTrend, stats.activeProjectsTrend);
-        updateTrendIndicator(upcomingDeadlinesTrend, stats.upcomingDeadlinesTrend);
-    }
-    function updateTrendIndicator(element, trend) { /* ... implementation ... */ }
-    function updateNotificationBadge() { /* ... implementation ... */ }
-    function loadActivities(showAll = false) { /* ... implementation ... */ }
-    function loadNotifications() { /* ... implementation ... */ }
-    function loadTeamMembers() { /* ... implementation ... */ } // Ensure this uses `teamMembers` array
-    function getTimeAgo(timestamp) { /* ... implementation ... */ }
-    function updateActivityTimes() { /* ... implementation ... */ }
-    function startActivityTimeUpdater() { if(activityIntervalId) clearInterval(activityIntervalId); activityIntervalId = setInterval(updateActivityTimes, UPDATE_INTERVAL); }
-    function addActivity(icon, message) { /* ... implementation ... */ }
-    function addNotification(icon, message) { /* ... implementation ... */ }
-    function playNotificationSound() { /* ... implementation ... */ }
-    function showSuccessMessage(message) { /* ... implementation ... */ }
-
-
-    // --- Navigation and Content Loading ---
-    function setActive(sectionName, settingsTab = null) {
-        console.log(`--- setActive called: section=${sectionName}, tab=${settingsTab} ---`);
-        if (!menuButtons || !contentSections || !featureSectionsContainer || !backButton) { console.error("setActive: Core navigation elements missing!"); return; }
-
-        currentSectionName = sectionName;
-        currentSettingsTab = (sectionName === 'settings') ? (settingsTab || currentSettingsTab || 'preferences') : null;
-
-        // Update URL Hash/History (Keep implementation)
-        let hash = `#${sectionName}`;
-        if (sectionName === 'settings' && currentSettingsTab) { hash += `-${currentSettingsTab}`; }
-        if (window.location.hash !== hash) {
-             try {
-                  if (sectionName === 'settings' && window.location.hash.startsWith('#settings-')) { history.replaceState({ section: sectionName, tab: currentSettingsTab }, '', hash); }
-                  else { history.pushState({ section: sectionName, tab: currentSettingsTab }, '', hash); }
-                  console.log(`History state updated. New hash: ${window.location.hash}`);
-             } catch (error) { console.error("Error updating history state:", error); }
+    });
+    
+    // Add new employee
+    employeeForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('empName').value;
+        const email = document.getElementById('empEmail').value;
+        const position = document.getElementById('empPosition').value;
+        const role = document.getElementById('empRole').value;
+        
+        // Create new employee
+        const newEmployee = {
+            id: employees.length + 1,
+            name: name,
+            email: email
+        };
+        
+        employees.push(newEmployee);
+        
+        // Add new row to the table
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td class="employee-name">${name}</td>
+            <td class="admin-controls">
+                <span class="edit-shift" data-emp="${newEmployee.id}" data-day="mon">(edit)</span>
+            </td>
+            <td class="admin-controls">
+                <span class="edit-shift" data-emp="${newEmployee.id}" data-day="tue">(edit)</span>
+            </td>
+            <td class="admin-controls">
+                <span class="edit-shift" data-emp="${newEmployee.id}" data-day="wed">(edit)</span>
+            </td>
+            <td class="admin-controls">
+                <span class="edit-shift" data-emp="${newEmployee.id}" data-day="thu">(edit)</span>
+            </td>
+            <td class="admin-controls">
+                <span class="edit-shift" data-emp="${newEmployee.id}" data-day="fri">(edit)</span>
+            </td>
+            <td class="admin-controls">
+                <span class="edit-shift" data-emp="${newEmployee.id}" data-day="sat">(edit)</span>
+            </td>
+            <td class="admin-controls">
+                <span class="edit-shift" data-emp="${newEmployee.id}" data-day="sun">(edit)</span>
+            </td>
+        `;
+        
+        // Show edit buttons if admin
+        if (currentUser.role === 'admin' || currentUser.role === 'supervisor') {
+            newRow.querySelectorAll('.edit-shift').forEach(el => el.style.display = 'inline');
         }
-
-        // Update Nav Button Active States (Keep implementation)
-        menuButtons.forEach(btn => btn.classList.remove('active'));
-        dropdownButtons.forEach(btn => btn.classList.remove('active'));
-        const activeMenuBtn = document.querySelector(`.sidebar-menu button[data-section="${sectionName}"]`);
-        if (activeMenuBtn) activeMenuBtn.classList.add('active');
-        const activeDropdownBtn = document.querySelector(`.user-dropdown button[data-section="${sectionName}"]`);
-        if (activeDropdownBtn) activeDropdownBtn.classList.add('active');
-
-        // Switch Content Visibility (Keep implementation)
-        contentSections.forEach(section => section.classList.remove('active'));
-        featureSectionsContainer.style.display = 'none';
-
-        if (sectionName === 'dashboard') { if(dashboardContent) dashboardContent.classList.add('active'); updateStats(); loadActivities(); }
-        else if (sectionName === 'profile') { if(profileContent) profileContent.classList.add('active'); updateUserUI(); }
-        else if (sectionName === 'settings') { if(settingsContent) settingsContent.classList.add('active'); applyRBAC(); activateSettingsTab(currentSettingsTab); }
-        else {
-             console.log(`Loading dynamic section: ${sectionName}`);
-             if (featureSectionsContainer) { featureSectionsContainer.style.display = 'block'; loadSection(sectionName); }
-             else { console.error("#featureSectionsContainer not found!"); }
+        
+        additionalEmployeesRow.parentNode.insertBefore(newRow, additionalEmployeesRow);
+        
+        // Reset form and close modal
+        employeeForm.reset();
+        employeeModal.style.display = 'none';
+        
+        showToast(`Employee ${name} added successfully!`);
+    });
+    
+    // Edit shift buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('edit-shift')) {
+            const button = e.target;
+            const empId = parseInt(button.getAttribute('data-emp'));
+            const day = button.getAttribute('data-day');
+            const currentCell = button.closest('td');
+            
+            const employee = employees.find(e => e.id === empId);
+            const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+            const dayIndex = days.indexOf(day);
+            
+            if (employee && dayIndex !== -1) {
+                const date = new Date(currentWeekStart);
+                date.setDate(date.getDate() + dayIndex);
+                
+                document.getElementById('shiftEmployee').value = employee.name;
+                
+                // Format date for input
+                const formattedDate = date.toISOString().split('T')[0];
+                shiftDateInput.value = formattedDate;
+                shiftDateInput.min = '2025-05-01';
+                shiftDateInput.max = '2025-05-31';
+                
+                // Set current shift type
+                const shiftDiv = currentCell.querySelector('.shift');
+                
+                if (shiftDiv) {
+                    if (shiftDiv.classList.contains('shift-morning')) {
+                        shiftType.value = 'morning';
+                    } else if (shiftDiv.classList.contains('shift-afternoon')) {
+                        shiftType.value = 'afternoon';
+                    } else if (shiftDiv.classList.contains('shift-night')) {
+                        shiftType.value = 'night';
+                    } else if (shiftDiv.classList.contains('day-off')) {
+                        shiftType.value = 'day-off';
+                    } else if (shiftDiv.classList.contains('sick-leave')) {
+                        shiftType.value = 'sick-leave';
+                    } else if (shiftDiv.classList.contains('vacation')) {
+                        shiftType.value = 'vacation';
+                    }
+                } else {
+                    shiftType.value = 'morning';
+                }
+                
+                // Store reference to the cell being edited
+                shiftModal.dataset.currentCell = currentCell.id || '';
+                if (!currentCell.id) {
+                    currentCell.id = `cell-${Date.now()}`;
+                    shiftModal.dataset.currentCell = currentCell.id;
+                }
+                
+                shiftModal.style.display = 'flex';
+            }
         }
-
-        // Update Back Button (Keep implementation)
-        if (backButton) backButton.style.display = sectionName !== 'dashboard' ? 'inline-flex' : 'none';
-        window.scrollTo(0, 0);
-        localStorage.setItem('lastActiveSection', sectionName === 'settings' ? 'settings' : sectionName);
+    });
+    
+    // Save shift changes
+    shiftForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const employeeName = document.getElementById('shiftEmployee').value;
+        const shiftTypeValue = document.getElementById('shiftType').value;
+        const customShift = document.getElementById('customShift').value;
+        
+        // Get the cell being edited
+        const currentCellId = shiftModal.dataset.currentCell;
+        const currentCell = document.getElementById(currentCellId);
+        
+        if (currentCell) {
+            // Remove any existing shift div
+            const existingShift = currentCell.querySelector('.shift');
+            if (existingShift) {
+                currentCell.removeChild(existingShift);
+            }
+            
+            // Create new shift div
+            let shiftDiv = document.createElement('div');
+            shiftDiv.className = 'shift';
+            
+            switch(shiftTypeValue) {
+                case 'morning':
+                    shiftDiv.classList.add('shift-morning');
+                    shiftDiv.textContent = '9AM-5PM';
+                    break;
+                case 'afternoon':
+                    shiftDiv.classList.add('shift-afternoon');
+                    shiftDiv.textContent = '12PM-8PM';
+                    break;
+                case 'night':
+                    shiftDiv.classList.add('shift-night');
+                    shiftDiv.textContent = '5PM-1AM';
+                    break;
+                case 'day-off':
+                    shiftDiv.classList.add('day-off');
+                    shiftDiv.textContent = 'OFF';
+                    break;
+                case 'sick-leave':
+                    shiftDiv.classList.add('sick-leave');
+                    shiftDiv.textContent = 'SICK';
+                    break;
+                case 'vacation':
+                    shiftDiv.classList.add('vacation');
+                    shiftDiv.textContent = 'VAC';
+                    break;
+                case 'custom':
+                    shiftDiv.classList.add('shift-morning');
+                    shiftDiv.textContent = customShift || 'Custom';
+                    break;
+            }
+            
+            // Insert the new shift before the edit link
+            const editLink = currentCell.querySelector('.edit-shift');
+            currentCell.insertBefore(shiftDiv, editLink);
+            
+            showToast(`Shift for ${employeeName} updated successfully!`);
+        }
+        
+        shiftModal.style.display = 'none';
+    });
+    
+    // Delete shift
+    deleteShiftBtn.addEventListener('click', function() {
+        const employeeName = document.getElementById('shiftEmployee').value;
+        const currentCellId = shiftModal.dataset.currentCell;
+        const currentCell = document.getElementById(currentCellId);
+        
+        if (currentCell) {
+            const shiftDiv = currentCell.querySelector('.shift');
+            if (shiftDiv) {
+                currentCell.removeChild(shiftDiv);
+                showToast(`Shift for ${employeeName} deleted successfully!`, 'danger');
+            }
+        }
+        
+        shiftModal.style.display = 'none';
+    });
+    
+    // Save schedule button
+    saveScheduleBtn.addEventListener('click', function() {
+        showToast('Schedule saved successfully!');
+    });
+    
+    // Send reminders button
+    sendRemindersBtn.addEventListener('click', function() {
+        const subject = encodeURIComponent('Upcoming Work Schedule Reminder');
+        const body = encodeURIComponent(`Dear Team,\n\nThis is a reminder of your upcoming work schedule for the week of ${weekDisplay.textContent}.\n\nPlease review your shifts below and let us know if you have any questions or conflicts.\n\nBest regards,\n${currentUser.name}\n${currentUser.email}`);
+        
+        const recipientEmails = employees.map(e => e.email).join(',');
+        const mailtoLink = `mailto:?bcc=${recipientEmails}&subject=${subject}&body=${body}`;
+        window.open(mailtoLink, '_blank');
+        
+        showToast('Reminder email prepared for all employees. Please review and send.');
+    });
+    
+    // Initialize
+    updateWeekDisplay();
+    
+    // Show admin controls if user is admin
+    if (currentUser.role === 'admin' || currentUser.role === 'supervisor') {
+        document.querySelectorAll('.edit-shift').forEach(el => el.style.display = 'inline');
+        addEmployeeBtn.style.display = 'flex';
+        sendRemindersBtn.style.display = 'flex';
+        saveScheduleBtn.style.display = 'flex';
     }
-
-    function loadSection(sectionName) {
-        console.log(`--- loadSection called for: ${sectionName} ---`);
-        const htmlPath = `sections/${sectionName}.html`;
-        const jsPath = `sections/${sectionName}.js`;
-        const initFunctionName = sectionsWithJS[sectionName];
-
-        // Display Loading State (Keep implementation)
-         if (!featureSections || !featurePlaceholder || !featureTitle || !featureDescription || !featureLoadingIndicator || !featureErrorMessage) { console.error("loadSection: Placeholder elements missing!"); }
-         else { /* Show placeholder */
-             featureSections.innerHTML = ''; featureSections.appendChild(featurePlaceholder); featureTitle.textContent = `Loading...`; featureDescription.textContent = ''; featureLoadingIndicator.style.display = 'block'; featureErrorMessage.style.display = 'none'; featurePlaceholder.style.display = 'flex'; featureSections.classList.remove('active');
-         }
-
-        // Remove Previous Script (Keep implementation)
-        if (currentSectionScript && currentSectionScript.parentNode) { currentSectionScript.remove(); currentSectionScript = null; }
-
-        // Fetch HTML (Keep implementation)
-        fetch(htmlPath)
-            .then(response => { if (!response.ok) throw new Error(`HTML Load Error: ${response.status}`); return response.text(); })
-            .then(html => {
-                console.log(`HTML loaded for ${sectionName}`);
-                featureSections.innerHTML = html;
-                featureSections.classList.add('active');
-                if(featurePlaceholder) featurePlaceholder.style.display = 'none';
-
-                // Load JS (if applicable)
-                if (initFunctionName) {
-                    console.log(`Attempting to load JS: ${jsPath}`);
-                    const script = document.createElement('script');
-                    script.src = jsPath;
-                    script.type = 'text/javascript';
-                    script.onload = () => {
-                        console.log(`Script loaded: ${jsPath}`);
-                        if (typeof window[initFunctionName] === 'function') {
-                            try {
-                                console.log(`Executing ${initFunctionName}...`);
-                                // --->>> CRITICAL: Pass the CURRENT teamMembers array <<<---
-                                const currentUserCopy = JSON.parse(JSON.stringify(currentUser || {}));
-                                const teamMembersCopy = JSON.parse(JSON.stringify(teamMembers || [])); // Use the current, potentially generated, teamMembers
-                                console.log(`---> Passing ${teamMembersCopy.length} team members to ${initFunctionName}`, teamMembersCopy);
-
-                                window[initFunctionName](currentUserCopy, teamMembersCopy); // Pass actual data
-                                console.log(`${initFunctionName} execution seems successful.`);
-                            } catch (err) { console.error(`Error executing ${initFunctionName}:`, err); /* Show error UI */ }
-                        } else { console.warn(`Init function '${initFunctionName}' NOT FOUND.`); /* Show warning UI */ }
-                    };
-                    script.onerror = (event) => { console.error(`Error loading script: ${jsPath}`, event); /* Show error UI */ };
-                    document.body.appendChild(script);
-                    currentSectionScript = script;
-                } else { if(featurePlaceholder) featurePlaceholder.style.display = 'none'; }
-            })
-            .catch(error => { console.error(`Failed to load section '${sectionName}':`, error); /* Show error UI */ });
-    }
-
-    function activateSettingsTab(tabId) { /* ... implementation ... */ }
-    function handleInitialNavigation() { /* ... implementation ... */ }
-
-    // --- Event Listener Setup ---
-    function setupEventListeners() {
-        console.log("--- setupEventListeners ---");
-        // Sidebar & Dropdown Navigation (Keep implementation)
-        menuButtons.forEach(button => button.addEventListener('click', (e) => { e.preventDefault(); setActive(button.dataset.section); }));
-        dropdownButtons.forEach(button => button.addEventListener('click', (e) => { e.preventDefault(); if(userDropdown) userDropdown.classList.remove('active'); setActive(button.dataset.section); }));
-        // Back Button
-        if (backButton) backButton.addEventListener('click', () => setActive('dashboard'));
-        // Popstate
-        window.addEventListener('popstate', (event) => { if (event.state && event.state.section) { setActive(event.state.section, event.state.tab); } else { handleInitialNavigation(); } });
-        // Logout
-        if(logoutLink) logoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
-        // --- Add ALL OTHER Listeners (Search, Modals, Forms, etc.) ---
-         console.log("Event listeners setup complete.");
-    }
-
-     // --- Placeholder/Mock for other functions ---
-     function handleLogout() { console.log("Logout - Placeholder"); alert("Logout Placeholder"); /* Implement real logout */ }
-     // ... Add other handlers as needed ...
-
-
-    // --- Initialization ---
-    function initializeApp() {
-        console.log("--- Initializing App ---");
-        loadData();         // <<<< ENSURE THIS LOADS/GENERATES teamMembers
-        updateUserUI();
-        // Don't call loadTeamMembers here necessarily, let settings tab handle it
-        loadActivities();
-        loadNotifications();
-        updateStats();      // <<<< This now uses the correct teamMembers count
-        applyUserPreferences();
-        applyRBAC();
-        setupEventListeners();
-        handleInitialNavigation(); // Load initial section
-        startActivityTimeUpdater();
-        console.log("--- Dashboard Initialized ---");
-    }
-
-    // --- Start the Application ---
-    initializeApp();
-
-}); // End DOMContentLoaded
+}
