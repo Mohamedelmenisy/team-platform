@@ -1,5 +1,3 @@
---- START OF FILE dashboardjs.txt ---
-
 // dashboard.js
 
 document.addEventListener('DOMContentLoaded', function() {
