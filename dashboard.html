@@ -1,1 +1,344 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeamFlow | Dashboard</title>
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Favicons (Keep your original links) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="https://via.placeholder.com/32">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://via.placeholder.com/16">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://via.placeholder.com/180">
+
+    <!-- Dashboard Stylesheet -->
+    <link rel="stylesheet" href="dashboard.css">
+
+    <!-- Section Specific Stylesheets -->
+    <!-- Add links for CSS of *all* your sections here -->
+    <link rel="stylesheet" href="sections/employee-scheduling.css">
+    <!-- <link rel="stylesheet" href="sections/another-section.css"> -->
+
+</head>
+<body class="blue-theme"> <!-- Theme class managed by JS -->
+
+    <audio id="notificationSound" preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_12b0c7443c.mp3?filename=notification-sound-7062.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div class="success-message" id="successMessage">
+        <i class="fas fa-check-circle"></i>
+        <span id="successMessageText">Action successful!</span>
+    </div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-users-cog logo-icon"></i>
+                <span>TeamFlow</span>
+            </div>
+            <!-- Add menu toggle button for mobile if needed -->
+        </div>
+        <nav class="sidebar-menu">
+            <div class="menu-title">Navigation</div>
+            <!-- Use data-section for consistency -->
+            <button class="menu-item" data-section="dashboard">
+                <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+            </button>
+            <button class="menu-item" data-section="projects">
+                <i class="fas fa-briefcase"></i><span>Projects</span>
+            </button>
+            <button class="menu-item" data-section="reports-analytics">
+                <i class="fas fa-chart-line"></i><span>Reports & Analytics</span>
+            </button>
+            <button class="menu-item" data-section="team-members-view">
+                <i class="fas fa-users"></i><span>Team Members</span>
+            </button>
+
+            <div class="menu-title">Core Features</div>
+            <button class="menu-item" data-section="file-sharing"><i class="fas fa-file-upload"></i><span>File Sharing</span></button>
+            <button class="menu-item" data-section="data-management"><i class="fas fa-database"></i><span>Data Management</span></button>
+            <button class="menu-item" data-section="project-tracking"><i class="fas fa-project-diagram"></i><span>Project Tracking</span></button>
+            <button class="menu-item" data-section="task-management"><i class="fas fa-tasks"></i><span>Task Management</span></button>
+
+            <div class="menu-title">Team Tools</div>
+            <button class="menu-item" data-section="employee-scheduling"><i class="fas fa-user-clock"></i><span>Employee Scheduling</span></button>
+            <button class="menu-item" data-section="team-calendar"><i class="fas fa-calendar-alt"></i><span>Team Calendar</span></button>
+            <button class="menu-item" data-section="deadline-tracking"><i class="fas fa-clock"></i><span>Deadline Tracking</span></button>
+            <button class="menu-item" data-section="innovation-hub"><i class="fas fa-lightbulb"></i><span>Innovation Hub</span></button>
+
+            <div class="menu-divider"></div>
+            <button class="menu-item" data-section="settings">
+                <i class="fas fa-cog"></i><span>Settings</span>
+            </button>
+        </nav>
+        <div class="connection-status">
+            <div class="status-dot"></div>
+            <span>Online</span>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <nav class="top-nav">
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search employees, projects, tasks..." id="searchInput" autocomplete="off">
+                <div class="search-results" id="searchResults"></div>
+            </div>
+            <div class="user-menu">
+                <div class="notification-icon" id="notificationIcon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" style="display: none;">0</span>
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar" id="userAvatar">ME</div>
+                    <div class="user-profile-details">
+                        <span class="user-name" id="userName">Mohamed Elmenisy</span>
+                        <span class="user-status"> • Connected</span>
+                    </div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <button class="dropdown-item" data-section="profile"><i class="fas fa-user"></i><span>Profile</span></button>
+                        <button class="dropdown-item" data-section="settings"><i class="fas fa-cog"></i><span>Settings</span></button>
+                        <button class="dropdown-item" id="logoutLink"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="content-area">
+            <!-- Back button - managed by JS -->
+            <div class="back-button" id="backButton" style="display: none;">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Dashboard</span>
+            </div>
+
+            <!-- Static Content Sections -->
+            <div id="dashboardContent" class="content-section active">
+                <!-- Welcome Section -->
+                <div class="welcome-section">
+                     <h2 class="welcome-title">Welcome, <span id="welcomeName">Mohamed</span>!</h2>
+                     <p class="welcome-subtitle">Here's what's happening with your team today.</p>
+                     <div class="user-info">
+                         <div class="user-info-avatar" id="profileAvatar">ME</div>
+                         <div class="user-info-details">
+                             <div class="user-info-name">Mohamed Elmenisy</div>
+                             <div class="user-info-title" id="userInfoRoleTitle">Administrator</div>
+                             <div class="user-info-email">
+                                 <i class="fas fa-envelope"></i>
+                                 <span id="userEmail">m.elsayed@thechefz.co</span>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+                <!-- Stats Section -->
+                <div class="stats-section">
+                    <div class="stat-card">
+                        <div class="stat-title"><i class="fas fa-users"></i>Team Members</div>
+                        <div class="stat-value"> <span id="teamMembersCount">0</span> <span class="stat-trend trend-neutral" id="teamMembersTrend"><i class="fas fa-minus"></i> 0%</span> </div>
+                    </div>
+                     <div class="stat-card">
+                        <div class="stat-title"><i class="fas fa-check-circle"></i>Tasks Completed</div>
+                        <div class="stat-value"> <span id="tasksCompleted">0</span> <span class="stat-trend trend-neutral" id="tasksCompletedTrend"><i class="fas fa-minus"></i> 0%</span> </div>
+                    </div>
+                     <div class="stat-card">
+                        <div class="stat-title"><i class="fas fa-project-diagram"></i>Active Projects</div>
+                        <div class="stat-value"> <span id="activeProjects">0</span> <span class="stat-trend trend-neutral" id="activeProjectsTrend"><i class="fas fa-minus"></i> 0%</span> </div>
+                    </div>
+                     <div class="stat-card">
+                        <div class="stat-title"><i class="fas fa-calendar-times"></i>Upcoming Deadlines</div>
+                        <div class="stat-value"> <span id="upcomingDeadlines">0</span> <span class="stat-trend trend-neutral" id="upcomingDeadlinesTrend"><i class="fas fa-minus"></i> 0%</span> </div>
+                    </div>
+                </div>
+                 <!-- Activity Section -->
+                 <div class="activity-section">
+                     <div class="section-header">
+                         <h3 class="section-title">Recent Activity <span class="live-badge">LIVE</span></h3>
+                         <div>
+                             <span class="view-all" id="viewAllActivity" style="display: none;">Show All</span>
+                             <span class="delete-all" id="deleteAllActivity" style="display: none;">Delete All</span>
+                         </div>
+                     </div>
+                     <ul class="activity-list" id="activityList">
+                         <li style="text-align: center; padding: 2rem; color: var(--gray);"> Loading activities... </li>
+                     </ul>
+                 </div>
+            </div>
+
+            <div class="content-section" id="profileContent">
+                <!-- Profile content structure (form, avatar section) goes here -->
+                 <div class="section-main-header"> <h2 class="section-main-title">Profile</h2> </div>
+                 <p class="profile-header-text">Your personal information and account security settings.</p>
+                 <div class="profile-avatar-section">
+                     <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark);">Avatar</label>
+                     <div id="profileAvatarLarge">ME</div>
+                     <button type="button" class="btn btn-outline btn-sm" id="uploadPhotoButton"> <i class="fas fa-upload"></i> Upload Photo </button>
+                     <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;">
+                 </div>
+                 <form class="data-form" id="profileForm">
+                     <div class="form-group"> <label for="firstName">First Name</label> <input type="text" id="firstName" class="form-control" value="Mohamed"> </div>
+                     <div class="form-group"> <label for="lastName">Last Name</label> <input type="text" id="lastName" class="form-control" value="Elmenisy"> </div>
+                     <div class="form-group" style="grid-column: span 2;"> <label for="fullNameDisplay">Full Name</label> <input type="text" id="fullNameDisplay" class="form-control" value="Mohamed Elmenisy" readonly> </div>
+                     <div class="form-group"> <label for="jobTitle">Job Title</label> <input type="text" id="jobTitle" class="form-control" value="Administrator"> </div>
+                     <div class="form-group"> <label for="email">Email</label> <input type="email" id="email" class="form-control" value="m.elsayed@thechefz.co" readonly> </div>
+                     <div class="form-group"> <label for="phone">Phone Number</label> <input type="tel" id="phone" class="form-control" value="+201234567890"> </div>
+                     <div class="form-group"> <label for="department">Department</label> <input type="text" id="department" class="form-control" value="Management"> </div>
+                     <div class="form-actions">
+                         <button type="button" class="btn btn-outline" id="cancelProfileBtn">Cancel</button>
+                         <button type="submit" class="btn btn-primary">Save Changes</button>
+                     </div>
+                 </form>
+            </div>
+
+            <div class="content-section" id="settingsContent">
+                <!-- Settings content structure (tabs, panels) goes here -->
+                 <div class="section-main-header"> <h2 class="section-main-title">System Settings</h2> </div>
+                 <div class="settings-tabs">
+                     <div class="settings-tab active" data-tab="preferences">Preferences</div>
+                     <div class="settings-tab" data-tab="account">Account</div>
+                     <div class="settings-tab" data-tab="security">Security</div>
+                     <div class="settings-tab" data-tab="notifications">Notifications</div>
+                     <div class="settings-tab" data-tab="team" id="teamSettingsTab">Team Management</div>
+                     <div class="settings-tab" data-tab="collaboration">Collaboration</div>
+                     <div class="settings-tab" data-tab="danger" id="dangerZoneTab">Danger Zone</div>
+                 </div>
+                 <!-- Settings Panels (Preferences, Account, etc.) -->
+                 <div class="settings-panel active" id="preferencesPanel">
+                    <!-- Preferences form content -->
+                     <h3 class="section-title">Preferences</h3>
+                     <form class="data-form" id="preferencesForm">
+                         <div class="form-group"> <label>Theme</label> <div style="display: flex; gap: 1rem; margin-top: 0.5rem;"> <div class="theme-option" data-theme="light"> <div style="background-color: #f1f5f9;"></div> <span>Light</span> </div> <div class="theme-option" data-theme="dark"> <div style="background-color: #0f172a;"></div> <span>Dark</span> </div> <div class="theme-option selected" data-theme="blue"> <div style="background-color: #dbeafe;"></div> <span>Blue</span> </div> </div> <input type="hidden" id="selectedTheme" value="blue"> </div>
+                         <div class="form-group"> <label for="layoutDensity">Layout Density</label> <select id="layoutDensity" class="form-control"> <option value="compact">Compact</option> <option value="normal" selected>Normal</option> <option value="spacious">Spacious</option> </select> </div>
+                         <div class="form-group"> <label for="language">Language</label> <select id="language" class="form-control"> <option value="en" selected>English</option> <option value="ar">Arabic (Placeholder)</option> <option value="es">Spanish (Placeholder)</option> </select> </div>
+                         <div class="form-group"> <label for="dateFormat">Date Format</label> <select id="dateFormat" class="form-control"> <option value="mm/dd/yyyy">MM/DD/YYYY</option> <option value="dd/mm/yyyy" selected>DD/MM/YYYY</option> <option value="yyyy-mm-dd">YYYY-MM-DD</option> </select> </div>
+                         <div class="form-group"> <label for="region">Region</label> <input type="text" id="region" class="form-control" placeholder="Cairo (Placeholder)" disabled> </div>
+                         <div class="form-group"> <label for="weekStart">Calendar Week Start</label> <select id="weekStart" class="form-control"> <option value="sun" selected>Sunday</option> <option value="sat">Saturday</option> <option value="mon">Monday</option> </select> </div>
+                         <div class="form-group" style="grid-column: span 2;"> <label for="defaultHomepage">Default Homepage (Placeholder)</label> <select id="defaultHomepage" class="form-control" disabled> <option selected>Dashboard</option> <option>Tasks</option> <option>Calendar</option> </select> </div>
+                         <div class="form-actions"> <button type="button" class="btn btn-outline" id="cancelPreferencesBtn">Cancel</button> <button type="submit" class="btn btn-primary" id="savePreferencesBtn"> <span class="btn-text">Save Preferences</span> <div class="spinner" id="preferencesSpinner"></div> <span class="loading-text" id="preferencesLoadingText">Saving...</span> </button> </div>
+                    </form>
+                 </div>
+                 <div class="settings-panel" id="accountPanel">
+                    <!-- Account form content -->
+                     <h3 class="section-title">Account Settings</h3>
+                     <form class="data-form" id="accountForm">
+                        <div class="form-group"> <label for="acc_firstName">First Name</label> <input type="text" id="acc_firstName" class="form-control" readonly> </div>
+                        <div class="form-group"> <label for="acc_lastName">Last Name</label> <input type="text" id="acc_lastName" class="form-control" readonly> </div>
+                        <div class="form-group"> <label for="acc_email">Email</label> <input type="email" id="acc_email" class="form-control" readonly> </div>
+                        <div class="form-group"> <label for="timezone">Timezone</label> <select id="timezone" class="form-control"> <option value="utc">UTC</option> <option value="cairo" selected>Cairo (UTC+2)</option> <option value="new_york">New York (UTC-5)</option> </select> </div>
+                        <div class="form-actions"> <button type="button" class="btn btn-outline" id="cancelAccountBtn">Cancel</button> <button type="submit" class="btn btn-primary" id="saveAccountBtn"> <span class="btn-text">Save Settings</span> <div class="spinner" id="accountSpinner"></div> <span class="loading-text" id="accountLoadingText">Saving...</span> </button> </div>
+                        <div class="form-group" style="grid-column: span 2; margin-top: 2rem;"> <label style="color: var(--danger);">Account Deletion</label> <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">Permanently delete your account and all associated data. This action cannot be undone.</p> <button type="button" class="btn btn-danger" id="deleteAccountBtn" disabled>Delete Account (Placeholder)</button> </div>
+                     </form>
+                 </div>
+                 <div class="settings-panel" id="securityPanel">
+                     <!-- Security form content -->
+                      <h3 class="section-title">Security Settings</h3>
+                      <form class="data-form" id="securityForm">
+                         <div class="form-group" style="grid-column: span 2;"> <label>Two-Factor Authentication (2FA)</label> <div style="display: flex; align-items: center; gap: 1rem;"> <label class="switch"> <input type="checkbox" id="twoFactorAuth" checked> <span class="slider round"></span> </label> <span>Enabled</span> </div> <p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.5rem;">Requires authentication code from your app upon login.</p> </div>
+                         <div class="form-group"> <label for="currentPassword">Current Password</label> <input type="password" id="currentPassword" class="form-control" autocomplete="current-password"> <div class="password-error" id="currentPasswordError">Current password is incorrect</div> </div>
+                         <div class="form-group"> <label for="newPassword">New Password</label> <input type="password" id="newPassword" class="form-control" autocomplete="new-password"> <small style="color: var(--gray);">Minimum 8 characters required.</small> </div>
+                         <div class="form-group"> <label for="confirmPassword">Confirm New Password</label> <input type="password" id="confirmPassword" class="form-control" autocomplete="new-password"> <div class="password-error" id="passwordMatchError">Passwords do not match</div> </div>
+                         <div class="form-actions"> <button type="button" class="btn btn-outline" id="cancelSecurityBtn">Cancel</button> <button type="submit" class="btn btn-primary" id="saveSecurityBtn"> <span class="btn-text">Update Password</span> <div class="spinner" id="securitySpinner"></div> <span class="loading-text" id="securityLoadingText">Updating...</span> </button> </div>
+                         <div class="form-group" style="grid-column: span 2; margin-top: 2rem;"> <label>Integrations (Placeholders)</label> <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0;"> <span>Slack Integration</span> <button class="btn btn-outline" disabled>Connect</button> </div> <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0;"> <span>Single Sign-On (SSO)</span> <button class="btn btn-outline" disabled>Configure</button> </div> </div>
+                     </form>
+                 </div>
+                 <div class="settings-panel" id="notificationsPanel">
+                    <!-- Notifications form content -->
+                    <h3 class="section-title">Notification Settings</h3>
+                    <form class="data-form" id="notificationsForm">
+                        <div class="form-group"> <label>Email Notifications</label> <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.75rem;"> <div style="display: flex; align-items: center; justify-content: space-between;"> <span>Task Assignments & Updates</span> <label class="switch"> <input type="checkbox" id="emailTasks" checked> <span class="slider round"></span> </label> </div> <div style="display: flex; align-items: center; justify-content: space-between;"> <span>Deadline Reminders</span> <label class="switch"> <input type="checkbox" id="emailDeadlines" checked> <span class="slider round"></span> </label> </div> <div style="display: flex; align-items: center; justify-content: space-between;"> <span>System Updates & Announcements</span> <label class="switch"> <input type="checkbox" id="emailUpdates"> <span class="slider round"></span> </label> </div> <div style="display: flex; align-items: center; justify-content: space-between;"> <span>Weekly Summary (Placeholder)</span> <label class="switch"> <input type="checkbox" id="emailSummary" disabled> <span class="slider round"></span> </label> </div> </div> </div>
+                        <div class="form-group"> <label>In-App Push Notifications</label> <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.75rem;"> <div style="display: flex; align-items: center; justify-content: space-between;"> <span>New Messages & Mentions</span> <label class="switch"> <input type="checkbox" id="pushMessages" checked> <span class="slider round"></span> </label> </div> <div style="display: flex; align-items: center; justify-content: space-between;"> <span>Team & Project Updates</span> <label class="switch"> <input type="checkbox" id="pushTeamUpdates"> <span class="slider round"></span> </label> </div> <div style="display: flex; align-items: center; justify-content: space-between;"> <span>Sound Notifications</span> <label class="switch"> <input type="checkbox" id="soundNotifications" checked> <span class="slider round"></span> </label> </div> </div> </div>
+                        <div class="form-actions"> <button type="button" class="btn btn-outline" id="cancelNotificationsBtn">Cancel</button> <button type="submit" class="btn btn-primary" id="saveNotificationsBtn"> <span class="btn-text">Save Settings</span> <div class="spinner" id="notificationsSpinner"></div> <span class="loading-text" id="notificationsLoadingText">Saving...</span> </button> </div>
+                     </form>
+                 </div>
+                 <div class="settings-panel" id="teamPanel">
+                    <!-- Team Management content -->
+                     <div class="team-management">
+                        <h3>Team Members</h3>
+                        <div class="team-list" id="teamList"> <div style="text-align: center; padding: 2rem; color: var(--gray);">Loading team members...</div> </div>
+                        <div class="add-member-form">
+                            <h4>Invite New Member</h4>
+                            <form id="inviteMemberForm" class="data-form" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end; gap: 1rem;">
+                                <div class="form-group" style="margin-bottom: 0;"> <label for="inviteMemberEmail">Email</label> <input type="email" id="inviteMemberEmail" class="form-control" placeholder="user@example.com" required> </div>
+                                <div class="form-group" style="margin-bottom: 0;"> <label for="inviteMemberRole">Role</label> <select id="inviteMemberRole" class="form-control" required> <option value="member">Member</option> <option value="senior">Senior</option> <option value="supervisor">Supervisor</option> <option value="admin">Admin</option> </select> </div>
+                                <div style="grid-column: 1 / -1; margin-top: 1rem;"> <button type="submit" class="btn btn-primary">Send Invite</button> </div>
+                            </form>
+                        </div>
+                     </div>
+                 </div>
+                 <div class="settings-panel" id="collaborationPanel">
+                     <!-- Collaboration content -->
+                     <h3 class="section-title">Collaboration Settings</h3>
+                     <form class="data-form" id="collaborationForm">
+                         <div class="form-group" style="grid-column: span 2;"> <label>Shared Calendar Access (Placeholder)</label> <p style="color: var(--gray); font-size: 0.9rem;">Control who can view or edit the team calendar.</p> <button type="button" class="btn btn-outline" disabled>Manage Permissions</button> </div>
+                         <div class="form-group" style="grid-column: span 2;"> <label>Team Chat Integration (Placeholder)</label> <p style="color: var(--gray); font-size: 0.9rem;">Connect to your preferred team chat platform.</p> <button type="button" class="btn btn-outline" disabled>Configure Chat</button> </div>
+                         <div class="form-actions"> <button type="button" class="btn btn-outline" disabled>Cancel</button> <button type="submit" class="btn btn-primary" disabled>Save Collaboration Settings</button> </div>
+                     </form>
+                 </div>
+                 <div class="settings-panel" id="dangerPanel">
+                     <!-- Danger Zone content -->
+                    <h3 class="section-title" style="color: var(--danger);">Danger Zone</h3>
+                    <p style="color: var(--gray);">Actions in this section are permanent and cannot be undone. (Visible to Admins only)</p>
+                    <div style="margin-top: 1.5rem; border: 1px solid var(--danger); border-radius: 6px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;"> <div> <strong style="color: var(--dark);">Delete Team Data (Placeholder)</strong> <p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.25rem;">Permanently delete all projects, tasks, and files associated with this team.</p> </div> <button class="btn btn-danger" disabled>Delete All Team Data</button> </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;"> <div> <strong style="color: var(--dark);">Transfer Ownership (Placeholder)</strong> <p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.25rem;">Transfer administrative control of this workspace to another user.</p> </div> <button class="btn btn-warning" disabled>Transfer Ownership</button> </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;"> <div> <strong style="color: var(--dark);">Delete Workspace (Placeholder)</strong> <p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.25rem;">Permanently delete this entire workspace, including all users and data.</p> </div> <button class="btn btn-danger" disabled>Delete Workspace</button> </div>
+                    </div>
+                 </div>
+            </div>
+
+            <!-- Container for Dynamically Loaded Feature Sections -->
+            <div id="featureSectionsContainer" style="display: none;">
+                <div id="featureSections" class="content-section">
+                    <!-- Placeholder content shown while loading or on error -->
+                    <div class="placeholder-content" id="featurePlaceholder">
+                        <h2 id="featureTitle">Feature Content Area</h2>
+                        <p id="featureDescription">Select a feature from the sidebar to view its content.</p>
+                        <div class="loading-indicator" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> Loading...
+                        </div>
+                        <div class="error-message" style="display: none;">
+                            Failed to load content. Please try again later.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- /.content-area -->
+
+    </main>
+
+    <!-- Notifications Modal -->
+    <div class="notifications-modal" id="notificationsModal">
+        <div class="notifications-container">
+            <div class="notifications-header">
+                <h3 class="notifications-title">Notifications</h3>
+                <button class="close-notifications" id="closeNotifications">&times;</button>
+            </div>
+            <div class="notifications-body" id="notificationsBody">
+                <div class="no-notifications-message">Loading notifications...</div>
+            </div>
+            <div class="notifications-footer">
+                <button class="btn btn-outline btn-sm" id="markAllReadBtn">Mark All as Read</button>
+                <button class="btn btn-danger btn-sm" id="deleteAllNotificationsBtn">Delete All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-container">
+            <h3 class="confirm-title" id="confirmTitle">Confirm Action</h3>
+            <div class="confirm-message" id="confirmMessage">Are you sure you want to proceed?</div>
+            <div class="confirm-actions">
+                <button class="btn btn-outline" id="cancelConfirmBtn">Cancel</button>
+                <button class="btn btn-danger" id="confirmBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard JavaScript -->
+    <script src="dashboard.js" defer></script>
+
+</body>
+</html>
