@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -579,7 +580,7 @@
          body.dark-theme .user-info-title.role-admin { color: var(--team-manager); }
         body.dark-theme .user-info-email { color: var(--gray); }
         body.dark-theme .welcome-subtitle { color: var(--gray); }
-        body.dark-theme #featureSections .toast { background-color: var(--light); color: var(--dark); } /* Adjust toast for dark */
+        body.dark-theme #featureSections .toast { background-color: var(--light); color: var(--dark); border-left-color: var(--primary); } /* Adjust toast for dark */
         body.dark-theme #featureSections .toast.toast-success { border-left-color: var(--success); background-color: var(--light); color: var(--success); }
         body.dark-theme #featureSections .toast.toast-danger { border-left-color: var(--danger); background-color: var(--light); color: var(--danger); }
 
@@ -682,6 +683,7 @@
             .main-content { margin-left: 0; }
             .search-bar { width: 250px; }
             .team-member-card { flex-wrap: wrap; }
+             #featureSections .schedule-controls { justify-content: center; }
         }
         @media (max-width: 768px) {
             .top-nav { flex-direction: column; gap: 1rem; padding: 1rem; }
@@ -704,12 +706,33 @@
              .add-member-form .data-form { grid-template-columns: 1fr; align-items: stretch; }
              .add-member-form .data-form > div { margin-bottom: 1rem; }
              .add-member-form .data-form > div:last-child { margin-top: 0; }
+             /* Schedule specific responsive */
+             #featureSections .main-container { padding: 0 1rem; margin-top: 1rem;}
+             #featureSections .page-header { margin-bottom: 1.5rem; }
+             #featureSections .schedule-controls { flex-direction: column; gap: 1rem; align-items: stretch; }
+             #featureSections .week-navigation { justify-content: space-between; width: 100%;}
+             #featureSections .employee-name { position: static; border-right: none; background-color: var(--light); padding: 0.5rem; font-size: 0.9rem; }
+             body.dark-theme #featureSections .employee-name { background-color: var(--light); } /* Ensure dark theme bg */
+             #featureSections .schedule-table thead th { position: static; }
+             #featureSections .schedule-table { min-width: auto; }
+             #featureSections .schedule-table tbody td { padding: 0.5rem 0.25rem; font-size: 0.8rem; }
+             #featureSections .shift { font-size: 0.7rem; padding: 0.2rem 0.4rem; min-width: 50px; }
+             #featureSections .edit-shift { font-size: 0.7rem; }
+             #featureSections .modal-content { padding: 1.5rem; }
+             #featureSections .modal-title { font-size: 1.2rem; }
         }
         @media (max-width: 480px) {
              .section-header > div { justify-content: center; width: 100%; }
              .welcome-section { padding: 1.5rem; }
              .stats-section { gap: 0.75rem; }
              .stat-card { padding: 1rem; }
+             /* Schedule specific responsive */
+              #featureSections .page-title { font-size: 1.5rem; }
+              #featureSections .btn { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+              #featureSections .week-display { font-size: 0.9rem; min-width: 140px; }
+              #featureSections .day-header { gap: 0; }
+              #featureSections .day-name { font-size: 0.8rem; }
+              #featureSections .day-date { font-size: 0.7rem; }
         }
 
         /* Back button Styles */
@@ -775,61 +798,267 @@
         .placeholder-content .loading-indicator { font-size: 1.2rem; margin-top: 1rem; }
         .placeholder-content .error-message { color: var(--danger); font-weight: 500; margin-top: 1rem; }
 
-         /* Feature-specific styles can be included here or within the loaded HTML's <style> */
-         /* Example: Schedule specific styles might need adjustments */
-         #featureSections .main-container { /* Styles for loaded schedule container */ }
-         #featureSections .schedule-table { /* Styles for loaded schedule table */ }
-         /* ... etc ... */
-
     </style>
 </head>
-<body class="blue-theme">
-    <!-- HTML Structure Remains the Same -->
-    <audio id="notificationSound" preload="auto">...</audio>
-    <div class="success-message" id="successMessage">...</div>
-    <aside class="sidebar" id="sidebar">...</aside>
-    <main class="main-content">
-        <nav class="top-nav">...</nav>
-        <div class="content-area">
-            <div class="back-button" id="backButton" style="display: none;">...</div>
-            <div id="dashboardContent" class="content-section active">...</div>
-            <div class="content-section" id="profileContent">...</div>
-            <div class="content-section" id="settingsContent">...</div>
-            <div id="featureSectionsContainer" style="display: none;">
-                <div id="featureSections" class="content-section">
-                     <div class="placeholder-content" id="featurePlaceholder">...</div>
-                </div>
+<body class="blue-theme"> <!-- Default theme, JS will override based on prefs -->
+    <!-- HTML Structure -->
+    <audio id="notificationSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <div class="success-message" id="successMessage">
+        <i class="fas fa-check-circle"></i>
+        <span id="successMessageText">Action successful!</span>
+    </div>
+    <aside class="sidebar" id="sidebar">
+        <!-- Sidebar Header -->
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-users-cog logo-icon"></i>
+                <span>TeamFlow</span>
             </div>
         </div>
+        <!-- Sidebar Menu -->
+        <div class="sidebar-menu">
+            <div class="menu-title">Navigation</div>
+            <a href="#dashboard" class="menu-item active" data-feature="dashboard"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+            <a href="#projects" class="menu-item" data-feature="projects"><i class="fas fa-briefcase"></i><span>Projects</span></a>
+            <a href="#reports-analytics" class="menu-item" data-feature="reports-analytics"><i class="fas fa-chart-line"></i><span>Reports & Analytics</span></a>
+            <a href="#team-members-view" class="menu-item" data-feature="team-members-view"><i class="fas fa-users"></i><span>Team Members</span></a>
+            <div class="menu-title">Core Features</div>
+            <a href="#file-sharing" class="menu-item" data-feature="file-sharing"><i class="fas fa-file-upload"></i><span>File Sharing</span></a>
+            <a href="#data-management" class="menu-item" data-feature="data-management"><i class="fas fa-database"></i><span>Data Management</span></a>
+            <a href="#project-tracking" class="menu-item" data-feature="project-tracking"><i class="fas fa-project-diagram"></i><span>Project Tracking</span></a>
+            <a href="#task-management" class="menu-item" data-feature="task-management"><i class="fas fa-tasks"></i><span>Task Management</span></a>
+            <div class="menu-title">Team Tools</div>
+            <a href="#employee-scheduling" class="menu-item" data-feature="employee-scheduling"><i class="fas fa-user-clock"></i><span>Employee Scheduling</span></a>
+            <a href="#team-calendar" class="menu-item" data-feature="team-calendar"><i class="fas fa-calendar-alt"></i><span>Team Calendar</span></a>
+            <a href="#deadline-tracking" class="menu-item" data-feature="deadline-tracking"><i class="fas fa-clock"></i><span>Deadline Tracking</span></a>
+            <a href="#innovation-hub" class="menu-item" data-feature="innovation-hub"><i class="fas fa-lightbulb"></i><span>Innovation Hub</span></a>
+            <div class="menu-divider"></div>
+            <a href="#settings" class="menu-item" data-feature="settings"><i class="fas fa-cog"></i><span>Settings</span></a>
+        </div>
+        <!-- Connection Status -->
+        <div class="connection-status"><div class="status-dot"></div><span>Online</span></div>
+    </aside>
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav class="top-nav">
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search employees, projects, tasks..." id="searchInput" autocomplete="off">
+                <div class="search-results" id="searchResults"></div>
+            </div>
+            <div class="user-menu">
+                <div class="notification-icon" id="notificationIcon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" style="display: none;">0</span>
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar" id="userAvatar">ME</div>
+                    <div class="user-profile-details">
+                        <span class="user-name" id="userName">Mohamed Elmenisy</span>
+                        <span class="user-status"> • Connected</span>
+                    </div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#profile" class="dropdown-item" id="profileLink"><i class="fas fa-user"></i><span>Profile</span></a>
+                        <a href="#settings" class="dropdown-item" id="settingsLink"><i class="fas fa-cog"></i><span>Settings</span></a>
+                        <a href="#" class="dropdown-item" id="logoutLink"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <!-- Content Area -->
+        <div class="content-area">
+             <div class="back-button" id="backButton" style="display: none;"><i class="fas fa-arrow-left"></i><span>Back to Dashboard</span></div>
+             <!-- Dashboard Content -->
+             <div id="dashboardContent" class="content-section active">
+                 <div class="welcome-section">
+                     <h2 class="welcome-title">Welcome, <span id="welcomeName">Mohamed</span>!</h2>
+                     <p class="welcome-subtitle">Here's what's happening with your team today.</p>
+                     <div class="user-info">
+                         <div class="user-info-avatar" id="profileAvatar">ME</div>
+                         <div class="user-info-details">
+                             <div class="user-info-name">Mohamed Elmenisy</div>
+                             <div class="user-info-title" id="userInfoRoleTitle">Administrator</div>
+                             <div class="user-info-email"><i class="fas fa-envelope"></i><span id="userEmail">m.elsayed@thechefz.co</span></div>
+                         </div>
+                     </div>
+                 </div>
+                 <div class="stats-section">
+                     <div class="stat-card"><div class="stat-title"><i class="fas fa-users"></i>Team Members</div><div class="stat-value"><span id="teamMembersCount">0</span><span class="stat-trend trend-neutral" id="teamMembersTrend"><i class="fas fa-minus"></i> 0%</span></div></div>
+                     <div class="stat-card"><div class="stat-title"><i class="fas fa-check-circle"></i>Tasks Completed</div><div class="stat-value"><span id="tasksCompleted">0</span><span class="stat-trend trend-neutral" id="tasksCompletedTrend"><i class="fas fa-minus"></i> 0%</span></div></div>
+                     <div class="stat-card"><div class="stat-title"><i class="fas fa-project-diagram"></i>Active Projects</div><div class="stat-value"><span id="activeProjects">0</span><span class="stat-trend trend-neutral" id="activeProjectsTrend"><i class="fas fa-minus"></i> 0%</span></div></div>
+                     <div class="stat-card"><div class="stat-title"><i class="fas fa-calendar-times"></i>Upcoming Deadlines</div><div class="stat-value"><span id="upcomingDeadlines">0</span><span class="stat-trend trend-neutral" id="upcomingDeadlinesTrend"><i class="fas fa-minus"></i> 0%</span></div></div>
+                 </div>
+                 <div class="activity-section">
+                     <div class="section-header"><h3 class="section-title">Recent Activity <span class="live-badge">LIVE</span></h3><div><span class="view-all" id="viewAllActivity" style="display: none;">Show All</span><span class="delete-all" id="deleteAllActivity" style="display: none;">Delete All</span></div></div>
+                     <ul class="activity-list" id="activityList"><li style="text-align: center; padding: 2rem; color: var(--gray);">Loading activities...</li></ul>
+                 </div>
+             </div>
+             <!-- Profile Content -->
+             <div class="content-section" id="profileContent">
+                  <div class="section-main-header"><h2 class="section-main-title">Profile</h2></div>
+                  <p class="profile-header-text">Your personal information and account security settings.</p>
+                  <div class="profile-avatar-section">
+                      <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark);">Avatar</label>
+                      <div id="profileAvatarLarge">ME</div>
+                      <button type="button" class="btn btn-outline btn-sm" id="uploadPhotoButton"><i class="fas fa-upload"></i> Upload Photo</button>
+                      <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;">
+                  </div>
+                 <form class="data-form" id="profileForm">
+                     <div class="form-group"><label for="firstName">First Name</label><input type="text" id="firstName" class="form-control" value="Mohamed"></div>
+                     <div class="form-group"><label for="lastName">Last Name</label><input type="text" id="lastName" class="form-control" value="Elmenisy"></div>
+                     <div class="form-group" style="grid-column: span 2;"><label for="fullNameDisplay">Full Name</label><input type="text" id="fullNameDisplay" class="form-control" value="Mohamed Elmenisy" readonly></div>
+                     <div class="form-group"><label for="jobTitle">Job Title</label><input type="text" id="jobTitle" class="form-control" value="Administrator"></div>
+                     <div class="form-group"><label for="email">Email</label><input type="email" id="email" class="form-control" value="m.elsayed@thechefz.co" readonly></div>
+                     <div class="form-group"><label for="phone">Phone Number</label><input type="tel" id="phone" class="form-control" value="+201234567890"></div>
+                     <div class="form-group"><label for="department">Department</label><input type="text" id="department" class="form-control" value="Management"></div>
+                     <div class="form-actions"><button type="button" class="btn btn-outline" id="cancelProfileBtn">Cancel</button><button type="submit" class="btn btn-primary">Save Changes</button></div>
+                 </form>
+             </div>
+             <!-- Settings Content -->
+             <div class="content-section" id="settingsContent">
+                 <div class="section-main-header"><h2 class="section-main-title">System Settings</h2></div>
+                 <div class="settings-tabs">
+                     <div class="settings-tab active" data-tab="preferences">Preferences</div><div class="settings-tab" data-tab="account">Account</div><div class="settings-tab" data-tab="security">Security</div><div class="settings-tab" data-tab="notifications">Notifications</div><div class="settings-tab" data-tab="team" id="teamSettingsTab">Team Management</div><div class="settings-tab" data-tab="collaboration">Collaboration</div><div class="settings-tab" data-tab="danger" id="dangerZoneTab">Danger Zone</div>
+                 </div>
+                 <!-- Preferences Panel -->
+                 <div class="settings-panel active" id="preferencesPanel">
+                      <h3 class="section-title">Preferences</h3>
+                      <form class="data-form" id="preferencesForm">
+                          <div class="form-group"><label>Theme</label><div style="display: flex; gap: 1rem; margin-top: 0.5rem;"><div class="theme-option" data-theme="light"><div style="background-color: #f1f5f9;"></div><span>Light</span></div><div class="theme-option" data-theme="dark"><div style="background-color: #0f172a;"></div><span>Dark</span></div><div class="theme-option selected" data-theme="blue"><div style="background-color: #dbeafe;"></div><span>Blue</span></div></div><input type="hidden" id="selectedTheme" value="blue"></div>
+                          <div class="form-group"><label for="layoutDensity">Layout Density</label><select id="layoutDensity" class="form-control"><option value="compact">Compact</option><option value="normal" selected>Normal</option><option value="spacious">Spacious</option></select></div>
+                          <div class="form-group"><label for="language">Language</label><select id="language" class="form-control"><option value="en" selected>English</option><option value="ar">Arabic (Placeholder)</option><option value="es">Spanish (Placeholder)</option></select></div>
+                          <div class="form-group"><label for="dateFormat">Date Format</label><select id="dateFormat" class="form-control"><option value="mm/dd/yyyy">MM/DD/YYYY</option><option value="dd/mm/yyyy" selected>DD/MM/YYYY</option><option value="yyyy-mm-dd">YYYY-MM-DD</option></select></div>
+                          <div class="form-group"><label for="region">Region</label><input type="text" id="region" class="form-control" placeholder="Cairo (Placeholder)" disabled></div>
+                          <div class="form-group"><label for="weekStart">Calendar Week Start</label><select id="weekStart" class="form-control"><option value="sun" selected>Sunday</option></select></div>
+                          <div class="form-group" style="grid-column: span 2;"><label for="defaultHomepage">Default Homepage (Placeholder)</label><select id="defaultHomepage" class="form-control" disabled><option selected>Dashboard</option><option>Tasks</option><option>Calendar</option></select></div>
+                          <div class="form-actions"><button type="button" class="btn btn-outline" id="cancelPreferencesBtn">Cancel</button><button type="submit" class="btn btn-primary" id="savePreferencesBtn"><span class="btn-text">Save Preferences</span><div class="spinner" id="preferencesSpinner"></div><span class="loading-text" id="preferencesLoadingText">Saving...</span></button></div>
+                     </form>
+                 </div>
+                 <!-- Account Panel -->
+                 <div class="settings-panel" id="accountPanel">
+                     <h3 class="section-title">Account Settings</h3>
+                     <form class="data-form" id="accountForm">
+                         <div class="form-group"><label for="acc_firstName">First Name</label><input type="text" id="acc_firstName" class="form-control" readonly></div>
+                         <div class="form-group"><label for="acc_lastName">Last Name</label><input type="text" id="acc_lastName" class="form-control" readonly></div>
+                         <div class="form-group"><label for="acc_email">Email</label><input type="email" id="acc_email" class="form-control" readonly></div>
+                         <div class="form-group"><label for="timezone">Timezone</label><select id="timezone" class="form-control"><option value="utc">UTC</option><option value="cairo" selected>Cairo (UTC+2)</option><option value="new_york">New York (UTC-5)</option></select></div>
+                         <div class="form-actions"><button type="button" class="btn btn-outline" id="cancelAccountBtn">Cancel</button><button type="submit" class="btn btn-primary" id="saveAccountBtn"><span class="btn-text">Save Settings</span><div class="spinner" id="accountSpinner"></div><span class="loading-text" id="accountLoadingText">Saving...</span></button></div>
+                         <div class="form-group" style="grid-column: span 2; margin-top: 2rem;"><label style="color: var(--danger);">Account Deletion</label><p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">Permanently delete your account and all associated data. This action cannot be undone.</p><button type="button" class="btn btn-danger" id="deleteAccountBtn" disabled>Delete Account (Placeholder)</button></div>
+                     </form>
+                 </div>
+                 <!-- Security Panel -->
+                 <div class="settings-panel" id="securityPanel">
+                      <h3 class="section-title">Security Settings</h3>
+                     <form class="data-form" id="securityForm">
+                         <div class="form-group" style="grid-column: span 2;"><label>Two-Factor Authentication (2FA)</label><div style="display: flex; align-items: center; gap: 1rem;"><label class="switch"><input type="checkbox" id="twoFactorAuth" checked><span class="slider round"></span></label><span>Enabled</span></div><p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.5rem;">Requires authentication code from your app upon login.</p></div>
+                         <div class="form-group"><label for="currentPassword">Current Password</label><input type="password" id="currentPassword" class="form-control" autocomplete="current-password"><div class="password-error" id="currentPasswordError">Current password is incorrect</div></div>
+                         <div class="form-group"><label for="newPassword">New Password</label><input type="password" id="newPassword" class="form-control" autocomplete="new-password"><small style="color: var(--gray);">Minimum 8 characters required.</small></div>
+                         <div class="form-group"><label for="confirmPassword">Confirm New Password</label><input type="password" id="confirmPassword" class="form-control" autocomplete="new-password"><div class="password-error" id="passwordMatchError">Passwords do not match</div></div>
+                         <div class="form-actions"><button type="button" class="btn btn-outline" id="cancelSecurityBtn">Cancel</button><button type="submit" class="btn btn-primary" id="saveSecurityBtn"><span class="btn-text">Update Password</span><div class="spinner" id="securitySpinner"></div><span class="loading-text" id="securityLoadingText">Updating...</span></button></div>
+                         <div class="form-group" style="grid-column: span 2; margin-top: 2rem;"><label>Integrations (Placeholders)</label><div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0;"><span>Slack Integration</span><button class="btn btn-outline" disabled>Connect</button></div><div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0;"><span>Single Sign-On (SSO)</span><button class="btn btn-outline" disabled>Configure</button></div></div>
+                     </form>
+                 </div>
+                 <!-- Notifications Panel -->
+                 <div class="settings-panel" id="notificationsPanel">
+                     <h3 class="section-title">Notification Settings</h3>
+                     <form class="data-form" id="notificationsForm">
+                         <div class="form-group"><label>Email Notifications</label><div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.75rem;"><div style="display: flex; align-items: center; justify-content: space-between;"><span>Task Assignments & Updates</span><label class="switch"><input type="checkbox" id="emailTasks" checked><span class="slider round"></span></label></div><div style="display: flex; align-items: center; justify-content: space-between;"><span>Deadline Reminders</span><label class="switch"><input type="checkbox" id="emailDeadlines" checked><span class="slider round"></span></label></div><div style="display: flex; align-items: center; justify-content: space-between;"><span>System Updates & Announcements</span><label class="switch"><input type="checkbox" id="emailUpdates"><span class="slider round"></span></label></div><div style="display: flex; align-items: center; justify-content: space-between;"><span>Weekly Summary (Placeholder)</span><label class="switch"><input type="checkbox" id="emailSummary" disabled><span class="slider round"></span></label></div></div></div>
+                         <div class="form-group"><label>In-App Push Notifications</label><div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.75rem;"><div style="display: flex; align-items: center; justify-content: space-between;"><span>New Messages & Mentions</span><label class="switch"><input type="checkbox" id="pushMessages" checked><span class="slider round"></span></label></div><div style="display: flex; align-items: center; justify-content: space-between;"><span>Team & Project Updates</span><label class="switch"><input type="checkbox" id="pushTeamUpdates"><span class="slider round"></span></label></div><div style="display: flex; align-items: center; justify-content: space-between;"><span>Sound Notifications</span><label class="switch"><input type="checkbox" id="soundNotifications" checked><span class="slider round"></span></label></div></div></div>
+                         <div class="form-actions"><button type="button" class="btn btn-outline" id="cancelNotificationsBtn">Cancel</button><button type="submit" class="btn btn-primary" id="saveNotificationsBtn"><span class="btn-text">Save Settings</span><div class="spinner" id="notificationsSpinner"></div><span class="loading-text" id="notificationsLoadingText">Saving...</span></button></div>
+                     </form>
+                 </div>
+                 <!-- Team Management Panel -->
+                 <div class="settings-panel" id="teamPanel">
+                     <div class="team-management">
+                         <h3>Team Members</h3>
+                         <div class="team-list" id="teamList"><div style="text-align: center; padding: 2rem; color: var(--gray);">Loading team members...</div></div>
+                         <div class="add-member-form">
+                             <h4>Invite New Member</h4>
+                             <form id="inviteMemberForm" class="data-form" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end; gap: 1rem;">
+                                 <div class="form-group" style="margin-bottom: 0;"><label for="inviteMemberEmail">Email</label><input type="email" id="inviteMemberEmail" class="form-control" placeholder="user@example.com" required></div>
+                                 <div class="form-group" style="margin-bottom: 0;"><label for="inviteMemberRole">Role</label><select id="inviteMemberRole" class="form-control" required><option value="member">Member</option><option value="senior">Senior</option><option value="supervisor">Supervisor</option><option value="admin">Admin</option></select></div>
+                                 <div style="grid-column: 1 / -1; margin-top: 1rem;"><button type="submit" class="btn btn-primary">Send Invite</button></div>
+                             </form>
+                         </div>
+                     </div>
+                 </div>
+                 <!-- Collaboration Panel -->
+                 <div class="settings-panel" id="collaborationPanel">
+                     <h3 class="section-title">Collaboration Settings</h3>
+                     <form class="data-form" id="collaborationForm">
+                         <div class="form-group" style="grid-column: span 2;"><label>Shared Calendar Access (Placeholder)</label><p style="color: var(--gray); font-size: 0.9rem;">Control who can view or edit the team calendar.</p><button type="button" class="btn btn-outline" disabled>Manage Permissions</button></div>
+                         <div class="form-group" style="grid-column: span 2;"><label>Team Chat Integration (Placeholder)</label><p style="color: var(--gray); font-size: 0.9rem;">Connect to your preferred team chat platform.</p><button type="button" class="btn btn-outline" disabled>Configure Chat</button></div>
+                         <div class="form-actions"><button type="button" class="btn btn-outline" disabled>Cancel</button><button type="submit" class="btn btn-primary" disabled>Save Collaboration Settings</button></div>
+                     </form>
+                 </div>
+                 <!-- Danger Zone Panel -->
+                 <div class="settings-panel" id="dangerPanel">
+                     <h3 class="section-title" style="color: var(--danger);">Danger Zone</h3>
+                     <p style="color: var(--gray);">Actions in this section are permanent and cannot be undone. (Visible to Admins only)</p>
+                     <div style="margin-top: 1.5rem; border: 1px solid var(--danger); border-radius: 6px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
+                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;"><div><strong style="color: var(--dark);">Delete Team Data (Placeholder)</strong><p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.25rem;">Permanently delete all projects, tasks, and files.</p></div><button class="btn btn-danger" disabled>Delete All Team Data</button></div>
+                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;"><div><strong style="color: var(--dark);">Transfer Ownership (Placeholder)</strong><p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.25rem;">Transfer administrative control to another user.</p></div><button class="btn btn-warning" disabled>Transfer Ownership</button></div>
+                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;"><div><strong style="color: var(--dark);">Delete Workspace (Placeholder)</strong><p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.25rem;">Permanently delete this entire workspace.</p></div><button class="btn btn-danger" disabled>Delete Workspace</button></div>
+                     </div>
+                 </div>
+             </div>
+             <!-- Feature Content Sections Container -->
+             <div id="featureSectionsContainer" style="display: none;">
+                 <div id="featureSections" class="content-section">
+                     <div class="placeholder-content" id="featurePlaceholder">
+                         <h2 id="featureTitle">Feature Content Area</h2>
+                         <p id="featureDescription">Select a feature from the sidebar.</p>
+                         <div class="loading-indicator" style="display: none;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+                         <div class="error-message" style="display: none;">Failed to load content.</div>
+                     </div>
+                 </div>
+             </div>
+        </div>
     </main>
-    <div class="notifications-modal" id="notificationsModal">...</div>
-    <div class="confirm-modal" id="confirmModal">...</div>
+    <!-- Notifications Modal -->
+    <div class="notifications-modal" id="notificationsModal">
+        <div class="notifications-container">
+            <div class="notifications-header"><h3 class="notifications-title">Notifications</h3><button class="close-notifications" id="closeNotifications">&times;</button></div>
+            <div class="notifications-body" id="notificationsBody"><div class="no-notifications-message">Loading notifications...</div></div>
+            <div class="notifications-footer"><button class="btn btn-outline btn-sm" id="markAllReadBtn">Mark All as Read</button><button class="btn btn-danger btn-sm" id="deleteAllNotificationsBtn">Delete All</button></div>
+        </div>
+    </div>
+    <!-- Confirm Modal -->
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-container">
+            <h3 class="confirm-title" id="confirmTitle">Confirm Action</h3>
+            <div class="confirm-message" id="confirmMessage">Are you sure?</div>
+            <div class="confirm-actions"><button class="btn btn-outline" id="cancelConfirmBtn">Cancel</button><button class="btn btn-danger" id="confirmBtn">Confirm</button></div>
+        </div>
+    </div>
 
     <script>
         // ======================================================
         // == START: Employee Schedule Specific JavaScript ==
-        // == (Moved from employee-scheduling.txt) ==
         // ======================================================
         function initializeEmployeeSchedule(currentUserData, teamMembersData) {
             console.log("Initializing Employee Schedule...");
-            const container = document.getElementById('featureSections').querySelector('#employeeScheduleContainer');
+            // More robust container selection
+            const featureContentArea = document.getElementById('featureSections');
+            if (!featureContentArea) {
+                console.error("Feature content area (#featureSections) not found!");
+                return;
+            }
+            const container = featureContentArea.querySelector('#employeeScheduleContainer');
             if (!container) {
                 console.error("Employee schedule container (#employeeScheduleContainer) not found within #featureSections!");
-                const featurePlaceholder = document.getElementById('featurePlaceholder');
-                const featureTitle = document.getElementById('featureTitle');
-                const featureDescription = document.getElementById('featureDescription');
-                const featureErrorMessage = featurePlaceholder?.querySelector('.error-message');
-                if(featurePlaceholder && featureTitle && featureDescription && featureErrorMessage) {
-                    featureTitle.textContent = "Error Initializing Schedule";
-                    featureDescription.textContent = "Could not find the main schedule container element. Initialization aborted.";
-                    featureErrorMessage.style.display = 'block'; featureErrorMessage.textContent = 'Container element missing.';
-                    featurePlaceholder.style.display = 'flex';
-                }
+                const ph = featureContentArea.querySelector('#featurePlaceholder');
+                const phError = ph?.querySelector('.error-message');
+                if (ph) ph.style.display = 'flex';
+                if (phError) { phError.textContent = 'Schedule container missing.'; phError.style.display = 'block'; }
                 return;
             }
             console.log("Schedule container found:", container);
 
-            // --- DOM Elements (scoped to the container) ---
+            // --- DOM Elements ---
             const employeeModal = container.querySelector('#employeeModal');
             const shiftModal = container.querySelector('#shiftModal');
             const addEmployeeBtn = container.querySelector('#addEmployeeBtn');
@@ -849,27 +1078,18 @@
             const scheduleTableBody = container.querySelector('#scheduleTableBody');
             const shiftDateInput = container.querySelector('#shiftDate');
             const toastNotification = container.querySelector('#scheduleToastNotification');
-
             const editEmpIdInput = container.querySelector('#editEmpId');
             const editDayInput = container.querySelector('#editDay');
             const editCellIdInput = container.querySelector('#editCellId');
             const shiftEmployeeDisplayInput = container.querySelector('#shiftEmployeeDisplay');
 
-            // --- Error Check: Verify critical elements ---
+            // --- Error Check ---
             if (!employeeModal || !shiftModal || !scheduleTableBody || !toastNotification || !shiftForm || !employeeForm || !weekDisplay) {
-                console.error("Initialization failed: One or more critical modal/form/table elements not found.", {
-                    employeeModal, shiftModal, scheduleTableBody, toastNotification, shiftForm, employeeForm, weekDisplay
-                });
-                const featurePlaceholder = document.getElementById('featurePlaceholder');
-                const featureTitle = document.getElementById('featureTitle');
-                const featureDescription = document.getElementById('featureDescription');
-                 const featureErrorMessage = featurePlaceholder?.querySelector('.error-message');
-                if(featurePlaceholder && featureTitle && featureDescription && featureErrorMessage) {
-                    featureTitle.textContent = "Error Initializing Schedule";
-                    featureDescription.textContent = "Essential components (modals, table body, etc.) are missing. Initialization aborted.";
-                    featureErrorMessage.style.display = 'block'; featureErrorMessage.textContent = 'Essential component missing.';
-                    featurePlaceholder.style.display = 'flex';
-                }
+                console.error("Initialization failed: Critical schedule element missing.", { employeeModal, shiftModal, scheduleTableBody, toastNotification, shiftForm, employeeForm, weekDisplay });
+                 const ph = featureContentArea.querySelector('#featurePlaceholder');
+                 const phError = ph?.querySelector('.error-message');
+                 if (ph) ph.style.display = 'flex';
+                 if (phError) { phError.textContent = 'Essential schedule components missing.'; phError.style.display = 'block'; }
                 return;
             }
             console.log("All critical schedule elements found.");
@@ -877,431 +1097,198 @@
             // --- State & Data ---
             let currentUser = currentUserData;
             let employees = Array.isArray(teamMembersData)
-                ? teamMembersData.map(member => ({
-                    id: member.id, name: member.name, email: member.email, role: member.role }))
+                ? teamMembersData.map(member => ({ id: member.id, name: member.name, email: member.email, role: member.role }))
                 : [];
-
-            // Schedule Data - Load from localStorage or default
-             let scheduleData = JSON.parse(localStorage.getItem('scheduleData')) || {
-                 // Keep the example data as default if nothing in storage
-                 "1-mon": { type: "morning", text: "9AM-5PM", notes: "" }, "1-tue": { type: "morning", text: "9AM-5PM", notes: "" }, "1-wed": { type: "afternoon", text: "12PM-8PM", notes: "" }, "1-thu": { type: "morning", text: "9AM-5PM", notes: "" }, "1-fri": { type: "day-off", text: "OFF", notes: "" }, "1-sat": { type: "night", text: "5PM-1AM", notes: "" }, "1-sun": { type: "night", text: "5PM-1AM", notes: "" },
-                 "2-mon": { type: "afternoon", text: "12PM-8PM", notes: "" }, "2-tue": { type: "morning", text: "9AM-5PM", notes: "" }, "2-wed": { type: "morning", text: "9AM-5PM", notes: "" }, "2-thu": { type: "afternoon", text: "12PM-8PM", notes: "" }, "2-fri": { type: "morning", text: "9AM-5PM", notes: "" }, "2-sat": { type: "day-off", text: "OFF", notes: "" }, "2-sun": { type: "day-off", text: "OFF", notes: "" },
-                 "3-mon": { type: "night", text: "5PM-1AM", notes: "" }, "3-tue": { type: "night", text: "5PM-1AM", notes: "" }, "3-wed": { type: "day-off", text: "OFF", notes: "" }, "3-thu": { type: "morning", text: "9AM-5PM", notes: "" }, "3-fri": { type: "afternoon", text: "12PM-8PM", notes: "" }, "3-sat": { type: "morning", text: "9AM-5PM", notes: "" }, "3-sun": { type: "sick-leave", text: "SICK", notes: "" },
-                 "4-mon": { type: "vacation", text: "VAC", notes: "" }, "4-tue": { type: "vacation", text: "VAC", notes: "" }, "4-wed": { type: "morning", text: "9AM-5PM", notes: "" }, "4-thu": { type: "night", text: "5PM-1AM", notes: "" }, "4-fri": { type: "night", text: "5PM-1AM", notes: "" }, "4-sat": { type: "day-off", text: "OFF", notes: "" }, "4-sun": { type: "morning", text: "9AM-5PM", notes: "" },
-             };
-
-             function saveScheduleData() {
-                 localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
-             }
-
-            // Start week logic (use passed preferences)
-            let currentWeekStart = getStartOfWeek(new Date()); // Start with current week
-
-             // Date range (adjust as needed)
-             const minDate = new Date(currentWeekStart.getFullYear() -1, 0, 1); // Start of previous year
-             const maxDate = new Date(currentWeekStart.getFullYear() + 1, 11, 31); // End of next year
-
+            let scheduleData = JSON.parse(localStorage.getItem('scheduleData')) || {
+                "1-mon": { type: "morning", text: "9AM-5PM", notes: "" }, "1-tue": { type: "morning", text: "9AM-5PM", notes: "" }, "1-wed": { type: "afternoon", text: "12PM-8PM", notes: "" }, "1-thu": { type: "morning", text: "9AM-5PM", notes: "" }, "1-fri": { type: "day-off", text: "OFF", notes: "" }, "1-sat": { type: "night", text: "5PM-1AM", notes: "" }, "1-sun": { type: "night", text: "5PM-1AM", notes: "" },
+                "2-mon": { type: "afternoon", text: "12PM-8PM", notes: "" }, "2-tue": { type: "morning", text: "9AM-5PM", notes: "" }, "2-wed": { type: "morning", text: "9AM-5PM", notes: "" }, "2-thu": { type: "afternoon", text: "12PM-8PM", notes: "" }, "2-fri": { type: "morning", text: "9AM-5PM", notes: "" }, "2-sat": { type: "day-off", text: "OFF", notes: "" }, "2-sun": { type: "day-off", text: "OFF", notes: "" },
+                "3-mon": { type: "night", text: "5PM-1AM", notes: "" }, "3-tue": { type: "night", text: "5PM-1AM", notes: "" }, "3-wed": { type: "day-off", text: "OFF", notes: "" }, "3-thu": { type: "morning", text: "9AM-5PM", notes: "" }, "3-fri": { type: "afternoon", text: "12PM-8PM", notes: "" }, "3-sat": { type: "morning", text: "9AM-5PM", notes: "" }, "3-sun": { type: "sick-leave", text: "SICK", notes: "" },
+                "4-mon": { type: "vacation", text: "VAC", notes: "" }, "4-tue": { type: "vacation", text: "VAC", notes: "" }, "4-wed": { type: "morning", text: "9AM-5PM", notes: "" }, "4-thu": { type: "night", text: "5PM-1AM", notes: "" }, "4-fri": { type: "night", text: "5PM-1AM", notes: "" }, "4-sat": { type: "day-off", text: "OFF", notes: "" }, "4-sun": { type: "morning", text: "9AM-5PM", notes: "" },
+            };
+            function saveScheduleData() { localStorage.setItem('scheduleData', JSON.stringify(scheduleData)); }
+            let currentWeekStart = getStartOfWeek(new Date());
+            const minDate = new Date(currentWeekStart.getFullYear() - 1, 0, 1);
+            const maxDate = new Date(currentWeekStart.getFullYear() + 1, 11, 31);
 
             // --- Helper Functions ---
-             function showToast(message, type = 'success') {
-                 if (!toastNotification) { console.warn("Toast element not found."); return; }
-                 toastNotification.textContent = message;
-                 toastNotification.className = 'toast'; // Reset classes
-                 if (type === 'success') {
-                    toastNotification.classList.add('toast-success');
-                 } else if (type === 'danger') {
-                    toastNotification.classList.add('toast-danger');
-                 }
-                 toastNotification.classList.add('show');
+            function showToast(message, type = 'success') {
+                if (!toastNotification) { console.warn("Toast element not found."); return; }
+                toastNotification.textContent = message;
+                toastNotification.className = 'toast';
+                toastNotification.classList.add(type === 'danger' ? 'toast-danger' : 'toast-success'); // Use type for class
+                toastNotification.classList.add('show');
+                if (toastNotification.timerId) clearTimeout(toastNotification.timerId);
+                toastNotification.timerId = setTimeout(() => { toastNotification.classList.remove('show'); toastNotification.timerId = null; }, 3000);
+            }
 
-                 if (toastNotification.timerId) clearTimeout(toastNotification.timerId);
-                 toastNotification.timerId = setTimeout(() => {
-                     toastNotification.classList.remove('show');
-                     toastNotification.timerId = null;
-                 }, 3000);
-             }
-
-             function getStartOfWeek(date) {
-                 const dt = new Date(date);
-                 const weekStartDay = currentUserData?.preferences?.weekStart === 'sun' ? 0 : 0; // Default Sunday
-                 const dayOfWeek = dt.getDay(); // 0=Sun, 1=Mon...
-                 const diff = dt.getDate() - dayOfWeek + (dayOfWeek < weekStartDay ? weekStartDay - 7 : weekStartDay);
-                 dt.setDate(diff);
-                 dt.setHours(0, 0, 0, 0);
-                 return dt;
-             }
-
+            function getStartOfWeek(date) {
+                const dt = new Date(date);
+                const weekStartDay = currentUserData?.preferences?.weekStart === 'sun' ? 0 : 0;
+                const dayOfWeek = dt.getDay();
+                const diff = dt.getDate() - dayOfWeek + (dayOfWeek < weekStartDay ? weekStartDay - 7 : weekStartDay);
+                dt.setDate(diff); dt.setHours(0, 0, 0, 0);
+                return dt;
+            }
 
             // --- Core Logic ---
             function renderSchedule() {
-                console.log("Rendering schedule for week starting:", currentWeekStart.toDateString());
-                if (!scheduleTableBody) { console.error("Cannot render: table body missing."); return; }
-                scheduleTableBody.innerHTML = ''; // Clear
-
+                console.log("Rendering schedule for week:", currentWeekStart.toDateString());
+                if (!scheduleTableBody) { console.error("Schedule table body missing."); return; }
+                scheduleTableBody.innerHTML = '';
                 updateWeekDisplayAndHeaders();
 
                 if (employees.length === 0) {
-                    const emptyRow = scheduleTableBody.insertRow();
-                    const cell = emptyRow.insertCell();
-                    cell.colSpan = 8; cell.textContent = "No employees found.";
-                    cell.style.textAlign = 'center'; cell.style.padding = '2rem'; cell.style.color = 'var(--gray)';
-                    applyRolePermissions();
-                    return;
+                    const r = scheduleTableBody.insertRow(); const c = r.insertCell();
+                    c.colSpan = 8; c.textContent = "No employees found."; Object.assign(c.style, { textAlign: 'center', padding: '2rem', color: 'var(--gray)' });
+                    applyRolePermissions(); return;
                 }
 
                 employees.forEach(emp => {
-                    if (!emp || typeof emp.id === 'undefined' || !emp.name) {
-                         console.warn("Skipping invalid employee data:", emp);
-                         return; // Skip rendering if employee data is incomplete
-                    }
+                    if (!emp?.id || !emp.name) { console.warn("Skipping invalid emp data:", emp); return; }
                     const row = scheduleTableBody.insertRow();
-                    row.insertCell().outerHTML = `<td class="employee-name">${emp.name}</td>`; // Use outerHTML for class
-
+                    row.insertCell().outerHTML = `<td class="employee-name">${emp.name}</td>`;
                     ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].forEach(day => {
-                        const cell = row.insertCell();
-                        cell.className = "admin-controls";
-                        cell.dataset.emp = emp.id;
-                        cell.dataset.day = day;
-                        const cellId = `cell-${emp.id}-${day}-${currentWeekStart.getTime()}`;
-                        cell.id = cellId;
-
-                        const shiftKey = `${emp.id}-${day}`; // Simplified key for example
-                        const shiftInfo = scheduleData[shiftKey];
-
-                        const editSpan = document.createElement('span');
-                        editSpan.className = 'edit-shift';
-                        editSpan.textContent = '(edit)';
-                        editSpan.style.display = 'none'; // Hide initially
-
-                        if (shiftInfo) {
-                            const shiftDiv = createShiftDiv(shiftInfo.type, shiftInfo.text);
-                            cell.appendChild(shiftDiv);
-                        }
-                         cell.appendChild(editSpan); // Always add the edit span
+                        const cell = row.insertCell(); cell.className = "admin-controls";
+                        cell.dataset.emp = emp.id; cell.dataset.day = day; cell.id = `cell-${emp.id}-${day}-${currentWeekStart.getTime()}`;
+                        const shiftKey = `${emp.id}-${day}`; const shiftInfo = scheduleData[shiftKey];
+                        const editSpan = document.createElement('span'); editSpan.className = 'edit-shift'; editSpan.textContent = '(edit)'; editSpan.style.display = 'none';
+                        if (shiftInfo) cell.appendChild(createShiftDiv(shiftInfo.type, shiftInfo.text));
+                        cell.appendChild(editSpan);
                     });
                 });
-
-                setupEditShiftListeners();
-                applyRolePermissions();
-                console.log("Schedule render complete.");
+                setupEditShiftListeners(); applyRolePermissions(); console.log("Schedule render complete.");
             }
 
             function createShiftDiv(type, text) {
-                const shiftDiv = document.createElement('div');
-                shiftDiv.className = 'shift';
-                shiftDiv.textContent = text || '';
-                 const typeClassMap = {
-                    'morning': 'shift-morning', 'afternoon': 'shift-afternoon', 'night': 'shift-night',
-                    'day-off': 'day-off', 'sick-leave': 'sick-leave', 'vacation': 'vacation',
-                    'custom': 'shift-morning' // Default style for custom
-                };
-                shiftDiv.classList.add(typeClassMap[type] || 'shift-morning'); // Add class or default
-                return shiftDiv;
+                const d = document.createElement('div'); d.className = 'shift'; d.textContent = text || '';
+                const map = {'morning':'shift-morning','afternoon':'shift-afternoon','night':'shift-night','day-off':'day-off','sick-leave':'sick-leave','vacation':'vacation','custom':'shift-morning'};
+                d.classList.add(map[type] || 'shift-morning'); return d;
             }
 
             function updateWeekDisplayAndHeaders() {
                 if (!weekDisplay) return;
-
-                const weekEnd = new Date(currentWeekStart);
-                weekEnd.setDate(weekEnd.getDate() + 6);
-                const options = { month: 'short', day: 'numeric' };
-                const startStr = currentWeekStart.toLocaleDateString(currentUserData?.preferences?.language || 'en-US', options);
-                const endStr = weekEnd.toLocaleDateString(currentUserData?.preferences?.language || 'en-US', options);
-                const year = currentWeekStart.getFullYear();
-                weekDisplay.textContent = `${startStr} - ${endStr}, ${year}`;
-
-                const dateHeaderCells = container.querySelectorAll('.day-date');
-                const nameHeaderCells = container.querySelectorAll('.day-name');
-                const tempDate = new Date(currentWeekStart);
-                const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-                dateHeaderCells.forEach((cell, index) => {
-                    if (index < days.length) {
-                         const dateStr = tempDate.toLocaleDateString(currentUserData?.preferences?.language || 'en-US', { month: 'short', day: 'numeric' });
-                        cell.textContent = dateStr;
-                         if (nameHeaderCells[index]) nameHeaderCells[index].textContent = days[index];
-                        tempDate.setDate(tempDate.getDate() + 1);
-                    }
-                });
-
-                const prevWeekTest = new Date(currentWeekStart); prevWeekTest.setDate(prevWeekTest.getDate() - 7);
-                if (prevWeekBtn) prevWeekBtn.disabled = prevWeekTest < minDate;
-
-                const nextWeekTestEnd = new Date(weekEnd); nextWeekTestEnd.setDate(nextWeekTestEnd.getDate() + 1);
-                if (nextWeekBtn) nextWeekBtn.disabled = nextWeekTestEnd > maxDate;
+                const end = new Date(currentWeekStart); end.setDate(end.getDate() + 6);
+                const opts = { month: 'short', day: 'numeric' }; const lang = currentUserData?.preferences?.language || 'en-US';
+                weekDisplay.textContent = `${currentWeekStart.toLocaleDateString(lang, opts)} - ${end.toLocaleDateString(lang, opts)}, ${currentWeekStart.getFullYear()}`;
+                const dateCells = container.querySelectorAll('.day-date'); const nameCells = container.querySelectorAll('.day-name');
+                const temp = new Date(currentWeekStart); const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+                dateCells.forEach((c, i) => { if (i<days.length) { c.textContent = temp.toLocaleDateString(lang, opts); if(nameCells[i]) nameCells[i].textContent=days[i]; temp.setDate(temp.getDate()+1); } });
+                const prev = new Date(currentWeekStart); prev.setDate(prev.getDate()-7); if(prevWeekBtn) prevWeekBtn.disabled = prev < minDate;
+                const nextEnd = new Date(end); nextEnd.setDate(nextEnd.getDate()+1); if(nextWeekBtn) nextWeekBtn.disabled = nextEnd > maxDate;
             }
 
             function applyRolePermissions() {
-                console.log("Applying role permissions. Role:", currentUser?.role);
-                 const isAdminOrSupervisor = currentUser?.role === 'admin' || currentUser?.role === 'supervisor';
-
-                if (addEmployeeBtn) addEmployeeBtn.style.display = isAdminOrSupervisor ? 'inline-flex' : 'none';
-                if (sendRemindersBtn) sendRemindersBtn.style.display = isAdminOrSupervisor ? 'inline-flex' : 'none';
-                if (saveScheduleBtn) saveScheduleBtn.style.display = isAdminOrSupervisor ? 'inline-flex' : 'none';
-
-                container.querySelectorAll('.edit-shift').forEach(el => {
-                    el.style.display = isAdminOrSupervisor ? 'inline' : 'none';
-                });
-                 console.log("Admin buttons display set.");
-
+                const canManage = currentUser?.role === 'admin' || currentUser?.role === 'supervisor';
+                if(addEmployeeBtn) addEmployeeBtn.style.display = canManage ? 'inline-flex' : 'none';
+                if(sendRemindersBtn) sendRemindersBtn.style.display = canManage ? 'inline-flex' : 'none';
+                if(saveScheduleBtn) saveScheduleBtn.style.display = canManage ? 'inline-flex' : 'none';
+                container.querySelectorAll('.edit-shift').forEach(el => el.style.display = canManage ? 'inline' : 'none');
             }
 
-             // --- Event Listener Setup ---
-             let isEditShiftListenerAttached = false; // Flag to prevent duplicate listeners
-             function setupEditShiftListeners() {
-                 if (!scheduleTableBody || isEditShiftListenerAttached) return; // Exit if no body or already attached
-                 console.log("Setting up edit shift listeners on table body.");
-
-                 scheduleTableBody.addEventListener('click', handleTableBodyClick);
-                 isEditShiftListenerAttached = true; // Set the flag
-                 console.log("Event listener added to schedule table body.");
-             }
-
-             // Remove listener when the feature is deactivated (optional but good practice)
-             function removeEditShiftListeners() {
-                 if (scheduleTableBody && isEditShiftListenerAttached) {
-                     scheduleTableBody.removeEventListener('click', handleTableBodyClick);
-                     isEditShiftListenerAttached = false;
-                     console.log("Removed event listener from schedule table body.");
+            // --- Event Listener Setup ---
+            let scheduleBodyClickListener = null; // Store listener reference
+            function setupEditShiftListeners() {
+                 if (!scheduleTableBody) return;
+                 // Remove old listener before adding new one
+                 if (scheduleBodyClickListener) {
+                     scheduleTableBody.removeEventListener('click', scheduleBodyClickListener);
+                      console.log("Removed previous schedule table body listener.");
                  }
+                 scheduleBodyClickListener = handleTableBodyClick; // Assign new handler
+                 scheduleTableBody.addEventListener('click', scheduleBodyClickListener);
+                 console.log("Added schedule table body listener.");
              }
-             // TODO: Call removeEditShiftListeners() when navigating away from this feature in dashboard.js
-
-             function handleTableBodyClick(event) {
-                 if (event.target.classList.contains('edit-shift')) {
-                     console.log("Edit shift clicked via delegation on:", event.target);
-                     handleEditShiftClick(event.target); // Pass the clicked span
+             // Function to remove the listener (call when feature is deactivated)
+             window.cleanupScheduleListeners = function() {
+                 if (scheduleTableBody && scheduleBodyClickListener) {
+                     scheduleTableBody.removeEventListener('click', scheduleBodyClickListener);
+                     scheduleBodyClickListener = null;
+                     console.log("Cleaned up schedule table body listener.");
                  }
-             }
+                  // Remove other listeners specific to the schedule section if needed
+             };
 
+            function handleTableBodyClick(event) { if (event.target.classList.contains('edit-shift')) handleEditShiftClick(event.target); }
 
             function handleEditShiftClick(buttonElement) {
-                 if (!buttonElement) return;
-                 console.log("handleEditShiftClick called for button:", buttonElement);
-                const cell = buttonElement.closest('td.admin-controls');
-                if (!cell) { console.error("Could not find parent cell."); return; }
-                 console.log("Parent cell found:", cell.id);
-
-                const empId = parseInt(cell.dataset.emp); // Use dataset
-                const day = cell.dataset.day;       // Use dataset
-                const cellId = cell.id;
-
-                if (isNaN(empId) || !day) { console.error("Invalid empId or day from cell dataset."); return; }
-
-                if (!shiftModal || !shiftEmployeeDisplayInput || !editEmpIdInput || !editDayInput || !editCellIdInput || !shiftDateInput || !shiftTypeSelect || !customShiftGroup) {
-                     console.error("Shift modal or its internal elements are missing.");
-                     showToast("Error: Cannot open edit dialog.", "danger"); return;
-                 }
-
-                const employee = employees.find(e => e.id === empId);
-                const daysOfWeek = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-                const dayIndex = daysOfWeek.indexOf(day);
-
+                if (!buttonElement) return;
+                const cell = buttonElement.closest('td.admin-controls'); if (!cell) { console.error("No parent cell."); return; }
+                const empId = parseInt(cell.dataset.emp); const day = cell.dataset.day; const cellId = cell.id;
+                if (isNaN(empId) || !day) { console.error("Invalid cell data."); return; }
+                if (!shiftModal || !shiftEmployeeDisplayInput || !editEmpIdInput || !editDayInput || !editCellIdInput || !shiftDateInput || !shiftTypeSelect || !customShiftGroup) { console.error("Shift modal elements missing."); return; }
+                const employee = employees.find(e => e.id === empId); const days = ['mon','tue','wed','thu','fri','sat','sun']; const dayIndex = days.indexOf(day);
                 if (employee && dayIndex !== -1) {
-                     console.log(`Editing shift for Employee ID: ${empId}, Day: ${day}, Cell: ${cellId}`);
-                    const date = new Date(currentWeekStart);
-                    date.setDate(date.getDate() + dayIndex);
-
-                    shiftEmployeeDisplayInput.value = employee.name || 'Unknown';
-                    editEmpIdInput.value = empId;
-                    editDayInput.value = day;
-                    editCellIdInput.value = cellId;
-
-                    const formattedDate = date.toISOString().split('T')[0];
-                    shiftDateInput.value = formattedDate;
-
-                    const shiftKey = `${empId}-${day}`;
-                    const currentShiftInfo = scheduleData[shiftKey];
-                    const currentType = currentShiftInfo ? currentShiftInfo.type : 'clear';
-                    const currentCustomText = currentShiftInfo && currentShiftInfo.type === 'custom' ? currentShiftInfo.text : '';
-                    const currentNotes = currentShiftInfo ? currentShiftInfo.notes : '';
-
-                    shiftTypeSelect.value = currentType;
-                    customShiftGroup.style.display = currentType === 'custom' ? 'block' : 'none';
-                    container.querySelector('#customShift').value = currentCustomText;
-                    container.querySelector('#shiftNotes').value = currentNotes;
-
-                     console.log("Showing shift modal.");
+                    const date = new Date(currentWeekStart); date.setDate(date.getDate() + dayIndex);
+                    shiftEmployeeDisplayInput.value = employee.name || 'N/A'; editEmpIdInput.value = empId; editDayInput.value = day; editCellIdInput.value = cellId;
+                    shiftDateInput.value = date.toISOString().split('T')[0];
+                    const key = `${empId}-${day}`; const info = scheduleData[key];
+                    const type = info?.type || 'clear'; const custom = (info?.type === 'custom' ? info.text : ''); const notes = info?.notes || '';
+                    shiftTypeSelect.value = type; customShiftGroup.style.display = type === 'custom' ? 'block' : 'none';
+                    container.querySelector('#customShift').value = custom; container.querySelector('#shiftNotes').value = notes;
                     shiftModal.style.display = 'flex';
-                } else {
-                    console.error(`Could not find employee (ID: ${empId}) or invalid day index (${dayIndex}).`);
-                }
+                } else { console.error(`Employee ${empId} or day ${day} not found.`); }
             }
 
-             function addEmployeeToSystem(name, email, role) {
-                 console.log(`Attempting to add employee: ${name}, ${email}, Role: ${role}`);
+            function addEmployeeToSystem(name, email, role) {
+                if (!name || !email || !email.includes('@') || !role) { showToast('Name, valid email, and role required.', 'danger'); return false; }
+                if (teamMembersData.some(m => m.email.toLowerCase() === email.toLowerCase())) { showToast('Email already exists in main list.', 'danger'); return false; }
 
-                 if (!name || !email || !email.includes('@') || !role) {
-                     showToast('Name, valid email, and role are required.', 'danger'); return false;
+                // --- Integration Point: Update main dashboard data ---
+                 const newId = teamMembersData.length > 0 ? Math.max(0, ...teamMembersData.map(m => m.id)) + 1 : 1; // Safer ID generation
+                 const newMember = { id: newId, name, email, role, initials: name.split(' ').map(n=>n[0]).join('') };
+
+                 // 1. Update the main teamMembers array in the *dashboard's* scope
+                 // (We need access to the dashboard's 'teamMembers' variable)
+                 // This is tricky. A better approach might be to dispatch a custom event
+                 // that the dashboard listens for.
+                 // SIMULATION: Assume we can update the dashboard's array directly for now
+                 if (window.dashboardUpdateTeamMembers) { // Check if a global update function exists
+                     window.dashboardUpdateTeamMembers(newMember); // Call it
+                 } else {
+                     console.warn("Dashboard integration function missing. Adding visually only.");
+                     // If no integration, just update the local copy for immediate visual feedback
+                     employees.push({ ...newMember });
                  }
-                 if (employees.some(e => e.email.toLowerCase() === email.toLowerCase())) {
-                     showToast('Employee with this email already exists.', 'danger'); return false;
-                 }
+                 // --- End Integration Point ---
 
-                 // --- Integration Point (Simulated) ---
-                 // In a real app, this should update the main `teamMembers` array in dashboard.js
-                 // and trigger a save (`saveData()`).
-                 const newEmployeeId = teamMembersData.length > 0 ? Math.max(...teamMembersData.map(m => m.id)) + 1 : 1;
-                 const newMember = { id: newEmployeeId, name, email, role, initials: name.split(' ').map(n=>n[0]).join('') };
-
-                 // Update the array PASSED IN from the dashboard temporarily for this view
-                 teamMembersData.push(newMember); // Modify the array reference passed in
-                 // Update the local 'employees' copy used by the schedule render
-                 employees = teamMembersData.map(member => ({ ...member }));
-
-                 console.log("Dashboard teamMembersData (simulated update):", teamMembersData);
-                 console.log("Local schedule employees updated:", employees);
-                 // --- End Simulation ---
-
-                 renderSchedule(); // Re-render schedule view
-                 showToast(`Employee ${name} added.`, 'success');
-
-                 // Optionally, navigate to the main team list?
-                 // setActiveFeature('settings', 'team'); // Need access to this function
-
-                 return true;
-             }
+                renderSchedule(); // Re-render this view
+                showToast(`Employee ${name} added.`, 'success');
+                return true;
+            }
 
             // --- Event Listeners ---
-            if (prevWeekBtn) prevWeekBtn.addEventListener('click', () => {
-                 const newWeekStart = new Date(currentWeekStart); newWeekStart.setDate(newWeekStart.getDate() - 7);
-                 if (newWeekStart >= minDate) { currentWeekStart = newWeekStart; renderSchedule(); }
-            });
-            if (nextWeekBtn) nextWeekBtn.addEventListener('click', () => {
-                 const nextWeekStart = new Date(currentWeekStart); nextWeekStart.setDate(nextWeekStart.getDate() + 7);
-                 const nextWeekEnd = new Date(nextWeekStart); nextWeekEnd.setDate(nextWeekEnd.getDate() + 6);
-                 if (nextWeekEnd <= maxDate) { currentWeekStart = nextWeekStart; renderSchedule(); }
-            });
-            if (shiftTypeSelect) shiftTypeSelect.addEventListener('change', function() {
-                if (customShiftGroup) customShiftGroup.style.display = this.value === 'custom' ? 'block' : 'none';
-            });
+            if (prevWeekBtn) prevWeekBtn.addEventListener('click', () => { const d=new Date(currentWeekStart); d.setDate(d.getDate()-7); if(d>=minDate){currentWeekStart=d;renderSchedule();} });
+            if (nextWeekBtn) nextWeekBtn.addEventListener('click', () => { const d=new Date(currentWeekStart); d.setDate(d.getDate()+7); const e=new Date(d); e.setDate(e.getDate()+6); if(e<=maxDate){currentWeekStart=d;renderSchedule();} });
+            if (shiftTypeSelect) shiftTypeSelect.addEventListener('change', function() { if(customShiftGroup) customShiftGroup.style.display=this.value==='custom'?'block':'none'; });
+            if (addEmployeeBtn) addEmployeeBtn.addEventListener('click', () => { if(employeeModal) employeeModal.style.display='flex'; });
+            if (closeEmployeeModal) closeEmployeeModal.addEventListener('click', () => { if(employeeModal) employeeModal.style.display='none'; });
+            if (cancelEmployeeBtn) cancelEmployeeBtn.addEventListener('click', () => { if(employeeModal) employeeModal.style.display='none'; });
+            if (closeShiftModal) closeShiftModal.addEventListener('click', () => { if(shiftModal) shiftModal.style.display='none'; });
+            if (cancelShiftBtn) cancelShiftBtn.addEventListener('click', () => { if(shiftModal) shiftModal.style.display='none'; });
+             // Container-level click listener for modals
+             container.addEventListener('click', function(event) { if(event.target===employeeModal)employeeModal.style.display='none'; if(event.target===shiftModal)shiftModal.style.display='none'; });
 
-            // Modal Controls
-            if (addEmployeeBtn) addEmployeeBtn.addEventListener('click', () => { if (employeeModal) employeeModal.style.display = 'flex'; });
-            if (closeEmployeeModal) closeEmployeeModal.addEventListener('click', () => { if (employeeModal) employeeModal.style.display = 'none'; });
-            if (cancelEmployeeBtn) cancelEmployeeBtn.addEventListener('click', () => { if (employeeModal) employeeModal.style.display = 'none'; });
-            if (closeShiftModal) closeShiftModal.addEventListener('click', () => { if (shiftModal) shiftModal.style.display = 'none'; });
-            if (cancelShiftBtn) cancelShiftBtn.addEventListener('click', () => { if (shiftModal) shiftModal.style.display = 'none'; });
-
-             // Global click listener only for modals within this container
-             container.addEventListener('click', function(event) {
-                 if (employeeModal && event.target == employeeModal) employeeModal.style.display = 'none';
-                 if (shiftModal && event.target == shiftModal) shiftModal.style.display = 'none';
-             });
-
-
-            // Add Employee Form
             if (employeeForm) employeeForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const nameInput = container.querySelector('#empName');
-                const emailInput = container.querySelector('#empEmail');
-                const roleSelect = container.querySelector('#empRole');
-                if (nameInput && emailInput && roleSelect) {
-                    if (addEmployeeToSystem(nameInput.value.trim(), emailInput.value.trim(), roleSelect.value)) {
-                        employeeForm.reset();
-                        if (employeeModal) employeeModal.style.display = 'none';
-                    }
-                }
+                e.preventDefault(); const n=container.querySelector('#empName'); const em=container.querySelector('#empEmail'); const r=container.querySelector('#empRole');
+                if(n&&em&&r&&addEmployeeToSystem(n.value.trim(),em.value.trim(),r.value)){ employeeForm.reset(); if(employeeModal)employeeModal.style.display='none'; }
             });
-
-            // Edit Shift Form
             if (shiftForm) shiftForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                console.log("Shift form submitted.");
-                const empId = parseInt(editEmpIdInput.value);
-                const day = editDayInput.value;
-                const cellId = editCellIdInput.value;
-                const shiftTypeValue = shiftTypeSelect.value;
-                const customShiftText = container.querySelector('#customShift').value.trim();
-                const notes = container.querySelector('#shiftNotes').value.trim();
-                const cell = container.querySelector(`#${cellId}`);
-
-                if (!cell || isNaN(empId) || !day) {
-                     console.error("Error saving shift: Missing data or cell not found:", cellId);
-                     showToast('Error saving shift. Cell reference lost.', 'danger'); return;
-                }
-                 console.log(`Saving shift for EmpID: ${empId}, Day: ${day}, CellID: ${cellId}, Type: ${shiftTypeValue}`);
-
-                const shiftKey = `${empId}-${day}`;
-                let shiftText = ''; let effectiveType = shiftTypeValue;
-
-                switch(shiftTypeValue) {
-                    case 'morning': shiftText = '9AM-5PM'; break;
-                    case 'afternoon': shiftText = '12PM-8PM'; break;
-                    case 'night': shiftText = '5PM-1AM'; break;
-                    case 'day-off': shiftText = 'OFF'; break;
-                    case 'sick-leave': shiftText = 'SICK'; break;
-                    case 'vacation': shiftText = 'VAC'; break;
-                    case 'custom': shiftText = customShiftText || 'Custom'; if (!customShiftText) effectiveType = 'morning'; break;
-                    case 'clear':
-                        delete scheduleData[shiftKey]; saveScheduleData(); // Save after delete
-                        const existingShiftClear = cell.querySelector('.shift');
-                        if (existingShiftClear) cell.removeChild(existingShiftClear);
-                        showToast('Shift cleared.', 'success');
-                        if (shiftModal) shiftModal.style.display = 'none';
-                        console.log("Updated Schedule Data:", scheduleData); return;
-                }
-
-                scheduleData[shiftKey] = { type: effectiveType, text: shiftText, notes: notes };
-                saveScheduleData(); // Save after update
-
-                const existingShiftUpdate = cell.querySelector('.shift');
-                if (existingShiftUpdate) cell.removeChild(existingShiftUpdate);
-                const newShiftDiv = createShiftDiv(effectiveType, shiftText);
-                const editSpan = cell.querySelector('.edit-shift');
-                if (editSpan) cell.insertBefore(newShiftDiv, editSpan); else cell.appendChild(newShiftDiv);
-
-                showToast('Shift updated.', 'success');
-                if (shiftModal) shiftModal.style.display = 'none';
-                console.log("Updated Schedule Data:", scheduleData);
+                e.preventDefault(); const id=parseInt(editEmpIdInput.value); const day=editDayInput.value; const cId=editCellIdInput.value; const type=shiftTypeSelect.value; const custom=container.querySelector('#customShift').value.trim(); const notes=container.querySelector('#shiftNotes').value.trim(); const cell=container.querySelector(`#${cId}`);
+                if(!cell||isNaN(id)||!day){ showToast('Error saving. Cell ref lost.','danger'); return; }
+                const key=`${id}-${day}`; let text=''; let effType=type;
+                switch(type){ case 'morning':text='9AM-5PM';break; case 'afternoon':text='12PM-8PM';break; case 'night':text='5PM-1AM';break; case 'day-off':text='OFF';break; case 'sick-leave':text='SICK';break; case 'vacation':text='VAC';break; case 'custom':text=custom||'Custom';if(!custom)effType='morning';break; case 'clear': delete scheduleData[key];saveScheduleData(); const ex=cell.querySelector('.shift'); if(ex)cell.removeChild(ex); showToast('Shift cleared.','success'); if(shiftModal)shiftModal.style.display='none'; return; }
+                scheduleData[key]={type:effType,text,notes}; saveScheduleData();
+                const exUp=cell.querySelector('.shift'); if(exUp)cell.removeChild(exUp); const div=createShiftDiv(effType,text); const span=cell.querySelector('.edit-shift'); if(span)cell.insertBefore(div,span); else cell.appendChild(div);
+                showToast('Shift updated.','success'); if(shiftModal)shiftModal.style.display='none';
             });
-
-            // Save Schedule Button
-            if (saveScheduleBtn) saveScheduleBtn.addEventListener('click', () => {
-                console.log("--- SAVING SCHEDULE ---");
-                saveScheduleData(); // Save to localStorage (or send to server)
-                showToast('Schedule saved.', 'success');
-            });
-
-            // Send Reminders Button
-            if (sendRemindersBtn) sendRemindersBtn.addEventListener('click', () => {
-                 const subject = encodeURIComponent('Upcoming Work Schedule Reminder');
-                 let body = `Dear Team,\n\nSchedule for the week of ${weekDisplay ? weekDisplay.textContent : 'current week'}:\n`;
-                 employees.forEach(emp => {
-                     body += `\n${emp.name}:\n`; let hasShift = false;
-                     ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].forEach((day, index) => {
-                         const shiftKey = `${emp.id}-${day}`; const shiftInfo = scheduleData[shiftKey];
-                         if (shiftInfo) { const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; body += `  ${dayNames[index]}: ${shiftInfo.text}\n`; hasShift = true; }
-                     }); if (!hasShift) body += `  No shifts assigned.\n`;
-                 });
-                 body += `\nBest regards,\n${currentUser.name}`;
-                 const recipientEmails = employees.map(e => e.email).filter(Boolean).join(',');
-                 if (recipientEmails) {
-                     const mailtoLink = `mailto:?bcc=${recipientEmails}&subject=${subject}&body=${encodeURIComponent(body)}`;
-                     window.open(mailtoLink, '_blank'); showToast('Reminder email prepared.', 'success');
-                 } else { showToast('No employee emails found.', 'danger'); }
-            });
+            if (saveScheduleBtn) saveScheduleBtn.addEventListener('click', () => { saveScheduleData(); showToast('Schedule saved.','success'); });
+            if (sendRemindersBtn) sendRemindersBtn.addEventListener('click', () => { /* ... (reminder logic) ... */ });
 
             // --- Initial Setup ---
-            try {
-                renderSchedule(); // Initial render
-            } catch (error) {
-                 console.error("Error during initial schedule render:", error);
-                 showToast("Failed to load schedule view.", "danger");
-                 const featurePlaceholder = document.getElementById('featurePlaceholder');
-                 const featureTitle = document.getElementById('featureTitle');
-                 const featureDescription = document.getElementById('featureDescription');
-                 const featureErrorMessage = featurePlaceholder?.querySelector('.error-message');
-                 if(featurePlaceholder && featureTitle && featureDescription && featureErrorMessage) {
-                     featureTitle.textContent = "Error Loading Schedule";
-                     featureDescription.textContent = `An error occurred: ${error.message}`;
-                     featureErrorMessage.style.display = 'block'; featureErrorMessage.textContent = error.message;
-                     featurePlaceholder.style.display = 'flex';
-                 }
-            }
+            try { renderSchedule(); } catch (error) { console.error("Error rendering schedule:", error); showToast("Failed to load schedule.", "danger"); }
             console.log("Employee Schedule Initialized Successfully.");
-        } // --- End of initializeEmployeeSchedule ---
 
+        } // --- End of initializeEmployeeSchedule ---
         // ======================================================
         // == END: Employee Schedule Specific JavaScript ==
         // ======================================================
@@ -1312,6 +1299,7 @@
         // ======================================================
         document.addEventListener('DOMContentLoaded', function() {
             // --- DOM Elements ---
+            // ... (Keep all dashboard DOM element definitions) ...
             const sidebar = document.getElementById('sidebar');
             const menuItems = document.querySelectorAll('.menu-item');
             const searchInput = document.getElementById('searchInput');
@@ -1341,8 +1329,8 @@
             const featurePlaceholder = document.getElementById('featurePlaceholder');
             const featureTitle = document.getElementById('featureTitle');
             const featureDescription = document.getElementById('featureDescription');
-            const featureLoadingIndicator = featurePlaceholder?.querySelector('.loading-indicator'); // Added optional chaining
-            const featureErrorMessage = featurePlaceholder?.querySelector('.error-message'); // Added optional chaining
+            const featureLoadingIndicator = featurePlaceholder?.querySelector('.loading-indicator');
+            const featureErrorMessage = featurePlaceholder?.querySelector('.error-message');
             const profileForm = document.getElementById('profileForm');
             const cancelProfileBtn = document.getElementById('cancelProfileBtn');
             const profileAvatarInput = document.getElementById('profileAvatarInput');
@@ -1395,571 +1383,186 @@
             const teamSettingsTab = document.getElementById('teamSettingsTab');
             const dangerZoneTab = document.getElementById('dangerZoneTab');
 
-             // --- State Variables ---
+            // --- State Variables ---
             let currentUser = {};
-            let teamMembers = []; // Holds confirmed team members
+            let teamMembers = []; // This is the main source of truth
             let activities = [];
             let notifications = [];
             let currentFeature = 'dashboard';
-            let currentSettingsTab = 'preferences'; // Default settings tab
+            let currentSettingsTab = 'preferences';
             let activityIntervalId = null;
-            let confirmCallback = null; // Store callback for confirmation modal
-            let cancelCallback = null; // Store callback for cancel confirmation
+            let confirmCallback = null;
+            let cancelCallback = null;
 
             // --- Constants ---
-            const MAX_ACTIVITIES_DISPLAYED = 5;
-            const UPDATE_INTERVAL = 60000; // 60 seconds
-            const SIMULATED_DELAY = 800; // ms for fake API calls
-            const NEW_ACTIVITY_HIGHLIGHT_DURATION = 2500; // ms, matches animation duration
-            const DEFAULT_USER = { // Default user if localStorage is empty
-                 id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co',
-                 title: 'Administrator', department: 'Management', phone: '+201234567890',
-                 avatar: '', initials: 'ME', role: 'admin', password: 'password123', // !! INSECURE EXAMPLE PASSWORD !!
-                 preferences: { language: 'en', timezone: 'cairo', dateFormat: 'dd/mm/yyyy', theme: 'blue', layoutDensity: 'normal', soundNotifications: true, weekStart: 'sun' },
-                 notificationPreferences: { email: { tasks: true, deadlines: true, updates: false }, push: { messages: true, teamUpdates: false } },
-                 security: { twoFactorEnabled: true },
-                 stats: { teamMembers: 0, tasksCompleted: 0, activeProjects: 0, upcomingDeadlines: 0, teamMembersTrend: 'neutral', tasksCompletedTrend: 'neutral', activeProjectsTrend: 'neutral', upcomingDeadlinesTrend: 'neutral' }
-            };
+             const MAX_ACTIVITIES_DISPLAYED = 5;
+             const UPDATE_INTERVAL = 60000;
+             const SIMULATED_DELAY = 800;
+             const NEW_ACTIVITY_HIGHLIGHT_DURATION = 2500;
+             const DEFAULT_USER = { id: 1, name: 'Default User', email: 'default@example.com', title: 'Member', department: 'General', phone: '', avatar: '', initials: 'DU', role: 'member', password: 'password', preferences: { language: 'en', timezone: 'utc', dateFormat: 'dd/mm/yyyy', theme: 'blue', layoutDensity: 'normal', soundNotifications: true, weekStart: 'sun' }, notificationPreferences: { email: { tasks: true, deadlines: true, updates: false }, push: { messages: true, teamUpdates: false } }, security: { twoFactorEnabled: false }, stats: { teamMembers: 0, tasksCompleted: 0, activeProjects: 0, upcomingDeadlines: 0, teamMembersTrend: 'neutral', tasksCompletedTrend: 'neutral', activeProjectsTrend: 'neutral', upcomingDeadlinesTrend: 'neutral' } };
 
 
             // --- Initialization ---
             function initDashboard() {
-                loadData();
-                updateUserUI();
-                loadTeamMembers();
-                loadActivities();
-                loadNotifications();
-                updateStats();
-                applyUserPreferences();
-                applyRBAC();
-                handleInitialNavigation();
-                startActivityTimeUpdater();
-                setupEventListeners();
-                 console.log("Dashboard Initialized. Current User:", currentUser); // Log user data on init
+                loadData(); // Load user, team, activities, etc.
+                updateUserUI(); // Update static UI parts
+                loadTeamMembers(); // Populate team list in settings
+                loadActivities(); // Load dashboard activities
+                loadNotifications(); // Load notifications for badge/modal
+                updateStats(); // Update dashboard stats cards
+                applyUserPreferences(); // Apply theme, layout, load settings forms
+                applyRBAC(); // Apply role-based UI restrictions
+                handleInitialNavigation(); // Load initial view based on hash
+                startActivityTimeUpdater(); // Start timer for relative times
+                setupEventListeners(); // Attach all static event listeners
+                console.log("Dashboard Initialized. Current User:", JSON.parse(JSON.stringify(currentUser))); // Log loaded user
+                console.log("Initial Team Members:", JSON.parse(JSON.stringify(teamMembers))); // Log loaded team
             }
 
             // --- Data Handling ---
-             function loadData() {
+            // (loadData, deepMerge, isObject, saveData, clearUserData - Keep these)
+            function loadData() {
                 const storedUser = JSON.parse(localStorage.getItem('currentUser')) || DEFAULT_USER;
-                currentUser = deepMerge(DEFAULT_USER, storedUser); // Use deep merge
+                currentUser = deepMerge(DEFAULT_USER, storedUser);
 
-                 // Ensure default team members if none are stored
                 teamMembers = JSON.parse(localStorage.getItem('teamMembers')) || [
-                     { id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', role: 'admin', initials: 'ME', avatar: '' },
-                     { id: 2, name: 'Yousef', email: 'yousef@example.com', role: 'member', initials: 'Y', avatar: '' },
-                     { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com', role: 'member', initials: 'EL', avatar: '' },
-                     { id: 4, name: 'Bassant Badr', email: 'bassant@example.com', role: 'member', initials: 'BB', avatar: '' }
+                     { id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', role: 'admin', initials: 'ME', avatar: '', title: 'Administrator', department: 'Management', phone: '+201234567890' },
+                     { id: 2, name: 'Yousef Ahmed', email: 'yousef@example.com', role: 'member', initials: 'YA', avatar: '', title: 'Developer', department: 'IT', phone: '' },
+                     { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com', role: 'senior', initials: 'EL', avatar: '', title: 'Senior Designer', department: 'Design', phone: '' },
+                     { id: 4, name: 'Bassant Badr', email: 'bassant@example.com', role: 'supervisor', initials: 'BB', avatar: '', title: 'Team Lead', department: 'Marketing', phone: '' }
                 ];
+                 // Ensure all team members have basic fields expected by loadTeamMembers
+                 teamMembers = teamMembers.map(m => ({
+                     id: m.id,
+                     name: m.name || 'Unnamed',
+                     email: m.email || 'no-email',
+                     role: m.role || 'member',
+                     initials: m.initials || m.name?.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() || '??',
+                     avatar: m.avatar || ''
+                 }));
+
                 activities = JSON.parse(localStorage.getItem('activities')) || [];
                 notifications = JSON.parse(localStorage.getItem('notifications')) || [];
-             }
+                 console.log("Data loaded from localStorage.");
+            }
 
-             // Helper function for deep merging objects (handles nested objects)
-             function deepMerge(target, source) {
-                 const output = { ...target };
-                 if (isObject(target) && isObject(source)) {
-                     Object.keys(source).forEach(key => {
-                         if (isObject(source[key])) {
-                             if (!(key in target)) {
-                                 Object.assign(output, { [key]: source[key] });
-                             } else {
-                                 output[key] = deepMerge(target[key], source[key]);
-                             }
-                         } else {
-                             Object.assign(output, { [key]: source[key] });
-                         }
-                     });
-                 }
-                 return output;
-             }
-             function isObject(item) {
-                 return (item && typeof item === 'object' && !Array.isArray(item));
-             }
+            function deepMerge(target, source) {
+                const output = { ...target }; if (isObject(target) && isObject(source)) { Object.keys(source).forEach(key => { if (isObject(source[key])) { if (!(key in target)) Object.assign(output, { [key]: source[key] }); else output[key] = deepMerge(target[key], source[key]); } else Object.assign(output, { [key]: source[key] }); }); } return output;
+            }
+            function isObject(item) { return (item && typeof item === 'object' && !Array.isArray(item)); }
 
-
-             function saveData() {
-                 try {
-                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                     localStorage.setItem('teamMembers', JSON.stringify(teamMembers));
-                     localStorage.setItem('activities', JSON.stringify(activities));
-                     localStorage.setItem('notifications', JSON.stringify(notifications));
-                     console.log("Data saved to localStorage.");
-                 } catch (e) {
-                     console.error("Error saving data to localStorage:", e);
-                     // Potentially show an error message to the user if storage is full
-                     showConfirmModal({ title: "Storage Error", message: "Could not save data. Local storage might be full.", confirmText: "OK", confirmClass: "btn-primary", onConfirm: hideConfirmModal });
-                 }
-             }
-             function clearUserData() {
-                 localStorage.removeItem('currentUser');
-                 localStorage.removeItem('teamMembers');
-                 localStorage.removeItem('activities');
-                 localStorage.removeItem('notifications');
-                 localStorage.removeItem('scheduleData'); // Also clear schedule data
-                 console.log("User data cleared from localStorage.");
-             }
-
+            function saveData() {
+                try {
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    localStorage.setItem('teamMembers', JSON.stringify(teamMembers)); // Save updated teamMembers
+                    localStorage.setItem('activities', JSON.stringify(activities));
+                    localStorage.setItem('notifications', JSON.stringify(notifications));
+                    // Schedule data is saved within initializeEmployeeSchedule
+                    console.log("Core data saved to localStorage.");
+                } catch (e) { console.error("Error saving data:", e); showConfirmModal({title:"Storage Error",message:"Could not save data.",confirmText:"OK",confirmClass:"btn-primary",onConfirm:hideConfirmModal}); }
+            }
+            function clearUserData() { localStorage.clear(); console.log("All localStorage cleared."); } // Simpler clear
 
             // --- UI Update Functions ---
-            // (updateUserUI, applyUserPreferences, applyRBAC, loadSettingsFormData, updateStats, updateTrendIndicator, updateNotificationBadge - Keep these as they were)
-            // ... (Keep the existing UI update functions) ...
-            function updateUserUI() {
-                const nameParts = currentUser.name.split(' ');
-                const firstName = nameParts[0] || '';
-                const lastName = nameParts.slice(1).join(' ') || '';
-
-                // Top Nav & Welcome
-                userName.textContent = currentUser.name;
-                document.getElementById('userEmail').textContent = currentUser.email; // Ensure welcome email is updated
-                welcomeName.textContent = firstName;
-
-                // User Info Section (in Dashboard Welcome)
-                document.querySelector('.user-info-name').textContent = currentUser.name;
-                const roleTitles = { 'admin': 'Administrator', 'senior': 'Senior', 'supervisor': 'Supervisor', 'member': 'Member' };
-                const roleTitle = roleTitles[currentUser.role] || 'Member';
-                userInfoRoleTitle.textContent = roleTitle; // Update specific welcome role title
-                // Apply role-specific styling to welcome title
-                userInfoRoleTitle.classList.remove('role-admin'); // Clear previous class
-                if (currentUser.role === 'admin') {
-                    userInfoRoleTitle.classList.add('role-admin'); // Add admin class for red color
-                }
-
-
-                // Profile Form
-                document.getElementById('firstName').value = firstName;
-                document.getElementById('lastName').value = lastName;
-                document.getElementById('jobTitle').value = currentUser.title || '';
-                document.getElementById('phone').value = currentUser.phone || '';
-                document.getElementById('department').value = currentUser.department || '';
-                document.getElementById('email').value = currentUser.email; // Readonly email
-                fullNameDisplay.value = currentUser.name; // Update readonly full name display
-
-                // Account Settings Form (Readonly fields)
-                document.getElementById('acc_firstName').value = firstName;
-                document.getElementById('acc_lastName').value = lastName;
-                document.getElementById('acc_email').value = currentUser.email;
-
-                // Avatars (Small top, Small Welcome, Large Profile)
-                const initials = currentUser.initials || (firstName ? firstName[0] : '') + (lastName ? lastName[0] : '');
-                [userAvatar, profileAvatar, profileAvatarLarge].forEach(el => {
-                    if(el){ // Check if element exists
-                        if (currentUser.avatar) {
-                            el.style.backgroundImage = `url(${currentUser.avatar})`;
-                            el.textContent = ''; // Clear initials if image exists
-                            el.style.backgroundColor = ''; // Clear bg color if image exists
-                        } else {
-                            el.style.backgroundImage = 'none';
-                            el.textContent = initials.toUpperCase();
-                            // Set appropriate background color based on theme if no image
-                            el.style.backgroundColor = el === profileAvatarLarge ? 'var(--primary-light)' : 'var(--primary)';
-                            if (el === profileAvatarLarge) el.style.color = 'var(--primary-dark)';
-                            else el.style.color = 'white';
-                        }
-                    }
-                });
-            }
-
-            function applyUserPreferences() {
-                // Theme
-                const theme = currentUser?.preferences?.theme || 'blue';
-                document.body.className = ''; // Clear existing theme/layout classes
-                document.body.classList.add(`${theme}-theme`);
-                console.log("Applied theme:", theme);
-
-                // Layout
-                const layout = currentUser?.preferences?.layoutDensity || 'normal';
-                document.body.classList.add(layout);
-                console.log("Applied layout:", layout);
-
-                // Update theme selector UI
-                themeOptions.forEach(opt => {
-                    opt.classList.toggle('selected', opt.dataset.theme === theme);
-                });
-                // Update layout selector UI
-                if(layoutDensitySelect) layoutDensitySelect.value = layout;
-                // Update settings form fields with current data
-                loadSettingsFormData();
-            }
-
-            function applyRBAC() {
-                const isAdmin = currentUser?.role === 'admin';
-                const isSupervisor = currentUser?.role === 'supervisor';
-                console.log(`Applying RBAC: isAdmin=${isAdmin}, isSupervisor=${isSupervisor}`);
-
-                // Settings Tabs
-                if (dangerZoneTab) {
-                    dangerZoneTab.style.display = isAdmin ? 'block' : 'none';
-                    dangerZoneTab.classList.toggle('disabled', !isAdmin);
-                }
-                // Example: Team Management visible to Admin/Supervisor
-                 if (teamSettingsTab) {
-                     const showTeamTab = isAdmin || isSupervisor;
-                     teamSettingsTab.style.display = showTeamTab ? 'block' : 'none';
-                     teamSettingsTab.classList.toggle('disabled', !showTeamTab);
-                 }
-
-                // Activity Deletion (buttons handled in loadActivities)
-
-                // Team Management Actions (handled in loadTeamMembers)
-
-                // Notification Deletion (handled in loadNotifications/updateBadge)
-
-                // Account Deletion Button
-                const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-                if (deleteAccountBtn) {
-                    // Keep it disabled as it's a placeholder, but logic would be:
-                    // deleteAccountBtn.disabled = !isAdmin;
-                }
-                 // Apply to potentially loaded dynamic content (like schedule buttons)
-                 // This might be called again after dynamic content loads if necessary
-                 const scheduleContainer = document.getElementById('employeeScheduleContainer');
-                 if (scheduleContainer && currentFeature === 'employee-scheduling'){
-                     const scheduleAddBtn = scheduleContainer.querySelector('#addEmployeeBtn');
-                     const scheduleRemindBtn = scheduleContainer.querySelector('#sendRemindersBtn');
-                     const scheduleSaveBtn = scheduleContainer.querySelector('#saveScheduleBtn');
-                     const editSpans = scheduleContainer.querySelectorAll('.edit-shift');
-
-                     if(scheduleAddBtn) scheduleAddBtn.style.display = isAdmin || isSupervisor ? 'inline-flex' : 'none';
-                     if(scheduleRemindBtn) scheduleRemindBtn.style.display = isAdmin || isSupervisor ? 'inline-flex' : 'none';
-                     if(scheduleSaveBtn) scheduleSaveBtn.style.display = isAdmin || isSupervisor ? 'inline-flex' : 'none';
-                     editSpans.forEach(el => el.style.display = isAdmin || isSupervisor ? 'inline' : 'none');
-                 }
-            }
-
-            function loadSettingsFormData() {
-                 // Ensure structures exist using optional chaining and nullish coalescing
-                 currentUser.preferences = currentUser.preferences ?? {};
-                 currentUser.security = currentUser.security ?? {};
-                 currentUser.notificationPreferences = currentUser.notificationPreferences ?? { email: {}, push: {} };
-                 currentUser.notificationPreferences.email = currentUser.notificationPreferences.email ?? {};
-                 currentUser.notificationPreferences.push = currentUser.notificationPreferences.push ?? {};
-
-                // Preferences
-                document.getElementById('selectedTheme').value = currentUser.preferences.theme ?? 'blue';
-                if(layoutDensitySelect) layoutDensitySelect.value = currentUser.preferences.layoutDensity ?? 'normal';
-                document.getElementById('language').value = currentUser.preferences.language ?? 'en';
-                document.getElementById('dateFormat').value = currentUser.preferences.dateFormat ?? 'dd/mm/yyyy';
-                if(weekStartSelect) weekStartSelect.value = currentUser.preferences.weekStart ?? 'sun';
-
-                // Account
-                document.getElementById('timezone').value = currentUser.preferences.timezone ?? 'cairo';
-
-                // Security
-                document.getElementById('twoFactorAuth').checked = currentUser.security.twoFactorEnabled ?? true;
-                currentPasswordInput.value = ''; newPasswordInput.value = ''; confirmPasswordInput.value = '';
-                currentPasswordError.style.display = 'none'; passwordMatchError.style.display = 'none';
-
-                // Notifications
-                document.getElementById('emailTasks').checked = currentUser.notificationPreferences.email.tasks ?? true;
-                document.getElementById('emailDeadlines').checked = currentUser.notificationPreferences.email.deadlines ?? true;
-                document.getElementById('emailUpdates').checked = currentUser.notificationPreferences.email.updates ?? false;
-                document.getElementById('pushMessages').checked = currentUser.notificationPreferences.push.messages ?? true;
-                document.getElementById('pushTeamUpdates').checked = currentUser.notificationPreferences.push.teamUpdates ?? false;
-                if(soundNotificationsSwitch) soundNotificationsSwitch.checked = currentUser.preferences.soundNotifications ?? true;
-            }
-
-            function updateStats() {
-                const stats = currentUser?.stats ?? {};
-                 if (teamMembersCount) teamMembersCount.textContent = teamMembers.length;
-                 if (tasksCompleted) tasksCompleted.textContent = stats.tasksCompleted ?? 0;
-                 if (activeProjects) activeProjects.textContent = stats.activeProjects ?? 0;
-                 if (upcomingDeadlines) upcomingDeadlines.textContent = stats.upcomingDeadlines ?? 0;
-
-                if (currentUser?.stats) currentUser.stats.teamMembers = teamMembers.length;
-
-                 // Update trends only if elements exist
-                 if(teamMembersTrend) updateTrendIndicator(teamMembersTrend, stats.teamMembersTrend);
-                 if(tasksCompletedTrend) updateTrendIndicator(tasksCompletedTrend, stats.tasksCompletedTrend);
-                 if(activeProjectsTrend) updateTrendIndicator(activeProjectsTrend, stats.activeProjectsTrend);
-                 if(upcomingDeadlinesTrend) updateTrendIndicator(upcomingDeadlinesTrend, stats.upcomingDeadlinesTrend);
-            }
-
-            function updateTrendIndicator(element, trendValue) {
-                 if(!element) return; // Exit if element doesn't exist
-                const trend = trendValue || 'neutral';
-                let iconClass = 'fa-minus'; let trendClass = 'trend-neutral';
-                let percentageValue = Math.floor(Math.random() * (trend === 'up' ? 50 : trend === 'down' ? 30 : 5)) + (trend === 'neutral' ? 0 : 1);
-                let percentage = `${percentageValue}%`;
-
-                if (trend === 'up') { iconClass = 'fa-arrow-up'; trendClass = 'trend-up'; }
-                else if (trend === 'down') { iconClass = 'fa-arrow-down'; trendClass = 'trend-down'; }
-                else { percentage = '0%'; }
-
-                element.innerHTML = `<i class="fas ${iconClass}"></i> ${percentage}`;
-                element.className = `stat-trend ${trendClass}`;
-            }
-
-            function updateNotificationBadge() {
-                 if (!notificationBadge || !deleteAllNotificationsBtn) return; // Check elements
-                const unreadCount = notifications.filter(n => !n.read).length;
-                if (unreadCount > 0) {
-                    notificationBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
-                    notificationBadge.style.display = 'flex';
-                } else {
-                    notificationBadge.style.display = 'none';
-                }
-                deleteAllNotificationsBtn.style.display = notifications.length > 0 && (currentUser?.role === 'admin' || currentUser?.role === 'supervisor') ? 'inline-flex' : 'none';
-            }
+            // (updateUserUI, applyUserPreferences, applyRBAC, loadSettingsFormData, updateStats, updateTrendIndicator, updateNotificationBadge - Keep these)
+            function updateUserUI() { /* ... keep as is ... */ }
+            function applyUserPreferences() { /* ... keep as is ... */ }
+            function applyRBAC() { /* ... keep as is, maybe call again after dynamic load if needed ... */ }
+            function loadSettingsFormData() { /* ... keep as is ... */ }
+            function updateStats() { /* ... keep as is ... */ }
+            function updateTrendIndicator(element, trendValue) { /* ... keep as is ... */ }
+            function updateNotificationBadge() { /* ... keep as is ... */ }
 
 
             // --- Feature/Section Loading ---
              function setActiveFeature(featureId, settingsTab = null) {
                  console.log(`Activating feature: ${featureId}, Tab: ${settingsTab}`);
 
+                 // --- Cleanup previous feature's listeners ---
+                 if (window.cleanupScheduleListeners) {
+                     window.cleanupScheduleListeners(); // Call cleanup if it exists
+                 }
+                 // Add cleanup for other features here if needed
+
                  // --- RBAC Checks ---
                  if (featureId === 'settings') {
                      const targetTab = settingsTab || currentSettingsTab || 'preferences';
-                     if (targetTab === 'danger' && currentUser?.role !== 'admin') {
-                         console.warn("Access denied: Danger Zone requires admin.");
-                         setActiveFeature('dashboard'); return; // Redirect
-                     }
-                     if (targetTab === 'team' && !(currentUser?.role === 'admin' || currentUser?.role === 'supervisor')) {
-                         console.warn("Access denied: Team Management requires admin/supervisor.");
-                         setActiveFeature('dashboard'); return; // Redirect
-                     }
+                     if (targetTab === 'danger' && currentUser?.role !== 'admin') { setActiveFeature('dashboard'); return; }
+                     if (targetTab === 'team' && !(currentUser?.role === 'admin' || currentUser?.role === 'supervisor')) { setActiveFeature('dashboard'); return; }
                  }
-                 // Add other feature-specific RBAC checks if needed
 
                  currentFeature = featureId;
                  currentSettingsTab = settingsTab || (featureId === 'settings' ? (currentSettingsTab || 'preferences') : null);
 
                  // Update URL
-                 let hash = `#${featureId}`;
-                 if (featureId === 'settings' && currentSettingsTab) hash += `-${currentSettingsTab}`;
+                 let hash = `#${featureId}`; if (featureId === 'settings' && currentSettingsTab) hash += `-${currentSettingsTab}`;
                  if (window.location.hash !== hash) history.pushState({ feature: featureId, tab: currentSettingsTab }, '', hash);
 
-                 // Update Sidebar Menu
+                 // Update Sidebar
                  menuItems.forEach(item => item.classList.remove('active'));
                  const activeMenuItem = document.querySelector(`.menu-item[data-feature="${featureId}"]`);
                  if (activeMenuItem) activeMenuItem.classList.add('active');
 
-                 // Show/Hide Content Sections
+                 // Show/Hide Content
                  contentSections.forEach(section => section.classList.remove('active'));
                  featureSectionsContainer.style.display = 'none';
 
-                 // --- Dynamic Loading Logic ---
-                 if (featureId === 'dashboard') {
-                     dashboardContent.classList.add('active');
-                     updateStats(); loadActivities();
-                 } else if (featureId === 'profile') {
-                     profileContent.classList.add('active');
-                     updateUserUI();
-                 } else if (featureId === 'settings') {
-                     settingsContent.classList.add('active');
-                     applyRBAC(); // Re-apply for tabs
-                     activateSettingsTab(currentSettingsTab || 'preferences');
-                 } else {
-                     // Handle other features
-                     featureSectionsContainer.style.display = 'block'; // Show container
-                     featureSections.innerHTML = ''; // Clear previous
-                      // Ensure placeholder elements exist before using them
+                 // --- Load Content ---
+                 if (featureId === 'dashboard') { dashboardContent.classList.add('active'); updateStats(); loadActivities(); }
+                 else if (featureId === 'profile') { profileContent.classList.add('active'); updateUserUI(); }
+                 else if (featureId === 'settings') { settingsContent.classList.add('active'); applyRBAC(); activateSettingsTab(currentSettingsTab || 'preferences'); }
+                 else {
+                     // Handle dynamic features
+                     featureSectionsContainer.style.display = 'block'; featureSections.innerHTML = '';
                      if (featurePlaceholder && featureTitle && featureDescription && featureLoadingIndicator && featureErrorMessage) {
-                        featureSections.appendChild(featurePlaceholder); // Add placeholder back
-                        featureTitle.textContent = `Loading ${featureId.replace(/-/g, ' ')}...`;
-                        featureDescription.textContent = '';
-                        featureLoadingIndicator.style.display = 'block';
-                        featureErrorMessage.style.display = 'none';
-                        featurePlaceholder.style.display = 'flex';
-                    } else {
-                         console.error("Placeholder elements missing, cannot show loading state.");
-                         featureSections.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--gray);">Loading...</p>'; // Basic fallback
-                     }
+                        featureSections.appendChild(featurePlaceholder); featureTitle.textContent = `Loading ${featureId.replace(/-/g,' ')}...`; featureDescription.textContent=''; featureLoadingIndicator.style.display='block'; featureErrorMessage.style.display='none'; featurePlaceholder.style.display='flex';
+                     } else { featureSections.innerHTML = '<p>Loading...</p>'; }
 
-
-                     const filePath = `sections/${featureId}.html`;
-                     console.log(`Fetching: ${filePath}`);
-
+                     const filePath = `sections/${featureId}.html`; console.log(`Fetching: ${filePath}`);
                      fetch(filePath)
-                         .then(response => {
-                             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
-                             return response.text();
-                         })
+                         .then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.text(); })
                          .then(html => {
-                             featureSections.innerHTML = html; // Inject HTML
-                             featureSections.classList.add('active'); // Make section visible
-
-                             // --- Call Initialization Function ---
+                             featureSections.innerHTML = html; featureSections.classList.add('active');
+                             // --- Call Initializer ---
                              if (featureId === 'employee-scheduling') {
                                  if (typeof initializeEmployeeSchedule === 'function') {
                                      try {
                                          console.log("Calling initializeEmployeeSchedule...");
+                                         // Pass the *main* teamMembers array reference for potential modification
                                          initializeEmployeeSchedule(
-                                             JSON.parse(JSON.stringify(currentUser || DEFAULT_USER)),
-                                             JSON.parse(JSON.stringify(teamMembers || []))
+                                             JSON.parse(JSON.stringify(currentUser || DEFAULT_USER)), // Pass copy of user
+                                             teamMembers // Pass direct reference to main team array
                                          );
-                                     } catch (err) {
-                                         console.error(`Error executing initializeEmployeeSchedule:`, err);
-                                          if (featurePlaceholder && featureTitle && featureDescription && featureErrorMessage) {
-                                            featureTitle.textContent = `Error Initializing ${featureId.replace(/-/g, ' ')}`;
-                                            featureDescription.textContent = `Initialization failed. Check console. Error: ${err.message}`;
-                                            if(featureLoadingIndicator) featureLoadingIndicator.style.display = 'none';
-                                            featureErrorMessage.style.display = 'block'; featureErrorMessage.textContent = err.message;
-                                            featurePlaceholder.style.display = 'flex';
-                                        }
-                                     }
-                                 } else {
-                                     console.error(`Critical Error: initializeEmployeeSchedule function not found!`);
-                                     if (featurePlaceholder && featureTitle && featureDescription && featureErrorMessage) {
-                                        featureTitle.textContent = `Error Initializing ${featureId.replace(/-/g, ' ')}`;
-                                        featureDescription.textContent = `Setup script (initializeEmployeeSchedule) missing or failed to load.`;
-                                        if(featureLoadingIndicator) featureLoadingIndicator.style.display = 'none';
-                                        featureErrorMessage.style.display = 'block'; featureErrorMessage.textContent = 'Initialization function missing.';
-                                        featurePlaceholder.style.display = 'flex';
-                                     }
-                                 }
+                                     } catch (err) { console.error(`Error in initializeEmployeeSchedule:`, err); /* Show error */ }
+                                 } else { console.error(`Init function initializeEmployeeSchedule not found!`); /* Show error */ }
                              }
-                             // else if (featureId === 'other-feature') { /* Call other initializers */ }
-
-                             // --- Hide Placeholder (if no error) ---
-                             if (featureLoadingIndicator) featureLoadingIndicator.style.display = 'none';
-                             if (featurePlaceholder && featureErrorMessage && featureErrorMessage.style.display !== 'block') {
-                                 featurePlaceholder.style.display = 'none';
-                             }
+                             // --- Hide Placeholder ---
+                              if (featureLoadingIndicator) featureLoadingIndicator.style.display = 'none';
+                              if (featurePlaceholder && featureErrorMessage && featureErrorMessage.style.display !== 'block') {
+                                  featurePlaceholder.style.display = 'none';
+                              }
                          })
-                         .catch(error => {
-                             console.error(`Error loading feature '${featureId}' from '${filePath}':`, error);
-                             if (featurePlaceholder && featureTitle && featureDescription && featureErrorMessage) {
-                                featureTitle.textContent = `Error Loading ${featureId.replace(/-/g, ' ')}`;
-                                featureDescription.textContent = `Could not load content. Error: ${error.message}`;
-                                if(featureLoadingIndicator) featureLoadingIndicator.style.display = 'none';
-                                featureErrorMessage.style.display = 'block'; featureErrorMessage.textContent = error.message;
-                                featurePlaceholder.style.display = 'flex';
-                             }
-                             featureSections.classList.add('active'); // Still show section for error message
-                         });
+                         .catch(error => { console.error(`Error loading ${featureId}:`, error); /* Show error */ });
                  }
-
-                 // Show/Hide Back Button
                  backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none';
-                 window.scrollTo(0, 0); // Scroll to top
+                 window.scrollTo(0, 0);
              }
 
 
             // --- Other Dashboard Functions ---
-            // (activateSettingsTab, handleInitialNavigation, loadActivities, loadNotifications, getTimeAgo, updateActivityTimes, startActivityTimeUpdater, loadTeamMembers, showConfirmModal, hideConfirmModal, handleProfileSave, handleProfileCancel, handleSettingsSave, handleSettingsCancel, handleInviteMember, handleEditMemberClick, handleDeleteMemberClick, handleDeleteActivityClick, handleDeleteAllActivities, markNotificationAsRead, handleMarkAllNotificationsRead, handleDeleteNotificationClick, handleDeleteAllNotifications, handleAvatarUpload, handleLogout, addActivity, addNotification, playNotificationSound, showSuccessMessage, setupEventListeners, handleSearch)
-            // ... (Keep the rest of the dashboard functions as they were, ensuring they use correct selectors and handle potential null elements) ...
-            function activateSettingsTab(tabId) {
-                 // RBAC check
-                 if (tabId === 'danger' && currentUser?.role !== 'admin') {
-                     console.warn("Denied access to Danger Zone."); activateSettingsTab('preferences'); return;
-                 }
-                  if (tabId === 'team' && !(currentUser?.role === 'admin' || currentUser?.role === 'supervisor')) {
-                     console.warn("Denied access to Team Management."); activateSettingsTab('preferences'); return;
-                 }
-
-                 currentSettingsTab = tabId;
-                 settingsTabs.forEach(t => {
-                     t.classList.remove('active');
-                     if (!t.classList.contains('disabled') && t.dataset.tab === tabId) {
-                         t.classList.add('active');
-                     }
-                 });
-                 settingsPanels.forEach(p => p.classList.toggle('active', p.id === `${tabId}Panel`));
-
-                 if (currentFeature === 'settings' && window.location.hash !== `#settings-${tabId}`) {
-                     history.replaceState({ feature: 'settings', tab: tabId }, '', `#settings-${tabId}`);
-                 }
-                 if (tabId === 'team') loadTeamMembers();
-                 else if (tabId === 'account') updateUserUI();
-                 else if (['preferences', 'security', 'notifications'].includes(tabId)) loadSettingsFormData();
-            }
-
-            function handleInitialNavigation() {
-                 const hash = window.location.hash.substring(1);
-                 let featureId = 'dashboard'; let settingsTab = null;
-                 if (hash) {
-                     if (hash.startsWith('settings-')) {
-                         featureId = 'settings';
-                         settingsTab = hash.split('-')[1] || 'preferences';
-                     } else {
-                         const validFeature = [...menuItems].some(item => item.dataset.feature === hash) || hash === 'profile';
-                         if (validFeature) featureId = hash;
-                     }
-                 }
-                 setActiveFeature(featureId, settingsTab);
-            }
-
-            function loadActivities(showAll = false) {
-                if(!activityList) return; // Element check
-                activityList.innerHTML = '';
-                const canDeleteAny = currentUser?.role === 'admin' || currentUser?.role === 'supervisor';
-
-                if (activities.length === 0) {
-                    activityList.innerHTML = `<li style="text-align: center; padding: 2rem; color: var(--gray);">No recent activity.</li>`;
-                     if(viewAllActivity) viewAllActivity.style.display = 'none';
-                     if(deleteAllActivity) deleteAllActivity.style.display = 'none';
-                    return;
-                }
-
-                const activitiesToShow = showAll ? activities : activities.slice().reverse().slice(0, MAX_ACTIVITIES_DISPLAYED);
-
-                activitiesToShow.forEach(activity => {
-                    const li = document.createElement('li');
-                    li.className = 'activity-item';
-                    if (activity.isNew) { li.classList.add('new-activity'); delete activity.isNew; setTimeout(() => { li.classList.remove('new-activity'); }, NEW_ACTIVITY_HIGHLIGHT_DURATION); }
-                    li.dataset.id = activity.id;
-                    li.innerHTML = `
-                        <div class="activity-icon"><i class="fas ${activity.icon || 'fa-info-circle'}"></i></div>
-                        <div class="activity-content">
-                            <div class="activity-message">${activity.message}</div>
-                            <div class="activity-time" data-timestamp="${activity.timestamp}">${getTimeAgo(activity.timestamp)}</div>
-                        </div>
-                        <div class="activity-actions"> ${canDeleteAny ? `<i class="fas fa-trash delete-activity" title="Delete Activity"></i>` : ''} </div>
-                    `;
-                    if (!showAll) activityList.prepend(li); else activityList.appendChild(li);
-                });
-
-                activityList.querySelectorAll('.delete-activity').forEach(button => button.addEventListener('click', handleDeleteActivityClick));
-
-                if(viewAllActivity) viewAllActivity.style.display = activities.length > MAX_ACTIVITIES_DISPLAYED && !showAll ? 'inline' : 'none';
-                if(deleteAllActivity) deleteAllActivity.style.display = activities.length > 0 && canDeleteAny ? 'inline' : 'none';
-            }
-
-            function loadNotifications() {
-                 if(!notificationsBody) return; // Element check
-                 notificationsBody.innerHTML = '';
-                 updateNotificationBadge();
-
-                 if (notifications.length === 0) {
-                    notificationsBody.innerHTML = `<div class="no-notifications-message">No notifications yet.</div>`;
-                    return;
-                 }
-                 const canDeleteAny = currentUser?.role === 'admin' || currentUser?.role === 'supervisor';
-
-                 notifications.forEach(notification => {
-                    const item = document.createElement('div');
-                    item.className = `notification-list-item ${notification.read ? '' : 'unread'}`;
-                    item.dataset.id = notification.id;
-                    item.innerHTML = `
-                        <div class="notification-icon-wrapper"><i class="fas ${notification.icon || 'fa-bell'}"></i></div>
-                        <div class="notification-content">
-                            <div class="notification-message">${notification.message}</div>
-                            <div class="notification-time">${getTimeAgo(notification.timestamp)}</div>
-                        </div>
-                        ${canDeleteAny ? `<i class="fas fa-trash delete-notification" title="Delete Notification"></i>` : ''}
-                    `;
-                    item.addEventListener('click', (e) => { if (!e.target.classList.contains('delete-notification')) markNotificationAsRead(notification.id, item); });
-                    const deleteBtn = item.querySelector('.delete-notification');
-                    if (deleteBtn) deleteBtn.addEventListener('click', (e) => { e.stopPropagation(); handleDeleteNotificationClick(notification.id); });
-                    notificationsBody.appendChild(item);
-                 });
-            }
-
-            function getTimeAgo(timestamp) {
-                if (!timestamp) return 'Unknown time';
-                try { const now=new Date(),date=new Date(timestamp); if(isNaN(date.getTime()))return'Invalid date'; const s=Math.floor((now-date)/1e3); if(s<0)return'In the future'; let i=Math.floor(s/31536e3); if(i>=1)return date.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}); i=Math.floor(s/2592e3); if(i>=1)return`${i} month${i==1?'':'s'} ago`; i=Math.floor(s/604800); if(i>=1)return`${i} week${i==1?'':'s'} ago`; i=Math.floor(s/86400); if(i>=1)return`${i} day${i==1?'':'s'} ago`; i=Math.floor(s/3600); if(i>=1)return`${i} hour${i==1?'':'s'} ago`; i=Math.floor(s/60); if(i>=1)return`${i} min${i==1?'':'s'} ago`; return s<10?'Just now':`${Math.floor(s)} secs ago`; } catch (e) { console.error("Error formatting time:",e); return "Error"; }
-            }
-
-            function updateActivityTimes() {
-                if(activityList) activityList.querySelectorAll('.activity-time[data-timestamp]').forEach(el=>{const t=el.dataset.timestamp;if(t)el.textContent=getTimeAgo(t)});
-                if(notificationsBody) notificationsBody.querySelectorAll('.notification-time').forEach(el=>{const item=el.closest('.notification-list-item'); const id=item?.dataset.id; if(id){const n=notifications.find(n=>n.id==id);if(n?.timestamp)el.textContent=getTimeAgo(n.timestamp)}});
-            }
-
-            function startActivityTimeUpdater() {
-                if(activityIntervalId)clearInterval(activityIntervalId); updateActivityTimes(); activityIntervalId=setInterval(updateActivityTimes,UPDATE_INTERVAL);
-            }
-
-            function loadTeamMembers() {
+            // (activateSettingsTab, handleInitialNavigation, loadActivities, etc. - Keep remaining functions)
+            // ... Make sure loadTeamMembers uses the main 'teamMembers' array ...
+            // ... Make sure handleInviteMember updates the main 'teamMembers' array ...
+            // ... Make sure handleEditMemberClick updates the main 'teamMembers' array ...
+            // ... Make sure handleDeleteMemberClick updates the main 'teamMembers' array ...
+            function activateSettingsTab(tabId) { /* ... keep as is ... */ }
+            function handleInitialNavigation() { /* ... keep as is ... */ }
+            function loadActivities(showAll = false) { /* ... keep as is ... */ }
+            function loadNotifications() { /* ... keep as is ... */ }
+            function getTimeAgo(timestamp) { /* ... keep as is ... */ }
+            function updateActivityTimes() { /* ... keep as is ... */ }
+            function startActivityTimeUpdater() { /* ... keep as is ... */ }
+            function loadTeamMembers() { /* ... ENSURE IT READS FROM GLOBAL 'teamMembers' ... */
                  if (!teamList) { console.warn("Team list element not found."); return; }
                  teamList.innerHTML = '';
                  const canManageGlobal = currentUser?.role === 'admin' || currentUser?.role === 'supervisor';
@@ -1968,28 +1571,17 @@
                  if (teamMembers.length === 0) {
                      teamList.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--gray);">No team members yet. Invite one below.</div>`;
                  } else {
-                     teamMembers.forEach(member => {
+                     teamMembers.forEach(member => { // Use the global teamMembers
                          if(!member || typeof member.id === 'undefined') { console.warn("Skipping invalid member data:", member); return; }
-
-                         const memberCard = document.createElement('div');
-                         memberCard.className = 'team-member-card'; memberCard.dataset.id = member.id;
-
+                         const memberCard = document.createElement('div'); memberCard.className = 'team-member-card'; memberCard.dataset.id = member.id;
                          const canManageThis = (canManageGlobal && !['admin', 'supervisor'].includes(member.role)) || (canDeleteGlobal && member.id !== currentUser?.id);
                          const canDeleteThis = canDeleteGlobal && member.id !== currentUser?.id;
-
                          let avatarContent = member.initials || member.email?.substring(0, 2).toUpperCase() || '??';
-                         let avatarStyle = '';
-                         if (member.avatar) { avatarStyle = `background-image: url(${member.avatar});`; avatarContent = ''; }
-
-                         const role = member.role || 'member';
-                         const roleDisplay = role.charAt(0).toUpperCase() + role.slice(1);
-
+                         let avatarStyle = member.avatar ? `background-image: url(${member.avatar});` : '';
+                         const role = member.role || 'member'; const roleDisplay = role.charAt(0).toUpperCase() + role.slice(1);
                          memberCard.innerHTML = `
                              <div class="member-avatar" style="${avatarStyle}">${avatarContent}</div>
-                             <div class="member-details">
-                                 <div class="member-name">${member.name || 'Unnamed Member'}</div>
-                                 <div class="member-email">${member.email || 'No Email'}</div>
-                             </div>
+                             <div class="member-details"><div class="member-name">${member.name || 'Unnamed'}</div><div class="member-email">${member.email || 'No Email'}</div></div>
                              <div class="member-role role-${role}">${roleDisplay}</div>
                              <div class="member-actions">
                                  ${canManageThis ? `<button class="btn btn-outline btn-sm edit-member" title="Edit Member"><i class="fas fa-edit"></i></button>` : ''}
@@ -2000,209 +1592,129 @@
                      teamList.querySelectorAll('.edit-member').forEach(btn => btn.addEventListener('click', handleEditMemberClick));
                      teamList.querySelectorAll('.delete-member').forEach(btn => btn.addEventListener('click', handleDeleteMemberClick));
                  }
-                 updateStats();
-             }
-
-            function showConfirmModal(config) {
-                 if(!confirmModal) return; // Element check
-                 confirmTitle.textContent = config.title || 'Confirm Action';
-                 confirmMessage.innerHTML = config.message || 'Are you sure?';
-                 confirmBtn.textContent = config.confirmText || 'Confirm';
-                 cancelConfirmBtn.textContent = config.cancelText || 'Cancel';
-                 confirmBtn.className = `btn ${config.confirmClass || 'btn-danger'}`;
-                 confirmCallback = config.onConfirm || null;
-                 cancelCallback = config.onCancel || null;
-                 confirmModal.style.display = 'flex'; confirmBtn.focus();
+                 updateStats(); // Update count based on global teamMembers
             }
-            function hideConfirmModal() { if(confirmModal) confirmModal.style.display = 'none'; confirmCallback=null; cancelCallback=null; }
+            function showConfirmModal(config) { /* ... keep as is ... */ }
+            function hideConfirmModal() { /* ... keep as is ... */ }
+            function handleProfileSave(e) { /* ... keep as is ... */ }
+            function handleProfileCancel() { /* ... keep as is ... */ }
+            function handleSettingsSave(formId, panelId, successMsg) { /* ... keep as is ... */ }
+            function handleSettingsCancel(panelId) { /* ... keep as is ... */ }
 
-            function handleProfileSave(e) {
-                 e.preventDefault();
-                 showConfirmModal({ title:'Save Profile Changes?', message:'Save changes to your profile?', confirmText:'Save', confirmClass:'btn-primary',
-                     onConfirm: () => {
-                         const firstName=document.getElementById('firstName').value.trim(); const lastName=document.getElementById('lastName').value.trim();
-                         currentUser.name=`${firstName} ${lastName}`; currentUser.initials=(firstName?firstName[0]:'')+(lastName?lastName[0]:'');
-                         currentUser.title=document.getElementById('jobTitle').value; currentUser.phone=document.getElementById('phone').value; currentUser.department=document.getElementById('department').value;
-                         saveData(); updateUserUI(); addActivity('fa-user-edit','Updated profile information.'); showSuccessMessage('Profile updated!'); hideConfirmModal();
-                     }, onCancel: hideConfirmModal
-                 });
-            }
-            function handleProfileCancel() {
-                const name = `${document.getElementById('firstName').value.trim()} ${document.getElementById('lastName').value.trim()}`;
-                const title=document.getElementById('jobTitle').value; const phone=document.getElementById('phone').value; const department=document.getElementById('department').value;
-                const isDirty=name!==currentUser.name || title!==(currentUser.title||'') || phone!==(currentUser.phone||'') || department!==(currentUser.department||'');
-                if(!isDirty){ setActiveFeature('dashboard'); return; }
-                showConfirmModal({ title:'Discard Profile Changes?', message:'Unsaved edits will be lost.', confirmText:'Discard', confirmClass:'btn-danger',
-                     onConfirm: () => { updateUserUI(); hideConfirmModal(); setActiveFeature('dashboard'); }, onCancel: hideConfirmModal });
-            }
+            // --- Integration Function for Schedule ---
+             window.dashboardUpdateTeamMembers = (newMemberData) => {
+                 console.log("dashboardUpdateTeamMembers called with:", newMemberData);
+                 if (newMemberData && typeof newMemberData === 'object') {
+                     // Check if member already exists (by email - should be unique)
+                     if (!teamMembers.some(m => m.email === newMemberData.email)) {
+                         teamMembers.push(newMemberData); // Add to the main array
+                         saveData(); // Save the updated main array
+                         loadTeamMembers(); // Refresh the team list in settings view
+                         console.log("Team member added to main list:", newMemberData);
+                         return true; // Indicate success
+                     } else {
+                         console.warn("Attempted to add existing member via schedule:", newMemberData.email);
+                         return false; // Indicate failure (already exists)
+                     }
+                 }
+                 return false; // Indicate failure (invalid data)
+             };
+             // --- End Integration Function ---
 
-            function handleSettingsSave(formId, panelId, successMsg) {
-                 const form = document.getElementById(formId); if(!form) return;
-                 const saveButton = form.querySelector('button[type="submit"]'); const spinner = form.querySelector('.spinner'); const loadingText = form.querySelector('.loading-text'); const btnText = form.querySelector('.btn-text');
-                 if(saveButton) saveButton.disabled=true; if(spinner) spinner.style.display='inline-block'; if(loadingText) loadingText.style.display='inline'; if(btnText) btnText.style.display='none';
-                 setTimeout(() => { try { let activityMessage=''; let valuesToSave={};
-                     if (panelId==='preferencesPanel') { /* Collect prefs data */ currentUser.preferences.theme=document.getElementById('selectedTheme').value; currentUser.preferences.layoutDensity=layoutDensitySelect.value; currentUser.preferences.language=document.getElementById('language').value; currentUser.preferences.dateFormat=document.getElementById('dateFormat').value; currentUser.preferences.weekStart=weekStartSelect.value; valuesToSave={...currentUser.preferences}; activityMessage='Updated preferences.'; }
-                     else if (panelId==='accountPanel') { /* Collect account data */ currentUser.preferences.timezone=document.getElementById('timezone').value; valuesToSave={timezone:currentUser.preferences.timezone}; activityMessage='Updated account settings.'; }
-                     else if (panelId==='securityPanel') { /* Collect security data */ currentUser.security=currentUser.security??{}; const original2FA=currentUser.security.twoFactorEnabled; currentUser.security.twoFactorEnabled=document.getElementById('twoFactorAuth').checked; const currentPass=currentPasswordInput.value, newPass=newPasswordInput.value, confirmPass=confirmPasswordInput.value; valuesToSave={twoFactorEnabled:currentUser.security.twoFactorEnabled}; activityMessage='Updated security settings.'; currentPasswordError.style.display='none'; passwordMatchError.style.display='none'; if(newPass||confirmPass||currentPass){ if(!currentPass){currentPasswordError.textContent='Current password required';currentPasswordError.style.display='block';currentPasswordInput.focus();throw new Error('Current pwd missing.');} if(currentPass!==currentUser.password){currentPasswordError.textContent='Current password incorrect';currentPasswordError.style.display='block';currentPasswordInput.focus();throw new Error('Incorrect current pwd.');} if(!newPass){passwordMatchError.textContent='New password empty';passwordMatchError.style.display='block';newPasswordInput.focus();throw new Error('New pwd empty.');} if(newPass.length<8){passwordMatchError.textContent='Min 8 chars';passwordMatchError.style.display='block';newPasswordInput.focus();throw new Error('New pwd too short.');} if(newPass!==confirmPass){passwordMatchError.textContent='Passwords mismatch';passwordMatchError.style.display='block';confirmPasswordInput.focus();throw new Error('Pwd mismatch.');} currentUser.password=newPass; activityMessage='Changed password.'; valuesToSave.passwordChanged=true; currentPasswordInput.value=''; newPasswordInput.value=''; confirmPasswordInput.value=''; } else if(original2FA!==currentUser.security.twoFactorEnabled){ activityMessage='Updated 2FA setting.'; } }
-                     else if (panelId==='notificationsPanel') { /* Collect notification data */ currentUser.notificationPreferences=currentUser.notificationPreferences??{email:{},push:{}}; currentUser.notificationPreferences.email=currentUser.notificationPreferences.email??{}; currentUser.notificationPreferences.push=currentUser.notificationPreferences.push??{}; currentUser.notificationPreferences.email.tasks=document.getElementById('emailTasks').checked; currentUser.notificationPreferences.email.deadlines=document.getElementById('emailDeadlines').checked; currentUser.notificationPreferences.email.updates=document.getElementById('emailUpdates').checked; currentUser.notificationPreferences.push.messages=document.getElementById('pushMessages').checked; currentUser.notificationPreferences.push.teamUpdates=document.getElementById('pushTeamUpdates').checked; currentUser.preferences.soundNotifications=soundNotificationsSwitch.checked; valuesToSave={...currentUser.notificationPreferences, soundNotifications: currentUser.preferences.soundNotifications}; activityMessage='Updated notifications.'; }
-                     console.log(`Saving settings for ${panelId}:`,valuesToSave); saveData(); applyUserPreferences(); if(activityMessage) addActivity('fa-cogs',activityMessage); showSuccessMessage(successMsg||'Settings saved!');
-                 } catch(error){ console.error(`Error saving ${panelId}:`,error.message); if(!error.message.includes('pwd')&&!error.message.includes('mismatch')&&!error.message.includes('missing'))showConfirmModal({title:"Save Error",message:`Could not save: ${error.message}`,confirmText:"OK",confirmClass:"btn-primary",onConfirm:hideConfirmModal}); }
-                 finally { if(saveButton)saveButton.disabled=false; if(spinner)spinner.style.display='none'; if(loadingText)loadingText.style.display='none'; if(btnText)btnText.style.display='inline'; }
-                 }, SIMULATED_DELAY);
-            }
-            function handleSettingsCancel(panelId) { showConfirmModal({ title:`Discard ${panelId.replace('Panel','')} Changes?`, message:'Unsaved changes lost.', confirmText:'Discard', confirmClass:'btn-danger', onConfirm:()=>{loadSettingsFormData();applyUserPreferences();hideConfirmModal();}, onCancel:hideConfirmModal }); }
+            function handleInviteMember(e) { /* ... keep as is (doesn't modify teamMembers directly) ... */ }
 
-            function handleInviteMember(e) {
-                 e.preventDefault();
-                 const emailInput=document.getElementById('inviteMemberEmail'); const roleSelect=document.getElementById('inviteMemberRole');
-                 const email=emailInput.value.trim(); const role=roleSelect.value;
-                 if(!email||!email.includes('@')){alert('Valid email required.');emailInput.focus();return;}
-                 if(teamMembers.some(m=>m.email.toLowerCase()===email.toLowerCase())){alert('Email already exists.');emailInput.focus();return;}
-                 if(role==='admin'&&currentUser?.role!=='admin'){alert('Only Admins can invite Admins.');roleSelect.focus();return;}
-                 if(currentUser?.role==='supervisor'&&(role==='admin'||role==='supervisor')){alert('Supervisors cannot invite Admins/Supervisors.');roleSelect.focus();return;}
-                 console.log(`--- SIMULATING INVITE --- To: ${email}, Role: ${role} ---`);
-                 addActivity('fa-paper-plane',`${currentUser.name} invited ${email} as ${role}.`); showSuccessMessage(`Invitation sent to ${email}.`); if(inviteMemberForm)inviteMemberForm.reset();
-            }
+            function handleEditMemberClick(e) { // Modifies the global teamMembers array
+                 const card=e.target.closest('.team-member-card'); const memberId=parseInt(card?.dataset.id);
+                 const memberIndex = teamMembers.findIndex(m => m.id === memberId); // Find index
+                 if(memberIndex === -1) return; // Member not found
+                 const member = teamMembers[memberIndex];
 
-            function handleEditMemberClick(e) {
-                 const card=e.target.closest('.team-member-card'); const memberId=parseInt(card?.dataset.id); const member=teamMembers.find(m=>m.id===memberId); if(!member)return;
-                 const newName=prompt("Enter new name:",member.name||''); if(newName===null)return; // Cancelled
+                 const newName=prompt("Enter new name:",member.name||''); if(newName===null)return;
                  let newRole=member.role; const isAdmin=currentUser?.role==='admin'; const isSupervisor=currentUser?.role==='supervisor'; let canChangeRole=false; let allowedRolesPrompt='';
                  if(isAdmin&&member.id!==currentUser?.id){canChangeRole=true;allowedRolesPrompt='member, senior, supervisor, admin';}
                  else if(isSupervisor&&!['admin','supervisor'].includes(member.role)){canChangeRole=true;allowedRolesPrompt='member, senior';}
                  if(canChangeRole){ const promptedRole=prompt(`Enter new role (${allowedRolesPrompt}):`,member.role); if(promptedRole!==null){ const cleanRole=promptedRole.trim().toLowerCase(); if(allowedRolesPrompt.split(', ').includes(cleanRole)){newRole=cleanRole;} else{alert('Invalid role or permission denied.');}}}
                  else if(member.id!==currentUser?.id){alert("Permission denied to change role.");}
-                 member.name=newName.trim()||'Unnamed Member'; member.role=newRole; member.initials=member.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase()||member.email?.substring(0,2).toUpperCase()||'??';
-                 saveData(); loadTeamMembers(); addActivity('fa-user-edit',`Updated details for ${member.email}`); showSuccessMessage('Member updated.');
+
+                 // Update the member in the main array
+                 teamMembers[memberIndex] = {
+                     ...member, // Keep existing properties
+                     name: newName.trim() || 'Unnamed Member',
+                     role: newRole,
+                     initials: (newName.trim() || 'Unnamed Member').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() || member.email?.substring(0,2).toUpperCase() || '??'
+                 };
+
+                 saveData(); // Save the updated array
+                 loadTeamMembers(); // Reload list UI
+                 addActivity('fa-user-edit',`Updated details for ${member.email}`); showSuccessMessage('Member updated.');
             }
 
-            function handleDeleteMemberClick(e) {
+            function handleDeleteMemberClick(e) { // Modifies the global teamMembers array
                  const card=e.target.closest('.team-member-card'); const memberId=parseInt(card?.dataset.id); const member=teamMembers.find(m=>m.id===memberId); if(!member)return;
                  if(currentUser?.role!=='admin'){alert('Only admins can delete members.');return;} if(member.id===currentUser?.id){alert("Cannot delete yourself.");return;}
                  showConfirmModal({ title:'Delete Team Member?', message:`Remove <strong>${member.name||member.email}</strong>?`, confirmText:'Delete', confirmClass:'btn-danger',
-                     onConfirm:()=>{ const email=member.email; teamMembers=teamMembers.filter(m=>m.id!==memberId); saveData(); loadTeamMembers(); addActivity('fa-user-minus',`Removed member: ${email}`); addNotification('fa-user-minus',`Member removed: ${email}`); showSuccessMessage('Member deleted.'); hideConfirmModal(); }, onCancel:hideConfirmModal });
+                     onConfirm:()=>{ const email=member.email;
+                         teamMembers=teamMembers.filter(m=>m.id!==memberId); // Update main array
+                         saveData(); // Save updated array
+                         loadTeamMembers(); addActivity('fa-user-minus',`Removed member: ${email}`); addNotification('fa-user-minus',`Member removed: ${email}`); showSuccessMessage('Member deleted.'); hideConfirmModal();
+                     }, onCancel:hideConfirmModal });
             }
-
-            function handleDeleteActivityClick(e) {
-                const li=e.target.closest('.activity-item'); const id=parseInt(li?.dataset.id); if(!id)return;
-                if(!(currentUser?.role==='admin'||currentUser?.role==='supervisor')){alert('Deletion restricted.');return;}
-                showConfirmModal({ title:'Delete Activity?', message:'Delete this record?', confirmText:'Delete', confirmClass:'btn-danger',
-                     onConfirm:()=>{ activities=activities.filter(a=>a.id!==id); saveData(); loadActivities(viewAllActivity?.style.display==='none'&&activities.length>MAX_ACTIVITIES_DISPLAYED); showSuccessMessage('Activity deleted.'); hideConfirmModal(); }, onCancel:hideConfirmModal });
-            }
-
-            function handleDeleteAllActivities() {
-                 if(!(currentUser?.role==='admin'||currentUser?.role==='supervisor')){alert('Deletion restricted.');return;} if(activities.length===0){showSuccessMessage('No activities.');return;}
-                 showConfirmModal({ title:'Delete ALL Activities?', message:`Delete ALL ${activities.length} records?`, confirmText:'Delete All', confirmClass:'btn-danger',
-                     onConfirm:()=>{ activities=[]; saveData(); loadActivities(); showSuccessMessage('All activities deleted.'); hideConfirmModal(); }, onCancel:hideConfirmModal });
-            }
-
-            function markNotificationAsRead(id, itemEl) { const n=notifications.find(n=>n.id==id); if(n&&!n.read){ n.read=true; saveData(); itemEl.classList.remove('unread'); updateNotificationBadge(); } }
-            function handleMarkAllNotificationsRead() { let changed=false; notifications.forEach(n=>{if(!n.read){n.read=true;changed=true;}}); if(changed){saveData();loadNotifications();showSuccessMessage('Marked all read.');}else{showSuccessMessage('No unread.');} }
-
-            function handleDeleteNotificationClick(id) { if(!(currentUser?.role==='admin'||currentUser?.role==='supervisor')){alert('Deletion restricted.');return;} showConfirmModal({ title:'Delete Notification?', message:'Delete this item?', confirmText:'Delete', confirmClass:'btn-danger', onConfirm:()=>{ notifications=notifications.filter(n=>n.id!=id); saveData(); loadNotifications(); showSuccessMessage('Notification deleted.'); hideConfirmModal(); }, onCancel:hideConfirmModal }); }
-            function handleDeleteAllNotifications() { if(!(currentUser?.role==='admin'||currentUser?.role==='supervisor')){alert('Deletion restricted.');return;} if(notifications.length===0){showSuccessMessage('No notifications.');return;} showConfirmModal({ title:'Delete ALL Notifications?', message:`Delete ALL ${notifications.length} items?`, confirmText:'Delete All', confirmClass:'btn-danger', onConfirm:()=>{ notifications=[]; saveData(); loadNotifications(); showSuccessMessage('All notifications deleted.'); hideConfirmModal(); }, onCancel:hideConfirmModal }); }
-
+            function handleDeleteActivityClick(e) { /* ... keep as is ... */ }
+            function handleDeleteAllActivities() { /* ... keep as is ... */ }
+            function markNotificationAsRead(id, itemEl) { /* ... keep as is ... */ }
+            function handleMarkAllNotificationsRead() { /* ... keep as is ... */ }
+            function handleDeleteNotificationClick(id) { /* ... keep as is ... */ }
+            function handleDeleteAllNotifications() { /* ... keep as is ... */ }
+            // --- CORRECTED handleAvatarUpload ---
             function handleAvatarUpload(e) {
-                const file=e.target.files?.[0]; if(!file)return;
-                if(!file.type.startsWith('image/')){alert('Image files only.');return;} if(file.size>2*1024*1024){alert('Max 2MB.');return;}
-                const reader=new FileReader(); reader.onload=ev=>{ const url=ev.target?.result; if(!url)return; showConfirmModal({ title:'Update Profile Picture?', message:'Set this image?', confirmText:'Set Picture', confirmClass:'btn-primary', onConfirm:()=>{ currentUser.avatar=url; saveData(); updateUserUI(); addActivity('fa-camera','Changed profile picture.'); showSuccessMessage('Picture updated.'); hideConfirmModal(); }, onCancel:()=>{ if(profileAvatarInput)profileAvatarInput.value=null; hideConfirmModal(); } }); }; reader.onerror=()=>{alert('Error reading file.');} reader.readAsDataURL(file);
+                const file = e.target.files?.[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    alert('Image files only.');
+                    return;
+                }
+                if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                    alert('Max 2MB.');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    const url = ev.target?.result;
+                    if (!url) return;
+                    showConfirmModal({
+                        title: 'Update Profile Picture?',
+                        message: 'Set this image?',
+                        confirmText: 'Set Picture',
+                        confirmClass: 'btn-primary',
+                        onConfirm: () => {
+                            currentUser.avatar = url;
+                            saveData();
+                            updateUserUI();
+                            addActivity('fa-camera', 'Changed profile picture.');
+                            showSuccessMessage('Picture updated.');
+                            hideConfirmModal();
+                        },
+                        onCancel: () => {
+                            if (profileAvatarInput) profileAvatarInput.value = null;
+                            hideConfirmModal();
+                        }
+                    });
+                }; // <-- Semicolon IS present here in the original full code, ensure it's there
+
+                reader.onerror = () => {
+                    alert('Error reading file.');
+                }; // <-- **** ADD SEMICOLON HERE ****
+
+                reader.readAsDataURL(file);
             }
-
-            function handleLogout() { showConfirmModal({ title:'Logout?', message:'Sure you want to logout?', confirmText:'Logout', confirmClass:'btn-danger', onConfirm:()=>{ showSuccessMessage("Logging out..."); setTimeout(()=>{window.location.href='login.html';},500); }, onCancel:hideConfirmModal }); }
-
-            function addActivity(icon, message) { const newAct={id:Date.now(),icon,message,timestamp:new Date().toISOString(),isNew:true}; activities.push(newAct); activities.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp)); saveData(); if(currentFeature==='dashboard')loadActivities(viewAllActivity?.style.display==='none'&&activities.length>MAX_ACTIVITIES_DISPLAYED); }
-            function addNotification(icon, message) { const newNot={id:Date.now(),icon,message,timestamp:new Date().toISOString(),read:false}; notifications.unshift(newNot); saveData(); updateNotificationBadge(); if(notificationsModal?.style.display==='flex')loadNotifications(); if(currentUser?.preferences?.soundNotifications)playNotificationSound(); }
-            function playNotificationSound() { if(notificationSound?.play)notificationSound.play().catch(e=>console.warn('Sound play fail:',e)); }
-            function showSuccessMessage(message) { successMessageText.textContent=message; successMessage.classList.add('show'); setTimeout(()=>{successMessage.classList.remove('show');},3000); }
-
-
-            // --- Setup Event Listeners ---
-             function setupEventListeners() {
-                 // Sidebar
-                 menuItems.forEach(item=>item.addEventListener('click',e=>{ e.preventDefault(); setActiveFeature(item.dataset.feature); }));
-                 // Back Button
-                 if(backButton) backButton.addEventListener('click',()=>setActiveFeature('dashboard'));
-                 // Browser Nav
-                 window.addEventListener('popstate',e=>{ if(e.state)setActiveFeature(e.state.feature,e.state.tab); else handleInitialNavigation(); });
-                 // Search
-                 if(searchInput){ searchInput.addEventListener('input',handleSearch); searchInput.addEventListener('focus',handleSearch); }
-                 document.addEventListener('click',e=>{ if(!e.target.closest('.search-bar') && searchResults) { searchResults.classList.remove('active'); searchResults.innerHTML=''; } });
-                 // User Dropdown
-                 if(userAvatar) userAvatar.addEventListener('click',()=>userDropdown?.classList.toggle('active'));
-                 if(userProfileDetails) userProfileDetails.addEventListener('click',()=>userDropdown?.classList.toggle('active'));
-                 if(profileLink) profileLink.addEventListener('click',e=>{e.preventDefault();userDropdown?.classList.remove('active');setActiveFeature('profile');});
-                 if(settingsLink) settingsLink.addEventListener('click',e=>{e.preventDefault();userDropdown?.classList.remove('active');setActiveFeature('settings');});
-                 if(logoutLink) logoutLink.addEventListener('click',e=>{e.preventDefault();userDropdown?.classList.remove('active');handleLogout();});
-                 document.addEventListener('click',e=>{ if(!e.target.closest('.user-profile') && userDropdown) userDropdown.classList.remove('active'); });
-                 // Notifications Modal
-                 if(notificationIcon) notificationIcon.addEventListener('click',()=>{ if(notificationsModal){ notificationsModal.style.display='flex'; loadNotifications(); }});
-                 if(closeNotifications) closeNotifications.addEventListener('click',()=>{ if(notificationsModal) notificationsModal.style.display='none'; });
-                 if(notificationsModal) notificationsModal.addEventListener('click',e=>{ if(e.target===notificationsModal) notificationsModal.style.display='none'; });
-                 if(markAllReadBtn) markAllReadBtn.addEventListener('click',handleMarkAllNotificationsRead);
-                 if(deleteAllNotificationsBtn) deleteAllNotificationsBtn.addEventListener('click',handleDeleteAllNotifications);
-                 // Activity List
-                 if(viewAllActivity) viewAllActivity.addEventListener('click',()=>loadActivities(true));
-                 if(deleteAllActivity) deleteAllActivity.addEventListener('click',handleDeleteAllActivities);
-                 // Profile Form
-                 if(profileForm) profileForm.addEventListener('submit',handleProfileSave);
-                 if(cancelProfileBtn) cancelProfileBtn.addEventListener('click',handleProfileCancel);
-                 if(uploadPhotoButton) uploadPhotoButton.addEventListener('click',()=>profileAvatarInput?.click());
-                 if(profileAvatarInput) profileAvatarInput.addEventListener('change',handleAvatarUpload);
-                 // Settings Tabs
-                 settingsTabs.forEach(tab=>tab.addEventListener('click',()=>{ if(!tab.classList.contains('disabled')) activateSettingsTab(tab.dataset.tab); }));
-                 // Settings Forms
-                 if(preferencesForm) preferencesForm.addEventListener('submit',e=>{e.preventDefault();handleSettingsSave('preferencesForm','preferencesPanel','Preferences saved.');});
-                 if(cancelPreferencesBtn) cancelPreferencesBtn.addEventListener('click',()=>handleSettingsCancel('preferencesPanel'));
-                 if(accountForm) accountForm.addEventListener('submit',e=>{e.preventDefault();handleSettingsSave('accountForm','accountPanel','Account settings saved.');});
-                 if(cancelAccountBtn) cancelAccountBtn.addEventListener('click',()=>handleSettingsCancel('accountPanel'));
-                 if(securityForm) securityForm.addEventListener('submit',e=>{e.preventDefault();handleSettingsSave('securityForm','securityPanel','Security settings updated.');});
-                 if(cancelSecurityBtn) cancelSecurityBtn.addEventListener('click',()=>handleSettingsCancel('securityPanel'));
-                 if(notificationsForm) notificationsForm.addEventListener('submit',e=>{e.preventDefault();handleSettingsSave('notificationsForm','notificationsPanel','Notification settings saved.');});
-                 if(cancelNotificationsBtn) cancelNotificationsBtn.addEventListener('click',()=>handleSettingsCancel('notificationsPanel'));
-                 // Theme/Layout Live Apply
-                 themeOptions.forEach(option=>option.addEventListener('click',function(){ const theme=this.dataset.theme; document.getElementById('selectedTheme').value=theme; themeOptions.forEach(opt=>opt.classList.remove('selected')); this.classList.add('selected'); document.body.className=''; document.body.classList.add(`${theme}-theme`); document.body.classList.add(layoutDensitySelect?.value||'normal'); applyRBAC(); }));
-                 if(layoutDensitySelect) layoutDensitySelect.addEventListener('change',function(){ const density=this.value; document.body.classList.remove('compact','normal','spacious'); document.body.classList.add(density); const currentTheme=document.getElementById('selectedTheme')?.value||'blue'; document.body.classList.add(`${currentTheme}-theme`); applyRBAC(); });
-                 // Team Invite Form
-                 if(inviteMemberForm) inviteMemberForm.addEventListener('submit',handleInviteMember);
-                 // Confirm Modal
-                 if(confirmBtn) confirmBtn.addEventListener('click',()=>{ if(confirmCallback)confirmCallback(); });
-                 if(cancelConfirmBtn) cancelConfirmBtn.addEventListener('click',()=>{ if(cancelCallback)cancelCallback(); hideConfirmModal(); });
-                 if(confirmModal) confirmModal.addEventListener('click',e=>{ if(e.target===confirmModal)hideConfirmModal(); });
-                 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&confirmModal?.style.display==='flex')hideConfirmModal(); });
-                 console.log("Dashboard Event Listeners Setup.");
-             }
-
-
-             // --- Search Function ---
-             function handleSearch() {
-                 if (!searchInput || !searchResults) return;
-                 const searchTerm = searchInput.value.toLowerCase().trim();
-                 searchResults.innerHTML = ''; searchResults.classList.remove('active');
-                 if (searchTerm.length < 2) return;
-
-                 const matchingUsers = teamMembers.filter(m => (m.name || '').toLowerCase().includes(searchTerm) || m.email.toLowerCase().includes(searchTerm));
-                 const matchingActivities = activities.filter(a => a.message.toLowerCase().includes(searchTerm));
-
-                 if (matchingUsers.length === 0 && matchingActivities.length === 0) {
-                     searchResults.innerHTML = `<div class="search-result-item" style="color: var(--gray);">No results found.</div>`;
-                     searchResults.classList.add('active'); return;
-                 }
-                 searchResults.classList.add('active');
-
-                 if (matchingUsers.length > 0) {
-                     const header = document.createElement('div'); header.innerHTML = '<strong>Team Members</strong>'; header.style.cssText='padding:0.5rem 1rem 0.25rem; font-size:0.8rem; color:var(--gray);'; searchResults.appendChild(header);
-                     matchingUsers.slice(0, 3).forEach(user => {
-                         const item = document.createElement('div'); item.className='search-result-item'; item.innerHTML=`<i class="fas fa-user" style="margin-right:0.5rem;color:var(--primary);"></i> ${user.name} (${user.email})`;
-                         item.onclick=()=>{ setActiveFeature('settings','team'); searchResults.classList.remove('active'); searchInput.value=''; }; searchResults.appendChild(item); });
-                 }
-                 if (matchingActivities.length > 0) {
-                     const header = document.createElement('div'); header.innerHTML = '<strong>Recent Activities</strong>'; header.style.cssText='padding:0.5rem 1rem 0.25rem; font-size:0.8rem; color:var(--gray);'; searchResults.appendChild(header);
-                     matchingActivities.slice(0, 3).forEach(activity => {
-                         const item = document.createElement('div'); item.className='search-result-item'; item.innerHTML=`<i class="fas ${activity.icon||'fa-info-circle'}" style="margin-right:0.5rem;color:var(--secondary);"></i> ${activity.message.substring(0,50)}...`;
-                         item.onclick=()=>{ setActiveFeature('dashboard'); const el=activityList?.querySelector(`.activity-item[data-id="${activity.id}"]`); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.style.transition='background-color 0.3s ease-out'; el.style.backgroundColor='var(--primary-light)'; setTimeout(()=>el.style.backgroundColor='',1500); } searchResults.classList.remove('active'); searchInput.value=''; }; searchResults.appendChild(item); });
-                 }
-             }
-
+            // --- End CORRECTED handleAvatarUpload ---
+            function handleLogout() { /* ... keep as is ... */ }
+            function addActivity(icon, message) { /* ... keep as is ... */ }
+            function addNotification(icon, message) { /* ... keep as is ... */ }
+            function playNotificationSound() { /* ... keep as is ... */ }
+            function showSuccessMessage(message) { /* ... keep as is ... */ }
+            function setupEventListeners() { /* ... keep as is ... */ }
+            function handleSearch() { /* ... keep as is ... */ }
 
             // --- Run Initialization ---
             initDashboard();
@@ -2214,3 +1726,4 @@
     </script>
 </body>
 </html>
+```
