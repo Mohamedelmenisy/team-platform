@@ -1,1 +1,2368 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeamFlow | Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Favicon links (Team Management System Favicon) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="https://img.icons8.com/fluency/48/000000/group-task.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://img.icons8.com/fluency/32/000000/group-task.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://img.icons8.com/fluency/180/000000/group-task.png">
 
+    <!-- ***** MODIFICATION: Link to the Employee Scheduling CSS ***** -->
+    <link rel="stylesheet" href="sections/employee-scheduling.css">
+    <!-- ***** END MODIFICATION ***** -->
+
+    <style>
+        /* --- Paste ALL original CSS from dashboard.txt here --- */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e3a8a; /* Dark blue */
+            --primary-light: #dbeafe;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --light-gray: #e2e8f0;
+            --white: #ffffff;
+            --sidebar-width: 280px;
+            --sidebar-bg: #1e3a8a; /* Dark blue */
+            --sidebar-text: rgba(255,255,255,0.9);
+            --sidebar-hover: rgba(255,255,255,0.1);
+            --sidebar-active: rgba(255,255,255,0.2);
+            --sidebar-divider: rgba(255,255,255,0.1);
+            --success: #10b981;
+            --team-manager: #ef4444; /* Used for admin role title color */
+            --compact-padding: 0.5rem;
+            --normal-padding: 1rem;
+            --spacious-padding: 1.5rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--primary-light);
+            color: var(--dark);
+            display: flex;
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease; /* Added color transition */
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 100;
+            display: flex; /* Enable flex for bottom connection status */
+            flex-direction: column; /* Stack items vertically */
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--sidebar-divider);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            color: var(--white);
+            font-size: 1.5rem;
+        }
+
+        .sidebar-menu {
+            padding: 1rem 0;
+            flex-grow: 1; /* Allow menu to take available space */
+            overflow-y: auto; /* Enable scrolling for menu if needed */
+        }
+
+        .menu-title {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 0.5px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            margin: 0.25rem 0;
+        }
+
+        .menu-item:hover {
+            background-color: var(--sidebar-hover);
+            color: var(--white);
+        }
+
+        .menu-item.active {
+            background-color: var(--sidebar-active);
+            color: var(--white);
+            border-left-color: var(--white);
+        }
+
+        .menu-item i {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .menu-divider {
+            height: 1px;
+            background-color: var(--sidebar-divider);
+            margin: 1rem 1.5rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            background-color: var(--white);
+            padding: var(--normal-padding) 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--light-gray);
+            position: sticky;
+            top: 0;
+            z-index: 90;
+            transition: padding 0.3s ease, background-color 0.3s ease, border-color 0.3s ease; /* Added transitions */
+        }
+
+        /* Compact layout */
+        body.compact .top-nav { padding: var(--compact-padding) 1rem; }
+        /* Spacious layout */
+        body.spacious .top-nav { padding: var(--spacious-padding) 2rem; }
+
+        .search-bar { position: relative; width: 400px; }
+        .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            background-color: var(--white); /* Theme support */
+            color: var(--dark); /* Theme support */
+        }
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gray); }
+        .search-results {
+            position: absolute; top: 100%; left: 0; width: 100%;
+            background-color: var(--white); border: 1px solid var(--light-gray);
+            border-radius: 0 0 6px 6px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 100; display: none; max-height: 300px; overflow-y: auto;
+        }
+        .search-results.active { display: block; }
+        .search-result-item { padding: 0.75rem 1rem; cursor: pointer; transition: background-color 0.2s; color: var(--dark); } /* Theme support */
+        .search-result-item:hover { background-color: var(--primary-light); }
+
+        .user-menu { display: flex; align-items: center; gap: 1.5rem; }
+        .notification-icon { position: relative; color: var(--gray); cursor: pointer; font-size: 1.1rem; } /* Slightly larger */
+        .notification-badge {
+            position: absolute; top: -5px; right: -5px; background-color: var(--danger);
+            color: white; border-radius: 50%; width: 18px; height: 18px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.65rem; font-weight: 600;
+        }
+        .user-profile { display: flex; align-items: center; gap: 0.75rem; position: relative; }
+        .user-avatar {
+            width: 36px; height: 36px; border-radius: 50%; background-color: var(--primary);
+            color: white; display: flex; align-items: center; justify-content: center;
+            font-weight: 600; cursor: pointer; background-size: cover; background-position: center;
+        }
+        .user-profile-details { display: flex; align-items: center; cursor: pointer; } /* Wrap name and status */
+        .user-name { font-weight: 500; color: var(--dark); } /* Theme support */
+        /* --- Style for Connected Status --- */
+        .user-status {
+            font-size: 0.8rem;
+            color: var(--success);
+            margin-left: 0.5rem;
+            font-weight: 600; /* Bolder */
+            text-shadow: 0 0 4px rgba(16, 185, 129, 0.4); /* Subtle glow */
+        }
+
+        .user-dropdown {
+            position: absolute; top: 100%; right: 0; background-color: var(--white);
+            border: 1px solid var(--light-gray); border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); width: 200px; z-index: 100; display: none;
+        }
+        .user-dropdown.active { display: block; }
+        .dropdown-item {
+            padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem;
+            color: var(--dark); text-decoration: none; transition: background-color 0.2s;
+        }
+        .dropdown-item:hover { background-color: var(--light); }
+        .dropdown-item i { width: 20px; text-align: center; }
+
+        /* Content Area */
+        .content-area {
+            padding: 2rem;
+            min-height: calc(100vh - 70px); /* Adjust based on top-nav height */
+            transition: padding 0.3s ease;
+        }
+        /* Compact layout */
+        body.compact .content-area { padding: 1rem; }
+        /* Spacious layout */
+        body.spacious .content-area { padding: 3rem; }
+
+        /* Welcome Section */
+        /* --- Changed background --- */
+        .welcome-section {
+            background-color: var(--primary-dark); /* Dark blue background */
+            color: var(--white); padding: 2rem;
+            border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: padding 0.3s ease, margin-bottom 0.3s ease, background-color 0.3s ease;
+        }
+        /* Compact layout */
+        body.compact .welcome-section { padding: 1rem; margin-bottom: 1rem; }
+        /* Spacious layout */
+        body.spacious .welcome-section { padding: 3rem; margin-bottom: 3rem; }
+
+        .welcome-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+        /* Compact layout */
+        body.compact .welcome-title { font-size: 1.25rem; }
+
+        /* --- Added Welcome Subtitle Style --- */
+        .welcome-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+            margin-bottom: 1.5rem;
+            font-weight: 400;
+        }
+         /* Compact layout */
+        body.compact .welcome-subtitle { font-size: 0.9rem; margin-bottom: 1rem;}
+
+        .user-info { display: flex; align-items: center; gap: 1.5rem; margin-top: 1.5rem; }
+        /* Compact layout */
+        body.compact .user-info { flex-direction: column; text-align: center; gap: 1rem; margin-top: 1rem; }
+
+        .user-info-avatar {
+            width: 80px; height: 80px; border-radius: 50%; background-color: var(--primary-light);
+            color: var(--primary); display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 1.75rem; background-size: cover; background-position: center;
+            position: relative; cursor: default; /* Changed cursor */
+        }
+        /* Compact layout */
+        body.compact .user-info-avatar { width: 60px; height: 60px; font-size: 1.25rem; }
+
+        /* Removed avatar-upload style as it's replaced by a button */
+
+        .user-info-details { flex: 1; }
+        .user-info-name { font-weight: 600; font-size: 1.25rem; margin-bottom: 0.25rem; }
+        /* Compact layout */
+        body.compact .user-info-name { font-size: 1rem; }
+
+        .user-info-title { opacity: 0.9; font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--light-gray); font-weight: 600; } /* Adjusted color for dark bg */
+        /* --- Style for Administrator Role in Welcome Section --- */
+        .user-info-title.role-admin { color: var(--team-manager); }
+        /* Compact layout */
+        body.compact .user-info-title { font-size: 0.8rem; }
+
+
+        .user-info-email { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; opacity: 0.9; }
+
+        /* Stats Section */
+        .stats-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; transition: gap 0.3s ease, margin-bottom 0.3s ease; }
+        /* Compact layout */
+        body.compact .stats-section { gap: 1rem; margin-bottom: 1rem; }
+        /* Spacious layout */
+        body.spacious .stats-section { gap: 2rem; margin-bottom: 3rem; }
+
+        .stat-card {
+            background-color: var(--white); border-radius: 8px; padding: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08); /* Slightly enhanced shadow */
+            transition: transform 0.2s, box-shadow 0.2s, padding 0.3s ease, background-color 0.3s ease; /* Added background transition */
+            position: relative; overflow: hidden;
+        }
+        /* Compact layout */
+        body.compact .stat-card { padding: 1rem; }
+        /* Spacious layout */
+        body.spacious .stat-card { padding: 2rem; }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); } /* Enhanced hover */
+        /* --- Enhanced ::before gradient --- */
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; /* Slightly thicker */
+            background: linear-gradient(90deg, var(--primary), var(--secondary)); /* Example gradient */
+            opacity: 0.9;
+        }
+
+        .stat-title { font-size: 0.9rem; color: var(--gray); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        /* Compact layout */
+        body.compact .stat-title { font-size: 0.8rem; }
+        .stat-title i { color: var(--primary); }
+
+        .stat-value { font-size: 1.75rem; font-weight: 700; color: var(--primary-dark); display: flex; align-items: center; justify-content: space-between; }
+        /* Compact layout */
+        body.compact .stat-value { font-size: 1.5rem; }
+
+        .stat-trend { display: flex; align-items: center; font-size: 0.9rem; font-weight: 500; }
+        /* Compact layout */
+        body.compact .stat-trend { font-size: 0.8rem; }
+        .trend-up { color: var(--secondary); }
+        .trend-down { color: var(--danger); }
+        .trend-neutral { color: var(--gray); }
+
+        /* Activity Section */
+        .activity-section { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 1.5rem; transition: padding 0.3s ease, background-color 0.3s ease; }
+        /* Compact layout */
+        body.compact .activity-section { padding: 1rem; }
+        /* Spacious layout */
+        body.spacious .activity-section { padding: 2rem; }
+
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; transition: margin-bottom 0.3s ease; flex-wrap: wrap; gap: 0.5rem; /* Allow wrapping */ }
+        /* Compact layout */
+        body.compact .section-header { margin-bottom: 1rem; }
+        /* Spacious layout */
+        body.spacious .section-header { margin-bottom: 2rem; }
+
+        .section-title { font-size: 1.25rem; font-weight: 600; color: var(--dark); } /* Theme support */
+        /* Compact layout */
+        body.compact .section-title { font-size: 1.1rem; }
+
+        .live-badge {
+            display: inline-flex; align-items: center; background-color: var(--danger); color: white;
+            padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;
+            margin-left: 0.5rem; animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* --- Updated view-all / delete-all styles --- */
+        .section-header > div { display: flex; align-items: center; gap: 1rem;} /* Container for actions */
+        .view-all, .delete-all { font-weight: 500; cursor: pointer; transition: color 0.2s, background-color 0.2s; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; }
+        .view-all { color: var(--primary); }
+        .view-all:hover { color: var(--primary-dark); text-decoration: underline; background-color: var(--primary-light); }
+        .delete-all { color: var(--danger); }
+        .delete-all:hover { color: #dc2626; text-decoration: underline; background-color: rgba(239, 68, 68, 0.1); }
+
+
+        .activity-list { list-style: none; padding-left: 0; /* Remove default padding */ }
+        .activity-item { display: flex; padding: 1rem 0; border-bottom: 1px solid var(--light-gray); align-items: center; transition: background-color 0.3s, padding 0.3s ease, border-color 0.3s ease; }
+        /* Compact layout */
+        body.compact .activity-item { padding: 0.75rem 0; }
+        /* Spacious layout */
+        body.spacious .activity-item { padding: 1.25rem 0; }
+        .activity-item:last-child { border-bottom: none; }
+        /* --- Style for new activity highlight --- */
+        .activity-item.new-activity {
+             background-color: rgba(37, 99, 235, 0.08); /* Slightly stronger initial highlight */
+             animation: highlightNewActivity 2.5s ease-out forwards; /* Use 'forwards' to keep final state */
+        }
+        @keyframes highlightNewActivity {
+            0% { background-color: rgba(37, 99, 235, 0.15); }
+            100% { background-color: transparent; } /* Fade back to normal */
+        }
+
+        .activity-icon {
+            width: 40px; height: 40px; border-radius: 50%; background-color: rgba(37, 99, 235, 0.1);
+            color: var(--primary); display: flex; align-items: center; justify-content: center;
+            margin-right: 1rem; flex-shrink: 0; transition: width 0.3s, height 0.3s, margin-right 0.3s, font-size 0.3s;
+        }
+        /* Compact layout */
+        body.compact .activity-icon { width: 32px; height: 32px; margin-right: 0.75rem; font-size: 0.9rem; }
+
+        .activity-content { flex: 1; }
+        .activity-message { margin-bottom: 0.25rem; color: var(--dark); } /* Theme support */
+        /* Compact layout */
+        body.compact .activity-message { font-size: 0.9rem; }
+
+        .activity-time { font-size: 0.8rem; color: var(--gray); }
+        /* Compact layout */
+        body.compact .activity-time { font-size: 0.7rem; }
+
+        .activity-actions { display: flex; gap: 0.5rem; margin-left: auto; padding-left: 1rem; }
+        .delete-activity { color: var(--danger); cursor: pointer; opacity: 1; transition: opacity 0.2s, background-color 0.2s; padding: 0.5rem; border-radius: 4px; }
+        .delete-activity:hover { background-color: rgba(239, 68, 68, 0.1); }
+
+        /* Generic Content Sections (Profile, Settings, Features) */
+        /* ***** MODIFICATION: Ensure feature section takes background/shadow ***** */
+        .content-section { display: none; background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 2rem; transition: padding 0.3s ease, background-color 0.3s ease, opacity 0.3s ease; }
+        /* Ensure dynamic section also has these styles if needed */
+        #featureSections { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 2rem; /* Apply base styles */ }
+        /* ***** END MODIFICATION ***** */
+
+        .content-section.active { display: block; animation: fadeInSection 0.4s ease-out; }
+        @keyframes fadeInSection { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Compact layout */
+        body.compact .content-section, body.compact #featureSections { padding: 1rem; }
+        /* Spacious layout */
+        body.spacious .content-section, body.spacious #featureSections { padding: 3rem; }
+
+        /* Section Headers (used in Profile, Settings, Features) */
+        .section-main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; transition: margin-bottom 0.3s ease; }
+        /* Compact layout */
+        body.compact .section-main-header { margin-bottom: 1.5rem; }
+        /* Spacious layout */
+        body.spacious .section-main-header { margin-bottom: 3rem; }
+
+        .section-main-title { font-size: 1.5rem; font-weight: 600; color: var(--primary-dark); }
+        /* Compact layout */
+        body.compact .section-main-title { font-size: 1.25rem; }
+
+        /* --- Profile Section Specific Styles --- */
+        .profile-header-text { margin-bottom: 2rem; color: var(--gray); font-size: 0.95rem;}
+        .profile-avatar-section { text-align: center; margin-bottom: 2rem; }
+        #profileAvatarLarge {
+            width: 120px; height: 120px; border-radius: 50%; background-color: var(--primary-light);
+            color: var(--primary-dark); display: inline-flex; align-items: center; justify-content: center; /* Changed to inline-flex */
+            font-weight: 600; font-size: 3rem; background-size: cover; background-position: center;
+            margin-bottom: 1rem; /* Space between avatar and button */
+            border: 3px solid var(--white); /* Optional border */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #uploadPhotoButton { margin-top: 0.5rem;}
+
+
+        /* Forms (Profile, Settings) */
+        .data-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; transition: gap 0.3s ease; }
+        /* Compact layout */
+        body.compact .data-form { gap: 1rem; }
+        /* Spacious layout */
+        body.spacious .data-form { gap: 2rem; }
+
+        .form-group { margin-bottom: 1rem; transition: margin-bottom 0.3s ease; }
+        /* Compact layout */
+        body.compact .form-group { margin-bottom: 0.75rem; }
+        /* Spacious layout */
+        body.spacious .form-group { margin-bottom: 1.5rem; }
+
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark); transition: margin-bottom 0.3s ease, font-size 0.3s ease; }
+        /* Compact layout */
+        body.compact .form-group label { margin-bottom: 0.25rem; font-size: 0.9rem; }
+
+        .form-control {
+            width: 100%; padding: 0.75rem; border: 1px solid var(--light-gray); border-radius: 6px;
+            font-size: 1rem; background-color: var(--white); color: var(--dark); /* Theme support */
+            transition: border-color 0.2s, box-shadow 0.2s, padding 0.3s ease, font-size 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+        }
+        /* Compact layout */
+        body.compact .form-control { padding: 0.5rem; font-size: 0.9rem; }
+        /* Spacious layout */
+        body.spacious .form-control { padding: 1rem; }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .form-control[readonly] { background-color: var(--light-gray); cursor: not-allowed; } /* Readonly style */
+
+        .form-actions { grid-column: span 2; display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; transition: margin-top 0.3s ease; }
+        /* Compact layout */
+        body.compact .form-actions { margin-top: 0.5rem; }
+        /* Spacious layout */
+        body.spacious .form-actions { margin-top: 2rem; }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 500; cursor: pointer;
+            transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        /* Compact layout */
+        body.compact .btn { padding: 0.5rem 1rem; font-size: 0.9rem; }
+        /* Spacious layout */
+        body.spacious .btn { padding: 1rem 2rem; }
+
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover:not(:disabled) { background-color: var(--primary-dark); }
+        .btn-outline { background-color: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover:not(:disabled) { background-color: var(--primary-light); }
+        .btn-danger { background-color: var(--danger); color: white; }
+        .btn-danger:hover:not(:disabled) { background-color: #dc2626; }
+        .btn-success { background-color: var(--success); color: white; }
+        .btn-success:hover:not(:disabled) { background-color: #0d9f6e; }
+        .btn-secondary { background-color: var(--secondary); color: white; } /* Added for schedule button */
+        .btn-secondary:hover:not(:disabled) { background-color: #0d9f6e; } /* Darker secondary */
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* Settings Content Specifics */
+        .settings-tabs { display: flex; border-bottom: 1px solid var(--light-gray); margin-bottom: 2rem; transition: margin-bottom 0.3s ease, border-color 0.3s ease; overflow-x: auto; /* Allow horizontal scroll on small screens */ }
+        /* Compact layout */
+        body.compact .settings-tabs { margin-bottom: 1.5rem; }
+        /* Spacious layout */
+        body.spacious .settings-tabs { margin-bottom: 3rem; }
+
+        .settings-tab { padding: 0.75rem 1.5rem; cursor: pointer; border-bottom: 2px solid transparent; font-weight: 500; color: var(--gray); transition: all 0.2s; white-space: nowrap; /* Prevent wrapping */ }
+        /* Compact layout */
+        body.compact .settings-tab { padding: 0.5rem 1rem; font-size: 0.9rem; }
+        /* Spacious layout */
+        body.spacious .settings-tab { padding: 1rem 2rem; }
+        .settings-tab:hover { color: var(--primary); }
+        .settings-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .settings-tab.disabled { color: var(--light-gray); cursor: not-allowed; pointer-events: none; } /* Style for disabled tabs */
+
+
+        .settings-panel { display: none; }
+        .settings-panel.active { display: block; animation: fadeInPanel 0.5s ease-out; }
+        @keyframes fadeInPanel { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Switch Toggle */
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; flex-shrink: 0; } /* Added flex-shrink */
+        /* Compact layout */
+        body.compact .switch { width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; }
+        /* Compact layout */
+        body.compact .slider:before { height: 14px; width: 14px; left: 3px; bottom: 3px; } /* Adjusted compact position */
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(26px); }
+        /* Compact layout */
+        body.compact input:checked + .slider:before { transform: translateX(20px); }
+        .slider.round { border-radius: 34px; }
+        .slider.round:before { border-radius: 50%; }
+
+        /* Team Management Panel */
+        .team-management { margin-top: 1.5rem; }
+        /* Compact layout */
+        body.compact .team-management { margin-top: 1rem; }
+        /* Spacious layout */
+        body.spacious .team-management { margin-top: 2rem; }
+        .team-management h3, .add-member-form h4 { color: var(--dark); margin-bottom: 1rem; } /* Theme support */
+
+        .team-list { margin-top: 1rem; }
+        /* Compact layout */
+        body.compact .team-list { margin-top: 0.75rem; }
+        /* Spacious layout */
+        body.spacious .team-list { margin-top: 1.5rem; }
+
+        .team-member-card { display: flex; align-items: center; padding: 1rem; border: 1px solid var(--light-gray); border-radius: 8px; margin-bottom: 1rem; transition: all 0.2s; background-color: var(--white); } /* Theme support */
+        /* Compact layout */
+        body.compact .team-member-card { padding: 0.75rem; margin-bottom: 0.75rem; }
+        /* Spacious layout */
+        body.spacious .team-member-card { padding: 1.25rem; margin-bottom: 1.25rem; }
+        .team-member-card:hover { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); border-color: var(--primary); } /* Hover effect */
+
+        .member-avatar {
+            width: 50px; height: 50px; border-radius: 50%; background-color: var(--light-gray);
+            margin-right: 1rem; display: flex; align-items: center; justify-content: center;
+            font-weight: 600; background-size: cover; background-position: center;
+            color: var(--primary-dark); /* Avatar text color */
+            transition: width 0.3s, height 0.3s, margin-right 0.3s, font-size 0.3s;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+        /* Compact layout */
+        body.compact .member-avatar { width: 40px; height: 40px; margin-right: 0.75rem; font-size: 0.9rem; }
+
+        .member-details { flex: 1; min-width: 0; /* Prevent overflow */ }
+        .member-name { font-weight: 500; margin-bottom: 0.25rem; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;} /* Theme support, prevent wrap */
+        /* Compact layout */
+        body.compact .member-name { font-size: 0.9rem; }
+        .member-email { font-size: 0.9rem; color: var(--gray); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;} /* Prevent wrap */
+        /* Compact layout */
+        body.compact .member-email { font-size: 0.8rem; }
+
+        .member-role { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 500; margin: 0 1rem; flex-shrink: 0; } /* Added margin, shrink */
+        /* Compact layout */
+        body.compact .member-role { font-size: 0.7rem; margin: 0 0.75rem; }
+        .role-admin { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .role-senior { background-color: rgba(37, 99, 235, 0.1); color: var(--primary); } /* Changed senior color */
+        .role-supervisor { background-color: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .role-member { background-color: rgba(16, 185, 129, 0.1); color: var(--secondary); }
+
+        .member-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+        .member-actions .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; } /* Smaller buttons */
+
+        /* --- Updated Add Member Form for Invite --- */
+        .add-member-form { margin-top: 2rem; padding: 1.5rem; border: 1px dashed var(--light-gray); border-radius: 8px; background-color: var(--light); /* Theme support */ }
+        /* Compact layout */
+        body.compact .add-member-form { margin-top: 1.5rem; padding: 1rem; }
+        /* Spacious layout */
+        body.spacious .add-member-form { margin-top: 3rem; padding: 2rem; }
+
+        /* Theme Classes */
+        body.light-theme {
+            --primary-light: #f1f5f9; /* Slightly off-white */
+            --light: #ffffff;
+            --white: #ffffff;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --light-gray: #e2e8f0;
+            background-color: var(--primary-light);
+        }
+        body.dark-theme {
+            --primary: #3b82f6; /* Brighter blue for dark */
+            --primary-dark: #1e40af;
+            --primary-light: #1e293b; /* Dark background element */
+            --light: #334155; /* Lighter dark element */
+            --white: #0f172a; /* Base background */
+            --dark: #e2e8f0; /* Light text */
+            --gray: #94a3b8; /* Lighter gray */
+            --light-gray: #334155; /* Borders */
+            background-color: var(--white);
+        }
+        body.dark-theme .top-nav { background-color: var(--primary-light); border-bottom-color: var(--light-gray); }
+        body.dark-theme .stat-card,
+        body.dark-theme .activity-section,
+        body.dark-theme .content-section,
+        body.dark-theme #featureSections, /* Theme for dynamic section */
+        body.dark-theme .team-member-card,
+        body.dark-theme .add-member-form { background-color: var(--primary-light); }
+        body.dark-theme .search-bar input,
+        body.dark-theme .form-control { background-color: var(--light); border-color: var(--light-gray); color: var(--dark); }
+        body.dark-theme .form-control[readonly] { background-color: var(--primary-light); }
+        body.dark-theme .search-results { background-color: var(--light); border-color: var(--light-gray); }
+        body.dark-theme .search-result-item:hover { background-color: var(--primary-light); }
+        body.dark-theme .user-dropdown { background-color: var(--light); border-color: var(--light-gray); }
+        body.dark-theme .dropdown-item:hover { background-color: var(--primary-light); }
+        body.dark-theme .notifications-container { background-color: var(--primary-light); }
+        body.dark-theme .notification-list-item:hover { background-color: var(--light); }
+        body.dark-theme .notification-list-item.unread { background-color: rgba(59, 130, 246, 0.1); } /* Use primary color base */
+        body.dark-theme .confirm-container { background-color: var(--light); }
+        body.dark-theme .theme-option div { border-color: var(--light-gray); }
+        body.dark-theme .theme-option[data-theme="dark"] div { border-color: var(--primary); } /* Highlight active theme */
+        body.dark-theme .back-button:hover { background-color: var(--light); }
+        body.dark-theme .notifications-footer { background-color: var(--primary-light); }
+        body.dark-theme .welcome-section { background-color: var(--primary-dark); color: var(--white); } /* Explicitly set dark welcome */
+        body.dark-theme .user-info-title { color: var(--light-gray); } /* Adjust title color on dark welcome */
+         body.dark-theme .user-info-title.role-admin { color: var(--team-manager); } /* Ensure admin red overrides dark theme gray */
+        body.dark-theme .user-info-email { color: var(--light-gray); }
+        body.dark-theme .welcome-subtitle { color: var(--light-gray); }
+        body.dark-theme .placeholder-content { background-color: var(--light); border-color: var(--light-gray);} /* Theme placeholder */
+
+
+        body.blue-theme { /* Already default, but defined for clarity */
+            --primary-light: #dbeafe;
+            --light: #eff6ff;
+            --white: #ffffff;
+            --dark: #1e293b;
+            background-color: var(--primary-light);
+        }
+         body.blue-theme #featureSections { background-color: var(--white); } /* Ensure features use white bg */
+         body.blue-theme .placeholder-content { background-color: var(--light); }
+
+        /* Theme Selection Options */
+        .theme-option { display: flex; flex-direction: column; align-items: center; }
+        .theme-option div {
+            width: 60px; height: 40px; /* Adjusted aspect ratio */
+            border: 2px solid var(--light-gray); border-radius: 6px; cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .theme-option span { text-align: center; display: block; margin-top: 0.5rem; font-size: 0.9rem; color: var(--dark); }
+        .theme-option:hover div { border-color: var(--primary); }
+        .theme-option.selected div { border-color: var(--primary); border-width: 3px; } /* Indicate selected */
+
+        /* Notifications Modal */
+        .notifications-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); z-index: 1000; display: none; justify-content: flex-end;
+        }
+        .notifications-container {
+            width: 400px; max-width: 100%; background-color: var(--white); height: 100vh;
+            overflow-y: auto; animation: slideIn 0.3s ease-out; box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            display: flex; flex-direction: column; /* Ensure content flows correctly */
+        }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+        .notifications-header { padding: 1.5rem; border-bottom: 1px solid var(--light-gray); display: flex; justify-content: space-between; align-items: center; background-color: var(--primary); color: white; flex-shrink: 0; }
+        .notifications-title { font-size: 1.25rem; font-weight: 600; }
+        .close-notifications { background: none; border: none; font-size: 1.25rem; cursor: pointer; color: white; }
+
+        .notifications-body { flex-grow: 1; overflow-y: auto; } /* Scrollable area */
+        .notification-list-item { padding: 1rem 1.5rem; border-bottom: 1px solid var(--light-gray); transition: background-color 0.2s; display: flex; gap: 1rem; align-items: center; cursor: pointer; }
+        .notification-list-item:hover { background-color: var(--light); }
+        .notification-list-item.unread { background-color: rgba(37, 99, 235, 0.05); font-weight: 500; }
+        .notification-list-item:last-child { border-bottom: none; }
+        .notification-icon-wrapper { width: 40px; height: 40px; border-radius: 50%; background-color: rgba(37, 99, 235, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .notification-content { flex: 1; min-width: 0; /* Prevent overflow */ }
+        .notification-message { margin-bottom: 0.25rem; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } /* Theme support, prevent wrap */
+        .notification-time { font-size: 0.8rem; color: var(--gray); }
+        .delete-notification { color: var(--danger); cursor: pointer; opacity: 0.6; transition: opacity 0.2s; margin-left: auto; padding: 0.5rem; flex-shrink: 0; }
+        .delete-notification:hover { opacity: 1; }
+        .no-notifications-message { text-align: center; padding: 2rem; color: var(--gray); }
+
+        .notifications-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--light-gray); display: flex; justify-content: space-between; flex-shrink: 0; background-color: var(--light); } /* Theme support */
+
+        /* Confirm Modal */
+        .confirm-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); z-index: 1100; display: none;
+            justify-content: center; align-items: center; backdrop-filter: blur(3px); /* Added blur */
+        }
+        .confirm-container {
+            background-color: var(--white); border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); width: 400px;
+            max-width: 90%; padding: 2rem; /* Increased padding */
+            animation: fadeInScale 0.3s ease-out;
+        }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        .confirm-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--dark); } /* Theme support */
+        .confirm-message { margin-bottom: 1.5rem; line-height: 1.5; color: var(--gray); } /* Theme support */
+        .confirm-actions { display: flex; justify-content: flex-end; gap: 1rem; }
+
+        /* Success Message */
+        .success-message {
+            position: fixed; top: 20px; right: 20px; background-color: var(--success);
+            color: white; padding: 1rem 1.5rem; border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); display: flex;
+            align-items: center; gap: 0.75rem; z-index: 1200;
+            transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Bounce effect */
+        }
+        .success-message.show { transform: translateX(0); }
+        .success-message i { font-size: 1.25rem; }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); width: 250px; } /* Slightly narrower */
+            .sidebar.active { transform: translateX(0); box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
+            .main-content { margin-left: 0; }
+            .search-bar { width: 250px; }
+            .team-member-card { flex-wrap: wrap; } /* Allow wrapping within card */
+        }
+        @media (max-width: 768px) {
+            .top-nav { flex-direction: column; gap: 1rem; padding: 1rem; }
+            .search-bar { width: 100%; order: 2; } /* Search below user menu */
+            .user-menu { width: 100%; justify-content: space-between; order: 1; }
+            .content-area { padding: 1.5rem; }
+            .data-form { grid-template-columns: 1fr; }
+            .form-actions { grid-column: span 1; }
+            .user-info { flex-direction: column; text-align: center; }
+            .user-info-avatar { margin-bottom: 1rem; }
+            .stats-section { grid-template-columns: 1fr; }
+            .settings-tabs { flex-wrap: wrap; /* Allow tabs to wrap */ }
+            .settings-tab { padding: 0.5rem 1rem; }
+            .confirm-container { width: 90%; }
+            .team-member-card { flex-direction: column; align-items: flex-start; gap: 0.5rem; } /* Stack member info */
+            .member-role { margin: 0.5rem 0; }
+            .member-actions { margin-top: 0.5rem; }
+            .profile-avatar-section { margin-bottom: 1.5rem; }
+            #profileAvatarLarge { width: 100px; height: 100px; font-size: 2.5rem; }
+            /* Adjust invite form layout on mobile */
+             .add-member-form .data-form { grid-template-columns: 1fr; align-items: stretch; }
+             .add-member-form .data-form > div { margin-bottom: 1rem; } /* Add bottom margin back */
+             .add-member-form .data-form > div:last-child { margin-top: 0; } /* Reset top margin for button container */
+        }
+        @media (max-width: 480px) {
+             .section-header > div { justify-content: center; width: 100%; } /* Center activity actions */
+             .welcome-section { padding: 1.5rem; }
+             .stats-section { gap: 0.75rem; }
+             .stat-card { padding: 1rem; }
+        }
+
+
+        /* --- Back button Styles --- */
+        .back-button {
+            display: inline-flex; align-items: center; gap: 0.75rem; /* Increased gap */ color: var(--primary);
+            font-weight: 500; cursor: pointer; margin-bottom: 1.5rem; /* Increased margin */ padding: 0.6rem 1.2rem; /* Adjusted padding */
+            border-radius: 6px; transition: background-color 0.2s, border-color 0.2s, color 0.2s; border: 1px solid transparent;
+            font-size: 0.9rem; /* Slightly smaller text */
+        }
+        .back-button:hover {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary-dark);
+        }
+        .back-button i { transition: transform 0.2s; font-size: 0.8rem; /* Smaller icon */ }
+        .back-button:hover i { transform: translateX(-3px); }
+
+        /* Notification sound */
+        #notificationSound { display: none; }
+
+        /* Helper class */
+        .d-none { display: none !important; }
+
+        /* Connection status in sidebar */
+        .connection-status {
+            padding: 0.75rem 1.5rem;
+            margin-top: auto; /* Push to bottom */
+            border-top: 1px solid var(--sidebar-divider);
+            display: flex; align-items: center; gap: 0.5rem;
+            color: rgba(16, 185, 129, 0.9); /* Success color with opacity */
+            font-size: 0.85rem;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background-color: var(--success); animation: pulseStatus 2s infinite;
+        }
+        @keyframes pulseStatus { 0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 50% { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); } }
+
+        /* Password error message */
+        .password-error { color: var(--danger); font-size: 0.85rem; margin-top: 0.25rem; display: none; }
+
+        /* Loading spinner */
+        .spinner {
+            width: 18px; height: 18px; /* Slightly smaller */
+            border: 2px solid rgba(255,255,255,0.3); border-radius: 50%;
+            border-top-color: white; animation: spin 1s ease-in-out infinite;
+            display: none; /* Initially hidden */
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { display: none; font-size: 0.9rem; color: var(--gray); margin-left: 0.5rem; }
+        /* Specific spinner for outline buttons */
+        .btn-outline .spinner { border-color: rgba(37, 99, 235, 0.3); border-top-color: var(--primary); }
+
+         /* Placeholder styling for dynamically loaded features */
+        .placeholder-content {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--gray);
+            border: 2px dashed var(--light-gray);
+            border-radius: 8px;
+            margin-top: 2rem; /* Add some space */
+            min-height: 300px; /* Ensure it takes some space */
+            display: flex; /* Use flex to center vertically */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--light); /* Give it a slight background */
+        }
+        .placeholder-content h2 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        .placeholder-content p {
+            margin-bottom: 1.5rem; /* Space below description */
+            line-height: 1.6;
+        }
+        .placeholder-content .loading-indicator {
+             font-size: 1.2rem;
+             margin-top: 1rem;
+             color: var(--primary); /* Use primary color for loading */
+        }
+        .placeholder-content .loading-indicator i {
+             margin-right: 0.5rem;
+        }
+         .placeholder-content .error-message {
+             color: var(--danger);
+             font-weight: 500;
+             margin-top: 1rem;
+             border: 1px solid var(--danger);
+             padding: 0.75rem 1rem;
+             border-radius: 4px;
+             background-color: rgba(239, 68, 68, 0.05); /* Slight danger background */
+             max-width: 80%;
+        }
+
+    </style>
+</head>
+<body class="blue-theme"> <!-- Default theme, JS will override based on prefs -->
+    <!-- Notification sound (hidden) -->
+    <audio id="notificationSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Success message -->
+    <div class="success-message" id="successMessage">
+        <i class="fas fa-check-circle"></i>
+        <span id="successMessageText">Action successful!</span>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-users-cog logo-icon"></i>
+                <span>TeamFlow</span>
+            </div>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-title">Navigation</div>
+            <a href="#dashboard" class="menu-item active" data-feature="dashboard">
+                <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+            </a>
+            <a href="#projects" class="menu-item" data-feature="projects">
+                <i class="fas fa-briefcase"></i><span>Projects</span>
+            </a>
+            <a href="#reports-analytics" class="menu-item" data-feature="reports-analytics">
+                <i class="fas fa-chart-line"></i><span>Reports & Analytics</span>
+            </a>
+             <a href="#team-members-view" class="menu-item" data-feature="team-members-view">
+                 <i class="fas fa-users"></i><span>Team Members</span>
+             </a>
+
+            <div class="menu-title">Core Features</div>
+            <a href="#file-sharing" class="menu-item" data-feature="file-sharing"><i class="fas fa-file-upload"></i><span>File Sharing</span></a>
+            <a href="#data-management" class="menu-item" data-feature="data-management"><i class="fas fa-database"></i><span>Data Management</span></a>
+            <a href="#project-tracking" class="menu-item" data-feature="project-tracking"><i class="fas fa-project-diagram"></i><span>Project Tracking</span></a>
+            <a href="#task-management" class="menu-item" data-feature="task-management"><i class="fas fa-tasks"></i><span>Task Management</span></a>
+
+            <div class="menu-title">Team Tools</div>
+            <a href="#employee-scheduling" class="menu-item" data-feature="employee-scheduling"><i class="fas fa-user-clock"></i><span>Employee Scheduling</span></a>
+            <a href="#team-calendar" class="menu-item" data-feature="team-calendar"><i class="fas fa-calendar-alt"></i><span>Team Calendar</span></a>
+            <a href="#deadline-tracking" class="menu-item" data-feature="deadline-tracking"><i class="fas fa-clock"></i><span>Deadline Tracking</span></a>
+            <a href="#innovation-hub" class="menu-item" data-feature="innovation-hub"><i class="fas fa-lightbulb"></i><span>Innovation Hub</span></a>
+
+            <div class="menu-divider"></div>
+
+            <a href="#settings" class="menu-item" data-feature="settings">
+                <i class="fas fa-cog"></i><span>Settings</span>
+            </a>
+        </div>
+
+        <!-- Connection Status at the bottom -->
+        <div class="connection-status">
+            <div class="status-dot"></div>
+            <span>Online</span>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav class="top-nav">
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search employees, projects, tasks..." id="searchInput" autocomplete="off">
+                <div class="search-results" id="searchResults"></div>
+            </div>
+
+            <div class="user-menu">
+                <div class="notification-icon" id="notificationIcon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" style="display: none;">0</span>
+                </div>
+
+                <div class="user-profile">
+                    <div class="user-avatar" id="userAvatar">ME</div>
+                    <div class="user-profile-details">
+                        <span class="user-name" id="userName">Mohamed Elmenisy</span>
+                        <span class="user-status"> • Connected</span>
+                    </div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#profile" class="dropdown-item" id="profileLink"><i class="fas fa-user"></i><span>Profile</span></a>
+                        <a href="#settings" class="dropdown-item" id="settingsLink"><i class="fas fa-cog"></i><span>Settings</span></a>
+                        <a href="#" class="dropdown-item" id="logoutLink"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Content Area -->
+        <div class="content-area">
+             <div class="back-button" id="backButton" style="display: none;">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Dashboard</span>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div id="dashboardContent" class="content-section active">
+                <!-- Welcome Section -->
+                <div class="welcome-section">
+                    <h2 class="welcome-title">Welcome, <span id="welcomeName">Mohamed</span>!</h2>
+                     <p class="welcome-subtitle">Here's what's happening with your team today.</p>
+                    <div class="user-info">
+                        <div class="user-info-avatar" id="profileAvatar">ME</div>
+                        <div class="user-info-details">
+                            <div class="user-info-name">Mohamed Elmenisy</div>
+                            <div class="user-info-title" id="userInfoRoleTitle">Administrator</div>
+                            <div class="user-info-email">
+                                <i class="fas fa-envelope"></i>
+                                <span id="userEmail">m.elsayed@thechefz.co</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Stats Section -->
+                <div class="stats-section">
+                    <div class="stat-card">
+                        <div class="stat-title"><i class="fas fa-users"></i>Team Members</div>
+                        <div class="stat-value">
+                            <span id="teamMembersCount">0</span>
+                            <span class="stat-trend trend-neutral" id="teamMembersTrend"><i class="fas fa-minus"></i> 0%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title"><i class="fas fa-check-circle"></i>Tasks Completed</div>
+                        <div class="stat-value">
+                            <span id="tasksCompleted">0</span>
+                            <span class="stat-trend trend-neutral" id="tasksCompletedTrend"><i class="fas fa-minus"></i> 0%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title"><i class="fas fa-project-diagram"></i>Active Projects</div>
+                        <div class="stat-value">
+                            <span id="activeProjects">0</span>
+                            <span class="stat-trend trend-neutral" id="activeProjectsTrend"><i class="fas fa-minus"></i> 0%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title"><i class="fas fa-calendar-times"></i>Upcoming Deadlines</div>
+                        <div class="stat-value">
+                            <span id="upcomingDeadlines">0</span>
+                            <span class="stat-trend trend-neutral" id="upcomingDeadlinesTrend"><i class="fas fa-minus"></i> 0%</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Activity Section -->
+                <div class="activity-section">
+                    <div class="section-header">
+                        <h3 class="section-title">Recent Activity <span class="live-badge">LIVE</span></h3>
+                        <div>
+                            <span class="view-all" id="viewAllActivity" style="display: none;">Show All</span>
+                            <span class="delete-all" id="deleteAllActivity" style="display: none;">Delete All</span>
+                        </div>
+                    </div>
+                    <ul class="activity-list" id="activityList">
+                        <li style="text-align: center; padding: 2rem; color: var(--gray);">
+                            Loading activities...
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Profile Content -->
+            <div class="content-section" id="profileContent">
+                 <div class="section-main-header">
+                    <h2 class="section-main-title">Profile</h2>
+                 </div>
+                 <p class="profile-header-text">Your personal information and account security settings.</p>
+                 <div class="profile-avatar-section">
+                     <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark);">Avatar</label>
+                     <div id="profileAvatarLarge">ME</div>
+                     <button type="button" class="btn btn-outline btn-sm" id="uploadPhotoButton">
+                         <i class="fas fa-upload"></i> Upload Photo
+                     </button>
+                     <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;">
+                 </div>
+                <form class="data-form" id="profileForm">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" class="form-control" value="Mohamed">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" class="form-control" value="Elmenisy">
+                    </div>
+                     <div class="form-group" style="grid-column: span 2;">
+                        <label for="fullNameDisplay">Full Name</label>
+                        <input type="text" id="fullNameDisplay" class="form-control" value="Mohamed Elmenisy" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="jobTitle">Job Title</label>
+                        <input type="text" id="jobTitle" class="form-control" value="Administrator">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="form-control" value="m.elsayed@thechefz.co" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" class="form-control" value="+201234567890">
+                    </div>
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <input type="text" id="department" class="form-control" value="Management">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" id="cancelProfileBtn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="content-section" id="settingsContent">
+                <div class="section-main-header">
+                    <h2 class="section-main-title">System Settings</h2>
+                </div>
+                <div class="settings-tabs">
+                    <div class="settings-tab active" data-tab="preferences">Preferences</div>
+                    <div class="settings-tab" data-tab="account">Account</div>
+                    <div class="settings-tab" data-tab="security">Security</div>
+                    <div class="settings-tab" data-tab="notifications">Notifications</div>
+                    <div class="settings-tab" data-tab="team" id="teamSettingsTab">Team Management</div>
+                    <div class="settings-tab" data-tab="collaboration">Collaboration</div>
+                    <div class="settings-tab" data-tab="danger" id="dangerZoneTab">Danger Zone</div>
+                </div>
+                <!-- Settings Panels -->
+                <div class="settings-panel active" id="preferencesPanel">
+                     <h3 class="section-title">Preferences</h3>
+                     <form class="data-form" id="preferencesForm">
+                         <div class="form-group">
+                            <label>Theme</label>
+                            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                                <div class="theme-option" data-theme="light">
+                                    <div style="background-color: #f1f5f9;"></div>
+                                    <span>Light</span>
+                                </div>
+                                <div class="theme-option" data-theme="dark">
+                                    <div style="background-color: #0f172a;"></div>
+                                    <span>Dark</span>
+                                </div>
+                                <div class="theme-option selected" data-theme="blue">
+                                    <div style="background-color: #dbeafe;"></div>
+                                    <span>Blue</span>
+                                </div>
+                            </div>
+                            <input type="hidden" id="selectedTheme" value="blue">
+                        </div>
+                        <div class="form-group">
+                            <label for="layoutDensity">Layout Density</label>
+                            <select id="layoutDensity" class="form-control">
+                                <option value="compact">Compact</option>
+                                <option value="normal" selected>Normal</option>
+                                <option value="spacious">Spacious</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="language">Language</label>
+                            <select id="language" class="form-control">
+                                <option value="en" selected>English</option>
+                                <option value="ar">Arabic (Placeholder)</option>
+                                <option value="es">Spanish (Placeholder)</option>
+                            </select>
+                        </div>
+                         <div class="form-group">
+                            <label for="dateFormat">Date Format</label>
+                            <select id="dateFormat" class="form-control">
+                                <option value="mm/dd/yyyy">MM/DD/YYYY</option>
+                                <option value="dd/mm/yyyy" selected>DD/MM/YYYY</option>
+                                <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                         <div class="form-group">
+                            <label for="region">Region</label>
+                            <input type="text" id="region" class="form-control" placeholder="Cairo (Placeholder)" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="weekStart">Calendar Week Start</label>
+                            <select id="weekStart" class="form-control">
+                                <option value="sun" selected>Sunday</option>
+                            </select>
+                        </div>
+                         <div class="form-group" style="grid-column: span 2;">
+                             <label for="defaultHomepage">Default Homepage (Placeholder)</label>
+                            <select id="defaultHomepage" class="form-control" disabled>
+                                <option selected>Dashboard</option>
+                                <option>Tasks</option>
+                                <option>Calendar</option>
+                            </select>
+                        </div>
+                         <div class="form-actions">
+                            <button type="button" class="btn btn-outline" id="cancelPreferencesBtn">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="savePreferencesBtn">
+                                <span class="btn-text">Save Preferences</span>
+                                <div class="spinner" id="preferencesSpinner"></div>
+                                <span class="loading-text" id="preferencesLoadingText">Saving...</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="settings-panel" id="accountPanel">
+                    <h3 class="section-title">Account Settings</h3>
+                    <form class="data-form" id="accountForm">
+                        <div class="form-group">
+                            <label for="acc_firstName">First Name</label>
+                            <input type="text" id="acc_firstName" class="form-control" readonly>
+                        </div>
+                         <div class="form-group">
+                            <label for="acc_lastName">Last Name</label>
+                            <input type="text" id="acc_lastName" class="form-control" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="acc_email">Email</label>
+                            <input type="email" id="acc_email" class="form-control" readonly>
+                        </div>
+                         <div class="form-group">
+                            <label for="timezone">Timezone</label>
+                            <select id="timezone" class="form-control">
+                                <option value="utc">UTC</option>
+                                <option value="cairo" selected>Cairo (UTC+2)</option>
+                                <option value="new_york">New York (UTC-5)</option>
+                            </select>
+                        </div>
+                         <div class="form-actions">
+                            <button type="button" class="btn btn-outline" id="cancelAccountBtn">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="saveAccountBtn">
+                                <span class="btn-text">Save Settings</span>
+                                <div class="spinner" id="accountSpinner"></div>
+                                <span class="loading-text" id="accountLoadingText">Saving...</span>
+                            </button>
+                        </div>
+                         <div class="form-group" style="grid-column: span 2; margin-top: 2rem;">
+                             <label style="color: var(--danger);">Account Deletion</label>
+                             <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">Permanently delete your account and all associated data. This action cannot be undone.</p>
+                             <button type="button" class="btn btn-danger" id="deleteAccountBtn" disabled>Delete Account (Placeholder)</button>
+                         </div>
+                    </form>
+                </div>
+                <div class="settings-panel" id="securityPanel">
+                     <h3 class="section-title">Security Settings</h3>
+                    <form class="data-form" id="securityForm">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Two-Factor Authentication (2FA)</label>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <label class="switch">
+                                    <input type="checkbox" id="twoFactorAuth" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                                <span>Enabled</span>
+                            </div>
+                            <p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.5rem;">Requires authentication code from your app upon login.</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" class="form-control" autocomplete="current-password">
+                            <div class="password-error" id="currentPasswordError">Current password is incorrect</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" class="form-control" autocomplete="new-password">
+                            <small style="color: var(--gray);">Minimum 8 characters required.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm New Password</label>
+                            <input type="password" id="confirmPassword" class="form-control" autocomplete="new-password">
+                            <div class="password-error" id="passwordMatchError">Passwords do not match</div>
+                        </div>
+                         <div class="form-actions">
+                            <button type="button" class="btn btn-outline" id="cancelSecurityBtn">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="saveSecurityBtn">
+                                <span class="btn-text">Update Password</span>
+                                <div class="spinner" id="securitySpinner"></div>
+                                <span class="loading-text" id="securityLoadingText">Updating...</span>
+                            </button>
+                        </div>
+                         <div class="form-group" style="grid-column: span 2; margin-top: 2rem;">
+                            <label>Integrations (Placeholders)</label>
+                             <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0;">
+                                 <span>Slack Integration</span>
+                                 <button class="btn btn-outline" disabled>Connect</button>
+                             </div>
+                              <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0;">
+                                 <span>Single Sign-On (SSO)</span>
+                                 <button class="btn btn-outline" disabled>Configure</button>
+                             </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="settings-panel" id="notificationsPanel">
+                    <h3 class="section-title">Notification Settings</h3>
+                    <form class="data-form" id="notificationsForm">
+                        <div class="form-group">
+                            <label>Email Notifications</label>
+                            <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span>Task Assignments & Updates</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="emailTasks" checked>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span>Deadline Reminders</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="emailDeadlines" checked>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span>System Updates & Announcements</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="emailUpdates">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span>Weekly Summary (Placeholder)</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="emailSummary" disabled>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>In-App Push Notifications</label>
+                             <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span>New Messages & Mentions</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="pushMessages" checked>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span>Team & Project Updates</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="pushTeamUpdates">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                 <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span>Sound Notifications</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="soundNotifications" checked>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" id="cancelNotificationsBtn">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="saveNotificationsBtn">
+                                <span class="btn-text">Save Settings</span>
+                                <div class="spinner" id="notificationsSpinner"></div>
+                                <span class="loading-text" id="notificationsLoadingText">Saving...</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="settings-panel" id="teamPanel">
+                    <div class="team-management">
+                        <h3>Team Members</h3>
+                        <div class="team-list" id="teamList">
+                             <div style="text-align: center; padding: 2rem; color: var(--gray);">Loading team members...</div>
+                        </div>
+                        <div class="add-member-form">
+                            <h4>Invite New Member</h4>
+                            <form id="inviteMemberForm" class="data-form" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end; gap: 1rem;">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label for="inviteMemberEmail">Email</label>
+                                    <input type="email" id="inviteMemberEmail" class="form-control" placeholder="user@example.com" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label for="inviteMemberRole">Role</label>
+                                    <select id="inviteMemberRole" class="form-control" required>
+                                        <option value="member">Member</option>
+                                        <option value="senior">Senior</option>
+                                        <option value="supervisor">Supervisor</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+                                <div style="grid-column: 1 / -1; margin-top: 1rem;">
+                                    <button type="submit" class="btn btn-primary">Send Invite</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-panel" id="collaborationPanel">
+                    <h3 class="section-title">Collaboration Settings</h3>
+                     <form class="data-form" id="collaborationForm">
+                        <div class="form-group" style="grid-column: span 2;">
+                             <label>Shared Calendar Access (Placeholder)</label>
+                             <p style="color: var(--gray); font-size: 0.9rem;">Control who can view or edit the team calendar.</p>
+                             <button type="button" class="btn btn-outline" disabled>Manage Permissions</button>
+                         </div>
+                          <div class="form-group" style="grid-column: span 2;">
+                             <label>Team Chat Integration (Placeholder)</label>
+                              <p style="color: var(--gray); font-size: 0.9rem;">Connect to your preferred team chat platform.</p>
+                              <button type="button" class="btn btn-outline" disabled>Configure Chat</button>
+                         </div>
+                         <div class="form-actions">
+                             <button type="button" class="btn btn-outline" disabled>Cancel</button>
+                             <button type="submit" class="btn btn-primary" disabled>Save Collaboration Settings</button>
+                         </div>
+                    </form>
+                </div>
+                <div class="settings-panel" id="dangerPanel">
+                    <h3 class="section-title" style="color: var(--danger);">Danger Zone</h3>
+                     <p style="color: var(--gray);">Actions in this section are permanent and cannot be undone. (Visible to Admins only)</p>
+                     <div style="margin-top: 1.5rem; border: 1px solid var(--danger); border-radius: 6px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
+                          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                               <div>
+                                   <strong style="color: var(--dark);">Delete Team Data (Placeholder)</strong>
+                                   <p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.25rem;">Permanently delete all projects, tasks, and files associated with this team.</p>
+                               </div>
+                               <button class="btn btn-danger" disabled>Delete All Team Data</button>
+                           </div>
+                           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                               <div>
+                                   <strong style="color: var(--dark);">Transfer Ownership (Placeholder)</strong>
+                                   <p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.25rem;">Transfer administrative control of this workspace to another user.</p>
+                               </div>
+                               <button class="btn btn-warning" disabled>Transfer Ownership</button>
+                           </div>
+                           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                               <div>
+                                   <strong style="color: var(--dark);">Delete Workspace (Placeholder)</strong>
+                                   <p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.25rem;">Permanently delete this entire workspace, including all users and data.</p>
+                               </div>
+                               <button class="btn btn-danger" disabled>Delete Workspace</button>
+                           </div>
+                     </div>
+                </div>
+            </div>
+
+            <!-- Feature Content Sections Container -->
+            <div id="featureSectionsContainer" style="display: none;">
+                <!-- Target for dynamically loaded feature content -->
+                <div id="featureSections" class="content-section">
+                     <div class="placeholder-content" id="featurePlaceholder">
+                        <h2 id="featureTitle">Feature Content Area</h2>
+                        <p id="featureDescription">Select a feature from the sidebar to view its content.</p>
+                        <div class="loading-indicator" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> Loading Feature Content...
+                        </div>
+                         <div class="error-message" style="display: none;">
+                             <i class="fas fa-exclamation-triangle"></i> Failed to load content. Please try again later.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Notifications Modal -->
+    <div class="notifications-modal" id="notificationsModal">
+        <div class="notifications-container">
+            <div class="notifications-header">
+                <h3 class="notifications-title">Notifications</h3>
+                <button class="close-notifications" id="closeNotifications">&times;</button>
+            </div>
+            <div class="notifications-body" id="notificationsBody">
+                 <div class="no-notifications-message">Loading notifications...</div>
+            </div>
+            <div class="notifications-footer">
+                <button class="btn btn-outline btn-sm" id="markAllReadBtn">Mark All as Read</button>
+                <button class="btn btn-danger btn-sm" id="deleteAllNotificationsBtn">Delete All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-container">
+            <h3 class="confirm-title" id="confirmTitle">Confirm Action</h3>
+            <div class="confirm-message" id="confirmMessage">Are you sure you want to proceed?</div>
+            <div class="confirm-actions">
+                <button class="btn btn-outline" id="cancelConfirmBtn">Cancel</button>
+                <button class="btn btn-danger" id="confirmBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ***** MODIFICATION: Include the separated JS file ***** -->
+    <script src="sections/employee-scheduling.js"></script>
+    <!-- ***** END MODIFICATION ***** -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- DOM Elements (Keep all original elements) ---
+            const sidebar = document.getElementById('sidebar');
+            const menuItems = document.querySelectorAll('.menu-item');
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            const notificationIcon = document.getElementById('notificationIcon');
+            const notificationBadge = document.querySelector('.notification-badge');
+            const notificationsModal = document.getElementById('notificationsModal');
+            const notificationsBody = document.getElementById('notificationsBody');
+            const closeNotifications = document.getElementById('closeNotifications');
+            const markAllReadBtn = document.getElementById('markAllReadBtn');
+            const deleteAllNotificationsBtn = document.getElementById('deleteAllNotificationsBtn');
+            const userAvatar = document.getElementById('userAvatar');
+            const userProfileDetails = document.querySelector('.user-profile-details');
+            const userName = document.getElementById('userName');
+            const userEmail = document.getElementById('userEmail'); // In welcome section
+            const welcomeName = document.getElementById('welcomeName');
+            const userDropdown = document.getElementById('userDropdown');
+            const profileLink = document.getElementById('profileLink');
+            const settingsLink = document.getElementById('settingsLink');
+            const logoutLink = document.getElementById('logoutLink');
+            const contentSections = document.querySelectorAll('.content-section');
+            const dashboardContent = document.getElementById('dashboardContent');
+            const profileContent = document.getElementById('profileContent');
+            const settingsContent = document.getElementById('settingsContent');
+            const featureSectionsContainer = document.getElementById('featureSectionsContainer');
+            const featureSections = document.getElementById('featureSections'); // Target for dynamic content
+            const featurePlaceholder = document.getElementById('featurePlaceholder');
+            const featureTitle = document.getElementById('featureTitle');
+            const featureDescription = document.getElementById('featureDescription');
+            const featureLoadingIndicator = featurePlaceholder.querySelector('.loading-indicator');
+            const featureErrorMessage = featurePlaceholder.querySelector('.error-message');
+            const profileForm = document.getElementById('profileForm');
+            const cancelProfileBtn = document.getElementById('cancelProfileBtn');
+            const profileAvatarInput = document.getElementById('profileAvatarInput');
+            const profileAvatar = document.getElementById('profileAvatar');
+            const profileAvatarLarge = document.getElementById('profileAvatarLarge');
+            const uploadPhotoButton = document.getElementById('uploadPhotoButton');
+            const activityList = document.getElementById('activityList');
+            const viewAllActivity = document.getElementById('viewAllActivity');
+            const deleteAllActivity = document.getElementById('deleteAllActivity');
+            const settingsTabs = document.querySelectorAll('.settings-tab');
+            const settingsPanels = document.querySelectorAll('.settings-panel');
+            const preferencesForm = document.getElementById('preferencesForm');
+            const accountForm = document.getElementById('accountForm');
+            const securityForm = document.getElementById('securityForm');
+            const notificationsForm = document.getElementById('notificationsForm');
+            const teamList = document.getElementById('teamList');
+            const inviteMemberForm = document.getElementById('inviteMemberForm');
+            const themeOptions = document.querySelectorAll('.theme-option');
+            const layoutDensitySelect = document.getElementById('layoutDensity');
+            const weekStartSelect = document.getElementById('weekStart');
+            const confirmModal = document.getElementById('confirmModal');
+            const confirmTitle = document.getElementById('confirmTitle');
+            const confirmMessage = document.getElementById('confirmMessage');
+            const cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
+            const confirmBtn = document.getElementById('confirmBtn');
+            const teamMembersCount = document.getElementById('teamMembersCount');
+            const tasksCompleted = document.getElementById('tasksCompleted');
+            const activeProjects = document.getElementById('activeProjects');
+            const upcomingDeadlines = document.getElementById('upcomingDeadlines');
+            const userInfoRoleTitle = document.getElementById('userInfoRoleTitle');
+            const backButton = document.getElementById('backButton');
+            const notificationSound = document.getElementById('notificationSound');
+            const successMessage = document.getElementById('successMessage');
+            const successMessageText = document.getElementById('successMessageText');
+            const cancelPreferencesBtn = document.getElementById('cancelPreferencesBtn');
+            const cancelAccountBtn = document.getElementById('cancelAccountBtn');
+            const cancelSecurityBtn = document.getElementById('cancelSecurityBtn');
+            const cancelNotificationsBtn = document.getElementById('cancelNotificationsBtn');
+            const currentPasswordInput = document.getElementById('currentPassword');
+            const newPasswordInput = document.getElementById('newPassword');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const currentPasswordError = document.getElementById('currentPasswordError');
+            const passwordMatchError = document.getElementById('passwordMatchError');
+            const teamMembersTrend = document.getElementById('teamMembersTrend');
+            const tasksCompletedTrend = document.getElementById('tasksCompletedTrend');
+            const activeProjectsTrend = document.getElementById('activeProjectsTrend');
+            const upcomingDeadlinesTrend = document.getElementById('upcomingDeadlinesTrend');
+            const soundNotificationsSwitch = document.getElementById('soundNotifications');
+            const fullNameDisplay = document.getElementById('fullNameDisplay');
+            const teamSettingsTab = document.getElementById('teamSettingsTab');
+            const dangerZoneTab = document.getElementById('dangerZoneTab');
+
+            // --- State Variables (Keep all original variables) ---
+            let currentUser = {};
+            let teamMembers = [];
+            let activities = [];
+            let notifications = [];
+            let currentFeature = 'dashboard';
+            let currentSettingsTab = 'preferences';
+            let activityIntervalId = null;
+            let confirmCallback = null;
+            let cancelCallback = null;
+
+            // --- Constants (Keep all original constants) ---
+            const MAX_ACTIVITIES_DISPLAYED = 5;
+            const UPDATE_INTERVAL = 60000;
+            const SIMULATED_DELAY = 800;
+            const NEW_ACTIVITY_HIGHLIGHT_DURATION = 2500;
+            const DEFAULT_USER = {
+                 id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co',
+                 title: 'Administrator', department: 'Management', phone: '+201234567890',
+                 avatar: '', initials: 'ME', role: 'admin', password: 'password123',
+                 preferences: { language: 'en', timezone: 'cairo', dateFormat: 'dd/mm/yyyy', theme: 'blue', layoutDensity: 'normal', soundNotifications: true, weekStart: 'sun' },
+                 notificationPreferences: { email: { tasks: true, deadlines: true, updates: false }, push: { messages: true, teamUpdates: false } },
+                 security: { twoFactorEnabled: true },
+                 stats: { teamMembers: 4, tasksCompleted: 15, activeProjects: 3, upcomingDeadlines: 2, teamMembersTrend: 'neutral', tasksCompletedTrend: 'up', activeProjectsTrend: 'neutral', upcomingDeadlinesTrend: 'down' }
+            };
+            const DEFAULT_TEAM = [
+                { id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', role: 'admin', initials: 'ME', avatar: null },
+                { id: 2, name: 'Yousef', email: 'yousef@example.com', role: 'supervisor', initials: 'Y', avatar: null },
+                { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com', role: 'member', initials: 'EL', avatar: null },
+                { id: 4, name: 'Bassant Badr', email: 'bassant@example.com', role: 'member', initials: 'BB', avatar: null }
+            ];
+
+            // --- Initialization (Keep original structure) ---
+            function initDashboard() {
+                loadData();
+                updateUserUI();
+                loadTeamMembers();
+                loadActivities();
+                loadNotifications();
+                updateStats();
+                applyUserPreferences();
+                applyRBAC();
+                handleInitialNavigation();
+                startActivityTimeUpdater();
+                setupEventListeners();
+            }
+
+            // --- Data Handling (Keep original functions) ---
+            function loadData() {
+                const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+                currentUser = { ...DEFAULT_USER, ...storedUser };
+                currentUser.preferences = { ...DEFAULT_USER.preferences, ...(storedUser?.preferences || {}) };
+                currentUser.notificationPreferences = { ...DEFAULT_USER.notificationPreferences, ...(storedUser?.notificationPreferences || {}) };
+                currentUser.notificationPreferences.email = { ...DEFAULT_USER.notificationPreferences.email, ...(storedUser?.notificationPreferences?.email || {}) };
+                currentUser.notificationPreferences.push = { ...DEFAULT_USER.notificationPreferences.push, ...(storedUser?.notificationPreferences?.push || {}) };
+                currentUser.security = { ...DEFAULT_USER.security, ...(storedUser?.security || {}) };
+                currentUser.stats = { ...DEFAULT_USER.stats, ...(storedUser?.stats || {}) };
+
+                teamMembers = JSON.parse(localStorage.getItem('teamMembers')) || DEFAULT_TEAM;
+                if (localStorage.getItem('teamMembers') === null) {
+                    localStorage.setItem('teamMembers', JSON.stringify(teamMembers));
+                }
+
+                 if (localStorage.getItem('activities') === null) {
+                    activities = generateSampleActivities();
+                    localStorage.setItem('activities', JSON.stringify(activities));
+                 } else {
+                    activities = JSON.parse(localStorage.getItem('activities')) || [];
+                 }
+
+                 if (localStorage.getItem('notifications') === null) {
+                     notifications = generateSampleNotifications();
+                     localStorage.setItem('notifications', JSON.stringify(notifications));
+                 } else {
+                     notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+                 }
+                 currentUser.stats.teamMembers = teamMembers.length;
+            }
+            function saveData() {
+                currentUser.stats.teamMembers = teamMembers.length;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                localStorage.setItem('teamMembers', JSON.stringify(teamMembers));
+                localStorage.setItem('activities', JSON.stringify(activities));
+                localStorage.setItem('notifications', JSON.stringify(notifications));
+            }
+            function clearUserData() {
+                 localStorage.removeItem('currentUser');
+                 localStorage.removeItem('teamMembers');
+                 localStorage.removeItem('activities');
+                 localStorage.removeItem('notifications');
+            }
+            function generateSampleActivities() {
+                 const sampleActivities = [
+                     { id: Date.now() - 50000, icon: 'fa-tasks', message: 'Yousef completed task "Prepare Presentation".', timestamp: new Date(Date.now() - 50000).toISOString() },
+                     { id: Date.now() - 120000, icon: 'fa-user-plus', message: 'Admin invited bassant@example.com to the team.', timestamp: new Date(Date.now() - 120000).toISOString() },
+                     { id: Date.now() - 3600000, icon: 'fa-file-alt', message: 'Esraa uploaded "Project Plan v2.docx".', timestamp: new Date(Date.now() - 3600000).toISOString() },
+                     { id: Date.now() - 86400000, icon: 'fa-project-diagram', message: 'Project "Website Redesign" status changed to In Progress.', timestamp: new Date(Date.now() - 86400000).toISOString() },
+                     { id: Date.now() - 172800000, icon: 'fa-calendar-check', message: 'Deadline for "Phase 1 Delivery" is approaching.', timestamp: new Date(Date.now() - 172800000).toISOString() }
+                 ];
+                 return sampleActivities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+             }
+             function generateSampleNotifications() {
+                 return [
+                     { id: Date.now() - 60000, icon: 'fa-comment', message: 'Yousef mentioned you in Project Alpha discussion.', timestamp: new Date(Date.now() - 60000).toISOString(), read: false },
+                     { id: Date.now() - 1800000, icon: 'fa-calendar-alt', message: 'Team meeting scheduled for tomorrow at 10 AM.', timestamp: new Date(Date.now() - 1800000).toISOString(), read: false },
+                     { id: Date.now() - 7200000, icon: 'fa-exclamation-triangle', message: 'Task "Final Review" is overdue.', timestamp: new Date(Date.now() - 7200000).toISOString(), read: true }
+                 ];
+             }
+
+            // --- UI Update Functions (Keep original functions) ---
+            function updateUserUI() {
+                const nameParts = currentUser.name.split(' ');
+                const firstName = nameParts[0] || '';
+                const lastName = nameParts.slice(1).join(' ') || '';
+                userName.textContent = currentUser.name;
+                document.getElementById('userEmail').textContent = currentUser.email;
+                welcomeName.textContent = firstName;
+                document.querySelector('.user-info-name').textContent = currentUser.name;
+                const roleTitles = { 'admin': 'Administrator', 'senior': 'Senior', 'supervisor': 'Supervisor', 'member': 'Member' };
+                const roleTitle = roleTitles[currentUser.role] || 'Member';
+                userInfoRoleTitle.textContent = roleTitle;
+                userInfoRoleTitle.classList.remove('role-admin');
+                if (currentUser.role === 'admin') {
+                    userInfoRoleTitle.classList.add('role-admin');
+                }
+                document.getElementById('firstName').value = firstName;
+                document.getElementById('lastName').value = lastName;
+                document.getElementById('jobTitle').value = currentUser.title || '';
+                document.getElementById('phone').value = currentUser.phone || '';
+                document.getElementById('department').value = currentUser.department || '';
+                document.getElementById('email').value = currentUser.email;
+                fullNameDisplay.value = currentUser.name;
+                document.getElementById('acc_firstName').value = firstName;
+                document.getElementById('acc_lastName').value = lastName;
+                document.getElementById('acc_email').value = currentUser.email;
+                const initials = currentUser.initials || (firstName ? firstName[0] : '') + (lastName ? lastName[0] : '');
+                [userAvatar, profileAvatar, profileAvatarLarge].forEach(el => {
+                    if (currentUser.avatar) {
+                        el.style.backgroundImage = `url(${currentUser.avatar})`;
+                        el.textContent = ''; el.style.backgroundColor = '';
+                    } else {
+                        el.style.backgroundImage = 'none';
+                        el.textContent = initials.toUpperCase();
+                        el.style.backgroundColor = el === profileAvatarLarge ? 'var(--primary-light)' : 'var(--primary)';
+                        if (el === profileAvatarLarge) el.style.color = 'var(--primary-dark)';
+                        else el.style.color = 'white';
+                    }
+                });
+            }
+            function applyUserPreferences() {
+                document.body.className = '';
+                document.body.classList.add(`${currentUser.preferences?.theme || 'blue'}-theme`);
+                document.body.classList.add(currentUser.preferences?.layoutDensity || 'normal');
+                themeOptions.forEach(opt => {
+                    opt.classList.toggle('selected', opt.dataset.theme === currentUser.preferences?.theme);
+                });
+                layoutDensitySelect.value = currentUser.preferences?.layoutDensity || 'normal';
+                loadSettingsFormData();
+            }
+            function applyRBAC() {
+                 const isAdmin = currentUser.role === 'admin';
+                 const isSupervisor = currentUser.role === 'supervisor';
+                 if (dangerZoneTab) {
+                     dangerZoneTab.style.display = isAdmin ? 'flex' : 'none';
+                     dangerZoneTab.classList.toggle('disabled', !isAdmin);
+                 }
+                 if (teamSettingsTab) {
+                     const canViewTeam = isAdmin || isSupervisor;
+                     teamSettingsTab.style.display = canViewTeam ? 'flex' : 'none';
+                     teamSettingsTab.classList.toggle('disabled', !canViewTeam);
+                 }
+                 const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+                 if (deleteAccountBtn) {
+                     deleteAccountBtn.disabled = !isAdmin;
+                 }
+                  if (inviteMemberForm) {
+                     inviteMemberForm.style.display = (isAdmin || isSupervisor) ? 'block' : 'none';
+                  }
+             }
+            function loadSettingsFormData() {
+                 currentUser.preferences = currentUser.preferences || {};
+                 currentUser.security = currentUser.security || {};
+                 currentUser.notificationPreferences = currentUser.notificationPreferences || { email: {}, push: {} };
+                 currentUser.notificationPreferences.email = currentUser.notificationPreferences.email || {};
+                 currentUser.notificationPreferences.push = currentUser.notificationPreferences.push || {};
+                 document.getElementById('selectedTheme').value = currentUser.preferences.theme || 'blue';
+                 layoutDensitySelect.value = currentUser.preferences.layoutDensity || 'normal';
+                 document.getElementById('language').value = currentUser.preferences.language || 'en';
+                 document.getElementById('dateFormat').value = currentUser.preferences.dateFormat || 'dd/mm/yyyy';
+                 weekStartSelect.value = currentUser.preferences.weekStart || 'sun';
+                 document.getElementById('timezone').value = currentUser.preferences.timezone || 'cairo';
+                 document.getElementById('twoFactorAuth').checked = currentUser.security.twoFactorEnabled ?? true;
+                 currentPasswordInput.value = ''; newPasswordInput.value = ''; confirmPasswordInput.value = '';
+                 currentPasswordError.style.display = 'none'; passwordMatchError.style.display = 'none';
+                 document.getElementById('emailTasks').checked = currentUser.notificationPreferences.email.tasks ?? true;
+                 document.getElementById('emailDeadlines').checked = currentUser.notificationPreferences.email.deadlines ?? true;
+                 document.getElementById('emailUpdates').checked = currentUser.notificationPreferences.email.updates ?? false;
+                 document.getElementById('pushMessages').checked = currentUser.notificationPreferences.push.messages ?? true;
+                 document.getElementById('pushTeamUpdates').checked = currentUser.notificationPreferences.push.teamUpdates ?? false;
+                 soundNotificationsSwitch.checked = currentUser.preferences.soundNotifications ?? true;
+            }
+            function updateStats() {
+                const stats = currentUser.stats || {};
+                teamMembersCount.textContent = teamMembers.length;
+                tasksCompleted.textContent = stats.tasksCompleted ?? 0;
+                activeProjects.textContent = stats.activeProjects ?? 0;
+                upcomingDeadlines.textContent = stats.upcomingDeadlines ?? 0;
+                if (currentUser.stats) currentUser.stats.teamMembers = teamMembers.length;
+                 updateTrendIndicator(teamMembersTrend, stats.teamMembersTrend);
+                 updateTrendIndicator(tasksCompletedTrend, stats.tasksCompletedTrend);
+                 updateTrendIndicator(activeProjectsTrend, stats.activeProjectsTrend);
+                 updateTrendIndicator(upcomingDeadlinesTrend, stats.upcomingDeadlinesTrend);
+            }
+            function updateTrendIndicator(element, trend) {
+                trend = trend || 'neutral';
+                let iconClass = 'fa-minus'; let trendClass = 'trend-neutral';
+                let percentageValue = trend === 'up' ? 15 : trend === 'down' ? 5 : 0;
+                let percentage = `${percentageValue}%`;
+                if (trend === 'up') { iconClass = 'fa-arrow-up'; trendClass = 'trend-up'; }
+                else if (trend === 'down') { iconClass = 'fa-arrow-down'; trendClass = 'trend-down'; }
+                else { percentage = '0%'; }
+                element.innerHTML = `<i class="fas ${iconClass}"></i> ${percentage}`;
+                element.className = `stat-trend ${trendClass}`;
+            }
+            function updateNotificationBadge() {
+                const unreadCount = notifications.filter(n => !n.read).length;
+                if (unreadCount > 0) {
+                    notificationBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                    notificationBadge.style.display = 'flex';
+                } else {
+                    notificationBadge.style.display = 'none';
+                }
+                 deleteAllNotificationsBtn.style.display = notifications.length > 0 && (currentUser.role === 'admin' || currentUser.role === 'supervisor') ? 'inline-flex' : 'none';
+            }
+
+            // --- Feature/Section Loading (MODIFIED) ---
+            function setActiveFeature(featureId, settingsTab = null) {
+                 // --- RBAC Check ---
+                 if (featureId === 'settings') {
+                     const targetTab = settingsTab || currentSettingsTab || 'preferences';
+                     const tabElement = document.querySelector(`.settings-tab[data-tab="${targetTab}"]`);
+                     if (!tabElement || tabElement.classList.contains('disabled') || tabElement.style.display === 'none') {
+                          console.warn(`Access denied or invalid tab: ${targetTab}`);
+                          setActiveFeature(currentFeature === 'settings' ? 'settings' : 'dashboard', 'preferences'); // Go to prefs or dashboard
+                          return;
+                     }
+                     currentSettingsTab = targetTab;
+                 }
+
+                 currentFeature = featureId; // Update current feature state
+
+                 // --- Update URL ---
+                 let hash = `#${featureId}`;
+                 if (featureId === 'settings' && currentSettingsTab) {
+                     hash += `-${currentSettingsTab}`;
+                 }
+                 if (window.location.hash !== hash) {
+                     history.pushState({ feature: featureId, tab: currentSettingsTab }, '', hash);
+                 }
+
+                 // --- Update Sidebar Menu ---
+                 menuItems.forEach(item => item.classList.remove('active'));
+                 const activeMenuItem = document.querySelector(`.menu-item[data-feature="${featureId}"]`);
+                 if (activeMenuItem) activeMenuItem.classList.add('active');
+
+                 // --- Show/Hide Content Sections ---
+                 contentSections.forEach(section => section.classList.remove('active')); // Hide static sections
+                 featureSectionsContainer.style.display = 'none'; // Hide dynamic container by default
+                 featurePlaceholder.style.display = 'none'; // Hide placeholder initially
+
+                 // --- Define Static Features ---
+                 const staticFeatures = {
+                     'dashboard': dashboardContent,
+                     'profile': profileContent,
+                     'settings': settingsContent
+                 };
+
+                 // --- Load Content ---
+                 if (staticFeatures[featureId]) {
+                     // Activate static section
+                     staticFeatures[featureId].classList.add('active');
+                     if (featureId === 'dashboard') { updateStats(); loadActivities(); }
+                     if (featureId === 'profile') { updateUserUI(); }
+                     if (featureId === 'settings') { applyRBAC(); activateSettingsTab(currentSettingsTab || 'preferences'); }
+                 } else {
+                     // Handle dynamic features (like employee-scheduling)
+                     featureSectionsContainer.style.display = 'block'; // Show the container
+                     featureSections.innerHTML = ''; // Clear previous dynamic content
+                     featureSections.appendChild(featurePlaceholder); // Add placeholder temporarily
+                     featurePlaceholder.style.display = 'flex'; // Show placeholder
+
+                     // Update placeholder text for loading state
+                     const readableFeatureName = featureId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                     featureTitle.textContent = `Loading ${readableFeatureName}...`;
+                     featureDescription.textContent = 'Please wait while the content is being loaded.';
+                     featureLoadingIndicator.style.display = 'block';
+                     featureErrorMessage.style.display = 'none';
+
+                     const htmlPath = `sections/${featureId}.html`;
+                     const jsPath = `sections/${featureId}.js`; // Assume JS file matches HTML name
+
+                     fetch(htmlPath)
+                         .then(response => {
+                             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status} ${response.statusText} for ${htmlPath}`);
+                             return response.text();
+                         })
+                         .then(html => {
+                             featureSections.innerHTML = html; // Insert the loaded HTML
+                             featureSections.classList.add('active'); // Make the container visible
+
+                             // --- ***** MODIFICATION: Load and Execute Feature-Specific JS ***** ---
+                             // Check if a corresponding JS file should exist based on featureId
+                             // For example, only load JS for 'employee-scheduling'
+                             if (featureId === 'employee-scheduling') {
+                                 // Check if the initialization function already exists (if JS was included via <script> tag)
+                                 if (typeof initializeEmployeeSchedule === 'function') {
+                                     try {
+                                         console.log("Calling initializeEmployeeSchedule directly...");
+                                          // Pass deep copies to prevent accidental modification
+                                         initializeEmployeeSchedule(
+                                              JSON.parse(JSON.stringify(currentUser)),
+                                              JSON.parse(JSON.stringify(teamMembers))
+                                         );
+                                         featurePlaceholder.style.display = 'none'; // Hide placeholder on success
+                                     } catch (initError) {
+                                         console.error(`Error executing initializeEmployeeSchedule for ${featureId}:`, initError);
+                                         showFeatureError(`Error initializing ${readableFeatureName}: ${initError.message}`);
+                                     }
+                                 } else {
+                                     console.warn(`initializeEmployeeSchedule function not found globally for ${featureId}. Script might need loading or is missing.`);
+                                     // You could attempt to dynamically load the script here if needed,
+                                     // but including it via <script src> is often simpler if it's always needed with the HTML.
+                                      showFeatureError(`${readableFeatureName} content loaded, but its setup script seems missing or failed to run.`);
+                                 }
+                             }
+                              // Add `else if` blocks here for other features needing JS initialization
+                              // else if (featureId === 'other-feature') { ... load other-feature.js and call its init function ... }
+                              else {
+                                   // Feature loaded, but no specific JS initialization defined for it here
+                                   console.log(`Feature ${featureId} loaded. No specific JS initialization defined in dashboard.`);
+                                   featurePlaceholder.style.display = 'none'; // Hide placeholder
+                              }
+                             // --- ***** END MODIFICATION ***** ---
+
+                         })
+                         .catch(error => {
+                             console.error(`Error loading feature '${featureId}' from '${htmlPath}':`, error);
+                             showFeatureError(`Could not load ${readableFeatureName} content. ${error.message}`);
+                         });
+                 }
+
+                 // Show/Hide Back Button
+                 backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none';
+
+                 // Scroll to top
+                 window.scrollTo(0, 0);
+             }
+
+             // Helper function to display errors in the feature placeholder
+             function showFeatureError(message) {
+                  featureTitle.textContent = 'Error Loading Feature';
+                  featureDescription.textContent = message;
+                  featureLoadingIndicator.style.display = 'none';
+                  featureErrorMessage.style.display = 'block';
+                  featurePlaceholder.style.display = 'flex'; // Ensure placeholder is visible for error
+             }
+
+
+            function activateSettingsTab(tabId) {
+                 if (tabId === 'danger' && currentUser.role !== 'admin') {
+                     activateSettingsTab('preferences'); return;
+                 }
+                 currentSettingsTab = tabId;
+                 settingsTabs.forEach(t => {
+                     t.classList.remove('active');
+                     if (!t.classList.contains('disabled') && t.dataset.tab === tabId) {
+                        t.classList.add('active');
+                     }
+                 });
+                 settingsPanels.forEach(p => p.classList.toggle('active', p.id === `${tabId}Panel`));
+                 if (currentFeature === 'settings' && window.location.hash !== `#settings-${tabId}`) {
+                     history.replaceState({ feature: 'settings', tab: tabId }, '', `#settings-${tabId}`);
+                 }
+                 if (tabId === 'team') { loadTeamMembers(); }
+                 else if (tabId === 'account') { updateUserUI(); }
+                 else if (['preferences', 'security', 'notifications'].includes(tabId)) { loadSettingsFormData(); }
+            }
+            function handleInitialNavigation() {
+                 const hash = window.location.hash.substring(1);
+                 let featureId = 'dashboard'; let settingsTab = null;
+                 if (hash) {
+                     if (hash.startsWith('settings-')) {
+                         featureId = 'settings';
+                         settingsTab = hash.split('-')[1] || 'preferences';
+                     } else {
+                         const validFeature = [...menuItems].some(item => item.dataset.feature === hash) || hash === 'profile';
+                         if (validFeature) { featureId = hash; }
+                     }
+                 }
+                 setActiveFeature(featureId, settingsTab);
+            }
+
+            // --- Activity & Notification Loading (Keep original functions) ---
+            function loadActivities(showAll = false) {
+                activityList.innerHTML = '';
+                const canDeleteAny = currentUser.role === 'admin' || currentUser.role === 'supervisor';
+                if (activities.length === 0) {
+                    activityList.innerHTML = `<li style="text-align: center; padding: 2rem; color: var(--gray);">No recent activity.</li>`;
+                    viewAllActivity.style.display = 'none'; deleteAllActivity.style.display = 'none'; return;
+                }
+                const activitiesToShow = showAll ? activities : activities.slice().reverse().slice(0, MAX_ACTIVITIES_DISPLAYED);
+                activitiesToShow.forEach(activity => {
+                    const li = document.createElement('li');
+                    li.className = 'activity-item';
+                    if (activity.isNew) { li.classList.add('new-activity'); delete activity.isNew; setTimeout(() => { li.classList.remove('new-activity'); }, NEW_ACTIVITY_HIGHLIGHT_DURATION); }
+                    li.dataset.id = activity.id;
+                    li.innerHTML = `
+                        <div class="activity-icon"><i class="fas ${activity.icon || 'fa-info-circle'}"></i></div>
+                        <div class="activity-content">
+                            <div class="activity-message">${activity.message}</div>
+                            <div class="activity-time" data-timestamp="${activity.timestamp}">${getTimeAgo(activity.timestamp)}</div>
+                        </div>
+                        <div class="activity-actions">
+                            ${canDeleteAny ? `<i class="fas fa-trash delete-activity" title="Delete Activity"></i>` : ''}
+                        </div>
+                    `;
+                    if (!showAll) { activityList.prepend(li); } else { activityList.appendChild(li); }
+                });
+                 activityList.querySelectorAll('.delete-activity').forEach(button => { button.addEventListener('click', handleDeleteActivityClick); });
+                 viewAllActivity.style.display = activities.length > MAX_ACTIVITIES_DISPLAYED && !showAll ? 'inline' : 'none';
+                 deleteAllActivity.style.display = activities.length > 0 && canDeleteAny ? 'inline' : 'none';
+            }
+            function loadNotifications() {
+                 notificationsBody.innerHTML = '';
+                 updateNotificationBadge();
+                 if (notifications.length === 0) { notificationsBody.innerHTML = `<div class="no-notifications-message">No notifications yet.</div>`; return; }
+                 const canDeleteAny = currentUser.role === 'admin' || currentUser.role === 'supervisor';
+                 notifications.forEach(notification => {
+                    const item = document.createElement('div');
+                    item.className = `notification-list-item ${notification.read ? '' : 'unread'}`;
+                    item.dataset.id = notification.id;
+                    item.innerHTML = `
+                        <div class="notification-icon-wrapper"><i class="fas ${notification.icon || 'fa-bell'}"></i></div>
+                        <div class="notification-content">
+                            <div class="notification-message">${notification.message}</div>
+                            <div class="notification-time">${getTimeAgo(notification.timestamp)}</div>
+                        </div>
+                        ${canDeleteAny ? `<i class="fas fa-trash delete-notification" title="Delete Notification"></i>` : ''}
+                    `;
+                     item.addEventListener('click', (e) => { if (!e.target.classList.contains('delete-notification')) { markNotificationAsRead(notification.id, item); } });
+                      const deleteBtn = item.querySelector('.delete-notification');
+                      if (deleteBtn) { deleteBtn.addEventListener('click', (e) => { e.stopPropagation(); handleDeleteNotificationClick(notification.id); }); }
+                    notificationsBody.appendChild(item);
+                 });
+            }
+
+            // --- Time Formatting (Keep original functions) ---
+            function getTimeAgo(timestamp) {
+                if (!timestamp) return 'Unknown time';
+                try {
+                    const now = new Date(); const date = new Date(timestamp); if (isNaN(date.getTime())) return 'Invalid date';
+                    const seconds = Math.floor((now - date) / 1000); if (seconds < 0) return 'In the future';
+                    let interval = Math.floor(seconds / 31536000); if (interval >= 1) return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+                    interval = Math.floor(seconds / 2592000); if (interval >= 1) return `${interval} month${interval === 1 ? '' : 's'} ago`;
+                    interval = Math.floor(seconds / 604800); if (interval >= 1) return `${interval} week${interval === 1 ? '' : 's'} ago`;
+                    interval = Math.floor(seconds / 86400); if (interval >= 1) return `${interval} day${interval === 1 ? '' : 's'} ago`;
+                    interval = Math.floor(seconds / 3600); if (interval >= 1) return `${interval} hour${interval === 1 ? '' : 's'} ago`;
+                    interval = Math.floor(seconds / 60); if (interval >= 1) return `${interval} min${interval === 1 ? '' : 's'} ago`;
+                    return seconds < 10 ? 'Just now' : `${Math.floor(seconds)} secs ago`;
+                } catch (error) { console.error("Error formatting time:", error); return "Error in time"; }
+            }
+            function updateActivityTimes() {
+                activityList.querySelectorAll('.activity-time[data-timestamp]').forEach(timeElement => {
+                    const timestamp = timeElement.dataset.timestamp; if (timestamp) { timeElement.textContent = getTimeAgo(timestamp); }
+                });
+                 notificationsBody.querySelectorAll('.notification-time').forEach(timeElement => {
+                     const notificationItem = timeElement.closest('.notification-list-item'); const notificationId = notificationItem?.dataset.id;
+                     if (notificationId) { const notification = notifications.find(n => n.id == notificationId); if (notification && notification.timestamp) { timeElement.textContent = getTimeAgo(notification.timestamp); } }
+                 });
+            }
+            function startActivityTimeUpdater() {
+                if (activityIntervalId) clearInterval(activityIntervalId);
+                updateActivityTimes();
+                activityIntervalId = setInterval(updateActivityTimes, UPDATE_INTERVAL);
+            }
+
+             // --- Team Management (Keep original functions) ---
+             function loadTeamMembers() {
+                teamList.innerHTML = '';
+                const canManage = currentUser.role === 'admin' || currentUser.role === 'supervisor';
+                const canDelete = currentUser.role === 'admin';
+                if (teamMembers.length === 0) { teamList.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--gray);">No team members yet. Invite one below.</div>`; }
+                else {
+                    teamMembers.forEach(member => {
+                        const memberCard = document.createElement('div'); memberCard.className = 'team-member-card'; memberCard.dataset.id = member.id;
+                        const canManageThisMember = (canManage && member.role !== 'admin' && member.role !== 'supervisor') || (canDelete && member.id !== currentUser.id);
+                        const canDeleteThisMember = canDelete && member.id !== currentUser.id;
+                        let avatarContent = member.initials || member.email.substring(0, 2).toUpperCase(); let avatarStyle = '';
+                        if (member.avatar) { avatarStyle = `background-image: url(${member.avatar});`; avatarContent = ''; }
+                        memberCard.innerHTML = `
+                            <div class="member-avatar" style="${avatarStyle}">${avatarContent}</div>
+                            <div class="member-details">
+                                <div class="member-name">${member.name || 'Unnamed Member'}</div> <div class="member-email">${member.email}</div>
+                            </div>
+                            <div class="member-role role-${member.role || 'member'}">${(member.role || 'member').charAt(0).toUpperCase() + (member.role || 'member').slice(1)}</div>
+                            <div class="member-actions">
+                                 ${canManageThisMember ? `<button class="btn btn-outline btn-sm edit-member" title="Edit Member"><i class="fas fa-edit"></i></button>` : ''}
+                                 ${canDeleteThisMember ? `<button class="btn btn-danger btn-sm delete-member" title="Delete Member"><i class="fas fa-trash"></i></button>` : ''}
+                            </div>`;
+                        teamList.appendChild(memberCard);
+                    });
+                    teamList.querySelectorAll('.edit-member').forEach(btn => btn.addEventListener('click', handleEditMemberClick));
+                    teamList.querySelectorAll('.delete-member').forEach(btn => btn.addEventListener('click', handleDeleteMemberClick));
+                }
+                updateStats();
+             }
+
+            // --- Modals (Keep original functions) ---
+            function showConfirmModal(config) {
+                 confirmTitle.textContent = config.title || 'Confirm Action'; confirmMessage.innerHTML = config.message || 'Are you sure?';
+                 confirmBtn.textContent = config.confirmText || 'Confirm'; cancelConfirmBtn.textContent = config.cancelText || 'Cancel';
+                 confirmBtn.className = `btn ${config.confirmClass || 'btn-danger'}`;
+                 confirmCallback = config.onConfirm || null; cancelCallback = config.onCancel || null;
+                 confirmModal.style.display = 'flex'; confirmBtn.focus();
+            }
+            function hideConfirmModal() { confirmModal.style.display = 'none'; confirmCallback = null; cancelCallback = null; }
+
+             // --- Action Handlers (Keep original functions) ---
+             function handleProfileSave(e) { /* ... original profile save logic ... */
+                e.preventDefault();
+                 showConfirmModal({
+                     title: 'Save Profile Changes?', message: 'Do you want to save the changes made to your profile?', confirmText: 'Save', confirmClass: 'btn-primary',
+                     onConfirm: () => {
+                         const firstName = document.getElementById('firstName').value.trim(); const lastName = document.getElementById('lastName').value.trim();
+                         currentUser.name = `${firstName} ${lastName}`; currentUser.initials = (firstName ? firstName[0] : '') + (lastName ? lastName[0] : '');
+                         currentUser.title = document.getElementById('jobTitle').value; currentUser.phone = document.getElementById('phone').value; currentUser.department = document.getElementById('department').value;
+                         saveData(); updateUserUI(); addActivity('fa-user-edit', 'Updated profile information.'); showSuccessMessage('Profile updated successfully!'); hideConfirmModal();
+                     },
+                     onCancel: () => hideConfirmModal()
+                 });
+             }
+             function handleProfileCancel() { /* ... original profile cancel logic ... */
+                const firstName = document.getElementById('firstName').value.trim(); const lastName = document.getElementById('lastName').value.trim();
+                 const name = `${firstName} ${lastName}`; const title = document.getElementById('jobTitle').value; const phone = document.getElementById('phone').value; const department = document.getElementById('department').value;
+                 const isDirty = name !== currentUser.name || title !== (currentUser.title || '') || phone !== (currentUser.phone || '') || department !== (currentUser.department || '');
+                 if (!isDirty) { setActiveFeature('dashboard'); return; }
+                 showConfirmModal({
+                     title: 'Discard Profile Changes?', message: 'Are you sure? Unsaved edits will be lost.', confirmText: 'Discard', confirmClass: 'btn-danger',
+                     onConfirm: () => { updateUserUI(); hideConfirmModal(); setActiveFeature('dashboard'); },
+                     onCancel: () => hideConfirmModal()
+                 });
+            }
+             function handleSettingsSave(formId, panelId, successMsg) { /* ... original settings save logic ... */
+                const form = document.getElementById(formId); const saveButton = form.querySelector('button[type="submit"]'); const spinner = form.querySelector('.spinner'); const loadingText = form.querySelector('.loading-text'); const btnText = form.querySelector('.btn-text');
+                 saveButton.disabled = true; if(spinner) spinner.style.display = 'inline-block'; if(loadingText) loadingText.style.display = 'inline'; if(btnText) btnText.style.display = 'none';
+                 setTimeout(() => {
+                     try {
+                         let activityMessage = ''; let valuesToSave = {};
+                         if (panelId === 'preferencesPanel') {
+                             currentUser.preferences.theme = document.getElementById('selectedTheme').value; currentUser.preferences.layoutDensity = layoutDensitySelect.value; currentUser.preferences.language = document.getElementById('language').value; currentUser.preferences.dateFormat = document.getElementById('dateFormat').value; currentUser.preferences.weekStart = weekStartSelect.value;
+                             valuesToSave = { theme: currentUser.preferences.theme, layoutDensity: currentUser.preferences.layoutDensity, language: currentUser.preferences.language, dateFormat: currentUser.preferences.dateFormat, weekStart: currentUser.preferences.weekStart }; activityMessage = 'Updated preferences settings.';
+                         } else if (panelId === 'accountPanel') {
+                             currentUser.preferences.timezone = document.getElementById('timezone').value; valuesToSave = { timezone: currentUser.preferences.timezone }; activityMessage = 'Updated account settings.';
+                         } else if (panelId === 'securityPanel') {
+                             currentUser.security = currentUser.security || {}; const original2FA = currentUser.security.twoFactorEnabled; currentUser.security.twoFactorEnabled = document.getElementById('twoFactorAuth').checked; const currentPass = currentPasswordInput.value; const newPass = newPasswordInput.value; const confirmPass = confirmPasswordInput.value;
+                             valuesToSave = { twoFactorEnabled: currentUser.security.twoFactorEnabled }; activityMessage = 'Updated security settings.';
+                             currentPasswordError.style.display = 'none'; passwordMatchError.style.display = 'none';
+                             if (newPass || confirmPass || currentPass) {
+                                 if (!currentPass) { currentPasswordError.textContent = 'Current password is required to change password'; currentPasswordError.style.display = 'block'; currentPasswordInput.focus(); throw new Error('Current password missing.'); }
+                                 if (currentPass !== currentUser.password) { currentPasswordError.textContent = 'Current password is incorrect'; currentPasswordError.style.display = 'block'; currentPasswordInput.focus(); throw new Error('Incorrect current password.'); }
+                                  if (!newPass) { passwordMatchError.textContent = 'New password cannot be empty'; passwordMatchError.style.display = 'block'; newPasswordInput.focus(); throw new Error('New password empty.'); }
+                                  if (newPass.length < 8) { passwordMatchError.textContent = 'New password must be at least 8 characters.'; passwordMatchError.style.display = 'block'; newPasswordInput.focus(); throw new Error('New password too short.'); }
+                                  if (newPass !== confirmPass) { passwordMatchError.textContent = 'New passwords do not match'; passwordMatchError.style.display = 'block'; confirmPasswordInput.focus(); throw new Error('New passwords do not match.'); }
+                                  currentUser.password = newPass; activityMessage = 'Changed password.'; valuesToSave.passwordChanged = true; currentPasswordInput.value = ''; newPasswordInput.value = ''; confirmPasswordInput.value = '';
+                             } else if (original2FA !== currentUser.security.twoFactorEnabled) { activityMessage = 'Updated 2FA setting.'; }
+                         } else if (panelId === 'notificationsPanel') {
+                             currentUser.notificationPreferences = currentUser.notificationPreferences || { email: {}, push: {} }; currentUser.notificationPreferences.email = currentUser.notificationPreferences.email || {}; currentUser.notificationPreferences.push = currentUser.notificationPreferences.push || {};
+                             currentUser.notificationPreferences.email.tasks = document.getElementById('emailTasks').checked; currentUser.notificationPreferences.email.deadlines = document.getElementById('emailDeadlines').checked; currentUser.notificationPreferences.email.updates = document.getElementById('emailUpdates').checked; currentUser.notificationPreferences.push.messages = document.getElementById('pushMessages').checked; currentUser.notificationPreferences.push.teamUpdates = document.getElementById('pushTeamUpdates').checked; currentUser.preferences.soundNotifications = soundNotificationsSwitch.checked;
+                             valuesToSave = { emailTasks: currentUser.notificationPreferences.email.tasks, emailDeadlines: currentUser.notificationPreferences.email.deadlines, emailUpdates: currentUser.notificationPreferences.email.updates, pushMessages: currentUser.notificationPreferences.push.messages, pushTeamUpdates: currentUser.notificationPreferences.push.teamUpdates, soundNotifications: currentUser.preferences.soundNotifications }; activityMessage = 'Updated notification settings.';
+                         }
+                         console.log(`Saving settings for ${panelId}. Values captured:`, valuesToSave);
+                         saveData(); applyUserPreferences(); if (activityMessage) { addActivity('fa-cogs', activityMessage); } showSuccessMessage(successMsg || 'Settings saved successfully!');
+                     } catch (error) {
+                         console.error(`Error saving settings for ${panelId}:`, error.message);
+                         if (!error.message.includes('password') && !error.message.includes('missing')) { showConfirmModal({ title: "Save Error", message: `Could not save settings: ${error.message}`, confirmText: "OK", confirmClass: "btn-primary", onConfirm: hideConfirmModal }); }
+                     } finally {
+                         saveButton.disabled = false; if(spinner) spinner.style.display = 'none'; if(loadingText) loadingText.style.display = 'none'; if(btnText) btnText.style.display = 'inline';
+                     }
+                 }, SIMULATED_DELAY);
+            }
+             function handleSettingsCancel(panelId) { /* ... original settings cancel logic ... */
+                showConfirmModal({
+                     title: `Discard ${panelId.replace('Panel', '')} Settings Changes?`, message: 'Are you sure? Any unsaved changes in this section will be lost.', confirmText: 'Discard', confirmClass: 'btn-danger',
+                     onConfirm: () => { loadSettingsFormData(); applyUserPreferences(); hideConfirmModal(); },
+                     onCancel: () => hideConfirmModal()
+                 });
+            }
+             function handleInviteMember(e) { /* ... original invite logic ... */
+                e.preventDefault(); const emailInput = document.getElementById('inviteMemberEmail'); const roleSelect = document.getElementById('inviteMemberRole');
+                 const email = emailInput.value.trim(); const role = roleSelect.value;
+                 if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); emailInput.focus(); return; }
+                 if (teamMembers.some(member => member.email.toLowerCase() === email.toLowerCase())) { alert('A team member with this email already exists.'); emailInput.focus(); return; }
+                 if (role === 'admin' && currentUser.role !== 'admin') { alert('Only Administrators can invite other Administrators.'); roleSelect.focus(); return; }
+                 if (currentUser.role === 'supervisor' && (role === 'admin' || role === 'supervisor')) { alert('Supervisors cannot invite Administrators or other Supervisors.'); roleSelect.focus(); return; }
+                 const fakeInviteToken = `sim_token_${Date.now()}`; const fakeInviteLink = `${window.location.origin}/register.html?token=${fakeInviteToken}`;
+                 console.log('--- SIMULATING INVITE ---'); console.log('To:', email); console.log('Role:', role); console.log('Invite Link (Fake):', fakeInviteLink); console.log('--- END SIMULATION ---');
+                 addActivity('fa-paper-plane', `${currentUser.name} sent an invite to ${email} as a ${role}.`); showSuccessMessage(`Invitation sent to ${email}.`); inviteMemberForm.reset();
+            }
+             function handleEditMemberClick(e) { /* ... original edit member logic ... */
+                const card = e.target.closest('.team-member-card'); const memberId = parseInt(card.dataset.id); const member = teamMembers.find(m => m.id === memberId); if (!member) return;
+                 const newName = prompt("Enter new name:", member.name || ''); let newEmail = member.email; let newRole = member.role;
+                 const isAdmin = currentUser.role === 'admin'; const isSupervisor = currentUser.role === 'supervisor'; let canChangeRole = false; let allowedRolesPrompt = '';
+                 if (isAdmin && member.id !== currentUser.id) { canChangeRole = true; allowedRolesPrompt = 'member, senior, supervisor, admin'; }
+                 else if (isSupervisor && !['admin', 'supervisor'].includes(member.role)) { canChangeRole = true; allowedRolesPrompt = 'member, senior'; }
+                 if (canChangeRole) {
+                     const promptedRole = prompt(`Enter new role (${allowedRolesPrompt}):`, member.role);
+                     if (promptedRole !== null) { const cleanRole = promptedRole.trim().toLowerCase(); if (allowedRolesPrompt.split(', ').includes(cleanRole)) { newRole = cleanRole; } else { alert('Invalid role entered or permission denied. Keeping original role.'); } }
+                 } else if (member.id !== currentUser.id) { alert("You don't have permission to change this member's role."); }
+                 if (newName !== null) {
+                     member.name = newName.trim() || 'Unnamed Member'; member.role = newRole; member.initials = member.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || member.email.substring(0, 2).toUpperCase();
+                     saveData(); loadTeamMembers(); addActivity('fa-user-edit', `Updated details for team member: ${member.email}`); showSuccessMessage('Team member updated.');
+                 }
+            }
+             function handleDeleteMemberClick(e) { /* ... original delete member logic ... */
+                const card = e.target.closest('.team-member-card'); const memberId = parseInt(card.dataset.id); const member = teamMembers.find(m => m.id === memberId); if (!member) return;
+                 if (currentUser.role !== 'admin') { alert('Only administrators can delete team members.'); return; }
+                 if (member.id === currentUser.id) { alert("You cannot delete your own account from the team list."); return; }
+                 showConfirmModal({
+                     title: 'Delete Team Member?', message: `Remove <strong>${member.name || member.email}</strong> from the team? This cannot be undone.`, confirmText: 'Delete', confirmClass: 'btn-danger',
+                     onConfirm: () => {
+                         const memberEmail = member.email; teamMembers = teamMembers.filter(m => m.id !== memberId); saveData(); loadTeamMembers(); addActivity('fa-user-minus', `Removed team member: ${memberEmail}`); addNotification('fa-user-minus', `Team member removed: ${memberEmail}`); showSuccessMessage('Team member deleted.'); hideConfirmModal();
+                     },
+                     onCancel: hideConfirmModal
+                 });
+             }
+             function handleDeleteActivityClick(e) { /* ... original delete activity logic ... */
+                const listItem = e.target.closest('.activity-item'); const activityId = parseInt(listItem.dataset.id); if (!activityId) return;
+                if (currentUser.role !== 'admin' && currentUser.role !== 'supervisor') { alert('Deletion restricted to Admins/Supervisors.'); return; }
+                 showConfirmModal({
+                     title: 'Delete Activity?', message: `Delete this activity record?`, confirmText: 'Delete', confirmClass: 'btn-danger',
+                     onConfirm: () => { activities = activities.filter(a => a.id !== activityId); saveData(); loadActivities(viewAllActivity.style.display === 'none' && activities.length > MAX_ACTIVITIES_DISPLAYED); showSuccessMessage('Activity deleted.'); hideConfirmModal(); },
+                     onCancel: hideConfirmModal
+                 });
+             }
+             function handleDeleteAllActivities() { /* ... original delete all activities logic ... */
+                if (currentUser.role !== 'admin' && currentUser.role !== 'supervisor') { alert('Deletion restricted to Admins/Supervisors.'); return; }
+                 if (activities.length === 0) { showSuccessMessage('No activities to delete.'); return; }
+                  showConfirmModal({
+                     title: 'Delete ALL Activities?', message: `Delete ALL ${activities.length} activity records? This cannot be undone.`, confirmText: 'Delete All', confirmClass: 'btn-danger',
+                     onConfirm: () => { activities = []; saveData(); loadActivities(); showSuccessMessage('All activities deleted.'); hideConfirmModal(); },
+                     onCancel: hideConfirmModal
+                 });
+            }
+            function markNotificationAsRead(notificationId, itemElement) { /* ... original mark read logic ... */
+                const notification = notifications.find(n => n.id == notificationId); if (notification && !notification.read) { notification.read = true; saveData(); itemElement.classList.remove('unread'); updateNotificationBadge(); }
+             }
+            function handleMarkAllNotificationsRead() { /* ... original mark all read logic ... */
+                let changed = false; notifications.forEach(n => { if (!n.read) { n.read = true; changed = true; } });
+                 if (changed) { saveData(); loadNotifications(); showSuccessMessage('All notifications marked as read.'); } else { showSuccessMessage('No unread notifications.'); }
+            }
+             function handleDeleteNotificationClick(notificationId) { /* ... original delete notification logic ... */
+                if (currentUser.role !== 'admin' && currentUser.role !== 'supervisor') { alert('Deletion restricted.'); return; }
+                  showConfirmModal({
+                      title: 'Delete Notification?', message: 'Delete this notification?', confirmText: 'Delete', confirmClass: 'btn-danger',
+                      onConfirm: () => { notifications = notifications.filter(n => n.id != notificationId); saveData(); loadNotifications(); showSuccessMessage('Notification deleted.'); hideConfirmModal(); },
+                      onCancel: hideConfirmModal
+                  });
+             }
+             function handleDeleteAllNotifications() { /* ... original delete all notifications logic ... */
+                if (currentUser.role !== 'admin' && currentUser.role !== 'supervisor') { alert('Deletion restricted.'); return; }
+                  if (notifications.length === 0) { showSuccessMessage('No notifications to delete.'); return; }
+                  showConfirmModal({
+                     title: 'Delete ALL Notifications?', message: `Delete ALL ${notifications.length} notifications? This cannot be undone.`, confirmText: 'Delete All', confirmClass: 'btn-danger',
+                     onConfirm: () => { notifications = []; saveData(); loadNotifications(); showSuccessMessage('All notifications deleted.'); hideConfirmModal(); },
+                     onCancel: hideConfirmModal
+                 });
+             }
+             function handleAvatarUpload(e) { /* ... original avatar upload logic ... */
+                const file = e.target.files[0]; if (!file) return;
+                if (!file.type.startsWith('image/')) { alert('Please select an image file (JPEG, PNG, GIF, WEBP).'); return; }
+                if (file.size > 2 * 1024 * 1024) { alert('Image size must be less than 2MB.'); return; }
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const imageUrl = event.target.result;
+                    showConfirmModal({
+                        title: 'Update Profile Picture?', message: 'Set this image as your profile picture?', confirmText: 'Set Picture', confirmClass: 'btn-primary',
+                        onConfirm: () => { currentUser.avatar = imageUrl; saveData(); updateUserUI(); addActivity('fa-camera', 'Changed profile picture.'); showSuccessMessage('Profile picture updated.'); hideConfirmModal(); },
+                        onCancel: () => { profileAvatarInput.value = null; hideConfirmModal(); }
+                    });
+                }
+                reader.onerror = function() { alert('Error reading file.'); }
+                reader.readAsDataURL(file);
+            }
+             function handleLogout() { /* ... original logout logic ... */
+                showConfirmModal({
+                     title: 'Logout?', message: 'Are you sure you want to log out?', confirmText: 'Logout', confirmClass: 'btn-danger',
+                     onConfirm: () => { showSuccessMessage("Logging out..."); setTimeout(() => { window.location.href = 'login.html'; }, 500); },
+                     onCancel: hideConfirmModal
+                 });
+            }
+
+            // --- Utility Functions (Keep original functions) ---
+             function addActivity(icon, message) {
+                const newActivity = { id: Date.now(), icon: icon, message: message, timestamp: new Date().toISOString(), isNew: true };
+                activities.push(newActivity); activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); saveData();
+                if (currentFeature === 'dashboard') { loadActivities(viewAllActivity.style.display === 'none' && activities.length > MAX_ACTIVITIES_DISPLAYED); }
+             }
+             function addNotification(icon, message) {
+                const newNotification = { id: Date.now(), icon: icon, message: message, timestamp: new Date().toISOString(), read: false };
+                notifications.unshift(newNotification); saveData(); updateNotificationBadge();
+                 if (notificationsModal.style.display === 'flex') { loadNotifications(); }
+                 if (currentUser.preferences?.soundNotifications) { playNotificationSound(); }
+             }
+             function playNotificationSound() {
+                if (notificationSound && typeof notificationSound.play === 'function') {
+                    notificationSound.currentTime = 0; notificationSound.play().catch(e => { console.warn('Notification sound play failed:', e); });
+                 }
+            }
+             function showSuccessMessage(message) {
+                successMessageText.textContent = message; successMessage.classList.add('show');
+                setTimeout(() => { successMessage.classList.remove('show'); }, 3000);
+            }
+             function setupEventListeners() { /* ... Keep ALL original event listeners ... */
+                // Sidebar Navigation
+                menuItems.forEach(item => item.addEventListener('click', (e) => { e.preventDefault(); setActiveFeature(item.dataset.feature); }));
+                // Back Button
+                backButton.addEventListener('click', () => setActiveFeature('dashboard'));
+                // Browser Back/Forward Navigation
+                window.addEventListener('popstate', (event) => { if (event.state) { setActiveFeature(event.state.feature, event.state.tab); } else { handleInitialNavigation(); } });
+                // Search
+                searchInput.addEventListener('input', handleSearch); searchInput.addEventListener('focus', handleSearch);
+                document.addEventListener('click', (e) => { if (!e.target.closest('.search-bar')) { searchResults.classList.remove('active'); searchResults.innerHTML = ''; } });
+                // User Dropdown
+                userAvatar.addEventListener('click', () => userDropdown.classList.toggle('active')); userProfileDetails.addEventListener('click', () => userDropdown.classList.toggle('active'));
+                profileLink.addEventListener('click', (e) => { e.preventDefault(); userDropdown.classList.remove('active'); setActiveFeature('profile'); });
+                settingsLink.addEventListener('click', (e) => { e.preventDefault(); userDropdown.classList.remove('active'); setActiveFeature('settings'); });
+                logoutLink.addEventListener('click', (e) => { e.preventDefault(); userDropdown.classList.remove('active'); handleLogout(); });
+                document.addEventListener('click', (e) => { if (!e.target.closest('.user-profile')) userDropdown.classList.remove('active'); });
+                // Notifications Modal
+                notificationIcon.addEventListener('click', () => { notificationsModal.style.display = 'flex'; loadNotifications(); });
+                closeNotifications.addEventListener('click', () => notificationsModal.style.display = 'none');
+                notificationsModal.addEventListener('click', (e) => { if (e.target === notificationsModal) notificationsModal.style.display = 'none'; });
+                markAllReadBtn.addEventListener('click', handleMarkAllNotificationsRead);
+                deleteAllNotificationsBtn.addEventListener('click', handleDeleteAllNotifications);
+                // Activity List Actions
+                viewAllActivity.addEventListener('click', () => loadActivities(true));
+                deleteAllActivity.addEventListener('click', handleDeleteAllActivities);
+                // Profile Form Actions
+                profileForm.addEventListener('submit', handleProfileSave); cancelProfileBtn.addEventListener('click', handleProfileCancel);
+                uploadPhotoButton.addEventListener('click', () => profileAvatarInput.click()); profileAvatarInput.addEventListener('change', handleAvatarUpload);
+                // Settings Tabs
+                settingsTabs.forEach(tab => { tab.addEventListener('click', () => { if (!tab.classList.contains('disabled')) { activateSettingsTab(tab.dataset.tab); } }); });
+                // Settings Forms Save/Cancel
+                preferencesForm.addEventListener('submit', (e) => { e.preventDefault(); handleSettingsSave('preferencesForm', 'preferencesPanel', 'Preferences saved.'); });
+                cancelPreferencesBtn.addEventListener('click', () => handleSettingsCancel('preferencesPanel'));
+                accountForm.addEventListener('submit', (e) => { e.preventDefault(); handleSettingsSave('accountForm', 'accountPanel', 'Account settings saved.'); });
+                cancelAccountBtn.addEventListener('click', () => handleSettingsCancel('accountPanel'));
+                securityForm.addEventListener('submit', (e) => { e.preventDefault(); handleSettingsSave('securityForm', 'securityPanel', 'Security settings updated.'); });
+                cancelSecurityBtn.addEventListener('click', () => handleSettingsCancel('securityPanel'));
+                notificationsForm.addEventListener('submit', (e) => { e.preventDefault(); handleSettingsSave('notificationsForm', 'notificationsPanel', 'Notification settings saved.'); });
+                cancelNotificationsBtn.addEventListener('click', () => handleSettingsCancel('notificationsPanel'));
+                // Theme/Layout Direct Apply
+                 themeOptions.forEach(option => {
+                     option.addEventListener('click', function() {
+                         const theme = this.dataset.theme; document.getElementById('selectedTheme').value = theme;
+                         themeOptions.forEach(opt => opt.classList.remove('selected')); this.classList.add('selected');
+                         document.body.className = ''; document.body.classList.add(`${theme}-theme`); document.body.classList.add(layoutDensitySelect.value || 'normal'); applyRBAC();
+                     });
+                 });
+                 layoutDensitySelect.addEventListener('change', function() {
+                     const density = this.value; document.body.classList.remove('compact', 'normal', 'spacious'); document.body.classList.add(density);
+                     const currentTheme = document.getElementById('selectedTheme').value || 'blue'; document.body.classList.add(`${currentTheme}-theme`); applyRBAC();
+                 });
+                // Team Management - Invite Member
+                inviteMemberForm.addEventListener('submit', handleInviteMember);
+                // Confirm Modal Buttons
+                confirmBtn.addEventListener('click', () => { if (confirmCallback) confirmCallback(); });
+                cancelConfirmBtn.addEventListener('click', () => { if (cancelCallback) cancelCallback(); hideConfirmModal(); });
+                 confirmModal.addEventListener('click', (e) => { if (e.target === confirmModal) hideConfirmModal(); });
+                 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && confirmModal.style.display === 'flex') { hideConfirmModal(); } });
+            }
+             function handleSearch() { /* ... original search logic ... */
+                const searchTerm = searchInput.value.toLowerCase().trim(); searchResults.innerHTML = ''; searchResults.classList.remove('active'); if (searchTerm.length < 2) return;
+                 const matchingUsers = teamMembers.filter(m => (m.name || '').toLowerCase().includes(searchTerm) || m.email.toLowerCase().includes(searchTerm));
+                 const matchingActivities = activities.filter(a => a.message.toLowerCase().includes(searchTerm));
+                 searchResults.classList.add('active');
+                 if (matchingUsers.length === 0 && matchingActivities.length === 0) { searchResults.innerHTML = `<div class="search-result-item" style="color: var(--gray);">No results found for "${searchInput.value}"</div>`; return; }
+                 if (matchingUsers.length > 0) {
+                    const userHeader = document.createElement('div'); userHeader.innerHTML = '<strong>Team Members</strong>'; userHeader.style.padding = '0.5rem 1rem 0.25rem'; userHeader.style.fontSize = '0.8rem'; userHeader.style.color = 'var(--gray)'; searchResults.appendChild(userHeader);
+                    matchingUsers.slice(0, 3).forEach(user => {
+                        const item = document.createElement('div'); item.className = 'search-result-item'; item.innerHTML = `<i class="fas fa-user" style="margin-right: 0.5rem; color: var(--primary);"></i> ${user.name} (${user.email})`;
+                        item.onclick = () => { setActiveFeature('settings', 'team'); searchResults.classList.remove('active'); searchInput.value = ''; }; searchResults.appendChild(item);
+                    });
+                 }
+                 if (matchingActivities.length > 0) {
+                    const activityHeader = document.createElement('div'); activityHeader.innerHTML = '<strong>Recent Activities</strong>'; activityHeader.style.padding = '0.5rem 1rem 0.25rem'; activityHeader.style.fontSize = '0.8rem'; activityHeader.style.color = 'var(--gray)'; searchResults.appendChild(activityHeader);
+                     matchingActivities.slice(0, 3).forEach(activity => {
+                         const item = document.createElement('div'); item.className = 'search-result-item'; item.innerHTML = `<i class="fas ${activity.icon || 'fa-info-circle'}" style="margin-right: 0.5rem; color: var(--secondary);"></i> ${activity.message.substring(0, 50)}...`;
+                         item.onclick = () => {
+                             setActiveFeature('dashboard'); const activityElement = activityList.querySelector(`.activity-item[data-id="${activity.id}"]`);
+                             if (activityElement) { activityElement.scrollIntoView({ behavior: 'smooth', block: 'center' }); activityElement.style.transition = 'background-color 0.3s ease-out'; activityElement.style.backgroundColor = 'var(--primary-light)'; setTimeout(() => { activityElement.style.backgroundColor = ''; }, 1500); }
+                             searchResults.classList.remove('active'); searchInput.value = '';
+                         }; searchResults.appendChild(item);
+                     });
+                 }
+            }
+
+            // --- Run Initialization ---
+            initDashboard();
+        });
+    </script>
+</body>
+</html>
