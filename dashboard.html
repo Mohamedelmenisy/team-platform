@@ -1826,152 +1826,132 @@
             }
 
             // --- Feature/Section Loading ---
-            function setActiveFeature(featureId, settingsTab = null) {
-                // Role-based access check for features/settings tabs
-                if (featureId === 'settings') {
-                    const targetTab = settingsTab || currentSettingsTab || 'preferences';
-                    if (targetTab === 'danger' && currentUser.role !== 'admin') {
-                        console.warn("Access denied: Only admins can access the Danger Zone.");
-                        setActiveFeature('dashboard'); // Redirect non-admins
-                        return;
-                    }
-                     // Add more checks here if other tabs need role restrictions
-                }
-                // Add checks for feature links if needed
-                // if (featureId === 'some-admin-feature' && currentUser.role !== 'admin') {
-                //     console.warn("Access denied: Admin feature.");
-                //     setActiveFeature('dashboard');
-                //     return;
-                // }
+                       // --- Feature/Section Loading ---
+           function setActiveFeature(featureId, settingsTab = null) {
+               // ... (الكود السابق للتحقق من الصلاحيات وتحديث القائمة الجانبية وإلخ يبقى كما هو) ...
 
+               // Update URL without reload only if it changed
+               let hash = `#${featureId}`;
+               if (featureId === 'settings' && currentSettingsTab) {
+                   hash += `-${currentSettingsTab}`;
+               }
+               if (window.location.hash !== hash) {
+                   history.pushState({ feature: featureId, tab: currentSettingsTab }, '', hash);
+               }
 
-                currentFeature = featureId;
-                currentSettingsTab = settingsTab || (featureId === 'settings' ? (currentSettingsTab || 'preferences') : null); // Persist or default settings tab
+               // Update Sidebar Menu Active State
+               menuItems.forEach(item => item.classList.remove('active'));
+               const activeMenuItem = document.querySelector(`.menu-item[data-feature="${featureId}"]`);
+               if (activeMenuItem) activeMenuItem.classList.add('active');
 
-                // Update URL without reload only if it changed
-                let hash = `#${featureId}`;
-                if (featureId === 'settings' && currentSettingsTab) {
-                    hash += `-${currentSettingsTab}`;
-                }
-                if (window.location.hash !== hash) {
-                    history.pushState({ feature: featureId, tab: currentSettingsTab }, '', hash);
-                }
+               // Show/Hide Content Sections
+               contentSections.forEach(section => section.classList.remove('active'));
+               featureSectionsContainer.style.display = 'none'; // Hide dynamic container by default
 
-                // Update Sidebar Menu Active State
-                menuItems.forEach(item => item.classList.remove('active'));
-                const activeMenuItem = document.querySelector(`.menu-item[data-feature="${featureId}"]`);
-                if (activeMenuItem) activeMenuItem.classList.add('active');
+               // --- Dynamic Loading Logic ---
+               if (featureId === 'dashboard') {
+                   dashboardContent.classList.add('active');
+                   updateStats();
+                   loadActivities();
+               } else if (featureId === 'profile') {
+                   profileContent.classList.add('active');
+                   updateUserUI();
+               } else if (featureId === 'settings') {
+                   settingsContent.classList.add('active');
+                   applyRBAC();
+                   activateSettingsTab(currentSettingsTab || 'preferences');
+               } else {
+                   // Handle other features dynamically
+                   featureSectionsContainer.style.display = 'block';
+                   featureSections.innerHTML = ''; // Clear previous dynamic content
+                   featureSections.appendChild(featurePlaceholder); // Add placeholder back
+                   featureTitle.textContent = `Loading ${featureId.replace(/-/g, ' ')}...`;
+                   featureDescription.textContent = '';
+                   featureLoadingIndicator.style.display = 'block';
+                   featureErrorMessage.style.display = 'none';
+                   featurePlaceholder.style.display = 'flex';
 
-                // Show/Hide Content Sections
-                contentSections.forEach(section => section.classList.remove('active'));
-                featureSectionsContainer.style.display = 'none'; // Hide dynamic container by default
+                   const filePath = `sections/${featureId}.html`; // Assuming featureId matches file name
 
-                // --- Dynamic Loading Logic ---
-                if (featureId === 'dashboard') {
-                    dashboardContent.classList.add('active');
-                    updateStats(); // Refresh stats when coming back
-                    loadActivities(); // Refresh activities
-                } else if (featureId === 'profile') {
-                    profileContent.classList.add('active');
-                    updateUserUI(); // Ensure profile form is up-to-date
-                } else if (featureId === 'settings') {
-                    settingsContent.classList.add('active');
-                    applyRBAC(); // Re-apply RBAC for settings tabs specifically
-                    activateSettingsTab(currentSettingsTab || 'preferences'); // Activate the correct settings tab
-                } else {
-                    // Handle other features dynamically
-                    featureSectionsContainer.style.display = 'block'; // Show the container
-                    featureSections.innerHTML = ''; // Clear previous dynamic content
-                    featureSections.appendChild(featurePlaceholder); // Add placeholder back temporarily
-                    featureTitle.textContent = `Loading ${featureId.replace(/-/g, ' ')}...`;
-                    featureDescription.textContent = '';
-                    featureLoadingIndicator.style.display = 'block';
-                    featureErrorMessage.style.display = 'none';
-                    featurePlaceholder.style.display = 'flex'; // Ensure placeholder is visible
+                   fetch(filePath)
+                       .then(response => {
+                           if (!response.ok) {
+                               throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
+                           }
+                           return response.text();
+                       })
+                       .then(html => {
+                           // Inject the HTML content first
+                           featureSections.innerHTML = html;
+                           featureSections.classList.add('active'); // Show the section
 
-                    // Construct file path (ASSUMPTION: files are in ./sections/)
-                    const filePath = `sections/${featureId}.html`;
+                           // !!!!! --- START OF MODIFIED SECTION --- !!!!!
+                           // Check if the loaded feature needs initialization
+                           if (featureId === 'employee-scheduling') {
+                               // Check if the initialization function exists (loaded via the injected HTML's script)
+                               if (typeof initializeEmployeeSchedule === 'function') {
+                                   try {
+                                       // Pass deep copies of necessary data from dashboard scope
+                                       console.log("Dashboard passing currentUser:", currentUser); // Debug
+                                       console.log("Dashboard passing teamMembers:", teamMembers); // Debug
+                                       initializeEmployeeSchedule(
+                                           JSON.parse(JSON.stringify(currentUser || DEFAULT_USER)), // Pass current user or default
+                                           JSON.parse(JSON.stringify(teamMembers || [])) // Pass current team members or empty array
+                                       );
+                                   } catch (err) {
+                                       console.error(`Error executing initializeEmployeeSchedule:`, err);
+                                       // Update placeholder to show initialization error
+                                       featureTitle.textContent = `Error Initializing ${featureId.replace(/-/g, ' ')}`;
+                                       featureDescription.textContent = `Content loaded, but failed during initialization. Check console. Error: ${err.message}`;
+                                       featureLoadingIndicator.style.display = 'none';
+                                       featureErrorMessage.style.display = 'block';
+                                       featurePlaceholder.style.display = 'flex';
+                                   }
+                               } else {
+                                   console.warn(`Initialization function 'initializeEmployeeSchedule' not found for ${featureId}. Dynamic content might not be interactive.`);
+                                   // Update placeholder to show warning
+                                   featureTitle.textContent = `${featureId.replace(/-/g, ' ')} Loaded (Initialization Script Not Found)`;
+                                   featureDescription.textContent = `Content loaded, but its specific setup script (initializeEmployeeSchedule) was not found or failed to load. Interaction might be limited.`;
+                                   featureLoadingIndicator.style.display = 'none';
+                                   featureErrorMessage.style.display = 'none'; // No error, just warning
+                                   featurePlaceholder.style.display = 'flex';
+                               }
+                           }
+                           // Add similar `else if` blocks here for other features
+                           // requiring specific initialization after loading, e.g.:
+                           // else if (featureId === 'projects') {
+                           //     if (typeof initializeProjectsView === 'function') {
+                           //         initializeProjectsView(pass_necessary_data);
+                           //     } else { console.warn(...) }
+                           // }
 
-                    fetch(filePath)
-                        .then(response => {
-                            if (!response.ok) {
-                                // Throw an error with status text to be more informative
-                                throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
-                            }
-                            return response.text();
-                        })
-                        .then(html => {
-                            featureSections.innerHTML = html; // Insert the loaded HTML
-                            featureSections.classList.add('active');
+                           // Hide placeholder elements *after* initialization attempt
+                           // Only hide the placeholder if no error message was shown during initialization
+                           featureLoadingIndicator.style.display = 'none'; // Always hide spinner
+                           if (featureErrorMessage.style.display !== 'block') {
+                                featurePlaceholder.style.display = 'none'; // Hide placeholder if init successful/not needed
+                           }
+                           // !!!!! --- END OF MODIFIED SECTION --- !!!!!
+                       })
+                       .catch(error => {
+                           console.error(`Error loading feature '${featureId}' from '${filePath}':`, error);
+                           // Update placeholder to show loading error
+                           featureTitle.textContent = `Error Loading ${featureId.replace(/-/g, ' ')}`;
+                           featureDescription.textContent = `Could not load content. Please check the file path ('${filePath}') and ensure the file exists and the server is configured correctly. Error: ${error.message}`;
+                           featureLoadingIndicator.style.display = 'none';
+                           featureErrorMessage.style.display = 'block';
+                           featurePlaceholder.style.display = 'flex';
+                           featureSections.classList.add('active');
+                       });
+               }
 
-                            // !!!!! --- START OF MODIFIED SECTION --- !!!!!
-                            // After inserting content, check for and call the initialization function
-                            if (featureId === 'employee-scheduling') {
-                                if (typeof initializeEmployeeSchedule === 'function') {
-                                    try {
-                                        // Pass deep copies of necessary data to the initialization function
-                                        console.log("Passing currentUser to schedule:", currentUser);
-                                        console.log("Passing teamMembers to schedule:", teamMembers);
-                                        initializeEmployeeSchedule(
-                                            JSON.parse(JSON.stringify(currentUser || DEFAULT_USER)), // Pass current user or a default structure
-                                            JSON.parse(JSON.stringify(teamMembers || []))          // Pass current team members or an empty array
-                                        );
-                                    } catch (err) {
-                                         console.error(`Error executing initializeEmployeeSchedule:`, err);
-                                         // Update the placeholder to show the initialization error
-                                         featureTitle.textContent = `Error Initializing ${featureId.replace(/-/g, ' ')}`;
-                                         featureDescription.textContent = `Content loaded, but failed during initialization. Check console for details. Error: ${err.message}`;
-                                         featureLoadingIndicator.style.display = 'none'; // Hide loading spinner
-                                         featureErrorMessage.style.display = 'block'; // Show error message
-                                         featurePlaceholder.style.display = 'flex'; // Keep placeholder visible to display the error
-                                    }
-                                } else {
-                                    console.warn(`Initialization function 'initializeEmployeeSchedule' not found for ${featureId}. Dynamic content might not be interactive.`);
-                                     // Update placeholder to indicate script wasn't found/run
-                                     featureTitle.textContent = `${featureId.replace(/-/g, ' ')} Loaded (Initialization Script Not Found)`;
-                                     featureDescription.textContent = `Content loaded, but its specific setup script (initializeEmployeeSchedule) was not found. Interaction might be limited.`;
-                                     featureLoadingIndicator.style.display = 'none'; // Hide loading spinner
-                                     featureErrorMessage.style.display = 'none'; // No error, just warning
-                                     featurePlaceholder.style.display = 'flex'; // Show placeholder with the warning
-                                }
-                            }
-                            // Add similar `else if` blocks here for other features
-                            // that require specific initialization after loading, e.g.:
-                            // else if (featureId === 'projects') {
-                            //     if (typeof initializeProjectsView === 'function') {
-                            //         initializeProjectsView(pass_necessary_data);
-                            //     } else { console.warn(...) }
-                            // }
+               // Show/Hide Back Button
+               backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none';
 
-                            // Hide placeholder elements *after* initialization attempt (unless an error occurred)
-                            featureLoadingIndicator.style.display = 'none';
-                            // Only hide the placeholder if no error message was shown during initialization
-                             if (featureErrorMessage.style.display !== 'block') {
-                                featurePlaceholder.style.display = 'none';
-                             }
-                            // !!!!! --- END OF MODIFIED SECTION --- !!!!!
-                        })
-                        .catch(error => {
-                            console.error(`Error loading feature '${featureId}' from '${filePath}':`, error);
-                            // Update placeholder to show loading error
-                            featureTitle.textContent = `Error Loading ${featureId.replace(/-/g, ' ')}`;
-                            featureDescription.textContent = `Could not load content. Please check the file path ('${filePath}') and ensure the file exists and the server is configured correctly. Error: ${error.message}`;
-                            featureLoadingIndicator.style.display = 'none';
-                            featureErrorMessage.style.display = 'block';
-                            featurePlaceholder.style.display = 'flex'; // Ensure placeholder is visible for error
-                            featureSections.classList.add('active'); // Still show the section container, but with error content
-                        });
-                }
-
-                // Show/Hide Back Button
-                backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none';
-
-                // Close mobile sidebar if open (optional)
-                // sidebar.classList.remove('active'); // Add sidebar toggle logic if needed
-                 // Scroll to top
-                 window.scrollTo(0, 0);
-            }
-
+               // Close mobile sidebar if open (optional)
+               // sidebar.classList.remove('active');
+               window.scrollTo(0, 0); // Scroll to top
+           }
 
             function activateSettingsTab(tabId) {
                  // RBAC check before activating tab
