@@ -2,202 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeamFlow | Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Favicon links -->
-    <link rel="icon" type="image/png" sizes="32x32" href="https://img.icons8.com/fluency/48/000000/group-task.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="https://img.icons8.com/fluency/32/000000/group-task.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="https://img.icons8.com/fluency/180/000000/group-task.png">
-    <style>
-        /* --- ALL CSS FROM dashboard.txt REMAINS HERE --- */
-        /* ... (CSS styles remain the same as previous correct version) ... */
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1e3a8a; /* Dark blue */
-            --primary-light: #dbeafe;
-            --secondary: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --dark: #1e293b;
-            --light: #f8fafc;
-            --gray: #64748b;
-            --light-gray: #e2e8f0;
-            --white: #ffffff;
-            --sidebar-width: 280px;
-            --sidebar-bg: #1e3a8a; /* Dark blue */
-            --sidebar-text: rgba(255,255,255,0.9);
-            --sidebar-hover: rgba(255,255,255,0.1);
-            --sidebar-active: rgba(255,255,255,0.2);
-            --sidebar-divider: rgba(255,255,255,0.1);
-            --success: #10b981;
-            --team-manager: #ef4444; /* Used for admin role title color */
-            --compact-padding: 0.5rem;
-            --normal-padding: 1rem;
-            --spacious-padding: 1.5rem;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--primary-light);
-            color: var(--dark);
-            display: flex;
-            min-height: 100vh;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        /* ... (Rest of CSS styles) ... */
-
-    </style>
+    <title>TeamFlow Dashboard</title>
+    <link rel="stylesheet" href="sections/employee-scheduling.css"> <!-- الربط مع CSS -->
 </head>
-<body class="blue-theme">
-    <!-- HTML Structure Remains the Same -->
-    <audio id="notificationSound" preload="auto">...</audio>
-    <div class="success-message" id="successMessage">...</div>
-    <aside class="sidebar" id="sidebar">...</aside>
-    <main class="main-content">
-        <nav class="top-nav">...</nav>
-        <div class="content-area">
-            <div class="back-button" id="backButton" style="display: none;">...</div>
-            <div id="dashboardContent" class="content-section active">...</div>
-            <div class="content-section" id="profileContent">...</div>
-            <div class="content-section" id="settingsContent">...</div>
-            <div id="featureSectionsContainer" style="display: none;">
-                <div id="featureSections" class="content-section">
-                     <div class="placeholder-content" id="featurePlaceholder">...</div>
-                </div>
-            </div>
-        </div>
-    </main>
-    <div class="notifications-modal" id="notificationsModal">...</div>
-    <div class="confirm-modal" id="confirmModal">...</div>
+<body>
 
-    <script>
-        // ======================================================
-        // == START: Employee Schedule Specific JavaScript ==
-        // ======================================================
-        function initializeEmployeeSchedule(currentUserData, teamMembersDataRef) { /* ... (Keep the definition here, outside DOMContentLoaded) ... */ }
-        // ======================================================
-        // == END: Employee Schedule Specific JavaScript ==
-        // ======================================================
+<!-- مكان السكاشن -->
+<div id="featureSections"></div>
 
+<!-- تحميل السكاشن بالـ JavaScript -->
+<script>
+function loadSection(section) {
+    fetch("sections/" + section + ".html")
+      .then(response => response.text())
+      .then(html => {
+          document.getElementById("featureSections").innerHTML = html;
 
-        // ======================================================
-        // == START: Dashboard Core JavaScript ==
-        // ======================================================
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log("DOM Content Loaded. Initializing Dashboard...");
+          // تحميل JavaScript الخاص بالجزء بعد HTML
+          let script = document.createElement('script');
+          script.src = "sections/" + section + ".js";
+          document.body.appendChild(script);
+      });
+}
 
-            // --- Initialize Variables First ---
-            let currentUser = {};
-            let teamMembers = [];
-            let activities = [];
-            let notifications = [];
-            let currentFeature = 'dashboard';
-            let currentSettingsTab = 'preferences';
-            let activityIntervalId = null;
-            let confirmCallback = null;
-            let cancelCallback = null;
-            const DEFAULT_USER = { id: 1, name: 'Default User', email: 'default@example.com', title: 'Member', department: 'General', phone: '', avatar: '', initials: 'DU', role: 'member', password: 'password', preferences: { language: 'en', timezone: 'utc', dateFormat: 'dd/mm/yyyy', theme: 'blue', layoutDensity: 'normal', soundNotifications: true, weekStart: 'sun' }, notificationPreferences: { email: { tasks: true, deadlines: true, updates: false }, push: { messages: true, teamUpdates: false } }, security: { twoFactorEnabled: false }, stats: { teamMembers: 0, tasksCompleted: 0, activeProjects: 0, upcomingDeadlines: 0, teamMembersTrend: 'neutral', tasksCompletedTrend: 'neutral', activeProjectsTrend: 'neutral', upcomingDeadlinesTrend: 'neutral' } };
-            const MAX_ACTIVITIES_DISPLAYED = 5;
-            const UPDATE_INTERVAL = 60000;
-            const SIMULATED_DELAY = 800;
-            const NEW_ACTIVITY_HIGHLIGHT_DURATION = 2500;
-
-            // --- DOM Elements Cache (Declare variables) ---
-            // Declare variables here, assign them in cacheDOMElements
-            let sidebar, menuItems, searchInput, searchResults, notificationIcon, notificationBadge, notificationsModal, notificationsBody, closeNotifications, markAllReadBtn, deleteAllNotificationsBtn, userAvatar, userProfileDetails, userName, userEmail, welcomeName, userDropdown, profileLink, settingsLink, logoutLink, contentSections, dashboardContent, profileContent, settingsContent, featureSectionsContainer, featureSections, featurePlaceholder, featureTitle, featureDescription, featureLoadingIndicator, featureErrorMessage, profileForm, cancelProfileBtn, profileAvatarInput, profileAvatar, profileAvatarLarge, uploadPhotoButton, activityList, viewAllActivity, deleteAllActivity, settingsTabs, settingsPanels, preferencesForm, accountForm, securityForm, notificationsForm, teamList, inviteMemberForm, themeOptions, layoutDensitySelect, weekStartSelect, confirmModal, confirmTitle, confirmMessage, cancelConfirmBtn, confirmBtn, teamMembersCount, tasksCompleted, activeProjects, upcomingDeadlines, userInfoRoleTitle, backButton, notificationSound, successMessage, successMessageText, cancelPreferencesBtn, cancelAccountBtn, cancelSecurityBtn, cancelNotificationsBtn, currentPasswordInput, newPasswordInput, confirmPasswordInput, currentPasswordError, passwordMatchError, teamMembersTrend, tasksCompletedTrend, activeProjectsTrend, upcomingDeadlinesTrend, soundNotificationsSwitch, fullNameDisplay, teamSettingsTab, dangerZoneTab;
-
-            // --- **** ALL FUNCTION DEFINITIONS GO HERE **** ---
-
-            function cacheDOMElements() { /* ... (Assign elements) ... */ }
-            function isObject(item) { return (item && typeof item === 'object' && !Array.isArray(item)); }
-            function deepMerge(target, source) { /* ... */ }
-            function loadData() { /* ... Use CORRECTED version ... */ }
-            function saveData() { /* ... */ }
-            function clearUserData() { /* ... */ }
-            function updateUserUI() { /* ... */ }
-            function applyUserPreferences() { /* ... */ }
-            function applyRBAC() { /* ... */ }
-            function loadSettingsFormData() { /* ... */ }
-            function updateStats() { /* ... */ }
-            function updateTrendIndicator(element, trendValue) { /* ... */ }
-            function updateNotificationBadge() { /* ... */ }
-            function setActiveFeature(featureId, settingsTab = null) { /* ... */ }
-            function activateSettingsTab(tabId) { /* ... */ }
-            function handleInitialNavigation() { /* ... */ }
-            function loadActivities(showAll = false) { /* ... */ }
-            function loadNotifications() { /* ... */ }
-            function getTimeAgo(timestamp) { /* ... */ }
-            function updateActivityTimes() { /* ... */ }
-            function startActivityTimeUpdater() { /* ... */ }
-            function loadTeamMembers() { /* ... */ }
-            function showConfirmModal(config) { /* ... */ }
-            function hideConfirmModal() { /* ... */ }
-            function handleProfileSave(e) { /* ... */ }
-            function handleProfileCancel() { /* ... */ }
-            function handleSettingsSave(formId, panelId, successMsg) { /* ... */ }
-            function handleSettingsCancel(panelId) { /* ... */ }
-            window.dashboardAddTeamMember = (newMemberData) => { /* ... */ };
-            function handleInviteMember(e) { /* ... */ }
-            function handleEditMemberClick(e) { /* ... */ }
-            function handleDeleteMemberClick(e) { /* ... */ }
-            function handleDeleteActivityClick(e) { /* ... */ }
-            function handleDeleteAllActivities() { /* ... */ }
-            function markNotificationAsRead(id, itemEl) { /* ... */ }
-            function handleMarkAllNotificationsRead() { /* ... */ }
-            function handleDeleteNotificationClick(id) { /* ... */ }
-            function handleDeleteAllNotifications() { /* ... */ }
-            function handleAvatarUpload(e) { /* ... Use CORRECTED version ... */ }
-            function handleLogout() { /* ... */ }
-            function addActivity(icon, message) { /* ... */ }
-            function addNotification(icon, message) { /* ... */ }
-            function playNotificationSound() { /* ... */ }
-            function showSuccessMessage(message) { /* ... */ }
-            function setupEventListeners() { /* ... */ }
-            function handleSearch() { /* ... */ }
-
-            // --- **** Initialization Function Definition **** ---
-            // DEFINE initDashboard HERE, BEFORE it's called
-            function initDashboard() {
-                console.log("Running initDashboard...");
-                try {
-                    cacheDOMElements(); // Cache elements first
-                    loadData();
-                    updateUserUI();
-                    loadTeamMembers();
-                    loadActivities();
-                    loadNotifications();
-                    updateStats();
-                    applyUserPreferences();
-                    applyRBAC();
-                    handleInitialNavigation();
-                    startActivityTimeUpdater();
-                    setupEventListeners(); // Setup listeners last
-                    console.log("Dashboard Initialized Successfully.");
-                } catch (error) {
-                    console.error("CRITICAL ERROR during Dashboard Initialization:", error);
-                    // Optionally: Display user-friendly error message
-                    // document.body.innerHTML = `... Error Message ...`;
-                    throw error; // Re-throw error to stop execution if needed
-                }
-            }
-
-            // --- **** Run Initialization **** ---
-            // Call initDashboard AFTER all function definitions within DOMContentLoaded
-            initDashboard();
-
-        }); // --- End of DOMContentLoaded ---
-        // ======================================================
-        // == END: Dashboard Core JavaScript ==
-        // ======================================================
-    </script>
+// أول ما تفتح الداشبورد، يعرض جدول الموظفين
+loadSection("employee-scheduling");
+</script>
 
 </body>
 </html>
