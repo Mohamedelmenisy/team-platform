@@ -228,4 +228,3 @@ window.initializeEmployeeScheduleLogic = function(userData, teamData) {
 
 // *** Log to confirm script parsing is complete ***
 console.log("employee-scheduling.js: Script parsed, initializeEmployeeScheduleLogic assigned to window.");
-```
