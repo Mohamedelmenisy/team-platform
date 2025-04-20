@@ -1,21 +1,30 @@
-```javascript
 // employee-scheduling.js
 
 // This script assumes global variables like MOCK_USERS, mockScheduleData, currentUser,
 // currentScheduleWeekOffset, scheduleMinWeekOffset, and utility functions
 // (formatDateForDisplay, showConfirmModal, showToast) are defined in the main HTML script.
 
-function initializeEmployeeScheduleLogic() {
-    console.log("Initializing Employee Schedule Logic...");
+// *** MODIFICATION: Explicitly assign function to window object ***
+window.initializeEmployeeScheduleLogic = function() {
+    // *** ADDED: Log to confirm function execution starts ***
+    console.log("initializeEmployeeScheduleLogic: Function execution started.");
 
-    // Check if required globals exist
+    // Check if required globals exist (important check)
     if (typeof currentUser === 'undefined' || typeof MOCK_USERS === 'undefined' || typeof mockScheduleData === 'undefined') {
-        console.error("Error: Required global variables (currentUser, MOCK_USERS, mockScheduleData) not found for Employee Scheduling.");
-        // Optionally display an error in the UI
+        console.error("initializeEmployeeScheduleLogic Error: Required global variables not found.");
         const container = document.getElementById('featureSectionsContainer');
         if(container) container.innerHTML = '<div class="placeholder-content error-message" style="display: block;">Failed to initialize schedule: Missing required data.</div>';
         return;
     }
+    if (typeof formatDateForDisplay === 'undefined' || typeof showConfirmModal === 'undefined' || typeof showToast === 'undefined') {
+        console.error("initializeEmployeeScheduleLogic Error: Required global utility functions not found.");
+        const container = document.getElementById('featureSectionsContainer');
+         if(container) container.innerHTML = '<div class="placeholder-content error-message" style="display: block;">Failed to initialize schedule: Missing required utility functions.</div>';
+        return;
+    }
+
+
+    console.log("Initializing Employee Schedule Logic...");
 
     // Define schedule-specific constants/variables
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -36,7 +45,18 @@ function initializeEmployeeScheduleLogic() {
     const editShiftWeekOffsetInput = document.getElementById('editShiftWeekOffset');
     const editShiftModalTitle = document.getElementById('editShiftModalTitle');
 
-    // --- Helper Functions (Copied from original main script) ---
+     // Safety checks for essential DOM elements
+    if (!weekDisplay || !scheduleTableBody || !scheduleThead || !prevWeekBtn || !nextWeekBtn || !editShiftModal) {
+        console.error("initializeEmployeeScheduleLogic Error: Core DOM elements for schedule not found within loaded HTML.");
+         const container = document.getElementById('featureSectionsContainer');
+         if(container) container.innerHTML = '<div class="placeholder-content error-message" style="display: block;">Failed to initialize schedule: UI elements missing.</div>';
+        return;
+    }
+
+    // --- Helper Functions (Copied from original main script - REQUIRED here if not global) ---
+    // Assuming formatDateForDisplay IS global, so no need to copy.
+    // If it wasn't global, you would copy it here.
+
     function getWeekDates(weekOffset = 0) {
         const baseDate = new Date();
         const startOfWeek = new Date(baseDate);
@@ -75,15 +95,15 @@ function initializeEmployeeScheduleLogic() {
              console.error("Invalid weekOffset provided to renderSchedule:", weekOffset);
              weekOffset = currentScheduleWeekOffset; // Fallback to global current offset
          }
-         // Ensure global variables are accessible
-         if (typeof formatDateForDisplay === 'undefined' || typeof MOCK_USERS === 'undefined' || typeof mockScheduleData === 'undefined') {
+         // Access global state/utils directly
+         if (typeof formatDateForDisplay === 'undefined' || typeof MOCK_USERS === 'undefined' || typeof mockScheduleData === 'undefined' || typeof scheduleMinWeekOffset === 'undefined') {
             console.error("Cannot render schedule: Missing global utilities or data.");
             return;
          }
 
-         const weekDates = getWeekDates(weekOffset); // Gets Sun-Sat
-         const start = weekDates[0]; // Sunday
-         const end = weekDates[6]; // Saturday
+         const weekDates = getWeekDates(weekOffset); // Use local helper
+         const start = weekDates[0];
+         const end = weekDates[6];
          if(weekDisplay) weekDisplay.textContent = `${formatDateForDisplay(start)} - ${formatDateForDisplay(end)}`;
 
          // Disable Prev button if at or before May 1st, 2025 week
@@ -105,6 +125,8 @@ function initializeEmployeeScheduleLogic() {
                      </th>
                  `;
              });
+         } else {
+            console.error("renderSchedule: scheduleThead element not found!");
          }
 
          // Render Table Body (Sun-Sat)
@@ -117,25 +139,23 @@ function initializeEmployeeScheduleLogic() {
 
              MOCK_USERS.forEach(employee => {
                  const row = document.createElement('tr');
-                 // Use global MOCK_USERS to get names
                  row.innerHTML = `<td class="employee-name">${employee.name}</td>`;
 
-                 for (let dayIndex = 0; dayIndex < 7; dayIndex++) { // Loop 7 times for Sun-Sat
+                 for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
                      const cell = document.createElement('td');
                      const scheduleKey = `${employee.id}-${weekOffset}-${dayIndex}`;
-                     const isWeekend = dayIndex === 5 || dayIndex === 6; // Friday (5) or Saturday (6) is weekend in SA context
+                     const isWeekend = dayIndex === 5 || dayIndex === 6; // Fri/Sat for SA context
 
                      let shiftType;
-                      // Use global currentUser for role check
+                     // Use global currentUser
                      let isEditable = currentUser && currentUser.role === 'admin' && !isWeekend;
 
-                     // Force 'off' for weekends, otherwise get stored/random shift
                      if (isWeekend) {
                          shiftType = 'off';
-                         mockScheduleData[scheduleKey] = 'off'; // Ensure global data consistency
+                         mockScheduleData[scheduleKey] = 'off'; // Use global data
                          cell.classList.add('weekend-cell');
                      } else {
-                         // Use global mockScheduleData
+                         // Use global data
                          if (!mockScheduleData[scheduleKey]) {
                              const shiftTypes = ['morning', 'afternoon', 'night', 'off', 'sick', 'vacation'];
                              const randomType = shiftTypes[Math.floor(Math.random() * shiftTypes.length)];
@@ -147,26 +167,25 @@ function initializeEmployeeScheduleLogic() {
                      const shiftDiv = document.createElement('div');
                      shiftDiv.classList.add('shift');
 
-                     // Apply specific class based on shift type, including special weekend style
                      if (isWeekend) {
                          shiftDiv.classList.add('shift-weekend-off');
                      } else {
                         shiftDiv.classList.add(`shift-${shiftType.replace('_', '-')}`);
                      }
 
-                     shiftDiv.textContent = getShiftText(shiftType);
+                     shiftDiv.textContent = getShiftText(shiftType); // Use local helper
 
                       if (isEditable) {
                          shiftDiv.classList.add('editable');
                          shiftDiv.dataset.employeeId = employee.id;
-                         shiftDiv.dataset.employeeName = employee.name; // Use global MOCK_USERS for name
+                         shiftDiv.dataset.employeeName = employee.name;
                          shiftDiv.dataset.dayIndex = dayIndex;
                          shiftDiv.dataset.weekOffset = weekOffset;
-                         shiftDiv.dataset.date = formatDateForDisplay(weekDates[dayIndex]); // Use global utility
+                         shiftDiv.dataset.date = formatDateForDisplay(weekDates[dayIndex]); // Use global util
                          shiftDiv.title = `Click to edit ${employee.name}'s shift on ${days[dayIndex]}`;
-                         // Event listener added later
+                         // Event listener added later via delegation
                      } else if (isWeekend) {
-                         shiftDiv.title = "Weekend Off"; // Title for non-editable weekend
+                         shiftDiv.title = "Weekend Off";
                      }
 
                      cell.appendChild(shiftDiv);
@@ -174,25 +193,25 @@ function initializeEmployeeScheduleLogic() {
                  }
                  scheduleTableBody.appendChild(row);
              });
-        } // end if scheduleTableBody
+        } else {
+             console.error("renderSchedule: scheduleTableBody element not found!");
+        }
     }
     // --- End Rendering Logic ---
 
 
     // --- Event Handlers ---
-    function handleEditShiftClick(event) {
-        const target = event.target;
-        if (!target.classList.contains('editable')) return;
+    function handleEditShiftClick(targetShiftDiv) { // Pass the clicked div directly
+        if (!targetShiftDiv || !targetShiftDiv.classList.contains('editable')) return;
 
-        const employeeId = target.dataset.employeeId;
-        const dayIndex = target.dataset.dayIndex;
-        const weekOffset = target.dataset.weekOffset;
-        const employeeName = target.dataset.employeeName;
-        const dateStr = target.dataset.date; // Use global MOCK_USERS for name
+        const employeeId = targetShiftDiv.dataset.employeeId;
+        const dayIndex = targetShiftDiv.dataset.dayIndex;
+        const weekOffset = targetShiftDiv.dataset.weekOffset;
+        const employeeName = targetShiftDiv.dataset.employeeName;
+        const dateStr = targetShiftDiv.dataset.date;
 
         const scheduleKey = `${employeeId}-${weekOffset}-${dayIndex}`;
-        // Use global mockScheduleData
-        const currentShift = mockScheduleData[scheduleKey] || 'morning';
+        const currentShift = mockScheduleData[scheduleKey] || 'morning'; // Use global data
 
         if (editShiftEmployeeIdInput) editShiftEmployeeIdInput.value = employeeId;
         if (editShiftDayIndexInput) editShiftDayIndexInput.value = dayIndex;
@@ -201,58 +220,51 @@ function initializeEmployeeScheduleLogic() {
         if (editShiftModalTitle) editShiftModalTitle.textContent = `Edit ${employeeName}'s Shift on ${days[dayIndex] || dateStr}`;
 
         if (editShiftModal) editShiftModal.classList.add('active');
+        else console.error("handleEditShiftClick: editShiftModal not found!");
     }
 
     function handleSendReminders() {
-        // Ensure global utilities are available
-        if (typeof showConfirmModal === 'undefined' || typeof showToast === 'undefined' || typeof MOCK_USERS === 'undefined' || typeof mockScheduleData === 'undefined' || typeof formatDateForDisplay === 'undefined') {
-            console.error("Cannot send reminders: Missing global utilities or data.");
-            if(sendRemindersBtn) { // Reset button if error occurs
-                sendRemindersBtn.disabled = false;
-                sendRemindersBtn.innerHTML = '<i class="fas fa-envelope"></i> Send Reminders';
-            }
+        // Access global utils/data directly
+        if (typeof showConfirmModal === 'undefined' || typeof showToast === 'undefined' || typeof MOCK_USERS === 'undefined' || typeof mockScheduleData === 'undefined' || typeof formatDateForDisplay === 'undefined' || typeof currentScheduleWeekOffset === 'undefined') {
+            console.error("handleSendReminders: Missing global utilities or data.");
             return;
         }
-
         const btn = document.getElementById('sendRemindersBtn'); // Re-select inside handler scope
-        if (!btn) return;
+        if (!btn) {
+            console.error("handleSendReminders: Send Reminders button not found!");
+            return;
+        }
 
         showConfirmModal('Send Reminders', `Send schedule reminders for the week of ${weekDisplay?.textContent || 'this week'} to all ${MOCK_USERS.length} employees?`, () => {
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner"></span> Sending...';
-
             console.log("Preparing to send schedule reminders...");
+            // ... (rest of reminder logic using global data/utils) ...
+             const weekDates = getWeekDates(currentScheduleWeekOffset); // Use global current offset
+             const weekStart = formatDateForDisplay(weekDates[0]);
+             const weekEnd = formatDateForDisplay(weekDates[6]);
+             const emailSubject = `Schedule Reminder for Week: ${weekStart} - ${weekEnd}`;
+             const emailFooter = "\n\nRegards,\nTeam Management System";
+             const fullDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+             let emailsSent = 0;
+             let emailsFailed = 0;
 
-            const weekDates = getWeekDates(currentScheduleWeekOffset); // Use global current offset
-            const weekStart = formatDateForDisplay(weekDates[0]);
-            const weekEnd = formatDateForDisplay(weekDates[6]);
-
-            const emailSubject = `Schedule Reminder for Week: ${weekStart} - ${weekEnd}`;
-            const emailFooter = "\n\nRegards,\nTeam Management System";
-            const fullDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-            let emailsSent = 0;
-            let emailsFailed = 0;
-
-            MOCK_USERS.forEach((user, index) => {
-                let userScheduleInfo = `Your schedule for the week starting ${weekStart}:\n`;
-                for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
-                    const scheduleKey = `${user.id}-${currentScheduleWeekOffset}-${dayIndex}`;
-                    const shiftType = mockScheduleData[scheduleKey] || 'off';
-                    userScheduleInfo += `- ${fullDays[dayIndex]} (${formatDateForDisplay(weekDates[dayIndex])}): ${getShiftText(shiftType)}\n`;
-                }
-
-                const emailBody = `Hi ${user.name.split(' ')[0]},\n\nPlease find your work schedule details below. Remember to check the system for any updates.\n\n${userScheduleInfo}\nPlease ensure you log your times accurately.${emailFooter}`;
-
-                console.log(`--- Sending to: ${user.email} ---`);
-                console.log(`Subject: ${emailSubject}`);
-                console.log(`Body:\n${emailBody}`);
-                console.log(`---------------------------------`);
-
-                const success = Math.random() > 0.1;
-                if (success) emailsSent++;
-                else emailsFailed++;
-            });
+             MOCK_USERS.forEach((user) => {
+                 let userScheduleInfo = `Your schedule for the week starting ${weekStart}:\n`;
+                 for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+                     const scheduleKey = `${user.id}-${currentScheduleWeekOffset}-${dayIndex}`;
+                     const shiftType = mockScheduleData[scheduleKey] || 'off'; // Access global data
+                     userScheduleInfo += `- ${fullDays[dayIndex]} (${formatDateForDisplay(weekDates[dayIndex])}): ${getShiftText(shiftType)}\n`; // Use global/local utils
+                 }
+                 const emailBody = `Hi ${user.name.split(' ')[0]},\n\nPlease find your work schedule details below. Remember to check the system for any updates.\n\n${userScheduleInfo}\nPlease ensure you log your times accurately.${emailFooter}`;
+                 console.log(`--- Sending to: ${user.email} ---`);
+                 console.log(`Subject: ${emailSubject}`);
+                 console.log(`Body:\n${emailBody}`);
+                 console.log(`---------------------------------`);
+                 const success = Math.random() > 0.1;
+                 if (success) emailsSent++;
+                 else emailsFailed++;
+             });
 
             setTimeout(() => {
                 if (emailsFailed > 0) {
@@ -263,26 +275,32 @@ function initializeEmployeeScheduleLogic() {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-envelope"></i> Send Reminders';
             }, 1500 + MOCK_USERS.length * 50);
-        }, 'btn-primary'); // Use primary style for confirmation
+        }, 'btn-primary');
     }
 
     function handleShiftEditFormSubmit(event) {
         event.preventDefault();
-        // Ensure global utilities/data are available
+        // Access global data/utils directly
         if (typeof mockScheduleData === 'undefined' || typeof showToast === 'undefined') {
              console.error("Cannot save shift: Missing global data or utilities.");
              return;
         }
-        const employeeId = editShiftEmployeeIdInput.value;
-        const dayIndex = editShiftDayIndexInput.value;
-        const weekOffset = editShiftWeekOffsetInput.value;
-        const newShiftType = shiftTypeSelect.value;
+        const employeeId = editShiftEmployeeIdInput?.value;
+        const dayIndex = editShiftDayIndexInput?.value;
+        const weekOffset = editShiftWeekOffsetInput?.value;
+        const newShiftType = shiftTypeSelect?.value;
+
+        if (employeeId === undefined || dayIndex === undefined || weekOffset === undefined || newShiftType === undefined) {
+            console.error("handleShiftEditFormSubmit: Could not read shift data from modal inputs.");
+            showToast("Error saving shift: Could not read data.", "error");
+            return;
+        }
 
         const scheduleKey = `${employeeId}-${weekOffset}-${dayIndex}`;
-        mockScheduleData[scheduleKey] = newShiftType; // Update the global data
+        mockScheduleData[scheduleKey] = newShiftType; // Update the GLOBAL data
 
-        renderSchedule(parseInt(weekOffset)); // Re-render the currently viewed week
-        if(editShiftModal) editShiftModal.classList.remove('active'); // Close modal
+        renderSchedule(parseInt(weekOffset)); // Re-render using the correct offset
+        if(editShiftModal) editShiftModal.classList.remove('active');
         showToast("Shift updated.");
     }
 
@@ -290,42 +308,51 @@ function initializeEmployeeScheduleLogic() {
 
 
     // --- Attach Event Listeners ---
-
-    // Use event delegation for shift edits as rows are dynamic
+    console.log("Attaching schedule event listeners...");
+    // Use event delegation for shift edits
     if (scheduleTableBody) {
         scheduleTableBody.addEventListener('click', function(event) {
-            if (event.target.closest('.shift.editable')) {
-                handleEditShiftClick(event.target.closest('.shift.editable'));
+            const editableShiftDiv = event.target.closest('.shift.editable');
+            if (editableShiftDiv) {
+                console.log("Editable shift clicked:", editableShiftDiv.dataset);
+                handleEditShiftClick(editableShiftDiv); // Pass the specific div
             }
         });
+    } else {
+        console.error("Cannot attach listener: scheduleTableBody not found!");
     }
 
     // Basic controls
     if (prevWeekBtn) {
         prevWeekBtn.addEventListener('click', () => {
-            if (currentScheduleWeekOffset > scheduleMinWeekOffset) { // Use global variables
-                currentScheduleWeekOffset--;
-                renderSchedule(currentScheduleWeekOffset);
+            // Access global state directly
+            if (currentScheduleWeekOffset > scheduleMinWeekOffset) {
+                currentScheduleWeekOffset--; // Modify global state
+                renderSchedule(currentScheduleWeekOffset); // Render using global state
             }
         });
+    } else {
+         console.error("Cannot attach listener: prevWeekBtn not found!");
     }
     if (nextWeekBtn) {
         nextWeekBtn.addEventListener('click', () => {
-            currentScheduleWeekOffset++; // Use global variable
-            renderSchedule(currentScheduleWeekOffset);
+            currentScheduleWeekOffset++; // Modify global state
+            renderSchedule(currentScheduleWeekOffset); // Render using global state
         });
+    } else {
+        console.error("Cannot attach listener: nextWeekBtn not found!");
     }
 
-    // Conditional buttons (only add listeners if elements exist and user has permission)
+    // Conditional buttons (Access global currentUser)
     if (saveScheduleBtn && currentUser && currentUser.role === 'admin') {
-        saveScheduleBtn.style.display = 'inline-flex'; // Show button
+        saveScheduleBtn.style.display = 'inline-flex';
         saveScheduleBtn.addEventListener('click', () => {
-            // Use global utilities
-             if (typeof showConfirmModal === 'undefined' || typeof showToast === 'undefined') {
+             // Access global utils
+            if (typeof showConfirmModal === 'undefined' || typeof showToast === 'undefined') {
                 console.error("Cannot save schedule: Missing global utilities.");
                 return;
             }
-            showConfirmModal('Save Schedule', 'Are you sure you want to save the current schedule changes?', () => {
+            showConfirmModal('Save Schedule', 'Save the current schedule changes?', () => {
                 saveScheduleBtn.disabled = true;
                 saveScheduleBtn.innerHTML = '<span class="spinner"></span> Saving...';
                 console.log("Saving schedule...", mockScheduleData); // Use global data
@@ -336,11 +363,16 @@ function initializeEmployeeScheduleLogic() {
                 }, 1000);
             }, 'btn-primary');
         });
+    } else if (!saveScheduleBtn && currentUser && currentUser.role === 'admin') {
+         console.warn("Save Schedule button element not found, cannot attach listener.");
     }
     if (sendRemindersBtn && currentUser && currentUser.role === 'admin') {
-         sendRemindersBtn.style.display = 'inline-flex'; // Show button
+         sendRemindersBtn.style.display = 'inline-flex';
         sendRemindersBtn.addEventListener('click', handleSendReminders);
+    } else if (!sendRemindersBtn && currentUser && currentUser.role === 'admin') {
+        console.warn("Send Reminders button element not found, cannot attach listener.");
     }
+
 
     // Modal listeners
     if (editShiftModal) {
@@ -352,40 +384,22 @@ function initializeEmployeeScheduleLogic() {
                 editShiftModal.classList.remove('active');
             }
         });
+    } else {
+        console.error("Cannot attach modal listeners: editShiftModal not found!");
     }
-    if (editShiftForm) {
+
+     if (editShiftForm) {
         editShiftForm.addEventListener('submit', handleShiftEditFormSubmit);
+    } else {
+         console.error("Cannot attach form listener: editShiftForm not found!");
     }
 
-    // --- Initial Calculation & Render ---
-    const calculateAndSetInitialOffsets = () => {
-        const today = new Date();
-        const mayFirst2025 = new Date(2025, 4, 1); // May 1st
-        mayFirst2025.setHours(0, 0, 0, 0);
+    // --- Initial Render ---
+    // Initial offset calculation is done in the main script (initDashboard)
+    renderSchedule(currentScheduleWeekOffset); // Render with the correct GLOBAL offset
+    console.log("Employee schedule initialized and rendered.");
 
-        const currentDayOfWeek = today.getDay();
-        const diffToSunday = today.getDate() - currentDayOfWeek;
-        const startOfCurrentWeek = new Date(today);
-        startOfCurrentWeek.setDate(diffToSunday);
-        startOfCurrentWeek.setHours(0, 0, 0, 0);
+}; // *** END of window.initializeEmployeeScheduleLogic definition ***
 
-        const mayFirstDayOfWeek = mayFirst2025.getDay();
-        const diffToMayFirstSunday = mayFirst2025.getDate() - mayFirstDayOfWeek;
-        const startOfMayFirstWeek = new Date(mayFirst2025);
-        startOfMayFirstWeek.setDate(diffToMayFirstSunday);
-        startOfMayFirstWeek.setHours(0, 0, 0, 0);
-
-        const msPerDay = 24 * 60 * 60 * 1000;
-        const weeksDifference = Math.round((startOfMayFirstWeek.getTime() - startOfCurrentWeek.getTime()) / (7 * msPerDay));
-
-        // Update GLOBAL state variables
-        currentScheduleWeekOffset = weeksDifference;
-        scheduleMinWeekOffset = weeksDifference;
-        console.log(`Schedule initial week offset set to: ${currentScheduleWeekOffset}`);
-    };
-
-    calculateAndSetInitialOffsets();
-    renderSchedule(currentScheduleWeekOffset); // Initial render with the correct global offset
-}
-
-// No automatic call here - it will be called by the main script after loading.
+// *** ADDED: Log to confirm script parsing is complete ***
+console.log("employee-scheduling.js: Script parsed, initializeEmployeeScheduleLogic assigned to window.");
