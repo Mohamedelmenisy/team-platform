@@ -45,10 +45,62 @@
             --welcome-bg-2: linear-gradient(135deg, #064e3b, #065f46);
             --welcome-bg-3: linear-gradient(135deg, #4a044e, #6b21a8);
             --welcome-bg-current: var(--welcome-bg-1); /* Default welcome bg */
+
+            /* High Contrast Variables (Initial basic setup) */
+            --hc-text: #000000;
+            --hc-background: #ffffff;
+            --hc-primary: #0000ff;
+            --hc-secondary: #008000;
+            --hc-link: #0000ee;
+            --hc-border: #000000;
         }
         /* --- Base Styles --- */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--primary-light); color: var(--dark); display: flex; min-height: 100vh; transition: background-color 0.3s ease, color 0.3s ease; }
+
+        /* High Contrast Mode */
+        body.high-contrast {
+             --dark: var(--hc-text);
+             --light: var(--hc-background);
+             --gray: var(--hc-text); /* Adjust as needed */
+             --light-gray: var(--hc-border);
+             --white: var(--hc-background);
+             --primary: var(--hc-primary);
+             --primary-dark: var(--hc-primary);
+             --primary-light: #e0e0ff; /* Lighter blue for hc bg */
+             --secondary: var(--hc-secondary);
+             --sidebar-bg: var(--hc-background);
+             --sidebar-text: var(--hc-text);
+             --sidebar-hover: #e0e0e0;
+             --sidebar-active: #c0c0c0;
+             --sidebar-divider: var(--hc-border);
+             color: var(--hc-text);
+             background-color: var(--hc-background);
+             /* Add more overrides as needed */
+        }
+         body.high-contrast .welcome-section,
+         body.high-contrast .stat-card,
+         body.high-contrast .top-nav,
+         body.high-contrast .sidebar,
+         body.high-contrast .activity-section,
+         body.high-contrast .content-section {
+             background: var(--hc-background);
+             border: 1px solid var(--hc-border);
+             color: var(--hc-text);
+         }
+          body.high-contrast .btn,
+          body.high-contrast .form-control,
+          body.high-contrast .search-bar input {
+              border: 1px solid var(--hc-border);
+          }
+          body.high-contrast .btn-primary { background-color: var(--hc-primary); color: var(--hc-background); }
+          body.high-contrast .logo { color: var(--hc-text); }
+          body.high-contrast .logo-icon { color: var(--hc-primary); }
+          body.high-contrast .menu-item { color: var(--hc-text); border-left-color: transparent; }
+          body.high-contrast .menu-item.active { background-color: #c0c0c0; border-left-color: var(--hc-primary); }
+          body.high-contrast .stat-card { border-left-width: 3px; background: var(--hc-background); } /* Reset gradient */
+          body.high-contrast .welcome-section { background: var(--hc-background); }
+
 
         /* --- Sidebar Styles --- */
         .sidebar { width: var(--sidebar-width); background-color: var(--sidebar-bg); height: 100vh; position: fixed; top: 0; left: 0; overflow-y: auto; transition: all 0.3s; z-index: 100; display: flex; flex-direction: column; }
@@ -196,9 +248,23 @@
         .activity-time { font-size: 0.8rem; color: var(--gray); }
         body.compact .activity-time { font-size: 0.7rem; }
         .activity-actions { display: flex; gap: 0.5rem; margin-left: auto; padding-left: 1rem; }
-        .delete-activity { color: var(--danger); cursor: pointer; opacity: 0; /* Hidden by default */ transition: opacity 0.2s, background-color 0.2s; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; }
-        .activity-item:hover .delete-activity { opacity: 0.6; } /* Show on hover */
-        .delete-activity:hover { opacity: 1; background-color: rgba(239, 68, 68, 0.1); }
+        /* --- MODIFICATION: Make delete icon visible by default --- */
+        .delete-activity {
+            color: var(--danger);
+            cursor: pointer;
+            opacity: 0.6; /* Visible by default */
+            transition: opacity 0.2s, background-color 0.2s;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        /* --- MODIFICATION: Full opacity on hover (optional, nice touch) --- */
+        .activity-item:hover .delete-activity {
+             opacity: 1; /* Already visible, just make fully opaque on hover */
+        }
+        .delete-activity:hover {
+            opacity: 1; background-color: rgba(239, 68, 68, 0.1);
+        }
 
         /* --- Profile & Settings Sections Styles --- */
         .content-section { /* Shared styles already applied */ background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 2rem; transition: padding 0.3s ease, background-color 0.3s ease; display: none; animation: fadeInContent 0.4s ease-in-out; } /* Hidden by default */
@@ -225,8 +291,8 @@
         .form-group { margin-bottom: 1rem; transition: margin-bottom 0.3s ease; }
         body.compact .form-group { margin-bottom: 0.75rem; }
         body.spacious .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark); transition: margin-bottom 0.3s ease, font-size 0.3s ease; }
-        body.compact .form-group label { margin-bottom: 0.25rem; font-size: 0.9rem; }
+        .form-group label, .settings-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark); transition: margin-bottom 0.3s ease, font-size 0.3s ease; }
+        body.compact .form-group label, body.compact .settings-label { margin-bottom: 0.25rem; font-size: 0.9rem; }
         .form-control { width: 100%; padding: 0.75rem; border: 1px solid var(--light-gray); border-radius: 6px; font-size: 1rem; background-color: var(--white); color: var(--dark); transition: border-color 0.2s, box-shadow 0.2s, padding 0.3s ease, font-size 0.3s ease, background-color 0.3s ease, color 0.3s ease; }
         body.compact .form-control { padding: 0.5rem; font-size: 0.9rem; }
         body.spacious .form-control { padding: 1rem; }
@@ -261,6 +327,28 @@
         .settings-panel { display: none; }
         .settings-panel.active { display: block; animation: fadeInPanel 0.5s ease-out; }
         @keyframes fadeInPanel { from { opacity: 0; } to { opacity: 1; } }
+        /* Settings Sub-section */
+        .settings-subsection {
+             margin-top: 2rem;
+             padding-top: 1.5rem;
+             border-top: 1px solid var(--light-gray);
+        }
+        .settings-subsection:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+        .settings-subsection h4 {
+             font-size: 1.1rem;
+             font-weight: 600;
+             color: var(--primary-dark);
+             margin-bottom: 1rem;
+        }
+        .setting-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0.5rem 0; }
+        .setting-item-label { font-weight: 500; color: var(--dark); }
+        .setting-item-description { font-size: 0.9rem; color: var(--gray); margin-top: 0.25rem;}
+        .setting-item-control { flex-shrink: 0; margin-left: 1rem; }
+
         .switch { position: relative; display: inline-block; width: 50px; height: 24px; flex-shrink: 0; }
         body.compact .switch { width: 40px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -327,7 +415,7 @@
         body.dark-theme .notification-list-item.unread { background-color: rgba(59, 130, 246, 0.1); }
         body.dark-theme .confirm-container { background-color: var(--light); }
         body.dark-theme .theme-option div { border-color: var(--light-gray); }
-        body.dark-theme .theme-option[data-theme="dark"] div { border-color: var(--primary); }
+        body.dark-theme .theme-option.selected div { border-color: var(--primary); }
         body.dark-theme .back-button:hover { background-color: var(--light); }
         body.dark-theme .notifications-footer { background-color: var(--primary-light); }
         body.dark-theme .welcome-section { background: var(--welcome-bg-current); color: var(--dark); } /* Adjusted for dark theme welcome */
@@ -350,13 +438,53 @@
         body.dark-theme .placeholder-content { color: var(--gray); border-color: var(--light-gray); }
         body.dark-theme .placeholder-content h2 { color: var(--dark); }
         body.dark-theme .placeholder-content .error-message { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); }
+        body.dark-theme .settings-label { color: var(--dark); }
+        body.dark-theme .settings-subsection h4 { color: #60a5fa; } /* Lighter primary */
+        body.dark-theme .setting-item-label { color: var(--dark); }
+        body.dark-theme .setting-item-description { color: var(--gray); }
+        body.dark-theme .theme-option span { color: var(--dark); }
+        body.dark-theme .qr-code-placeholder { border-color: var(--light-gray); color: var(--gray); }
+        body.dark-theme .danger-zone-item .btn-danger { background-color: #dc2626; } /* Ensure danger button stands out */
+        body.dark-theme .danger-zone-item .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
 
-        body.blue-theme { /* Kept for potential future use */ --primary-light: #dbeafe; --light: #eff6ff; --white: #ffffff; --dark: #1e293b; background-color: var(--primary-light); }
-        .theme-option { display: flex; flex-direction: column; align-items: center; }
-        .theme-option div { width: 60px; height: 40px; border: 2px solid var(--light-gray); border-radius: 6px; cursor: pointer; transition: border-color 0.2s; }
-        .theme-option span { text-align: center; display: block; margin-top: 0.5rem; font-size: 0.9rem; color: var(--dark); }
-        .theme-option:hover div { border-color: var(--primary); }
-        .theme-option.selected div { border-color: var(--primary); border-width: 3px; }
+
+        /* Theme Selection Styles */
+        .theme-options-container { display: flex; gap: 1rem; margin-top: 0.5rem; }
+        .theme-option { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .theme-option .theme-preview { width: 60px; height: 40px; border: 2px solid var(--light-gray); border-radius: 6px; transition: border-color 0.2s; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .theme-option .theme-label { text-align: center; display: block; margin-top: 0.5rem; font-size: 0.9rem; color: var(--dark); }
+        .theme-option:hover .theme-preview { border-color: var(--primary); }
+        .theme-option.selected .theme-preview { border-color: var(--primary); border-width: 3px; }
+        /* Specific theme previews */
+        .theme-preview.light-preview { background-color: #f8fafc; color: #1e293b; }
+        .theme-preview.dark-preview { background-color: #0f172a; color: #e2e8f0; }
+        .theme-preview.system-preview { background: linear-gradient(45deg, #f8fafc 50%, #0f172a 50%); color: var(--gray); }
+
+
+        /* 2FA Setup Styles */
+        .two-fa-status { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+        .two-fa-status .status-indicator { width: 10px; height: 10px; border-radius: 50%; }
+        .two-fa-status .status-indicator.enabled { background-color: var(--success); }
+        .two-fa-status .status-indicator.disabled { background-color: var(--danger); }
+        .two-fa-setup { border: 1px dashed var(--light-gray); padding: 1.5rem; border-radius: 6px; margin-top: 1rem; background-color: var(--light); }
+        .qr-code-placeholder { width: 150px; height: 150px; border: 2px dashed var(--light-gray); display: flex; align-items: center; justify-content: center; text-align: center; color: var(--gray); font-size: 0.9rem; margin: 1rem auto; }
+        .two-fa-actions { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; }
+
+        /* Danger Zone Styles */
+         .danger-zone-item {
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+             padding: 1.5rem;
+             border: 1px solid var(--danger);
+             background-color: rgba(239, 68, 68, 0.05);
+             border-radius: 8px;
+             margin-bottom: 1rem;
+         }
+         .danger-zone-item div { max-width: 70%; }
+         .danger-zone-item h5 { color: var(--danger); margin-bottom: 0.25rem; }
+         .danger-zone-item p { color: var(--gray); font-size: 0.9rem; }
+
 
         .notifications-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; display: none; justify-content: flex-end; }
         .notifications-modal.active { display: flex; }
@@ -403,7 +531,23 @@
         /* --- Additional styles from employee-schedule.txt (Scoped) --- */
         /* Scope these styles to only apply when the schedule content is loaded */
         #featureSectionsContainer.employee-scheduling .schedule-page-header { margin-bottom: 1.5rem; }
-        #featureSectionsContainer.employee-scheduling .schedule-page-title { font-size: 1.5rem; font-weight: 600; border-bottom: none; margin-bottom: 0; }
+        /* --- MODIFICATION: Style schedule title --- */
+        #featureSectionsContainer.employee-scheduling .schedule-page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            border-bottom: none;
+            margin-bottom: 0;
+            background-color: var(--primary-light); /* Example background */
+            color: var(--primary-dark);
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            display: inline-block; /* Fit content */
+         }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-page-title {
+            background-color: var(--light);
+            color: #93c5fd; /* Lighter primary text */
+        }
+
         #featureSectionsContainer.employee-scheduling .schedule-controls { margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
         #featureSectionsContainer.employee-scheduling .schedule-container { margin-top: 1rem; overflow-x: auto; }
         #featureSectionsContainer.employee-scheduling .schedule-table { width: 100%; min-width: 800px; border-collapse: separate; border-spacing: 0; border: 1px solid var(--light-gray); border-radius: 8px; overflow: hidden; }
@@ -424,9 +568,9 @@
         #featureSectionsContainer.employee-scheduling .shift-morning { background-color: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
         #featureSectionsContainer.employee-scheduling .shift-afternoon { background-color: #e0f2fe; color: #0c4a6e; border-color: #bae6fd;}
         #featureSectionsContainer.employee-scheduling .shift-night { background-color: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
-        #featureSectionsContainer.employee-scheduling .day-off { background-color: #f0fdf4; color: #166534; border-color: #bbf7d0; }
-        #featureSectionsContainer.employee-scheduling .sick-leave { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; }
-        #featureSectionsContainer.employee-scheduling .vacation { background-color: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+        #featureSectionsContainer.employee-scheduling .shift-off { background-color: #f0fdf4; color: #166534; border-color: #bbf7d0; } /* Renamed from day-off */
+        #featureSectionsContainer.employee-scheduling .shift-sick { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; } /* Renamed */
+        #featureSectionsContainer.employee-scheduling .shift-vacation { background-color: #ffedd5; color: #9a3412; border-color: #fed7aa; } /* Renamed */
         #featureSectionsContainer.employee-scheduling .day-header { display: flex; flex-direction: column; gap: 0.25rem; align-items: center; }
         #featureSectionsContainer.employee-scheduling .day-name { font-weight: 600; font-size: 0.9rem; }
         #featureSectionsContainer.employee-scheduling .day-date { font-size: 0.8rem; opacity: 0.8; }
@@ -472,6 +616,8 @@
             .stats-section { grid-template-columns: 1fr; }
             .settings-tabs { flex-wrap: wrap; }
             .settings-tab { padding: 0.5rem 1rem; }
+            .setting-item { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+            .setting-item-control { margin-left: 0; width: 100%; }
             .confirm-container { width: 90%; }
             .team-member-card { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
             .member-role { margin: 0.5rem 0; }
@@ -503,11 +649,15 @@
             .user-status { margin-left: 0; }
             .notifications-footer { flex-direction: column; gap: 0.5rem; }
             .notifications-footer .btn { width: 100%; justify-content: center; }
+            .danger-zone-item { flex-direction: column; align-items: flex-start; text-align: left; }
+            .danger-zone-item div { max-width: 100%; margin-bottom: 1rem; }
+            .danger-zone-item .btn { width: 100%; justify-content: center; }
         }
 
     </style>
 </head>
-<body class="blue-theme"> <!-- Start with a theme -->
+<!-- Apply theme class from localStorage -->
+<body class=""> <!-- Start with no specific theme, JS will apply -->
 
     <audio id="notificationSound" preload="auto">
         <source src="assets/notification.mp3" type="audio/mpeg"> <!-- Check this path -->
@@ -675,27 +825,257 @@
                      <div class="settings-tab" data-tab="collaboration">Collaboration</div>
                      <div class="settings-tab" data-tab="danger" id="dangerZoneTab">Danger Zone</div>
                  </div>
-                 <!-- Settings Panels remain structurally the same, content can be added -->
-                 <div class="settings-panel active" id="preferencesPanel"> <h3 class="section-title">Preferences</h3> <form class="data-form" id="preferencesForm"> <p>Preferences settings will go here.</p> </form> </div>
-                 <div class="settings-panel" id="accountPanel"> <h3 class="section-title">Account Settings</h3> <form class="data-form" id="accountForm"> <p>Account settings will go here.</p> </form> </div>
-                 <div class="settings-panel" id="securityPanel"> <h3 class="section-title">Security Settings</h3> <form class="data-form" id="securityForm"> <p>Security settings will go here.</p> </form> </div>
-                 <div class="settings-panel" id="notificationsPanel"> <h3 class="section-title">Notification Settings</h3> <form class="data-form" id="notificationsForm"> <p>Notification settings will go here.</p> </form> </div>
+
+                 <!-- Preferences Panel -->
+                 <div class="settings-panel active" id="preferencesPanel">
+                     <div class="settings-subsection">
+                         <h4>Appearance</h4>
+                         <div class="form-group">
+                             <label class="settings-label">Theme</label>
+                             <div class="theme-options-container">
+                                 <div class="theme-option" data-theme="light">
+                                     <div class="theme-preview light-preview"><i class="fas fa-sun"></i></div>
+                                     <span class="theme-label">Light</span>
+                                 </div>
+                                 <div class="theme-option" data-theme="dark">
+                                     <div class="theme-preview dark-preview"><i class="fas fa-moon"></i></div>
+                                     <span class="theme-label">Dark</span>
+                                 </div>
+                                 <div class="theme-option" data-theme="system">
+                                    <div class="theme-preview system-preview"><i class="fas fa-desktop"></i></div>
+                                    <span class="theme-label">System</span>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="setting-item">
+                            <div>
+                                <span class="setting-item-label">High Contrast Mode</span>
+                                <p class="setting-item-description">Increase text visibility for accessibility.</p>
+                            </div>
+                            <div class="setting-item-control">
+                                <label class="switch">
+                                    <input type="checkbox" id="highContrastToggle">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                         </div>
+                     </div>
+
+                     <div class="settings-subsection">
+                        <h4>Localization</h4>
+                         <div class="data-form" style="grid-template-columns: 1fr 1fr;"> <!-- Reuse data-form for layout -->
+                             <div class="form-group">
+                                 <label for="languageSelect">Language</label>
+                                 <select id="languageSelect" class="form-control">
+                                     <option value="en">English (US)</option>
+                                     <option value="ar">العربية (Arabic)</option>
+                                     <option value="es">Español (Spanish)</option>
+                                 </select>
+                             </div>
+                             <div class="form-group">
+                                 <label for="regionSelect">Region / Timezone</label>
+                                 <select id="regionSelect" class="form-control">
+                                     <option value="utc">UTC</option>
+                                     <option value="est">EST (UTC-5)</option>
+                                     <option value="pst">PST (UTC-8)</option>
+                                     <option value="cet">CET (UTC+1)</option>
+                                     <option value="eet">EET (UTC+2)</option>
+                                     <option value="ast">AST (UTC+3) - Riyadh</option>
+                                 </select>
+                             </div>
+                         </div>
+                         <div class="data-form" style="grid-template-columns: 1fr 1fr;">
+                             <div class="form-group">
+                                 <label for="timeFormatSelect">Time Format</label>
+                                 <select id="timeFormatSelect" class="form-control">
+                                     <option value="12h">12-hour (e.g., 3:00 PM)</option>
+                                     <option value="24h">24-hour (e.g., 15:00)</option>
+                                 </select>
+                             </div>
+                              <div class="form-group">
+                                 <label for="dateFormatSelect">Date Format</label>
+                                 <select id="dateFormatSelect" class="form-control">
+                                     <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                     <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                     <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                     <option value="Month D, YYYY">Month D, YYYY</option>
+                                 </select>
+                             </div>
+                         </div>
+                     </div>
+
+                     <div class="settings-subsection">
+                        <h4>Messages & Shortcuts</h4>
+                         <div class="setting-item">
+                             <div>
+                                 <span class="setting-item-label">Enable Toast Notifications</span>
+                                 <p class="setting-item-description">Show brief confirmation messages for actions.</p>
+                             </div>
+                             <div class="setting-item-control">
+                                 <label class="switch">
+                                     <input type="checkbox" id="toastToggle" checked> <!-- Default to checked -->
+                                     <span class="slider round"></span>
+                                 </label>
+                             </div>
+                         </div>
+                         <div class="form-group">
+                             <label class="settings-label">Keyboard Shortcuts</label>
+                             <p class="setting-item-description">View or customize keyboard shortcuts (Feature placeholder).</p>
+                             <button class="btn btn-outline btn-sm" disabled>View Shortcuts</button>
+                         </div>
+                     </div>
+
+                     <div class="form-actions" style="grid-column: span 1; justify-content: flex-end;">
+                         <button type="button" class="btn btn-primary" id="savePreferencesBtn" disabled>Save Preferences</button>
+                     </div>
+                 </div>
+
+                 <!-- Account Panel -->
+                 <div class="settings-panel" id="accountPanel"> <h3 class="section-title">Account Settings</h3> <form class="data-form" id="accountForm"> <p>Account settings (e.g., change email - requires backend) will go here.</p> </form> </div>
+
+                 <!-- Security Panel -->
+                 <div class="settings-panel" id="securityPanel">
+                     <div class="settings-subsection">
+                         <h4>Password</h4>
+                         <form class="data-form" id="changePasswordForm">
+                             <div class="form-group">
+                                 <label for="currentPassword">Current Password</label>
+                                 <input type="password" id="currentPassword" class="form-control">
+                             </div>
+                             <div class="form-group">
+                                 <label for="newPassword">New Password</label>
+                                 <input type="password" id="newPassword" class="form-control">
+                             </div>
+                             <div class="form-group">
+                                 <label for="confirmPassword">Confirm New Password</label>
+                                 <input type="password" id="confirmPassword" class="form-control">
+                             </div>
+                             <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" disabled>Change Password</button>
+                             </div>
+                         </form>
+                     </div>
+
+                     <div class="settings-subsection">
+                         <h4>Two-Factor Authentication (2FA)</h4>
+                         <div class="two-fa-status">
+                             <span class="status-indicator disabled" id="twoFaStatusIndicator"></span>
+                             <span id="twoFaStatusText">2FA is currently Disabled</span>
+                         </div>
+                         <p class="setting-item-description">Add an extra layer of security to your account using an authenticator app or SMS.</p>
+
+                         <!-- Placeholder for 2FA Setup UI -->
+                         <div id="twoFaSetupSection" style="display: block;"> <!-- Initially visible -->
+                             <button class="btn btn-primary" id="enable2faBtn">Enable 2FA</button>
+                             <div class="two-fa-setup" id="twoFaSetupOptions" style="display:none;">
+                                 <h5>Choose Setup Method:</h5>
+                                 <div class="two-fa-actions">
+                                      <button class="btn btn-outline" id="setupAuthAppBtn"><i class="fas fa-mobile-alt"></i> Authenticator App</button>
+                                      <button class="btn btn-outline" id="setupSmsBtn"><i class="fas fa-sms"></i> SMS Message</button>
+                                 </div>
+                                 <!-- Authenticator App Setup -->
+                                 <div id="authAppSetup" style="display: none; margin-top: 1.5rem;">
+                                     <p>1. Scan this QR code with your authenticator app (e.g., Google Authenticator, Authy).</p>
+                                     <div class="qr-code-placeholder">QR Code Placeholder</div>
+                                     <p>2. Enter the 6-digit code generated by your app below.</p>
+                                     <div class="form-group">
+                                        <label for="authCode">Verification Code</label>
+                                        <input type="text" id="authCode" class="form-control" placeholder="123456" maxlength="6">
+                                    </div>
+                                     <button class="btn btn-primary" id="verifyAuthCodeBtn" disabled>Verify & Enable</button>
+                                 </div>
+                                  <!-- SMS Setup -->
+                                 <div id="smsSetup" style="display: none; margin-top: 1.5rem;">
+                                     <p>1. We'll send a verification code via SMS to your registered phone number (<span id="userPhoneNumberForSms"></span>).</p>
+                                     <button class="btn btn-primary" id="sendSmsCodeBtn">Send Code</button>
+                                     <div class="form-group" style="margin-top: 1rem; display: none;" id="smsCodeInputGroup">
+                                        <label for="smsCode">SMS Verification Code</label>
+                                        <input type="text" id="smsCode" class="form-control" placeholder="123456" maxlength="6">
+                                     </div>
+                                     <button class="btn btn-primary" id="verifySmsCodeBtn" style="display: none;">Verify & Enable</button>
+                                 </div>
+                             </div>
+                         </div>
+                         <div id="twoFaManagementSection" style="display: none;"> <!-- Visible when enabled -->
+                              <p>2FA is enabled. You can manage recovery codes or disable 2FA.</p>
+                              <div class="two-fa-actions">
+                                 <button class="btn btn-outline" disabled>View Recovery Codes</button>
+                                 <button class="btn btn-danger" id="disable2faBtn">Disable 2FA</button>
+                             </div>
+                         </div>
+                     </div>
+
+                     <div class="settings-subsection">
+                        <h4>Session Management</h4>
+                         <div class="data-form" style="grid-template-columns: 1fr 1fr;">
+                            <div class="form-group">
+                                <label for="sessionDuration">Session Duration (minutes)</label>
+                                <input type="number" id="sessionDuration" class="form-control" value="60" min="15">
+                                <p class="setting-item-description">Set how long a login session remains active.</p>
+                            </div>
+                            <div class="form-group">
+                                <label for="idleTimeout">Idle Timeout (minutes)</label>
+                                <input type="number" id="idleTimeout" class="form-control" value="15" min="5">
+                                <p class="setting-item-description">Automatically logout after inactivity.</p>
+                            </div>
+                         </div>
+                         <div class="form-actions" style="grid-column: span 1; justify-content: flex-end;">
+                             <button type="button" class="btn btn-primary" id="saveSessionSettingsBtn" disabled>Save Session Settings</button>
+                         </div>
+                     </div>
+
+                 </div>
+
+                 <!-- Notifications Panel -->
+                 <div class="settings-panel" id="notificationsPanel"> <h3 class="section-title">Notification Settings</h3> <form class="data-form" id="notificationsForm"> <p>Detailed notification preferences (e.g., email, push per category - requires backend) will go here.</p> </form> </div>
+
+                 <!-- Team Management Panel -->
                  <div class="settings-panel" id="teamPanel">
                      <div class="team-management">
-                         <h3>Team Members</h3>
-                         <div class="team-list" id="teamList"> <!-- Team List populated by JS --> <p>Loading team members...</p> </div>
-                         <div class="add-member-form">
-                             <h4>Invite New Member</h4>
-                             <form id="inviteMemberForm" class="data-form" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end; gap: 1rem;">
-                                <div class="form-group"> <label for="inviteEmail">Email</label> <input type="email" id="inviteEmail" class="form-control" required> </div>
-                                <div class="form-group"> <label for="inviteRole">Role</label> <select id="inviteRole" class="form-control" required> <option value="member">Member</option> <option value="supervisor">Supervisor</option> <option value="senior">Senior</option> <option value="admin">Admin</option> </select> </div>
-                                <button type="submit" class="btn btn-primary">Invite</button>
-                             </form>
+                         <div class="settings-subsection">
+                             <h4>Team Members</h4>
+                             <div class="team-list" id="teamList"> <!-- Team List populated by JS --> <p>Loading team members...</p> </div>
+                             <div class="add-member-form">
+                                 <h4>Invite New Member</h4>
+                                 <form id="inviteMemberForm" class="data-form" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end; gap: 1rem;">
+                                    <div class="form-group"> <label for="inviteEmail">Email</label> <input type="email" id="inviteEmail" class="form-control" required> </div>
+                                    <div class="form-group"> <label for="inviteRole">Role</label> <select id="inviteRole" class="form-control" required> <option value="member">Member</option> <option value="supervisor">Supervisor</option> <option value="senior">Senior</option> <option value="admin">Admin</option> </select> </div>
+                                    <button type="submit" class="btn btn-primary">Invite</button>
+                                 </form>
+                             </div>
+                         </div>
+                         <div class="settings-subsection">
+                             <h4>Custom Role Permissions</h4>
+                             <p class="setting-item-description">Define specific permissions for different roles within your team (Feature placeholder - requires backend).</p>
+                             <button class="btn btn-outline" disabled>Manage Permissions</button>
                          </div>
                      </div>
                  </div>
-                 <div class="settings-panel" id="collaborationPanel"> <h3 class="section-title">Collaboration Settings</h3> <form class="data-form" id="collaborationForm"> <p>Collaboration settings will go here.</p> </form> </div>
-                 <div class="settings-panel" id="dangerPanel"> <h3 class="section-title" style="color: var(--danger);">Danger Zone</h3> <p>Danger zone actions (like delete account) will go here.</p> </div>
+
+                 <!-- Collaboration Panel -->
+                 <div class="settings-panel" id="collaborationPanel"> <h3 class="section-title">Collaboration Settings</h3> <form class="data-form" id="collaborationForm"> <p>Collaboration settings (e.g., integration options) will go here.</p> </form> </div>
+
+                 <!-- Danger Zone Panel -->
+                 <div class="settings-panel" id="dangerPanel">
+                     <h3 class="section-title" style="color: var(--danger);">Danger Zone</h3>
+                     <p>These actions are permanent and cannot be undone. Proceed with caution.</p>
+
+                     <div class="danger-zone-item">
+                         <div>
+                            <h5>Logout From All Devices</h5>
+                            <p>This will log you out of all active sessions on other computers and mobile devices.</p>
+                         </div>
+                         <button class="btn btn-warning" id="logoutAllDevicesBtn">Logout Everywhere</button>
+                     </div>
+
+                     <div class="danger-zone-item">
+                         <div>
+                            <h5>Delete Account</h5>
+                            <p>Permanently delete your account and all associated data. This action cannot be reversed.</p>
+                         </div>
+                         <button class="btn btn-danger" id="deleteAccountBtn">Delete My Account</button>
+                     </div>
+                 </div>
              </div>
 
              <!-- Container for other feature sections -->
@@ -796,6 +1176,39 @@
             const saveProfileBtn = document.getElementById('saveProfileBtn');
             const cancelProfileBtn = document.getElementById('cancelProfileBtn');
 
+            // Settings Elements (New)
+            const themeOptions = document.querySelectorAll('.theme-option');
+            const highContrastToggle = document.getElementById('highContrastToggle');
+            const languageSelect = document.getElementById('languageSelect');
+            const regionSelect = document.getElementById('regionSelect');
+            const timeFormatSelect = document.getElementById('timeFormatSelect');
+            const dateFormatSelect = document.getElementById('dateFormatSelect');
+            const toastToggle = document.getElementById('toastToggle');
+            const savePreferencesBtn = document.getElementById('savePreferencesBtn'); // Might need later
+
+            // Security Settings
+            const enable2faBtn = document.getElementById('enable2faBtn');
+            const twoFaSetupSection = document.getElementById('twoFaSetupSection');
+            const twoFaManagementSection = document.getElementById('twoFaManagementSection');
+            const twoFaStatusIndicator = document.getElementById('twoFaStatusIndicator');
+            const twoFaStatusText = document.getElementById('twoFaStatusText');
+            const twoFaSetupOptions = document.getElementById('twoFaSetupOptions');
+            const setupAuthAppBtn = document.getElementById('setupAuthAppBtn');
+            const setupSmsBtn = document.getElementById('setupSmsBtn');
+            const authAppSetup = document.getElementById('authAppSetup');
+            const smsSetup = document.getElementById('smsSetup');
+            const verifyAuthCodeBtn = document.getElementById('verifyAuthCodeBtn');
+            const userPhoneNumberForSms = document.getElementById('userPhoneNumberForSms');
+            const sendSmsCodeBtn = document.getElementById('sendSmsCodeBtn');
+            const smsCodeInputGroup = document.getElementById('smsCodeInputGroup');
+            const verifySmsCodeBtn = document.getElementById('verifySmsCodeBtn');
+            const disable2faBtn = document.getElementById('disable2faBtn');
+
+            // Danger Zone
+            const logoutAllDevicesBtn = document.getElementById('logoutAllDevicesBtn');
+            const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+
+
             // Modals & Messages
             const confirmModal = document.getElementById('confirmModal');
             const confirmTitle = document.getElementById('confirmTitle');
@@ -823,14 +1236,15 @@
             let maxActivitiesToShow = 5;
             let showingAllActivities = false;
             let userDropdownOpen = false; // Track dropdown state
+            let showToasts = true; // Default for toast preference
 
             // --- Mock Data ---
             const MOCK_USERS = [
-                 { id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', title: 'Administrator', department: 'Management', phone: '+201234567890', avatar: '', initials: 'ME', role: 'admin' },
-                 { id: 2, name: 'Yousef Ahmed', email: 'yousef@example.com', title: 'Supervisor', department: 'Operations', phone: '+20111222333', avatar: '', initials: 'YA', role: 'supervisor' },
-                 { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com', title: 'Senior Developer', department: 'Engineering', phone: '+20100999888', avatar: '', initials: 'EL', role: 'senior' },
-                 { id: 4, name: 'Bassant Badr', email: 'bassant@example.com', title: 'Junior Designer', department: 'Design', phone: '+20155444333', avatar: '', initials: 'BB', role: 'member' },
-                 { id: 5, name: 'Ali Hassan', email: 'ali@example.com', title: 'Project Manager', department: 'Management', phone: '+20122333444', avatar: '', initials: 'AH', role: 'supervisor' },
+                 { id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', title: 'Administrator', department: 'Management', phone: '+201234567890', avatar: '', initials: 'ME', role: 'admin', twoFaEnabled: false }, // Added 2FA status
+                 { id: 2, name: 'Yousef Ahmed', email: 'yousef@example.com', title: 'Supervisor', department: 'Operations', phone: '+20111222333', avatar: '', initials: 'YA', role: 'supervisor', twoFaEnabled: false },
+                 { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com', title: 'Senior Developer', department: 'Engineering', phone: '+20100999888', avatar: '', initials: 'EL', role: 'senior', twoFaEnabled: true }, // Example enabled
+                 { id: 4, name: 'Bassant Badr', email: 'bassant@example.com', title: 'Junior Designer', department: 'Design', phone: '+20155444333', avatar: '', initials: 'BB', role: 'member', twoFaEnabled: false },
+                 { id: 5, name: 'Ali Hassan', email: 'ali@example.com', title: 'Project Manager', department: 'Management', phone: '+20122333444', avatar: '', initials: 'AH', role: 'supervisor', twoFaEnabled: false },
             ];
 
             const MOCK_PROJECTS = [
@@ -852,6 +1266,8 @@
                 // Simulate loading current user (using the first mock user)
                 currentUser = { ...MOCK_USERS[0] }; // Use a copy
                 console.log("Initializing dashboard for:", currentUser.name);
+
+                applyStoredPreferences(); // Apply theme, contrast etc. *before* other UI updates
                 updateUserUI();
                 setupEventListeners();
                 loadInitialData();
@@ -908,8 +1324,8 @@
                 const teamSettingsTab = document.getElementById('teamSettingsTab');
                 const dangerZoneTab = document.getElementById('dangerZoneTab');
                  if (currentUser.role === 'admin') {
-                    if (teamSettingsTab) teamSettingsTab.style.display = 'block';
-                    if (dangerZoneTab) dangerZoneTab.style.display = 'block';
+                    if (teamSettingsTab) teamSettingsTab.style.display = 'flex'; // Use flex for tabs
+                    if (dangerZoneTab) dangerZoneTab.style.display = 'flex';
                 } else {
                     if (teamSettingsTab) teamSettingsTab.style.display = 'none';
                      if (dangerZoneTab) dangerZoneTab.style.display = 'none';
@@ -921,6 +1337,10 @@
                          activateSettingsTab('preferences');
                      }
                 }
+
+                // Update 2FA UI based on current user status
+                update2FA_UI();
+                userPhoneNumberForSms.textContent = currentUser.phone || 'Not Available';
             }
 
             function updateProfileForm() {
@@ -939,6 +1359,111 @@
                 if (!role) return 'Member';
                 return role.charAt(0).toUpperCase() + role.slice(1); // Capitalize first letter
             }
+
+            // --- Preferences & Settings Logic ---
+            function applyStoredPreferences() {
+                // Theme
+                const storedTheme = localStorage.getItem('theme') || 'system'; // Default to system
+                setTheme(storedTheme);
+
+                // Contrast
+                const storedContrast = localStorage.getItem('highContrast') === 'true';
+                setContrast(storedContrast);
+                if (highContrastToggle) highContrastToggle.checked = storedContrast;
+
+                // Language
+                const storedLang = localStorage.getItem('language') || 'en';
+                if (languageSelect) languageSelect.value = storedLang;
+                applyLanguage(storedLang);
+
+                 // Region/Timezone (Just set the dropdown)
+                 const storedRegion = localStorage.getItem('region') || 'utc';
+                 if (regionSelect) regionSelect.value = storedRegion;
+
+                // Date/Time Format
+                const storedTimeFormat = localStorage.getItem('timeFormat') || '12h';
+                const storedDateFormat = localStorage.getItem('dateFormat') || 'MM/DD/YYYY';
+                if (timeFormatSelect) timeFormatSelect.value = storedTimeFormat;
+                if (dateFormatSelect) dateFormatSelect.value = storedDateFormat;
+                applyDateTimeFormat(storedTimeFormat, storedDateFormat);
+
+                 // Toast Notifications
+                const storedToastPref = localStorage.getItem('showToasts');
+                // Default to true if not set
+                showToasts = storedToastPref === null ? true : (storedToastPref === 'true');
+                if (toastToggle) toastToggle.checked = showToasts;
+                applyToastPreference(showToasts);
+
+            }
+
+            function setTheme(theme) {
+                 console.log("Setting theme:", theme);
+                 document.body.classList.remove('light-theme', 'dark-theme'); // Remove existing theme classes
+
+                 if (theme === 'system') {
+                    // Use matchMedia to detect system preference
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    document.body.classList.add(prefersDark ? 'dark-theme' : 'light-theme');
+                 } else {
+                     document.body.classList.add(`${theme}-theme`);
+                 }
+
+                 // Update selection state in UI
+                 themeOptions.forEach(option => {
+                     option.classList.toggle('selected', option.dataset.theme === theme);
+                 });
+
+                 localStorage.setItem('theme', theme); // Save preference
+            }
+
+            function setContrast(enabled) {
+                 console.log("Setting high contrast:", enabled);
+                 document.body.classList.toggle('high-contrast', enabled);
+                 localStorage.setItem('highContrast', enabled);
+            }
+
+             function applyLanguage(lang) {
+                 console.log("Applying language:", lang);
+                 // --- Simulation ---
+                 // In a real app, this would trigger loading translation files
+                 // and updating all text elements. Here, we just update a few examples.
+                 document.documentElement.lang = lang; // Set HTML lang attribute
+
+                 if (lang === 'ar') {
+                     document.body.dir = 'rtl'; // Basic RTL support
+                     if (document.getElementById('welcomeName')) document.getElementById('welcomeName').textContent = "مستخدم"; // Example
+                     if (document.querySelector('[data-feature="dashboard"] span')) document.querySelector('[data-feature="dashboard"] span').textContent = "لوحة التحكم";
+                     if (document.querySelector('[data-feature="settings"] span')) document.querySelector('[data-feature="settings"] span').textContent = "الإعدادات";
+                     // Update more labels as needed for simulation
+                 } else {
+                     document.body.dir = 'ltr';
+                      // Revert to English if needed (assuming English is the base)
+                      if (document.getElementById('welcomeName') && currentUser) document.getElementById('welcomeName').textContent = currentUser.name.split(' ')[0];
+                     if (document.querySelector('[data-feature="dashboard"] span')) document.querySelector('[data-feature="dashboard"] span').textContent = "Dashboard";
+                     if (document.querySelector('[data-feature="settings"] span')) document.querySelector('[data-feature="settings"] span').textContent = "Settings";
+                 }
+                 localStorage.setItem('language', lang);
+                 // --- End Simulation ---
+             }
+
+             function applyDateTimeFormat(timeFormat, dateFormat) {
+                console.log("Applying DateTime Format:", timeFormat, dateFormat);
+                // Store preferences for use by formatting functions
+                localStorage.setItem('timeFormat', timeFormat);
+                localStorage.setItem('dateFormat', dateFormat);
+                // Re-render any visible dates/times if needed (e.g., activity list)
+                if (currentFeature === 'dashboard' && activityList.children.length > 0) {
+                    loadRecentActivities(showingAllActivities);
+                }
+                // Add logic to re-render other dynamic dates/times here
+             }
+
+             function applyToastPreference(enabled) {
+                 console.log("Applying toast preference:", enabled);
+                 showToasts = enabled;
+                 localStorage.setItem('showToasts', enabled);
+             }
+
 
             // --- Navigation & Content Loading ---
             function setActiveFeature(featureId, settingsTab = null, skipHistory = false) {
@@ -972,6 +1497,7 @@
                     targetSection = profileContent;
                     backButton.style.display = 'flex';
                     backButtonText.textContent = 'Back to Dashboard';
+                     updateProfileForm(); // Ensure form has latest data when navigating here
                 } else if (featureId === 'settings') {
                     targetSection = settingsContent;
                     backButton.style.display = 'flex';
@@ -982,6 +1508,7 @@
                          currentSettingsTab = 'preferences';
                      }
                     activateSettingsTab(currentSettingsTab);
+                     update2FA_UI(); // Ensure 2FA UI is correct when settings are shown
                 } else {
                     // Handle other features - load into feature container
                     isFeatureSection = true;
@@ -998,7 +1525,7 @@
                 }
 
                 // Close sidebar on mobile after navigation
-                if (window.innerWidth <= 992) {
+                if (window.innerWidth <= 992 && sidebar.classList.contains('active')) {
                     sidebar.classList.remove('active');
                     mainContent.classList.remove('sidebar-active');
                     if(closeSidebar) closeSidebar.style.display = 'none';
@@ -1032,6 +1559,10 @@
                 if (tabId === 'team' && currentUser.role === 'admin') {
                      loadTeamMembers();
                 }
+                 // Update 2FA UI if security tab is activated
+                 if (tabId === 'security') {
+                     update2FA_UI();
+                 }
             }
 
             function loadFeatureContent(featureId) {
@@ -1042,6 +1573,8 @@
                 featureLoadingEl.style.display = 'block'; // Show loading
                 featureErrorEl.style.display = 'none';
                 featureSectionsContainer.innerHTML = ''; // Clear previous content
+                featureSectionsContainer.classList.remove('employee-scheduling'); // Reset class
+
 
                 console.log(`Loading content for: ${featureName}`);
 
@@ -1552,7 +2085,7 @@
                              // No confirmation for single activity delete for simplicity
                              activities = activities.filter(a => a.id !== activityId);
                              loadRecentActivities(showingAllActivities); // Refresh list
-                             showToast('Activity deleted.', 'success');
+                             showToast('Activity deleted.'); // Use default info toast
                          }
                      }
                  });
@@ -1566,7 +2099,7 @@
                     showConfirmModal('Delete All Activities', 'Are you sure you want to delete ALL activities? This cannot be undone.', () => {
                         activities = [];
                         loadRecentActivities(false); // Refresh list (will show empty state)
-                        showToast('All activities deleted.', 'success');
+                        showToast('All activities deleted.');
                     });
                 });
 
@@ -1606,7 +2139,7 @@
                              showConfirmModal('Remove Team Member', `Are you sure you want to remove ${memberToRemove?.name || 'this member'}?`, () => {
                                 MOCK_USERS = MOCK_USERS.filter(u => u.id !== memberId); // Update mock data
                                 loadTeamMembers(); // Refresh list
-                                showToast('Team member removed.', 'success');
+                                showToast('Team member removed.');
                                 // Also update dashboard stats if necessary
                                 loadDashboardStats();
                              }, 'btn-danger');
@@ -1619,6 +2152,45 @@
                  if (inviteMemberForm) {
                      inviteMemberForm.addEventListener('submit', handleInviteMember);
                  }
+
+                 // Settings Controls Listeners (New)
+                 themeOptions.forEach(option => {
+                     option.addEventListener('click', () => setTheme(option.dataset.theme));
+                 });
+                 if (highContrastToggle) {
+                     highContrastToggle.addEventListener('change', (e) => setContrast(e.target.checked));
+                 }
+                 if (languageSelect) {
+                     languageSelect.addEventListener('change', (e) => applyLanguage(e.target.value));
+                 }
+                 if (regionSelect) {
+                    regionSelect.addEventListener('change', (e) => localStorage.setItem('region', e.target.value)); // Just save for now
+                 }
+                 if (timeFormatSelect || dateFormatSelect) {
+                    const applyDateTimeListener = () => {
+                        applyDateTimeFormat(timeFormatSelect.value, dateFormatSelect.value);
+                    };
+                    timeFormatSelect.addEventListener('change', applyDateTimeListener);
+                    dateFormatSelect.addEventListener('change', applyDateTimeListener);
+                 }
+
+                 if (toastToggle) {
+                    toastToggle.addEventListener('change', (e) => applyToastPreference(e.target.checked));
+                 }
+
+                 // 2FA Button Listeners
+                 if (enable2faBtn) enable2faBtn.addEventListener('click', handleEnable2FA);
+                 if (setupAuthAppBtn) setupAuthAppBtn.addEventListener('click', showAuthAppSetup);
+                 if (setupSmsBtn) setupSmsBtn.addEventListener('click', showSmsSetup);
+                 if (verifyAuthCodeBtn) verifyAuthCodeBtn.addEventListener('click', handleVerifyAuthCode); // Simulate verification
+                 if (sendSmsCodeBtn) sendSmsCodeBtn.addEventListener('click', handleSendSmsCode); // Simulate sending
+                 if (verifySmsCodeBtn) verifySmsCodeBtn.addEventListener('click', handleVerifySmsCode); // Simulate verification
+                 if (disable2faBtn) disable2faBtn.addEventListener('click', handleDisable2FA);
+
+                 // Danger Zone Button Listeners
+                 if(logoutAllDevicesBtn) logoutAllDevicesBtn.addEventListener('click', handleLogoutAllDevices);
+                 if(deleteAccountBtn) deleteAccountBtn.addEventListener('click', handleDeleteAccount);
+
 
                 // Confirm Modal Buttons
                 cancelConfirmBtn.addEventListener('click', hideConfirmModal);
@@ -1752,7 +2324,7 @@
 
                         // Simulate saving (update currentUser object)
                         currentUser.avatar = imageUrl;
-                        showToast('Avatar preview updated. Save changes to persist.', 'success');
+                        showToast('Avatar preview updated. Save changes to persist.');
                         // In a real app, you'd likely upload the file here and get back a URL
                     }
                     reader.readAsDataURL(file);
@@ -1791,6 +2363,9 @@
                         currentUser.initials = (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || '');
                     }
 
+                     // Update phone number in 2FA section if changed
+                     userPhoneNumberForSms.textContent = currentUser.phone || 'Not Available';
+
                     // Refresh UI elements that depend on currentUser
                     updateUserUI();
 
@@ -1823,18 +2398,133 @@
                  );
              }
 
+             // --- 2FA Logic (Simulation) ---
+             function update2FA_UI() {
+                const isEnabled = currentUser.twoFaEnabled;
+                twoFaStatusIndicator.className = `status-indicator ${isEnabled ? 'enabled' : 'disabled'}`;
+                twoFaStatusText.textContent = `2FA is currently ${isEnabled ? 'Enabled' : 'Disabled'}`;
+
+                twoFaSetupSection.style.display = isEnabled ? 'none' : 'block';
+                twoFaManagementSection.style.display = isEnabled ? 'block' : 'none';
+
+                // Reset setup options visibility when UI updates
+                twoFaSetupOptions.style.display = 'none';
+                authAppSetup.style.display = 'none';
+                smsSetup.style.display = 'none';
+             }
+
+             function handleEnable2FA() {
+                 twoFaSetupOptions.style.display = 'block';
+                 enable2faBtn.style.display = 'none'; // Hide enable button once options shown
+             }
+             function showAuthAppSetup() {
+                 authAppSetup.style.display = 'block';
+                 smsSetup.style.display = 'none';
+                 // In real app: generate QR code/secret here
+             }
+             function showSmsSetup() {
+                 authAppSetup.style.display = 'none';
+                 smsSetup.style.display = 'block';
+                 // Hide input group initially
+                 smsCodeInputGroup.style.display = 'none';
+                 verifySmsCodeBtn.style.display = 'none';
+             }
+
+             function handleVerifyAuthCode() {
+                 // Simulate verification
+                 const code = document.getElementById('authCode').value;
+                 if (code && code.length === 6 && /^\d+$/.test(code)) { // Basic check
+                     showToast('Verifying code...', 'info');
+                     setTimeout(() => {
+                         currentUser.twoFaEnabled = true;
+                         update2FA_UI();
+                         showToast('2FA enabled successfully via Authenticator App!', 'success');
+                     }, 1000);
+                 } else {
+                     showToast('Invalid code. Please enter a 6-digit code.', 'error');
+                 }
+             }
+             function handleSendSmsCode() {
+                 // Simulate sending code
+                 showToast('Sending SMS code...', 'info');
+                 setTimeout(() => {
+                     showToast('SMS code sent (simulated).', 'success');
+                     smsCodeInputGroup.style.display = 'block';
+                     verifySmsCodeBtn.style.display = 'inline-flex';
+                 }, 1500);
+             }
+              function handleVerifySmsCode() {
+                  // Simulate verification
+                 const code = document.getElementById('smsCode').value;
+                 if (code && code.length === 6 && /^\d+$/.test(code)) { // Basic check
+                     showToast('Verifying SMS code...', 'info');
+                     setTimeout(() => {
+                         currentUser.twoFaEnabled = true;
+                         update2FA_UI();
+                         showToast('2FA enabled successfully via SMS!', 'success');
+                     }, 1000);
+                 } else {
+                     showToast('Invalid SMS code. Please enter a 6-digit code.', 'error');
+                 }
+             }
+
+             function handleDisable2FA() {
+                 showConfirmModal('Disable 2FA', 'Are you sure you want to disable Two-Factor Authentication? This will reduce your account security.', () => {
+                     currentUser.twoFaEnabled = false;
+                     update2FA_UI();
+                     enable2faBtn.style.display = 'inline-flex'; // Show enable button again
+                     showToast('2FA disabled.');
+                 }, 'btn-danger');
+             }
+
+             // --- Danger Zone Logic ---
+             function handleLogoutAllDevices() {
+                 showConfirmModal('Logout From All Devices', 'Are you sure you want to end all other active sessions?', () => {
+                     // Simulate backend call
+                     showToast('Logging out from other devices...', 'info');
+                     setTimeout(() => {
+                         showSuccessMessage('Successfully logged out from all other devices.');
+                     }, 1500);
+                 }, 'btn-warning');
+             }
+
+             function handleDeleteAccount() {
+                 showConfirmModal('Delete Account', 'This action is IRREVERSIBLE. All your data, projects, and settings will be permanently deleted. Are you absolutely sure you want to proceed?', () => {
+                     // Double confirmation (example)
+                     showConfirmModal('Final Confirmation', 'Last chance! Type DELETE to confirm account deletion.', (inputValue) => {
+                         // This inner callback structure is a bit unusual for the simple confirm modal
+                         // Usually, you'd have a separate input modal or handle it differently.
+                         // For *this* simulation, let's just proceed if the first confirm was clicked.
+                         console.warn("Account Deletion Confirmed (Simulated)");
+                         showToast('Deleting account...', 'error');
+                         // Simulate logout and redirection
+                         setTimeout(() => {
+                             alert("Account Deleted (Simulated). You would be redirected now.");
+                             handleLogout(new Event('click')); // Trigger logout flow
+                         }, 2000);
+                     }, 'btn-danger');
+                 }, 'btn-danger');
+             }
+
 
              // --- Notification Logic ---
              function markAllNotificationsAsRead() {
                  if (notifications.some(n => n.unread)) {
                      notifications.forEach(n => n.unread = false);
                      renderNotifications();
-                     showToast('All notifications marked as read.', 'success');
+                     showToast('All notifications marked as read.');
                  }
              }
 
              function playNotificationSound() {
-                 notificationSound.play().catch(e => console.warn("Audio play failed:", e));
+                try {
+                    // Check if audio context needs user interaction first (common browser policy)
+                    if (notificationSound.paused) {
+                        notificationSound.play().catch(e => console.warn("Audio play failed - requires user interaction or unsupported format:", e));
+                    }
+                 } catch(e) {
+                     console.warn("Audio playback error:", e);
+                 }
              }
 
              // --- Activity Logic ---
@@ -1860,9 +2550,13 @@
                          // Simulate redirection after a short delay
                          setTimeout(() => {
                              // In a real app, redirect to the login page
-                             window.location.href = '/login.html'; // Or appropriate logout URL
+                             // window.location.href = '/login.html'; // Or appropriate logout URL
                              // For this simulation, just show an alert
-                             // alert("Redirecting to login page...");
+                              alert("Logged Out (Simulated) - Redirecting to login page...");
+                              // You might want to clear user data/state here too
+                              currentUser = null;
+                              // Potentially reload or navigate away
+                              window.location.reload(); // Simple way to reset state for demo
                          }, 1500);
                      },
                      'btn-danger'
@@ -1899,13 +2593,14 @@
                         phone: '',
                         avatar: '',
                         initials: (nameParts[0]?.[0] || 'N') + (nameParts[1]?.[0] || 'U'),
-                        role: role
+                        role: role,
+                        twoFaEnabled: false // Default for new users
                     };
                     MOCK_USERS.push(newUser);
                     loadTeamMembers(); // Refresh list
                     loadDashboardStats(); // Update stats
 
-                    showToast(`Invitation sent to ${email}.`, 'success');
+                    showToast(`Invitation sent to ${email}.`);
                     inviteButton.disabled = false;
                     inviteButton.innerHTML = 'Invite'; // Reset button text
                     document.getElementById('inviteEmail').value = ''; // Clear form
@@ -1920,6 +2615,7 @@
                  // Return the basic HTML structure for the scheduling page
                  // This should match the structure expected by initializeEmployeeScheduleLogic
                  // and use the scoped CSS classes (e.g., schedule-table, employee-name)
+                 // Added save/reminder buttons based on admin role
                  return `
                     <div class="schedule-page-header section-main-header"> <!-- Use existing header style -->
                         <h2 class="schedule-page-title section-main-title">Employee Scheduling</h2> <!-- Use existing title style -->
@@ -1961,6 +2657,7 @@
                             <form id="editShiftForm">
                                 <input type="hidden" id="editShiftEmployeeId">
                                 <input type="hidden" id="editShiftDayIndex">
+                                <input type="hidden" id="editShiftWeekOffset"> <!-- Store week offset for key -->
                                 <div class="form-group">
                                     <label for="shiftType">Shift Type</label>
                                     <select id="shiftType" class="form-control">
@@ -1983,10 +2680,42 @@
              }
 
             let currentScheduleWeekOffset = 0; // 0 for current week, -1 for previous, 1 for next etc.
-            let mockScheduleData = {}; // Store schedule data { 'employeeId-dayIndex': 'shiftType' }
+            let mockScheduleData = {}; // Store schedule data { 'employeeId-weekOffset-dayIndex': 'shiftType' }
 
             function initializeEmployeeScheduleLogic() {
                 console.log("Initializing Employee Schedule Logic...");
+
+                // --- MODIFICATION: Calculate initial offset for May 2025 ---
+                const today = new Date();
+                const targetStartDate = new Date(2025, 4, 1); // Month is 0-indexed (4 = May)
+
+                // Calculate difference in days
+                 const msPerDay = 24 * 60 * 60 * 1000;
+                 const daysDifference = Math.floor((targetStartDate - today) / msPerDay);
+
+                 // Calculate difference in weeks (adjusting for current day of week)
+                 // Get Monday of the current week
+                 const currentDayOfWeek = today.getDay(); // 0=Sun, 1=Mon,...
+                 const diffToMonday = today.getDate() - currentDayOfWeek + (currentDayOfWeek === 0 ? -6 : 1);
+                 const startOfCurrentWeek = new Date(today);
+                 startOfCurrentWeek.setDate(diffToMonday);
+                 startOfCurrentWeek.setHours(0, 0, 0, 0); // Normalize time
+
+                 // Get Monday of the target week
+                 const targetDayOfWeek = targetStartDate.getDay();
+                 const diffToTargetMonday = targetStartDate.getDate() - targetDayOfWeek + (targetDayOfWeek === 0 ? -6 : 1);
+                 const startOfTargetWeek = new Date(targetStartDate);
+                 startOfTargetWeek.setDate(diffToTargetMonday);
+                 startOfTargetWeek.setHours(0, 0, 0, 0); // Normalize time
+
+
+                 const weeksDifference = Math.round((startOfTargetWeek - startOfCurrentWeek) / (7 * msPerDay));
+
+                 currentScheduleWeekOffset = weeksDifference;
+                 console.log(`Target Start: May 1, 2025. Calculated initial week offset: ${currentScheduleWeekOffset}`);
+                 // --- END MODIFICATION ---
+
+
                 const weekDisplay = document.getElementById('weekDisplay');
                 const scheduleTableBody = document.getElementById('scheduleTableBody');
                 const scheduleThead = document.querySelector('.schedule-table thead tr');
@@ -1999,6 +2728,7 @@
                 const shiftTypeSelect = document.getElementById('shiftType');
                 const editShiftEmployeeIdInput = document.getElementById('editShiftEmployeeId');
                 const editShiftDayIndexInput = document.getElementById('editShiftDayIndex');
+                const editShiftWeekOffsetInput = document.getElementById('editShiftWeekOffset'); // Added input
                 const editShiftModalTitle = document.getElementById('editShiftModalTitle');
 
                 function getWeekDates(weekOffset = 0) {
@@ -2008,6 +2738,7 @@
                     const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
                     const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust to Monday
                     startOfWeek.setDate(diff + (weekOffset * 7));
+                    startOfWeek.setHours(0,0,0,0); // Normalize time
 
                     const dates = [];
                     for (let i = 0; i < 7; i++) {
@@ -2022,7 +2753,7 @@
                      const weekDates = getWeekDates(weekOffset);
                      const start = weekDates[0];
                      const end = weekDates[6];
-                     weekDisplay.textContent = `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
+                     weekDisplay.textContent = `${formatDateForDisplay(start)} - ${formatDateForDisplay(end)}`;
 
                      // Render Table Header
                      scheduleThead.innerHTML = '<th>Employee</th>'; // Reset header days
@@ -2046,16 +2777,20 @@
 
                          for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
                              const cell = document.createElement('td');
+                             // Key now includes week offset to store data uniquely per week
                              const scheduleKey = `${employee.id}-${weekOffset}-${dayIndex}`;
                              // Generate random shift if not set, store it
                              if (!mockScheduleData[scheduleKey]) {
                                  const shiftTypes = ['morning', 'afternoon', 'night', 'off', 'off', 'off', 'sick', 'vacation'];
-                                 mockScheduleData[scheduleKey] = shiftTypes[Math.floor(Math.random() * shiftTypes.length)];
+                                 // Simple bias towards 'off' for weekends
+                                 const isWeekend = dayIndex >= 5; // Sat or Sun
+                                 const randomType = isWeekend && Math.random() < 0.6 ? 'off' : shiftTypes[Math.floor(Math.random() * shiftTypes.length)];
+                                 mockScheduleData[scheduleKey] = randomType;
                              }
                              const shiftType = mockScheduleData[scheduleKey];
 
                              const shiftDiv = document.createElement('div');
-                             shiftDiv.classList.add('shift', `shift-${shiftType.replace('_', '-')}`);
+                             shiftDiv.classList.add('shift', `shift-${shiftType.replace('_', '-')}`); // Use CSS classes like shift-off, shift-sick
                              shiftDiv.textContent = getShiftText(shiftType);
 
                               if (currentUser.role === 'admin') {
@@ -2063,7 +2798,8 @@
                                  shiftDiv.dataset.employeeId = employee.id;
                                  shiftDiv.dataset.employeeName = employee.name;
                                  shiftDiv.dataset.dayIndex = dayIndex;
-                                 shiftDiv.dataset.date = weekDates[dayIndex].toLocaleDateString();
+                                 shiftDiv.dataset.weekOffset = weekOffset; // Pass offset to modal
+                                 shiftDiv.dataset.date = formatDateForDisplay(weekDates[dayIndex]);
                                  shiftDiv.title = `Click to edit ${employee.name}'s shift on ${days[dayIndex]}`;
                                  shiftDiv.addEventListener('click', handleEditShiftClick);
                              }
@@ -2091,14 +2827,16 @@
                     const target = event.target;
                     const employeeId = target.dataset.employeeId;
                     const dayIndex = target.dataset.dayIndex;
+                    const weekOffset = target.dataset.weekOffset; // Get offset
                     const employeeName = target.dataset.employeeName;
                     const dateStr = target.dataset.date;
 
-                    const scheduleKey = `${employeeId}-${currentScheduleWeekOffset}-${dayIndex}`;
+                    const scheduleKey = `${employeeId}-${weekOffset}-${dayIndex}`;
                     const currentShift = mockScheduleData[scheduleKey] || 'morning';
 
                     editShiftEmployeeIdInput.value = employeeId;
                     editShiftDayIndexInput.value = dayIndex;
+                    editShiftWeekOffsetInput.value = weekOffset; // Store offset in hidden input
                     shiftTypeSelect.value = currentShift;
                     editShiftModalTitle.textContent = `Edit ${employeeName}'s Shift on ${dateStr}`;
 
@@ -2156,14 +2894,15 @@
                      event.preventDefault();
                      const employeeId = editShiftEmployeeIdInput.value;
                      const dayIndex = editShiftDayIndexInput.value;
+                     const weekOffset = editShiftWeekOffsetInput.value; // Get offset from hidden input
                      const newShiftType = shiftTypeSelect.value;
 
-                     const scheduleKey = `${employeeId}-${currentScheduleWeekOffset}-${dayIndex}`;
-                     mockScheduleData[scheduleKey] = newShiftType; // Update the data
+                     const scheduleKey = `${employeeId}-${weekOffset}-${dayIndex}`;
+                     mockScheduleData[scheduleKey] = newShiftType; // Update the data for the correct week
 
-                     renderSchedule(currentScheduleWeekOffset); // Re-render the schedule table
+                     renderSchedule(currentScheduleWeekOffset); // Re-render the currently viewed week
                      editShiftModal.classList.remove('active'); // Close modal
-                     showToast("Shift updated.", "success");
+                     showToast("Shift updated.");
                      // Mark schedule as potentially unsaved if needed
                  });
 
@@ -2173,6 +2912,10 @@
 
             // --- Utility Functions ---
             function timeAgo(timestamp) {
+                // Use stored preferences for formatting
+                const timeFormat = localStorage.getItem('timeFormat') || '12h';
+                // const dateFormat = localStorage.getItem('dateFormat') || 'MM/DD/YYYY'; // Get date format too
+
                 const now = new Date();
                 const secondsPast = (now.getTime() - timestamp.getTime()) / 1000;
 
@@ -2182,12 +2925,34 @@
                 if (secondsPast < 3600) {
                     return parseInt(secondsPast / 60) + 'm ago';
                 }
-                if (secondsPast <= 86400) {
+                if (secondsPast <= 86400) { // Within 24 hours
+                    // Maybe show time if needed? For now, hours ago is fine.
                     return parseInt(secondsPast / 3600) + 'h ago';
                 }
-                // Older than a day, show date
-                return timestamp.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                // Older than a day, show formatted date
+                return formatDateForDisplay(timestamp);
             }
+
+             // Helper to format date based on stored preference (Simplified Simulation)
+             function formatDateForDisplay(date) {
+                 const dateFormat = localStorage.getItem('dateFormat') || 'MM/DD/YYYY';
+                 const year = date.getFullYear();
+                 const month = date.getMonth() + 1; // 0-indexed
+                 const day = date.getDate();
+
+                 const monthPadded = String(month).padStart(2, '0');
+                 const dayPadded = String(day).padStart(2, '0');
+                 const monthName = date.toLocaleDateString(undefined, { month: 'short' }); // e.g., 'Jan'
+
+                 switch (dateFormat) {
+                     case 'DD/MM/YYYY': return `${dayPadded}/${monthPadded}/${year}`;
+                     case 'YYYY-MM-DD': return `${year}-${monthPadded}-${dayPadded}`;
+                     case 'Month D, YYYY': return `${monthName} ${day}, ${year}`;
+                     case 'MM/DD/YYYY':
+                     default:           return `${monthPadded}/${dayPadded}/${year}`;
+                 }
+            }
+
 
             function generateMockActivities(count) {
                 const activities = [];
@@ -2282,6 +3047,12 @@
              }
 
              function showToast(message, type = 'info') { // types: info, success, error
+                 // Check preference before showing
+                 if (!showToasts && type !== 'error') { // Always show errors? Optional.
+                    console.log("Toast suppressed by preference:", message);
+                    return;
+                 }
+
                  toastMessage.textContent = message;
                  toastMessage.className = 'toast'; // Reset classes
                  if (type === 'success') {
@@ -2289,6 +3060,8 @@
                  } else if (type === 'error') {
                      toastMessage.classList.add('error');
                  }
+                 // Default is info style (dark background)
+
                  toastMessage.classList.add('show');
 
                  setTimeout(() => {
