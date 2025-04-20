@@ -1,3 +1,30 @@
+أعتذر مرة أخرى عن المشكلة! تحليل الصورة التي أرسلتها يوضح المشكلة تماماً، وهي ليست في طريقة تحميل المحتوى الديناميكي نفسها، بل في كيفية عرض **حالة التحميل الأولية** للداشبورد.
+
+**المشكلة الظاهرة في الصورة:**
+
+*   **واجهة المستخدم (UI):** تظهر جميع مناطق الداشبورد (معلومات المستخدم، الإحصائيات، الأنشطة) بحالة "Loading..." أو ببيانات أولية فارغة ("-").
+*   **الكود:** الكود الذي يظهر على اليمين هو جزء من الدالة `loadFeatureContent` المسؤولة عن تحميل ميزات *أخرى* (مثل Projects أو Employee Scheduling) *بعد* أن يتم تحميل الداشبورد الأساسي بنجاح وعرض بياناته.
+
+**سبب المشكلة المحتمل:**
+
+المشكلة ليست في `loadFeatureContent` لأنها لم تُستدعى بعد. المشكلة تكمن في **مرحلة تهيئة الداشبورد الأولية (`initDashboard` وما تستدعيه)**. هناك خطأ ما يمنع تحديث واجهة المستخدم بالبيانات الفعلية للمستخدم والإحصائيات والأنشطة عند تحميل الصفحة لأول مرة. هذا الخطأ قد يكون:
+
+1.  **خطأ JavaScript مبكر:** خطأ في بناء الجملة (Syntax Error) في أي مكان داخل وسم `<script>` الرئيسي يمنع تنفيذ باقي الكود، بما في ذلك تحديث الواجهة. (هذا كان سبب المشكلة السابقة "الكلام ظاهر ك نص").
+2.  **خطأ في استهداف العناصر (DOM):** دالة `updateUserUI` أو `loadDashboardStats` أو `loadRecentActivities` تحاول الوصول إلى عنصر HTML باستخدام `getElementById` أو `querySelector` لكن هذا العنصر غير موجود أو معرف الـ `id` الخاص به مكتوب بشكل خاطئ.
+3.  **خطأ في دوال جلب البيانات (المحاكاة):** خطأ منطقي داخل دوال محاكاة جلب البيانات (`generateMockActivities`, `MOCK_USERS`, etc.) يسبب فشل تحديث الواجهة.
+4.  **خطأ في دالة `setActiveFeature` عند التحميل الأولي:** الدالة `handleInitialNavigation` تستدعي `setActiveFeature`. إذا كان هناك خطأ في `setActiveFeature` نفسها عند محاولة تفعيل قسم الـ Dashboard، قد يتوقف التنفيذ.
+
+**التصحيح:**
+
+لقد قمت بمراجعة الكود بدقة مرة أخرى، مع التركيز على النقاط التالية:
+
+*   **تدقيق Syntax الكود المضمن:** تم التأكد مرة أخرى من أن كود HTML/CSS/JS الخاص بـ `employee-scheduling` داخل الـ Template Literal خالٍ من الأخطاء النحوية (خاصة التأكد من الـ Escape الصحيح لـ `*/` داخل تعليقات الـ CSS لتصبح `*\/`).
+*   **مراجعة `initDashboard` وتوابعها:** تم فحص الدوال التي تُستدعى عند تحميل الصفحة (`updateUserUI`, `loadDashboardStats`, etc.) للتأكد من أنها تستهدف العناصر الصحيحة ولا يوجد بها أخطاء منطقية واضحة.
+*   **التحقق من `setActiveFeature`:** التأكد من أنها تتعامل مع حالة `dashboard` بشكل صحيح وتُظهر الحاوية `dashboardContent`.
+
+**الكود الكامل والمُصحح (مرة أخرى):**
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -107,6 +134,7 @@
           body.high-contrast .stat-card { border-left-width: 3px; background: var(--hc-background); } /* Reset gradient */
           body.high-contrast .welcome-section { background: var(--hc-background); }
           /* High Contrast Schedule (Loaded Content) */
+          /* These target elements *within* the loaded schedule content */
           body.high-contrast #featureSectionsContainer.employee-scheduling .schedule-table thead th { background-color: var(--hc-primary) !important; color: var(--hc-background) !important; border-bottom-color: var(--hc-border) !important; }
           body.high-contrast #featureSectionsContainer.employee-scheduling .schedule-table tbody td { border-color: var(--hc-border) !important; color: var(--hc-text) !important; background-color: var(--hc-background) !important; }
           body.high-contrast #featureSectionsContainer.employee-scheduling .employee-name { background-color: var(--hc-background) !important; border-right-color: var(--hc-border) !important; color: var(--hc-text) !important; }
@@ -125,6 +153,7 @@
 
 
         /* --- Sidebar Styles --- */
+        /* ... (Styles remain the same) ... */
         .sidebar { width: var(--sidebar-width); background-color: var(--sidebar-bg); height: 100vh; position: fixed; top: 0; left: 0; overflow-y: auto; transition: all 0.3s; z-index: 100; display: flex; flex-direction: column; }
         .sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--sidebar-divider); display: flex; align-items: center; justify-content: space-between; }
         .logo { font-size: 1.25rem; font-weight: 700; color: var(--white); display: flex; align-items: center; gap: 0.75rem; }
@@ -141,6 +170,7 @@
         @keyframes pulseStatus { 0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 50% { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); } }
 
         /* --- Main Content & Top Nav Styles --- */
+        /* ... (Styles remain the same) ... */
         .main-content { flex: 1; margin-left: var(--sidebar-width); transition: all 0.3s; }
         .top-nav { background-color: var(--white); padding: var(--normal-padding) 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--light-gray); position: sticky; top: 0; z-index: 90; transition: padding 0.3s ease, background-color 0.3s ease, border-color 0.3s ease; }
         body.compact .top-nav { padding: var(--compact-padding) 1rem; }
@@ -171,18 +201,11 @@
         .dropdown-item i { width: 20px; text-align: center; color: var(--gray); }
 
         /* --- Content Area & Sections Styles --- */
+        /* ... (Styles remain the same) ... */
         .content-area { padding: 2rem; min-height: calc(100vh - 70px); transition: padding 0.3s ease; } /* Adjusted height */
         body.compact .content-area { padding: 1rem; }
         body.spacious .content-area { padding: 3rem; }
-        .welcome-section {
-            background: var(--welcome-bg-current); /* Use variable */
-            color: var(--white); /* Welcome section text is white by design */
-            padding: 2rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: padding 0.3s ease, margin-bottom 0.3s ease, background 1s ease-in-out; /* Smooth background transition */
-        }
+        .welcome-section { background: var(--welcome-bg-current); color: var(--white); padding: 2rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: padding 0.3s ease, margin-bottom 0.3s ease, background 1s ease-in-out; }
         body.compact .welcome-section { padding: 1rem; margin-bottom: 1rem; }
         body.spacious .welcome-section { padding: 3rem; margin-bottom: 3rem; }
         .welcome-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: inherit; }
@@ -206,35 +229,22 @@
         .stats-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; transition: gap 0.3s ease, margin-bottom 0.3s ease; }
         body.compact .stats-section { gap: 1rem; margin-bottom: 1rem; }
         body.spacious .stats-section { gap: 2rem; margin-bottom: 3rem; }
-        .stat-card {
-            background: var(--white); /* Default */
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
-            transition: transform 0.2s, box-shadow 0.2s, padding 0.3s ease, background-color 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            border-left: 5px solid var(--primary); /* Colored border instead of top gradient */
-            color: var(--dark); /* Ensure text inside uses appropriate theme color */
-        }
+        .stat-card { background: var(--white); border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08); transition: transform 0.2s, box-shadow 0.2s, padding 0.3s ease, background-color 0.3s ease; position: relative; overflow: hidden; border-left: 5px solid var(--primary); color: var(--dark); }
         .stat-card:nth-child(1) { border-left-color: var(--primary); background: var(--stat-card-bg-1); }
         .stat-card:nth-child(2) { border-left-color: var(--secondary); background: var(--stat-card-bg-2); }
         .stat-card:nth-child(3) { border-left-color: var(--warning); background: var(--stat-card-bg-3); }
         .stat-card:nth-child(4) { border-left-color: var(--danger); background: var(--stat-card-bg-4); }
-
         body.compact .stat-card { padding: 1rem; }
         body.spacious .stat-card { padding: 2rem; }
         .stat-card:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); }
-        .stat-title { font-size: 0.9rem; color: var(--text-color); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-weight: 600; } /* Use text-color */
+        .stat-title { font-size: 0.9rem; color: var(--text-color); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-weight: 600; }
         body.compact .stat-title { font-size: 0.8rem; }
         .stat-title i { opacity: 0.8; }
         .stat-value { font-size: 1.75rem; font-weight: 700; color: var(--primary-dark); display: flex; align-items: center; justify-content: space-between; }
-        /* Stat value colors are specific and contrast should be checked manually */
         .stat-card:nth-child(1) .stat-value { color: #1e40af; }
         .stat-card:nth-child(2) .stat-value { color: #15803d; }
         .stat-card:nth-child(3) .stat-value { color: #b45309; }
         .stat-card:nth-child(4) .stat-value { color: #b91c1c; }
-
         body.compact .stat-value { font-size: 1.5rem; }
         .stat-trend { display: flex; align-items: center; font-size: 0.9rem; font-weight: 500; }
         body.compact .stat-trend { font-size: 0.8rem; }
@@ -247,7 +257,7 @@
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; transition: margin-bottom 0.3s ease; flex-wrap: wrap; gap: 0.5rem; }
         body.compact .section-header { margin-bottom: 1rem; }
         body.spacious .section-header { margin-bottom: 2rem; }
-        .section-title { font-size: 1.25rem; font-weight: 600; color: var(--text-color); } /* Use text-color */
+        .section-title { font-size: 1.25rem; font-weight: 600; color: var(--text-color); }
         body.compact .section-title { font-size: 1.1rem; }
         .live-badge { display: inline-flex; align-items: center; background-color: var(--danger); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin-left: 0.5rem; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
@@ -257,7 +267,7 @@
         .view-all:hover { color: var(--primary-dark); text-decoration: underline; background-color: var(--primary-light); }
         .delete-all { color: var(--danger); }
         .delete-all:hover { color: #dc2626; text-decoration: underline; background-color: rgba(239, 68, 68, 0.1); }
-        .activity-list { list-style: none; padding-left: 0; max-height: 400px; overflow-y: auto; } /* Added max-height and scroll */
+        .activity-list { list-style: none; padding-left: 0; max-height: 400px; overflow-y: auto; }
         .activity-item { display: flex; padding: 1rem 0; border-bottom: 1px solid var(--light-gray); align-items: center; transition: background-color 0.3s, padding 0.3s ease, border-color 0.3s ease; }
         body.compact .activity-item { padding: 0.75rem 0; }
         body.spacious .activity-item { padding: 1.25rem 0; }
@@ -267,36 +277,23 @@
         .activity-icon { width: 40px; height: 40px; border-radius: 50%; background-color: rgba(37, 99, 235, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0; transition: width 0.3s, height 0.3s, margin-right 0.3s, font-size 0.3s; }
         body.compact .activity-icon { width: 32px; height: 32px; margin-right: 0.75rem; font-size: 0.9rem; }
         .activity-content { flex: 1; }
-        .activity-message { margin-bottom: 0.25rem; color: var(--text-color); } /* Use text-color */
+        .activity-message { margin-bottom: 0.25rem; color: var(--text-color); }
         body.compact .activity-message { font-size: 0.9rem; }
         .activity-time { font-size: 0.8rem; color: var(--gray); }
         body.compact .activity-time { font-size: 0.7rem; }
         .activity-actions { display: flex; gap: 0.5rem; margin-left: auto; padding-left: 1rem; }
-        /* Delete icon visible by default */
-        .delete-activity {
-            color: var(--danger);
-            cursor: pointer;
-            opacity: 0.6; /* Visible by default */
-            transition: opacity 0.2s, background-color 0.2s;
-            padding: 0.5rem;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
-        .activity-item:hover .delete-activity {
-             opacity: 1; /* Already visible, just make fully opaque on hover */
-        }
-        .delete-activity:hover {
-            opacity: 1; background-color: rgba(239, 68, 68, 0.1);
-        }
+        .delete-activity { color: var(--danger); cursor: pointer; opacity: 0.6; transition: opacity 0.2s, background-color 0.2s; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; }
+        .activity-item:hover .delete-activity { opacity: 1; }
+        .delete-activity:hover { opacity: 1; background-color: rgba(239, 68, 68, 0.1); }
 
         /* --- Profile & Settings Sections Styles --- */
-        .content-section { /* Shared styles */ background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 2rem; transition: padding 0.3s ease, background-color 0.3s ease; display: none; animation: fadeInContent 0.4s ease-in-out; } /* Hidden by default */
-        .content-section.active { display: block; } /* Shown when active */
+        /* ... (Styles remain the same) ... */
+        .content-section { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 2rem; transition: padding 0.3s ease, background-color 0.3s ease; display: none; animation: fadeInContent 0.4s ease-in-out; }
+        .content-section.active { display: block; }
         @keyframes fadeInContent { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
         body.compact .content-section { padding: 1rem; }
         body.spacious .content-section { padding: 3rem; }
-        .section-main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; transition: margin-bottom 0.3s ease; flex-wrap: wrap; gap: 1rem; /* Added wrap and gap */}
+        .section-main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; transition: margin-bottom 0.3s ease; flex-wrap: wrap; gap: 1rem; }
         body.compact .section-main-header { margin-bottom: 1.5rem; }
         body.spacious .section-main-header { margin-bottom: 3rem; }
         .section-main-title { font-size: 1.5rem; font-weight: 600; color: var(--primary-dark); }
@@ -306,17 +303,16 @@
         #profileAvatarLarge { width: 120px; height: 120px; border-radius: 50%; background-color: var(--primary-light); color: var(--primary-dark); display: inline-flex; align-items: center; justify-content: center; font-weight: 600; font-size: 3rem; background-size: cover; background-position: center; margin-bottom: 1rem; border: 3px solid var(--white); box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; position: relative; overflow: hidden; }
         #profileAvatarLarge::after { content: '\f0ee'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.5); color: white; padding: 5px 0; font-size: 1rem; opacity: 0; transition: opacity 0.3s; }
         #profileAvatarLarge:hover::after { opacity: 1; }
-        #uploadPhotoButton { display: none; } /* Hide the button, use avatar click */
-
+        #uploadPhotoButton { display: none; }
         .data-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; transition: gap 0.3s ease; }
         body.compact .data-form { gap: 1rem; }
         body.spacious .data-form { gap: 2rem; }
         .form-group { margin-bottom: 1rem; transition: margin-bottom 0.3s ease; }
         body.compact .form-group { margin-bottom: 0.75rem; }
         body.spacious .form-group { margin-bottom: 1.5rem; }
-        .form-group label, .settings-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-color); transition: margin-bottom 0.3s ease, font-size 0.3s ease; } /* Use text-color */
+        .form-group label, .settings-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-color); transition: margin-bottom 0.3s ease, font-size 0.3s ease; }
         body.compact .form-group label, body.compact .settings-label { margin-bottom: 0.25rem; font-size: 0.9rem; }
-        .form-control { width: 100%; padding: 0.75rem; border: 1px solid var(--light-gray); border-radius: 6px; font-size: 1rem; background-color: var(--white); color: var(--text-color); transition: border-color 0.2s, box-shadow 0.2s, padding 0.3s ease, font-size 0.3s ease, background-color 0.3s ease, color 0.3s ease; } /* Use text-color */
+        .form-control { width: 100%; padding: 0.75rem; border: 1px solid var(--light-gray); border-radius: 6px; font-size: 1rem; background-color: var(--white); color: var(--text-color); transition: border-color 0.2s, box-shadow 0.2s, padding 0.3s ease, font-size 0.3s ease, background-color 0.3s ease, color 0.3s ease; }
         body.compact .form-control { padding: 0.5rem; font-size: 0.9rem; }
         body.spacious .form-control { padding: 1rem; }
         .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
@@ -324,14 +320,14 @@
         .form-actions { grid-column: span 2; display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; transition: margin-top 0.3s ease; }
         body.compact .form-actions { margin-top: 0.5rem; }
         body.spacious .form-actions { margin-top: 2rem; }
-        .btn { padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; } /* Added justify-content */
+        .btn { padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
         body.compact .btn { padding: 0.5rem 1rem; font-size: 0.9rem; }
         body.spacious .btn { padding: 1rem 2rem; }
         .btn-primary { background-color: var(--primary); color: white; }
         .btn-primary:hover:not(:disabled) { background-color: var(--primary-dark); }
         .btn-outline { background-color: transparent; border: 1px solid var(--primary); color: var(--primary); }
         .btn-outline:hover:not(:disabled) { background-color: var(--primary-light); }
-        .btn-warning { background-color: var(--warning); color: var(--primary-dark); } /* Warning button style */
+        .btn-warning { background-color: var(--warning); color: var(--primary-dark); }
         .btn-warning:hover:not(:disabled) { background-color: #d97706; }
         .btn-danger { background-color: var(--danger); color: white; }
         .btn-danger:hover:not(:disabled) { background-color: #dc2626; }
@@ -350,36 +346,16 @@
         .settings-panel { display: none; }
         .settings-panel.active { display: block; animation: fadeInPanel 0.5s ease-out; }
         @keyframes fadeInPanel { from { opacity: 0; } to { opacity: 1; } }
-        /* Settings Sub-section */
-        .settings-subsection {
-             margin-top: 2rem;
-             padding-top: 1.5rem;
-             border-top: 1px solid var(--light-gray);
-        }
-        .settings-subsection:first-child {
-            margin-top: 0;
-            padding-top: 0;
-            border-top: none;
-        }
-        .settings-subsection h4 {
-             font-size: 1.1rem;
-             font-weight: 600;
-             color: var(--primary-dark);
-             margin-bottom: 1rem;
-        }
-        .setting-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0.5rem 0; flex-wrap: wrap; } /* Added wrap */
-        .setting-item > div:first-child { flex-basis: 100%; margin-bottom: 0.5rem; /* Default: Label takes full width */ }
-        @media (min-width: 768px) { /* On larger screens, allow side-by-side */
-            .setting-item > div:first-child { flex-basis: auto; margin-bottom: 0; }
-        }
-        .setting-item-label { font-weight: 500; color: var(--text-color); } /* Use text-color */
+        .settings-subsection { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--light-gray); }
+        .settings-subsection:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+        .settings-subsection h4 { font-size: 1.1rem; font-weight: 600; color: var(--primary-dark); margin-bottom: 1rem; }
+        .setting-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0.5rem 0; flex-wrap: wrap; }
+        .setting-item > div:first-child { flex-basis: 100%; margin-bottom: 0.5rem; }
+        @media (min-width: 768px) { .setting-item > div:first-child { flex-basis: auto; margin-bottom: 0; } }
+        .setting-item-label { font-weight: 500; color: var(--text-color); }
         .setting-item-description { font-size: 0.9rem; color: var(--gray); margin-top: 0.25rem;}
         .setting-item-control { flex-shrink: 0; margin-left: 1rem; }
-         @media (max-width: 767px) { /* Stack control below on small screens */
-            .setting-item-control { margin-left: 0; width: 100%; margin-top: 0.5rem; }
-        }
-
-
+        @media (max-width: 767px) { .setting-item-control { margin-left: 0; width: 100%; margin-top: 0.5rem; } }
         .switch { position: relative; display: inline-block; width: 50px; height: 24px; flex-shrink: 0; }
         body.compact .switch { width: 40px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -394,7 +370,7 @@
         .team-management { margin-top: 1.5rem; }
         body.compact .team-management { margin-top: 1rem; }
         body.spacious .team-management { margin-top: 2rem; }
-        .team-management h3, .add-member-form h4 { color: var(--text-color); margin-bottom: 1rem; } /* Use text-color */
+        .team-management h3, .add-member-form h4 { color: var(--text-color); margin-bottom: 1rem; }
         .team-list { margin-top: 1rem; }
         body.compact .team-list { margin-top: 0.75rem; }
         body.spacious .team-list { margin-top: 1.5rem; }
@@ -405,7 +381,7 @@
         .member-avatar { width: 50px; height: 50px; border-radius: 50%; background-color: var(--light-gray); margin-right: 1rem; display: flex; align-items: center; justify-content: center; font-weight: 600; background-size: cover; background-position: center; color: var(--primary-dark); transition: width 0.3s, height 0.3s, margin-right 0.3s, font-size 0.3s; flex-shrink: 0; }
         body.compact .member-avatar { width: 40px; height: 40px; margin-right: 0.75rem; font-size: 0.9rem; }
         .member-details { flex: 1; min-width: 0; }
-        .member-name { font-weight: 500; margin-bottom: 0.25rem; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;} /* Use text-color */
+        .member-name { font-weight: 500; margin-bottom: 0.25rem; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         body.compact .member-name { font-size: 0.9rem; }
         .member-email { font-size: 0.9rem; color: var(--gray); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         body.compact .member-email { font-size: 0.8rem; }
@@ -417,175 +393,141 @@
         .role-member { background-color: rgba(16, 185, 129, 0.1); color: var(--secondary); }
         .member-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
         .member-actions .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
-        /* Invite form layout adjustment (already likely handled by this CSS) */
         .add-member-form { margin-top: 2rem; padding: 1.5rem; border: 1px dashed var(--light-gray); border-radius: 8px; background-color: var(--light); }
         body.compact .add-member-form { margin-top: 1.5rem; padding: 1rem; }
         body.spacious .add-member-form { margin-top: 3rem; padding: 2rem; }
         .password-error { color: var(--danger); font-size: 0.85rem; margin-top: 0.25rem; display: none; }
         .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; display: none; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .btn .spinner { display: inline-block; /* Make spinner visible when inside button */ }
+        .btn .spinner { display: inline-block; }
         .btn.loading .spinner { display: inline-block; }
-        .btn.loading span { margin-left: 0.5rem; } /* Space between spinner and text */
-
+        .btn.loading span { margin-left: 0.5rem; }
         .btn-outline .spinner { border-color: rgba(37, 99, 235, 0.3); border-top-color: var(--primary); }
         .loading-text { display: none; font-size: 0.9rem; color: var(--gray); margin-left: 0.5rem; }
 
         /* --- Theme Styles & Responsive --- */
+        /* ... (Dark theme styles remain the same) ... */
         body.light-theme { --primary-light: #f1f5f9; --light: #ffffff; --white: #ffffff; --dark: #1e293b; --gray: #64748b; --light-gray: #e2e8f0; --text-color: var(--dark); background-color: var(--primary-light); }
-        body.dark-theme {
-            --primary: #3b82f6;
-            --primary-dark: #1e40af;
-            --primary-light: #1e293b;
-            --light: #334155; /* Slightly lighter background for cards/sections */
-            --white: #0f172a; /* Darkest background for body */
-            --dark: #e2e8f0; /* Light text */
-            --gray: #94a3b8; /* Lighter gray text */
-            --light-gray: #475569; /* Darker borders/dividers */
-            --text-color: var(--dark); /* Update text-color for dark mode */
-            --schedule-weekend-bg: #262f3e; /* Darker gray for weekend cells */
-            --schedule-weekend-text: #6b7280; /* Muted dark text for weekend OFF */
-            background-color: var(--white); /* Use darkest for body */
-            color: var(--text-color); /* Default text color */
-        }
-        /* Dark Theme Overrides */
-        body.dark-theme .top-nav { background-color: var(--light); border-bottom-color: var(--light-gray); } /* Lighter BG for nav */
-        body.dark-theme .stat-card, body.dark-theme .activity-section, body.dark-theme .content-section, body.dark-theme .team-member-card, body.dark-theme .add-member-form { background-color: var(--light); border-color: var(--light-gray); } /* Lighter BG for content cards */
-        body.dark-theme .search-bar input, body.dark-theme .form-control { background-color: var(--primary-light); border-color: var(--light-gray); color: var(--text-color); } /* Even darker BG for inputs */
+        body.dark-theme { --primary: #3b82f6; --primary-dark: #1e40af; --primary-light: #1e293b; --light: #334155; --white: #0f172a; --dark: #e2e8f0; --gray: #94a3b8; --light-gray: #475569; --text-color: var(--dark); --schedule-weekend-bg: #262f3e; --schedule-weekend-text: #6b7280; background-color: var(--white); color: var(--text-color); }
+        body.dark-theme .top-nav { background-color: var(--light); border-bottom-color: var(--light-gray); }
+        body.dark-theme .stat-card, body.dark-theme .activity-section, body.dark-theme .content-section, body.dark-theme .team-member-card, body.dark-theme .add-member-form { background-color: var(--light); border-color: var(--light-gray); }
+        body.dark-theme .search-bar input, body.dark-theme .form-control { background-color: var(--primary-light); border-color: var(--light-gray); color: var(--text-color); }
         body.dark-theme .form-control[readonly] { background-color: var(--light); opacity: 0.6; }
         body.dark-theme .search-results { background-color: var(--light); border-color: var(--light-gray); }
-        body.dark-theme .search-result-item { color: var(--text-color); } /* Ensure search result text is light */
+        body.dark-theme .search-result-item { color: var(--text-color); }
         body.dark-theme .search-result-item:hover { background-color: var(--primary-light); }
         body.dark-theme .user-dropdown { background-color: var(--light); border-color: var(--light-gray); }
-        body.dark-theme .dropdown-item { color: var(--text-color); } /* Ensure dropdown text is light */
+        body.dark-theme .dropdown-item { color: var(--text-color); }
         body.dark-theme .dropdown-item:hover { background-color: var(--primary-light); }
-        body.dark-theme .notifications-container { background-color: var(--light); } /* Lighter BG for notifications panel */
+        body.dark-theme .notifications-container { background-color: var(--light); }
         body.dark-theme .notification-list-item:hover { background-color: var(--primary-light); }
-        body.dark-theme .notification-list-item.unread { background-color: rgba(59, 130, 246, 0.15); } /* Slightly more visible unread */
-        body.dark-theme .confirm-container, body.dark-theme .modal-content { background-color: var(--light); color: var(--text-color); } /* Modal background and default text */
+        body.dark-theme .notification-list-item.unread { background-color: rgba(59, 130, 246, 0.15); }
+        body.dark-theme .confirm-container, body.dark-theme .modal-content { background-color: var(--light); color: var(--text-color); }
         body.dark-theme .theme-option div { border-color: var(--light-gray); }
         body.dark-theme .theme-option.selected div { border-color: var(--primary); }
-        body.dark-theme .back-button { color: var(--primary); } /* Use primary color for link */
+        body.dark-theme .back-button { color: var(--primary); }
         body.dark-theme .back-button:hover { background-color: var(--light); color: #60a5fa; border-color: var(--primary); }
         body.dark-theme .notifications-footer { background-color: var(--light); border-top-color: var(--light-gray); }
-        body.dark-theme .welcome-section { background: var(--welcome-bg-current); color: var(--white); } /* Welcome section retains white text */
-        body.dark-theme .welcome-subtitle { color: inherit; opacity: 0.8; } /* Inherit white */
-        body.dark-theme .user-info-name { color: inherit; } /* Inherit white */
-        body.dark-theme .user-info-title { color: var(--gray); } /* Role title uses gray */
+        body.dark-theme .welcome-section { background: var(--welcome-bg-current); color: var(--white); }
+        body.dark-theme .welcome-subtitle { color: inherit; opacity: 0.8; }
+        body.dark-theme .user-info-name { color: inherit; }
+        body.dark-theme .user-info-title { color: var(--gray); }
         body.dark-theme .user-info-title.role-admin { color: var(--team-manager); }
-        body.dark-theme .user-info-email span { color: inherit; } /* Inherit white */
-        body.dark-theme .stat-card { background: var(--light); color: var(--text-color);} /* Dark theme stat card background, ensure text color */
-        body.dark-theme .stat-title { color: var(--text-color); } /* Ensure stat title is light */
-        /* Specific stat value colors adjusted for dark theme */
+        body.dark-theme .user-info-email span { color: inherit; }
+        body.dark-theme .stat-card { background: var(--light); color: var(--text-color);}
+        body.dark-theme .stat-title { color: var(--text-color); }
         body.dark-theme .stat-card:nth-child(1) .stat-value { color: #93c5fd; }
         body.dark-theme .stat-card:nth-child(2) .stat-value { color: #86efac; }
         body.dark-theme .stat-card:nth-child(3) .stat-value { color: #fcd34d; }
         body.dark-theme .stat-card:nth-child(4) .stat-value { color: #fca5a5; }
-        body.dark-theme .activity-icon { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; } /* Adjust icon color */
+        body.dark-theme .activity-icon { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; }
         body.dark-theme .activity-item { border-bottom-color: var(--light-gray); }
-        body.dark-theme .activity-message { color: var(--text-color); } /* Activity text */
-        body.dark-theme .activity-time { color: var(--gray); } /* Activity time */
+        body.dark-theme .activity-message { color: var(--text-color); }
+        body.dark-theme .activity-time { color: var(--gray); }
         body.dark-theme .activity-item.new-activity { background-color: rgba(59, 130, 246, 0.1); }
         body.dark-theme .delete-activity:hover { background-color: rgba(239, 68, 68, 0.2); }
-        body.dark-theme .profile-avatar-section label { color: var(--text-color); } /* Text label */
+        body.dark-theme .profile-avatar-section label { color: var(--text-color); }
         body.dark-theme #profileAvatarLarge { background-color: var(--light); color: var(--text-color); border-color: var(--primary-light); }
-        body.dark-theme .profile-header-text { color: var(--gray); } /* Profile intro text */
+        body.dark-theme .profile-header-text { color: var(--gray); }
         body.dark-theme .placeholder-content { color: var(--gray); border-color: var(--light-gray); }
         body.dark-theme .placeholder-content h2 { color: var(--text-color); }
         body.dark-theme .placeholder-content p { color: var(--gray); }
-        body.dark-theme .placeholder-content .error-message { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--text-color); } /* Ensure error text readable */
-        body.dark-theme .settings-label, body.dark-theme .form-group label { color: var(--text-color); } /* Form labels */
-        body.dark-theme .settings-subsection h4 { color: #93c5fd; } /* Lighter primary */
-        body.dark-theme .setting-item-label { color: var(--text-color); } /* Setting item title */
-        body.dark-theme .setting-item-description { color: var(--gray); } /* Setting item description */
-        body.dark-theme .theme-option span { color: var(--text-color); } /* Theme label text */
+        body.dark-theme .placeholder-content .error-message { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--text-color); }
+        body.dark-theme .settings-label, body.dark-theme .form-group label { color: var(--text-color); }
+        body.dark-theme .settings-subsection h4 { color: #93c5fd; }
+        body.dark-theme .setting-item-label { color: var(--text-color); }
+        body.dark-theme .setting-item-description { color: var(--gray); }
+        body.dark-theme .theme-option span { color: var(--text-color); }
         body.dark-theme .qr-code-placeholder { border-color: var(--light-gray); color: var(--gray); }
-        body.dark-theme .danger-zone-item .btn-danger { background-color: #dc2626; } /* Ensure danger button stands out */
+        body.dark-theme .danger-zone-item .btn-danger { background-color: #dc2626; }
         body.dark-theme .danger-zone-item .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
-        body.dark-theme .danger-zone-item p { color: var(--gray); } /* Danger zone description */
-
-        /* Dark Theme Employee Scheduling Specifics (Scoped - Applied by main CSS) */
+        body.dark-theme .danger-zone-item p { color: var(--gray); }
         body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table thead th { background-color: var(--primary) !important; color: white !important; border-bottom-color: var(--primary-dark) !important; }
-        body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody td { color: var(--text-color) !important; border-color: var(--light-gray) !important; background-color: var(--white) !important; /* Default dark cell bg */ }
-        body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:nth-child(even) td { background-color: var(--primary-light) !important; } /* Darker even row background */
-        body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:hover td { background-color: #475569 !important; } /* Hover effect */
-        body.dark-theme #featureSectionsContainer.employee-scheduling .employee-name { background-color: var(--white) !important; border-right-color: var(--light-gray) !important; color: var(--text-color) !important; } /* Dark sticky column bg */
-        body.dark-theme #featureSectionsContainer.employee-scheduling .day-name { color: white !important; } /* Keep day name white */
+        body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody td { color: var(--text-color) !important; border-color: var(--light-gray) !important; background-color: var(--white) !important; }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:nth-child(even) td { background-color: var(--primary-light) !important; }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:hover td { background-color: #475569 !important; }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .employee-name { background-color: var(--white) !important; border-right-color: var(--light-gray) !important; color: var(--text-color) !important; }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .day-name { color: white !important; }
         body.dark-theme #featureSectionsContainer.employee-scheduling .day-date { color: var(--gray) !important; }
-        body.dark-theme #featureSectionsContainer.employee-scheduling .shift { /* Adjust shift colors for dark mode */
-             background-color: var(--light) !important;
-             color: var(--text-color) !important;
-             border: 1px solid var(--light-gray) !important;
-        }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .shift { background-color: var(--light) !important; color: var(--text-color) !important; border: 1px solid var(--light-gray) !important; }
         body.dark-theme #featureSectionsContainer.employee-scheduling .shift-morning { background-color: #1e3a8a !important; color: #dbeafe !important; border-color: #3b82f6 !important; }
         body.dark-theme #featureSectionsContainer.employee-scheduling .shift-afternoon { background-color: #047857 !important; color: #a7f3d0 !important; border-color: #34d399 !important; }
         body.dark-theme #featureSectionsContainer.employee-scheduling .shift-night { background-color: #4c1d95 !important; color: #e9d5ff !important; border-color: #a78bfa !important; }
-        body.dark-theme #featureSectionsContainer.employee-scheduling .shift-day-off { background-color: #064e3b !important; color: #d1fae5 !important; border-color: #6ee7b7 !important; } /* Use alias */
-        body.dark-theme #featureSectionsContainer.employee-scheduling .shift-sick-leave { background-color: #7f1d1d !important; color: #fee2e2 !important; border-color: #fca5a5 !important; } /* Use alias */
+        body.dark-theme #featureSectionsContainer.employee-scheduling .shift-day-off { background-color: #064e3b !important; color: #d1fae5 !important; border-color: #6ee7b7 !important; }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .shift-sick-leave { background-color: #7f1d1d !important; color: #fee2e2 !important; border-color: #fca5a5 !important; }
         body.dark-theme #featureSectionsContainer.employee-scheduling .shift-vacation { background-color: #7c2d12 !important; color: #ffedd5 !important; border-color: #fdba74 !important; }
         body.dark-theme #featureSectionsContainer.employee-scheduling .shift-weekend-off { color: var(--schedule-weekend-text) !important; background-color: transparent !important; border-color: transparent !important; }
-        body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody td.weekend-cell { background-color: var(--schedule-weekend-bg) !important; } /* Dark weekend bg */
-        body.dark-theme #featureSectionsContainer.employee-scheduling .toast { background-color: var(--light) !important; color: var(--text-color) !important; } /* Dark theme toast specifically for schedule */
+        body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody td.weekend-cell { background-color: var(--schedule-weekend-bg) !important; }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .toast { background-color: var(--light) !important; color: var(--text-color) !important; }
         body.dark-theme #featureSectionsContainer.employee-scheduling .modal-content { background-color: var(--light) !important; color: var(--text-color) !important; }
         body.dark-theme #featureSectionsContainer.employee-scheduling .modal-title { color: #93c5fd !important; }
         body.dark-theme #featureSectionsContainer.employee-scheduling .form-control { background-color: var(--primary-light) !important; border-color: var(--light-gray) !important; color: var(--text-color) !important; }
         body.dark-theme #featureSectionsContainer.employee-scheduling .form-control:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important; }
-
-
         body.dark-theme .checkbox-group { border-color: var(--light-gray); }
-        body.dark-theme .checkbox-group label { color: var(--text-color); } /* Checkbox label text */
+        body.dark-theme .checkbox-group label { color: var(--text-color); }
         body.dark-theme .confirm-title { color: var(--text-color); }
         body.dark-theme .confirm-message { color: var(--gray); }
-        /* Modal title already handled */
         body.dark-theme .team-member-card .member-name { color: var(--text-color); }
         body.dark-theme .team-member-card .member-email { color: var(--gray); }
-        body.dark-theme .search-result-item strong { color: var(--text-color); } /* Ensure bold text is readable */
-        body.dark-theme .user-name { color: var(--text-color); } /* Top nav user name */
+        body.dark-theme .search-result-item strong { color: var(--text-color); }
+        body.dark-theme .user-name { color: var(--text-color); }
 
 
         /* Theme Selection Styles */
-        .theme-options-container { display: flex; gap: 1rem; margin-top: 0.5rem; flex-wrap: wrap; } /* Added wrap */
+        /* ... (Styles remain the same) ... */
+        .theme-options-container { display: flex; gap: 1rem; margin-top: 0.5rem; flex-wrap: wrap; }
         .theme-option { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
         .theme-option .theme-preview { width: 60px; height: 40px; border: 2px solid var(--light-gray); border-radius: 6px; transition: border-color 0.2s; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .theme-option .theme-label { text-align: center; display: block; margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-color); } /* Use text-color */
+        .theme-option .theme-label { text-align: center; display: block; margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-color); }
         .theme-option:hover .theme-preview { border-color: var(--primary); }
         .theme-option.selected .theme-preview { border-color: var(--primary); border-width: 3px; }
-        /* Specific theme previews */
         .theme-preview.light-preview { background-color: #f8fafc; color: #1e293b; }
         .theme-preview.dark-preview { background-color: #0f172a; color: #e2e8f0; }
         .theme-preview.system-preview { background: linear-gradient(45deg, #f8fafc 50%, #0f172a 50%); color: var(--gray); }
 
 
         /* 2FA Setup Styles */
+        /* ... (Styles remain the same) ... */
         .two-fa-status { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
         .two-fa-status .status-indicator { width: 10px; height: 10px; border-radius: 50%; }
         .two-fa-status .status-indicator.enabled { background-color: var(--success); }
         .two-fa-status .status-indicator.disabled { background-color: var(--danger); }
         .two-fa-setup { border: 1px dashed var(--light-gray); padding: 1.5rem; border-radius: 6px; margin-top: 1rem; background-color: var(--light); }
         .qr-code-placeholder { width: 150px; height: 150px; border: 2px dashed var(--light-gray); display: flex; align-items: center; justify-content: center; text-align: center; color: var(--gray); font-size: 0.9rem; margin: 1rem auto; }
-        .two-fa-actions { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; } /* Added wrap */
+        .two-fa-actions { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
 
         /* Danger Zone Styles */
-         .danger-zone-item {
-             display: flex;
-             justify-content: space-between;
-             align-items: center;
-             padding: 1.5rem;
-             border: 1px solid var(--danger);
-             background-color: rgba(239, 68, 68, 0.05);
-             border-radius: 8px;
-             margin-bottom: 1rem;
-             flex-wrap: wrap; /* Allow wrapping */
-         }
-         .danger-zone-item div { max-width: 100%; flex-grow: 1; margin-right: 1rem; /* Space before button */ }
-         @media (min-width: 768px) { /* Limit width on larger screens */
-            .danger-zone-item div { max-width: 70%; }
-         }
+        /* ... (Styles remain the same) ... */
+         .danger-zone-item { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border: 1px solid var(--danger); background-color: rgba(239, 68, 68, 0.05); border-radius: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
+         .danger-zone-item div { max-width: 100%; flex-grow: 1; margin-right: 1rem; }
+         @media (min-width: 768px) { .danger-zone-item div { max-width: 70%; } }
          .danger-zone-item h5 { color: var(--danger); margin-bottom: 0.25rem; }
          .danger-zone-item p { color: var(--gray); font-size: 0.9rem; }
-         .danger-zone-item .btn { flex-shrink: 0; /* Prevent button shrinking */ margin-top: 0.5rem; /* Space when wrapped */}
+         .danger-zone-item .btn { flex-shrink: 0; margin-top: 0.5rem; }
 
 
+        /* Notification Modal Styles */
+        /* ... (Styles remain the same) ... */
         .notifications-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; display: none; justify-content: flex-end; }
         .notifications-modal.active { display: flex; }
         .notifications-container { width: 400px; max-width: 100%; background-color: var(--white); height: 100vh; overflow-y: auto; animation: slideIn 0.3s ease-out; box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; }
@@ -594,33 +536,42 @@
         .notifications-title { font-size: 1.25rem; font-weight: 600; }
         .close-notifications { background: none; border: none; font-size: 1.25rem; cursor: pointer; color: white; }
         .notifications-body { flex-grow: 1; overflow-y: auto; }
-        .notification-list-item { padding: 1rem 1.5rem; border-bottom: 1px solid var(--light-gray); transition: background-color 0.2s; display: flex; gap: 1rem; align-items: flex-start; /* Align top */ cursor: pointer; position: relative; }
+        .notification-list-item { padding: 1rem 1.5rem; border-bottom: 1px solid var(--light-gray); transition: background-color 0.2s; display: flex; gap: 1rem; align-items: flex-start; cursor: pointer; position: relative; }
         .notification-list-item:hover { background-color: var(--light); }
-        .notification-list-item.unread { background-color: rgba(37, 99, 235, 0.08); font-weight: 500; } /* Adjusted unread bg slightly */
-        body.dark-theme .notification-list-item.unread { background-color: rgba(59, 130, 246, 0.15); } /* Dark theme unread */
+        .notification-list-item.unread { background-color: rgba(37, 99, 235, 0.08); font-weight: 500; }
+        body.dark-theme .notification-list-item.unread { background-color: rgba(59, 130, 246, 0.15); }
         .notification-list-item:last-child { border-bottom: none; }
         .notification-icon-wrapper { width: 40px; height: 40px; border-radius: 50%; background-color: rgba(37, 99, 235, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         body.dark-theme .notification-icon-wrapper { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa;}
         .notification-content { flex: 1; min-width: 0; }
-        .notification-message { margin-bottom: 0.25rem; color: var(--text-color); line-height: 1.4; } /* Use text-color */
+        .notification-message { margin-bottom: 0.25rem; color: var(--text-color); line-height: 1.4; }
         .notification-time { font-size: 0.8rem; color: var(--gray); }
-        .delete-notification { color: var(--danger); cursor: pointer; opacity: 0; /* Hidden by default */ transition: opacity 0.2s; position: absolute; top: 0.75rem; right: 0.75rem; padding: 0.25rem; background: var(--white); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
-        .notification-list-item:hover .delete-notification { opacity: 0.6; } /* Show on hover */
+        .delete-notification { color: var(--danger); cursor: pointer; opacity: 0; transition: opacity 0.2s; position: absolute; top: 0.75rem; right: 0.75rem; padding: 0.25rem; background: var(--white); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+        .notification-list-item:hover .delete-notification { opacity: 0.6; }
         .delete-notification:hover { opacity: 1; background: rgba(239, 68, 68, 0.1); }
         body.dark-theme .delete-notification { background: var(--light); }
         body.dark-theme .delete-notification:hover { background: rgba(239, 68, 68, 0.2); }
         .no-notifications-message { text-align: center; padding: 2rem; color: var(--gray); }
-        .notifications-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--light-gray); display: flex; justify-content: space-between; flex-shrink: 0; background-color: var(--light); flex-wrap: wrap; gap: 0.5rem; } /* Added wrap */
+        .notifications-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--light-gray); display: flex; justify-content: space-between; flex-shrink: 0; background-color: var(--light); flex-wrap: wrap; gap: 0.5rem; }
+
+        /* Confirm Modal Styles */
+        /* ... (Styles remain the same) ... */
         .confirm-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1100; display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
         .confirm-modal.active { display: flex; }
         .confirm-container { background-color: var(--white); border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); width: 400px; max-width: 90%; padding: 2rem; animation: fadeInScale 0.3s ease-out; }
         @keyframes fadeInScale { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        .confirm-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-color); } /* Use text-color */
+        .confirm-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-color); }
         .confirm-message { margin-bottom: 1.5rem; line-height: 1.5; color: var(--gray); }
         .confirm-actions { display: flex; justify-content: flex-end; gap: 1rem; }
+
+        /* Success Message Styles */
+        /* ... (Styles remain the same) ... */
         .success-message { position: fixed; top: 20px; right: 20px; background-color: var(--success); color: white; padding: 1rem 1.5rem; border-radius: 6px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 0.75rem; z-index: 1200; transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
         .success-message.show { transform: translateX(0); }
         .success-message i { font-size: 1.25rem; }
+
+        /* Back Button Styles */
+        /* ... (Styles remain the same) ... */
         .back-button { display: inline-flex; align-items: center; gap: 0.75rem; color: var(--primary); font-weight: 500; cursor: pointer; margin-bottom: 1.5rem; padding: 0.6rem 1.2rem; border-radius: 6px; transition: background-color 0.2s, border-color 0.2s, color 0.2s; border: 1px solid transparent; font-size: 0.9rem; }
         .back-button:hover { background-color: var(--primary-light); border-color: var(--primary); color: var(--primary-dark); }
         .back-button i { transition: transform 0.2s; font-size: 0.8rem; }
@@ -628,58 +579,37 @@
         #notificationSound { display: none; }
         .d-none { display: none !important; }
         .placeholder-content { text-align: center; padding: 4rem 2rem; color: var(--gray); border: 2px dashed var(--light-gray); border-radius: 8px; margin-top: 2rem; min-height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: border-color 0.3s, color 0.3s; }
-        .placeholder-content h2 { color: var(--text-color); margin-bottom: 1rem; } /* Use text-color */
-        .placeholder-content p { color: var(--gray); } /* Ensure placeholder text uses gray */
+        .placeholder-content h2 { color: var(--text-color); margin-bottom: 1rem; }
+        .placeholder-content p { color: var(--gray); }
         .placeholder-content .loading-indicator { font-size: 1.2rem; margin-top: 1rem; }
         .placeholder-content .error-message { color: var(--danger); font-weight: 500; margin-top: 1rem; white-space: pre-wrap; text-align: left; padding: 1rem; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 4px; max-width: 100%; overflow-wrap: break-word; }
 
         /* --- Employee Scheduling Scoped Styles --- */
-        #featureSectionsContainer.employee-scheduling {
-            padding: 0; /* Remove default padding to use schedule's own */
-        }
-        /* Ensure buttons/modals loaded by schedule use dashboard variables/styles */
-        #featureSectionsContainer.employee-scheduling .btn { /* Inherit general .btn styles */ }
-        #featureSectionsContainer.employee-scheduling .btn-primary { background-color: var(--primary); color: white; }
-        #featureSectionsContainer.employee-scheduling .btn-primary:hover { background-color: var(--primary-dark); }
-        #featureSectionsContainer.employee-scheduling .btn-outline { background-color: transparent; border: 1px solid var(--primary); color: var(--primary); }
-        #featureSectionsContainer.employee-scheduling .btn-outline:hover { background-color: var(--primary-light); }
-        #featureSectionsContainer.employee-scheduling .btn-danger { background-color: var(--danger); color: white; }
-        #featureSectionsContainer.employee-scheduling .btn-danger:hover { background-color: #dc2626; }
-        #featureSectionsContainer.employee-scheduling .btn-success { background-color: var(--success); color: white; }
-        #featureSectionsContainer.employee-scheduling .btn-success:hover { background-color: #0d9f6e; }
-        #featureSectionsContainer.employee-scheduling .modal .modal-content { /* Use generic modal styles */ }
-        #featureSectionsContainer.employee-scheduling .modal .modal-title { /* Use generic modal styles */ }
-        #featureSectionsContainer.employee-scheduling .form-control { /* Use generic form styles */ }
-        #featureSectionsContainer.employee-scheduling .toast { /* Inherit general .toast styles */ }
-
+        /* Styles specific to the container when schedule is loaded */
+        #featureSectionsContainer.employee-scheduling { padding: 0; }
+        #featureSectionsContainer.employee-scheduling .btn { /* Inherits base btn styles */ }
+        #featureSectionsContainer.employee-scheduling .modal .modal-content { /* Inherits base modal styles */ }
+        #featureSectionsContainer.employee-scheduling .toast { /* Inherits base toast styles */ }
+        /* NOTE: Specific internal styles (table, shifts etc.) are now loaded dynamically via the injected <style> block */
 
         /* --- Generic Modal Styles --- */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.6); z-index: 1050; /* Higher than confirm modal */
-            justify-content: center; align-items: center; padding: 20px;
-        }
+        /* ... (Styles remain the same) ... */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1050; justify-content: center; align-items: center; padding: 20px; }
         .modal.active { display: flex; }
-        .modal-content {
-            background-color: var(--white); width: 100%; max-width: 600px;
-            border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            padding: 2rem; max-height: 90vh; overflow-y: auto; animation: zoomIn 0.3s ease-out;
-            color: var(--text-color);
-        }
-        .modal-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--light-gray);
-        }
+        .modal-content { background-color: var(--white); width: 100%; max-width: 600px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); padding: 2rem; max-height: 90vh; overflow-y: auto; animation: zoomIn 0.3s ease-out; color: var(--text-color); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--light-gray); }
         .modal-title { font-size: 1.25rem; font-weight: 600; color: var(--primary-dark); }
         body.dark-theme .modal-title { color: #93c5fd; }
         .close-modal { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: var(--gray); line-height: 1;}
         .close-modal:hover { color: var(--danger); }
 
-        .toast { /* Generic toast style */ position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: var(--dark); color: var(--white); padding: 1rem 1.5rem; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 1300; opacity: 0; transition: opacity 0.3s, bottom 0.3s; font-size: 0.9rem; }
+        /* Toast Styles */
+        /* ... (Styles remain the same) ... */
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: var(--dark); color: var(--white); padding: 1rem 1.5rem; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 1300; opacity: 0; transition: opacity 0.3s, bottom 0.3s; font-size: 0.9rem; }
         .toast.show { opacity: 1; bottom: 30px; }
         .toast.success { background-color: var(--success); }
         .toast.error { background-color: var(--danger); }
-        body.dark-theme .toast { background-color: var(--light); color: var(--text-color); } /* Dark theme toast */
+        body.dark-theme .toast { background-color: var(--light); color: var(--text-color); }
         body.dark-theme .toast.success { background-color: var(--success); color: white; }
         body.dark-theme .toast.error { background-color: var(--danger); color: white; }
 
@@ -687,91 +617,16 @@
 
 
         /* Responsive Overrides */
-        @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); width: 250px; box-shadow: none; }
-            .sidebar.active { transform: translateX(0); box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
-            .main-content { margin-left: 0; }
-            .search-bar { width: 250px; }
-            .team-member-card { flex-wrap: wrap; }
-            .main-content.sidebar-active { margin-left: 250px; } /* Adjust main content when sidebar is open */
-            .sidebar-toggle { display: block; /* Show hamburger */ position: fixed; top: 15px; left: 15px; z-index: 101; background: var(--primary); color: white; border: none; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 1.2rem; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-            .top-nav { padding-left: 60px; } /* Make space for hamburger */
-        }
-        @media (min-width: 993px) {
-             .sidebar-toggle { display: none; } /* Hide hamburger on larger screens */
-        }
-
-        @media (max-width: 768px) {
-            .top-nav { flex-direction: column; gap: 1rem; padding: 1rem; padding-left: 1rem; /* Reset padding */ }
-            .search-bar { width: 100%; order: 2; }
-            .user-menu { width: 100%; justify-content: space-between; order: 1; }
-            .content-area { padding: 1.5rem; }
-            .data-form { grid-template-columns: 1fr; }
-            .form-actions { grid-column: span 1; }
-            .user-info { flex-direction: column; text-align: center; }
-            .user-info-avatar { margin-bottom: 1rem; }
-            .stats-section { grid-template-columns: 1fr; }
-            .settings-tabs { flex-wrap: nowrap; overflow-x: auto; } /* Prevent wrapping, allow scroll */
-            .settings-tab { padding: 0.5rem 1rem; flex-shrink: 0; } /* Prevent shrinking */
-            .confirm-container { width: 90%; }
-            .team-member-card { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
-            .member-role { margin: 0.5rem 0; }
-            .member-actions { margin-top: 0.5rem; }
-            .profile-avatar-section { margin-bottom: 1.5rem; }
-            #profileAvatarLarge { width: 100px; height: 100px; font-size: 2.5rem; }
-            .add-member-form .data-form { grid-template-columns: 1fr; align-items: stretch; }
-            .add-member-form .data-form > div { margin-bottom: 1rem; }
-            .add-member-form .data-form > div:last-child { margin-top: 0; }
-            /* Schedule mobile fixes are handled by the injected CSS */
-            .modal-content { width: 95%; padding: 1.5rem;}
-            .notifications-container { width: 100%; max-width: 100%; }
-            .sidebar-toggle { top: 10px; left: 10px; }
-            .top-nav { padding-top: 60px; /* Make space for hamburger */ }
-        }
-        @media (max-width: 480px) {
-            .section-header > div { justify-content: center; width: 100%; }
-            .welcome-section { padding: 1.5rem; }
-            .stats-section { gap: 0.75rem; }
-            .stat-card { padding: 1rem; }
-            .user-menu { gap: 1rem; }
-            .user-name { display: none; } /* Hide name on very small screens */
-            .user-status { margin-left: 0; }
-            .notifications-footer { flex-direction: column; gap: 0.5rem; }
-            .notifications-footer .btn { width: 100%; justify-content: center; }
-        }
-         /* Checkbox Group for Notification Types */
-         .checkbox-group {
-             display: grid;
-             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-             gap: 0.75rem;
-             margin-top: 0.5rem;
-             padding: 0.5rem;
-             border: 1px solid var(--light-gray);
-             border-radius: 6px;
-         }
-         .checkbox-group label {
-             display: flex;
-             align-items: center;
-             gap: 0.5rem;
-             font-weight: normal; /* Override form-group label weight */
-             font-size: 0.9rem;
-             margin-bottom: 0; /* Override form-group label margin */
-             color: var(--text-color); /* Ensure label text color */
-         }
-         .checkbox-group input[type="checkbox"] {
-             width: auto; /* Override form-control width */
-             margin-right: 0.25rem;
-         }
-         /* Simple link style for settings panel internal links */
-         .settings-link {
-            color: var(--primary);
-            text-decoration: none;
-            cursor: pointer;
-         }
-         .settings-link:hover {
-            text-decoration: underline;
-            color: var(--primary-dark);
-         }
+        /* ... (Styles remain the same) ... */
+        @media (max-width: 992px) { .sidebar { transform: translateX(-100%); width: 250px; box-shadow: none; } .sidebar.active { transform: translateX(0); box-shadow: 2px 0 10px rgba(0,0,0,0.1); } .main-content { margin-left: 0; } .search-bar { width: 250px; } .team-member-card { flex-wrap: wrap; } .main-content.sidebar-active { margin-left: 250px; } .sidebar-toggle { display: block; position: fixed; top: 15px; left: 15px; z-index: 101; background: var(--primary); color: white; border: none; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 1.2rem; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); } .top-nav { padding-left: 60px; } }
+        @media (min-width: 993px) { .sidebar-toggle { display: none; } }
+        @media (max-width: 768px) { .top-nav { flex-direction: column; gap: 1rem; padding: 1rem; padding-left: 1rem; } .search-bar { width: 100%; order: 2; } .user-menu { width: 100%; justify-content: space-between; order: 1; } .content-area { padding: 1.5rem; } .data-form { grid-template-columns: 1fr; } .form-actions { grid-column: span 1; } .user-info { flex-direction: column; text-align: center; } .user-info-avatar { margin-bottom: 1rem; } .stats-section { grid-template-columns: 1fr; } .settings-tabs { flex-wrap: nowrap; overflow-x: auto; } .settings-tab { padding: 0.5rem 1rem; flex-shrink: 0; } .confirm-container { width: 90%; } .team-member-card { flex-direction: column; align-items: flex-start; gap: 0.5rem; } .member-role { margin: 0.5rem 0; } .member-actions { margin-top: 0.5rem; } .profile-avatar-section { margin-bottom: 1.5rem; } #profileAvatarLarge { width: 100px; height: 100px; font-size: 2.5rem; } .add-member-form .data-form { grid-template-columns: 1fr; align-items: stretch; } .add-member-form .data-form > div { margin-bottom: 1rem; } .add-member-form .data-form > div:last-child { margin-top: 0; } .modal-content { width: 95%; padding: 1.5rem;} .notifications-container { width: 100%; max-width: 100%; } .sidebar-toggle { top: 10px; left: 10px; } .top-nav { padding-top: 60px; } }
+        @media (max-width: 480px) { .section-header > div { justify-content: center; width: 100%; } .welcome-section { padding: 1.5rem; } .stats-section { gap: 0.75rem; } .stat-card { padding: 1rem; } .user-menu { gap: 1rem; } .user-name { display: none; } .user-status { margin-left: 0; } .notifications-footer { flex-direction: column; gap: 0.5rem; } .notifications-footer .btn { width: 100%; justify-content: center; } }
+        .checkbox-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-top: 0.5rem; padding: 0.5rem; border: 1px solid var(--light-gray); border-radius: 6px; }
+        .checkbox-group label { display: flex; align-items: center; gap: 0.5rem; font-weight: normal; font-size: 0.9rem; margin-bottom: 0; color: var(--text-color); }
+        .checkbox-group input[type="checkbox"] { width: auto; margin-right: 0.25rem; }
+        .settings-link { color: var(--primary); text-decoration: none; cursor: pointer; }
+        .settings-link:hover { text-decoration: underline; color: var(--primary-dark); }
 
     </style>
 </head>
@@ -999,9 +854,9 @@
                  window.showSuccessMessage = showSuccessMessage;
 
                  applyStoredPreferences();
-                 updateUserUI();
+                 updateUserUI(); // Update UI with initial data
                  setupEventListeners();
-                 loadInitialData();
+                 loadInitialData(); // Load dynamic data like stats/activity
                  handleInitialNavigation(); // Check hash and load initial view
                  startDynamicUpdates();
                  setupResponsiveSidebar();
@@ -1027,7 +882,6 @@
 
             // --- Navigation & Content Loading ---
             // (Keep setActiveFeature, activateSettingsTab, updateBrowserHistory, handleInitialNavigation as before)
-            // `loadFeatureContent` is the primary change.
              function setActiveFeature(featureId, settingsTab = null, skipHistory = false) {
                  console.log(`%cNavigating to: ${featureId}` + (settingsTab ? ` / Tab: ${settingsTab}` : ''), 'color: blue; font-weight: bold;');
                  currentFeature = featureId;
@@ -1058,17 +912,16 @@
                      updateProfileForm();
                      console.log("Activating Profile Content");
                  } else if (featureId === 'settings') {
-                     targetSection = settingsContent;
+                     targetSection = settingsContent; // Settings container itself is shown
                      backButton.style.display = 'flex';
                      backButtonText.textContent = 'Back to Dashboard';
                      currentSettingsTab = settingsTab || (currentUser.role === 'admin' ? 'preferences' : 'preferences');
                      if (currentUser.role !== 'admin' && (currentSettingsTab === 'team' || currentSettingsTab === 'danger')) {
                           currentSettingsTab = 'preferences';
                      }
-                     activateSettingsTab(currentSettingsTab); // This shows the settingsContent
+                     activateSettingsTab(currentSettingsTab); // This shows the correct panel inside settingsContent
                      update2FA_UI();
                      console.log("Activating Settings Content");
-                     // No need to set targetSection again, activateSettingsTab handles it for panels
                  } else {
                      // Handle dynamic features - Load into feature container
                      targetSection = featureSectionsContainer; // The container itself is the target
@@ -1082,8 +935,8 @@
                  if (targetSection) {
                      targetSection.classList.add('active');
                       console.log(`Activated section: #${targetSection.id}`);
-                 } else if (featureId !== 'settings') { // Settings activation is handled internally by tab logic
-                     console.error(`Target section not found for feature: ${featureId}`);
+                 } else {
+                     console.error(`Target section could not be determined for feature: ${featureId}`);
                  }
 
                  // Close sidebar on mobile
@@ -1102,7 +955,7 @@
              window.addEventListener('popstate', function(event) { console.log("Popstate event:", event.state, window.location.hash); handleInitialNavigation(); });
 
 
-            // --- NEW loadFeatureContent using DOMParser ---
+            // --- loadFeatureContent using DOMParser (Corrected) ---
             function loadFeatureContent(featureId) {
                 const menuItem = Array.from(menuItems).find(item => item.getAttribute('data-feature') === featureId);
                 const featureName = menuItem ? menuItem.querySelector('span').textContent : 'Feature';
@@ -1122,99 +975,7 @@
                 const featureHTMLMap = {
                     'employee-scheduling': `
                         <!-- START Employee Scheduling HTML -->
-                        <!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Employee Schedule | Team Management Platform</title> <style id="schedule-style-block"> :root { /* Inherit from main dashboard */ } * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; } /* BODY styles removed, inherits from main body */ header { display: none; /* Hide internal header */ } .main-container { max-width: 1400px; margin: 0 auto; /* Adjusted margin */ padding: 0; /* Adjusted padding */ } .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; } .page-title { font-size: 1.5rem; /* Adjusted size */ color: var(--primary-dark); font-weight: 600; margin: 0; /* Removed default h1 margin */ } .page-header > div { display: flex; gap: 0.75rem; } /* Button container */ .schedule-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; background-color: var(--white); padding: 1rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); flex-wrap: wrap; gap: 1rem; } .week-navigation { display: flex; align-items: center; gap: 1rem; } .week-display { font-weight: 600; min-width: 180px; /* Adjusted width */ text-align: center; } .btn { padding: 0.5rem 1rem; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; display: flex; align-items: center; gap: 0.5rem; } /* Basic btn styles - more specific below */ .btn-primary { background-color: var(--primary); color: white; } .btn-primary:hover:not(:disabled) { background-color: var(--primary-dark); } .btn-outline { background-color: transparent; border: 1px solid var(--primary); color: var(--primary); } .btn-outline:hover:not(:disabled) { background-color: var(--primary-light); } .btn-danger { background-color: var(--danger); color: white; } .btn-danger:hover:not(:disabled) { background-color: #dc2626; } .btn-success { background-color: var(--success); color: white; } .btn-success:hover:not(:disabled) { background-color: #0d9f6e; } .btn-warning { background-color: var(--warning); color: var(--primary-dark); } .btn-warning:hover:not(:disabled) { background-color: #d97706; } .btn:disabled { opacity: 0.6; cursor: not-allowed; } .schedule-container { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); overflow-x: auto; margin-top: 1rem; } .schedule-table { width: 100%; border-collapse: separate; border-spacing: 0; /* Changed from 8px */ border: 1px solid var(--light-gray); border-radius: 8px; overflow: hidden; /* Clip rounded corners */ } .schedule-table thead th { padding: 0.75rem 0.5rem; text-align: center; background-color: var(--primary); color: white; font-weight: 600; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--primary-dark); border-right: 1px solid var(--primary-dark); } .schedule-table thead th:last-child { border-right: none; } .schedule-table thead th:first-child { border-top-left-radius: 7px; /* Match border radius */ } .schedule-table thead th:last-child { border-top-right-radius: 7px; } .schedule-table tbody td { padding: 0.6rem 0.5rem; /* Adjusted padding */ text-align: center; background-color: var(--white); border-bottom: 1px solid var(--light-gray); border-right: 1px solid var(--light-gray); vertical-align: middle; } .schedule-table tbody tr:last-child td { border-bottom: none; } .schedule-table tbody td:last-child { border-right: none; } .schedule-table tbody tr:nth-child(even) td { background-color: #f9fafb; /* Subtle striping */ } .schedule-table tbody tr:hover td { background-color: var(--primary-light); } .employee-name { font-weight: 600; text-align: left; position: sticky; left: 0; background-color: var(--white); /* Needs to match row bg */ padding: 0.6rem 1rem; white-space: nowrap; z-index: 5; border-right: 2px solid var(--gray); /* Make divider more prominent */ } .schedule-table tbody tr:nth-child(even) td.employee-name { background-color: #f9fafb; } .schedule-table tbody tr:hover td.employee-name { background-color: var(--primary-light); } .shift { padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: 500; white-space: nowrap; display: inline-block; border: 1px solid transparent; cursor: default; min-width: 60px; text-align: center; } .shift.editable { cursor: pointer; transition: transform 0.15s ease-in-out; } .shift.editable:hover { transform: scale(1.05); box-shadow: 0 1px 3px rgba(0,0,0,0.1); } .shift-morning { background-color: #dbeafe; color: #1e40af; border-color: #bfdbfe; } .shift-afternoon { background-color: #e0f2fe; color: #0c4a6e; border-color: #bae6fd;} .shift-night { background-color: #ede9fe; color: #5b21b6; border-color: #ddd6fe; } .shift-day-off { background-color: #f0fdf4; color: #166534; border-color: #bbf7d0; } .shift-sick-leave { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; } .shift-vacation { background-color: #ffedd5; color: #9a3412; border-color: #fed7aa; } .shift-custom { background-color: var(--light-gray); color: var(--dark); border-color: var(--gray); } .day-header { display: flex; flex-direction: column; gap: 0.25rem; align-items: center; } .day-name { font-weight: 600; font-size: 0.9rem; color: white; } .day-date { font-size: 0.8rem; opacity: 0.9; color: rgba(255,255,255, 0.85); } .modal { /* Uses generic modal styles from main dashboard */ } .modal-content { /* Uses generic modal styles */ } .modal-header { /* Uses generic modal styles */ } .modal-title { /* Uses generic modal styles */ } .close-modal { /* Uses generic modal styles */ } .form-group { margin-bottom: 1.5rem; } .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark); } .form-control { width: 100%; padding: 0.75rem; border: 1px solid var(--light-gray); border-radius: 6px; font-size: 1rem; background-color: var(--white); color: var(--dark); } .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); } .form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; } .admin-controls { position: relative; /* Container for edit span */ } .edit-shift { cursor: pointer; color: var(--primary); font-size: 0.7rem; display: inline-block; /* Always show if admin */ margin-left: 4px; opacity: 0.6; transition: opacity 0.2s; } .admin-controls:hover .edit-shift { opacity: 1; } .toast { /* Uses generic toast styles */ } /* Media Queries */ @media (max-width: 768px) { .schedule-controls { flex-direction: column; gap: 1rem; align-items: stretch; } .schedule-controls .btn { width: 100%; justify-content: center; } .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; } .employee-name { position: static !important; /* Ensure it's not sticky */ border-right: none; border-bottom: 2px solid var(--gray); } .schedule-table tbody td { border-right: none; } .schedule-table thead th:first-child { /* Sticky handled by main css */ } } </style> <body> <div class="main-container"> <div class="page-header"> <h1 class="page-title">Employee Schedule</h1> <div> <button class="btn btn-success" id="scheduleAddEmployeeBtn" title="Add New Employee"> <i class="fas fa-plus"></i> Add Employee </button> <!-- Edit/Delete might be better in Team Management --> <!-- <button class="btn btn-warning" id="scheduleEditEmployeeBtn" title="Edit Selected Employee" disabled> <i class="fas fa-edit"></i> Edit </button> <button class="btn btn-danger" id="scheduleDeleteEmployeeBtn" title="Delete Selected Employee" disabled> <i class="fas fa-trash"></i> Delete </button> --> </div> </div> <div class="schedule-controls"> <div class="week-navigation"> <button class="btn btn-outline" id="prevWeekBtn"> <i class="fas fa-chevron-left"></i> </button> <div class="week-display" id="weekDisplay">Loading...</div> <button class="btn btn-outline" id="nextWeekBtn"> <i class="fas fa-chevron-right"></i> </button> </div> <div> <!-- Group save/send buttons --> <button class="btn btn-secondary" id="sendRemindersBtn" style="background-color: var(--secondary);"> <i class="fas fa-envelope"></i> Send Reminders </button> <button class="btn btn-primary" id="saveScheduleBtn"> <i class="fas fa-save"></i> Save Schedule </button> </div> </div> <div class="schedule-container"> <table class="schedule-table"> <thead> <tr> <th>Employee</th> <!-- Day headers populated by JS (Mon-Sun) --> <th><div class="day-header"><span class="day-name">Mon</span><span class="day-date">...</span></div></th> <th><div class="day-header"><span class="day-name">Tue</span><span class="day-date">...</span></div></th> <th><div class="day-header"><span class="day-name">Wed</span><span class="day-date">...</span></div></th> <th><div class="day-header"><span class="day-name">Thu</span><span class="day-date">...</span></div></th> <th><div class="day-header"><span class="day-name">Fri</span><span class="day-date">...</span></div></th> <th><div class="day-header"><span class="day-name">Sat</span><span class="day-date">...</span></div></th> <th><div class="day-header"><span class="day-name">Sun</span><span class="day-date">...</span></div></th> </tr> </thead> <tbody> <!-- Rows loaded by JS --> <tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">Loading schedule...</td></tr> </tbody> </table> </div> </div> <div class="toast" id="scheduleToastInternal" style="display: none;">Internal Toast</div> <div class="modal" id="employeeModal"> <div class="modal-content"> <div class="modal-header"> <h2 class="modal-title">Manage Employee</h2> <button class="close-modal" data-modal-close>&times;</button> </div> <form id="employeeForm"> <input type="hidden" id="editingEmpId" value=""> <div class="form-group"> <label for="empName">Full Name</label> <input type="text" id="empName" class="form-control" required> </div> <div class="form-group"> <label for="empEmail">Email</label> <input type="email" id="empEmail" class="form-control" required> </div> <div class="form-group"> <label for="empPosition">Position</label> <input type="text" id="empPosition" class="form-control"> </div> <div class="form-group"> <label for="empRole">Role (Informational)</label> <select id="empRole" class="form-control" disabled> <option value="employee">Employee</option> <option value="supervisor">Supervisor</option> <option value="admin">Admin</option> </select> <small>Role managed in main Settings.</small> </div> <div class="form-actions"> <button type="button" class="btn btn-outline" data-modal-close>Cancel</button> <button type="submit" class="btn btn-primary">Save Employee</button> </div> </form> </div> </div> <div class="modal" id="shiftModal"> <div class="modal-content"> <div class="modal-header"> <h2 class="modal-title">Edit Shift</h2> <button class="close-modal" data-modal-close>&times;</button> </div> <form id="shiftForm"> <div class="form-group"> <label for="shiftEmployee">Employee</label> <input type="text" id="shiftEmployee" class="form-control" readonly> </div> <div class="form-group"> <label for="shiftDate">Date</label> <input type="date" id="shiftDate" class="form-control" readonly> </div> <div class="form-group"> <label for="shiftTypeSelect">Shift Type</label> <select id="shiftTypeSelect" class="form-control" required> <option value="morning">Morning (9AM-5PM)</option> <option value="afternoon">Afternoon (12PM-8PM)</option> <option value="night">Night (5PM-1AM)</option> <option value="day-off">Day Off</option> <option value="sick-leave">Sick Leave</option> <option value="vacation">Vacation</option> <option value="custom">Custom</option> </select> </div> <div class="form-group" id="customShiftGroup" style="display: none;"> <label for="customShift">Custom Shift Times</label> <input type="text" id="customShift" class="form-control" placeholder="e.g., 10AM-6PM"> </div> <div class="form-group"> <label for="shiftNotes">Notes</label> <textarea id="shiftNotes" class="form-control" rows="3"></textarea> </div> <div class="form-actions"> <button type="button" class="btn btn-danger" id="deleteShiftBtn">Delete Shift</button> <button type="button" class="btn btn-outline" data-modal-close>Cancel</button> <button type="submit" class="btn btn-primary">Save Changes</button> </div> </form> </div> </div> <script id="schedule-script-block"> // --- Start of Schedule Script --- (No DOMContentLoaded wrapper) console.log("%cExecuting Employee Schedule Script...", "color: green; font-weight: bold;"); // --- Access Global Data --- const scheduleCurrentUser = window.currentUser || { name: "Admin User", email: "admin@company.com", role: "admin" }; let scheduleMockUsers = window.MOCK_USERS || [ { id: 1, name: 'Mohamed Elmenisy', email: 'mohamed@example.com' }, { id: 2, name: 'Yousef', email: 'yousef@example.com' }, { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com' }, { id: 4, name: 'Bassant Badr', email: 'bassant@example.com' }, { id: 5, name: 'Nada Mahmoud', email: 'nada@example.com'} ]; const showScheduleToast = window.showToast || function(message, type = 'info') { console.warn(`SCHEDULE TOAST (${type}): ${message}`); const internalToast = document.getElementById('scheduleToastInternal'); if (internalToast) { internalToast.textContent = message; internalToast.style.display = 'block'; setTimeout(() => { internalToast.style.display = 'none'; }, 3000); } }; const showScheduleConfirm = window.showConfirmModal || function(title, msg, cb, type) { if (confirm(`${title}\n${msg}`)) cb(); }; // --- DOM Elements (Scoped to loaded content) --- const scheduleContainer = document.querySelector('#featureSectionsContainer.employee-scheduling'); const employeeModal = scheduleContainer?.querySelector('#employeeModal'); const shiftModal = scheduleContainer?.querySelector('#shiftModal'); const addEmployeeBtn = scheduleContainer?.querySelector('#scheduleAddEmployeeBtn'); const sendRemindersBtn = scheduleContainer?.querySelector('#sendRemindersBtn'); const employeeForm = scheduleContainer?.querySelector('#employeeForm'); const shiftForm = scheduleContainer?.querySelector('#shiftForm'); const shiftTypeSelect = scheduleContainer?.querySelector('#shiftTypeSelect'); const customShiftGroup = scheduleContainer?.querySelector('#customShiftGroup'); const deleteShiftBtn = scheduleContainer?.querySelector('#deleteShiftBtn'); const prevWeekBtn = scheduleContainer?.querySelector('#prevWeekBtn'); const nextWeekBtn = scheduleContainer?.querySelector('#nextWeekBtn'); const weekDisplay = scheduleContainer?.querySelector('#weekDisplay'); const saveScheduleBtn = scheduleContainer?.querySelector('#saveScheduleBtn'); const scheduleTableBody = scheduleContainer?.querySelector('.schedule-table tbody'); const shiftDateInput = scheduleContainer?.querySelector('#shiftDate'); const shiftEmployeeInput = scheduleContainer?.querySelector('#shiftEmployee'); // --- Schedule State --- let currentScheduleWeekStart = new Date(2025, 4, 5); // May 5th, 2025 (Monday) const scheduleMinDate = new Date(2025, 4, 1); const scheduleMaxDate = new Date(2025, 5, 30); // Allow up to June 30th let scheduleData = {}; // Store shifts like {'empId-dateISO': 'shiftType'} // --- Functions --- function getWeekKey(date) { const year = date.getFullYear(); const month = date.getMonth(); const day = date.getDate(); // Find Monday of the week const dayOfWeek = date.getDay(); // 0=Sun, 1=Mon const diff = day - (dayOfWeek === 0 ? 6 : dayOfWeek - 1); // Adjust to Monday const monday = new Date(year, month, diff); return monday.toISOString().split('T')[0]; // Use YYYY-MM-DD of Monday } function loadScheduleDataForWeek(weekStartDate) { // Simulate loading - in reality, fetch based on weekStartDate // For now, use mock logic within render function } function saveScheduleDataForWeek(weekStartDate) { showScheduleToast("Saving schedule...", "info"); console.log("Simulating save for week:", getWeekKey(weekStartDate), scheduleData); // In real app, send scheduleData changes to backend return new Promise(resolve => setTimeout(resolve, 800)); } function updateWeekDisplayAndTable() { if (!weekDisplay || !scheduleTableBody) { console.error("Schedule display/table not found in loaded content!"); return; } const weekEnd = new Date(currentScheduleWeekStart); weekEnd.setDate(weekEnd.getDate() + 6); const options = { month: 'short', day: 'numeric' }; const startStr = currentScheduleWeekStart.toLocaleDateString('en-US', options); const endStr = weekEnd.toLocaleDateString('en-US', options); const year = currentScheduleWeekStart.getFullYear(); weekDisplay.textContent = `${startStr} - ${endStr}, ${year}`; // Update header dates const headerDateCells = scheduleContainer?.querySelectorAll('.day-date'); const headerDayCells = scheduleContainer?.querySelectorAll('.day-name'); const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; const tempDateHeader = new Date(currentScheduleWeekStart); headerDateCells?.forEach((cell, index) => { const dateStr = tempDateHeader.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); cell.textContent = dateStr; if (headerDayCells?.[index]) headerDayCells[index].textContent = days[index]; tempDateHeader.setDate(tempDateHeader.getDate() + 1); }); // Disable nav buttons const prevWeek = new Date(currentScheduleWeekStart); prevWeek.setDate(prevWeek.getDate() - 7); if (prevWeekBtn) prevWeekBtn.disabled = prevWeek < scheduleMinDate; const nextWeek = new Date(weekEnd); nextWeek.setDate(nextWeek.getDate() + 1); if (nextWeekBtn) nextWeekBtn.disabled = nextWeek > scheduleMaxDate; loadScheduleDataForWeek(currentScheduleWeekStart); // Load/prepare data renderScheduleTable(); // Re-render table content } function renderScheduleTable() { if (!scheduleTableBody) return; console.log("Rendering schedule table body..."); scheduleTableBody.innerHTML = ''; // Clear existing rows if (scheduleMockUsers.length === 0) { scheduleTableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">No employees found.</td></tr>`; return; } scheduleMockUsers.forEach(emp => { const row = document.createElement('tr'); const nameCell = document.createElement('td'); nameCell.classList.add('employee-name'); nameCell.textContent = emp.name; row.appendChild(nameCell); const tempDate = new Date(currentScheduleWeekStart); for (let i = 0; i < 7; i++) { const currentDate = new Date(tempDate); const dateKey = currentDate.toISOString().split('T')[0]; const scheduleKey = `${emp.id}-${dateKey}`; const cell = document.createElement('td'); cell.classList.add('admin-controls'); const shiftDiv = document.createElement('div'); shiftDiv.classList.add('shift'); // --- Get Shift Data --- let shiftType = scheduleData[scheduleKey]; let shiftText = ''; // If no data, apply default/mock logic if (!shiftType) { const dayOfWeek = currentDate.getDay(); // 0=Sun, 1=Mon,... if (dayOfWeek === 6 || dayOfWeek === 0) { // Sat/Sun shiftType = 'day-off'; } else if (emp.id === 1 && i === 2) shiftType = 'afternoon'; else if (emp.id === 1 && i === 4) shiftType = 'day-off'; else if (emp.id === 1 && i >= 5) shiftType = 'night'; else if (emp.id === 2 && (i === 0 || i === 3)) shiftType = 'afternoon'; else if (emp.id === 2 && i >= 5) shiftType = 'day-off'; else if (emp.id === 3 && i < 2) shiftType = 'night'; else if (emp.id === 3 && i === 2) shiftType = 'day-off'; else if (emp.id === 3 && i === 4) shiftType = 'afternoon'; else if (emp.id === 3 && i === 6) shiftType = 'sick-leave'; else if (emp.id === 4 && i < 2) shiftType = 'vacation'; else if (emp.id === 4 && (i === 3 || i === 4)) shiftType = 'night'; else if (emp.id === 4 && i === 5) shiftType = 'day-off'; else shiftType = 'morning'; // Default scheduleData[scheduleKey] = shiftType; // Store generated shift } // --- Get Text & Class --- switch(shiftType) { case 'morning': shiftText = '9AM-5PM'; break; case 'afternoon': shiftText = '12PM-8PM'; break; case 'night': shiftText = '5PM-1AM'; break; case 'day-off': shiftText = 'OFF'; break; case 'sick-leave': shiftText = 'SICK'; break; case 'vacation': shiftText = 'VAC'; break; case 'custom': shiftText = scheduleData[`${scheduleKey}-custom`] || 'Custom'; break; default: shiftText = 'N/A'; shiftType = 'day-off'; break; } shiftDiv.classList.add(`shift-${shiftType.replace('_', '-')}`); shiftDiv.textContent = shiftText; shiftDiv.dataset.date = dateKey; shiftDiv.dataset.empId = emp.id; cell.appendChild(shiftDiv); // Add Edit Span if admin/supervisor if (scheduleCurrentUser.role === 'admin' || scheduleCurrentUser.role === 'supervisor') { shiftDiv.classList.add('editable'); shiftDiv.title = `Click to edit shift`; const editSpan = document.createElement('span'); editSpan.classList.add('edit-shift'); editSpan.dataset.emp = emp.id; editSpan.dataset.date = dateKey; editSpan.textContent = '(edit)'; editSpan.addEventListener('click', handleEditShiftClick); cell.appendChild(editSpan); } row.appendChild(cell); tempDate.setDate(tempDate.getDate() + 1); } scheduleTableBody.appendChild(row); }); console.log("Schedule table render complete."); } function handleEditShiftClick(event) { if (scheduleCurrentUser.role !== 'admin' && scheduleCurrentUser.role !== 'supervisor') return; const target = event.target; const empId = target.dataset.emp; const dateKey = target.dataset.date; const employee = scheduleMockUsers.find(e => e.id == empId); const scheduleKey = `${empId}-${dateKey}`; const currentShiftType = scheduleData[scheduleKey] || 'morning'; const customShiftText = scheduleData[`${scheduleKey}-custom`] || ''; if (employee && shiftDateInput && shiftEmployeeInput && shiftTypeSelect && shiftModal) { shiftEmployeeInput.value = employee.name; shiftDateInput.value = dateKey; shiftTypeSelect.value = currentShiftType; // Show/hide custom input document.getElementById('customShiftGroup').style.display = currentShiftType === 'custom' ? 'block' : 'none'; document.getElementById('customShift').value = customShiftText; // Store info needed for saving shiftModal.dataset.empId = empId; shiftModal.dataset.dateKey = dateKey; shiftModal.style.display = 'flex'; } else { console.error("Could not open edit shift modal. Missing elements or data.", {employee, shiftDateInput, shiftEmployeeInput, shiftTypeSelect, shiftModal}); showScheduleToast("Error opening shift editor.", "error"); } } function openEmployeeModal(empId = null) { if (!employeeModal || !employeeForm) return; employeeForm.reset(); const modalTitle = employeeModal.querySelector('.modal-title'); const editingEmpIdInput = employeeModal.querySelector('#editingEmpId'); if (empId) { const emp = scheduleMockUsers.find(e => e.id == empId); if (emp) { modalTitle.textContent = `Edit ${emp.name}`; editingEmpIdInput.value = emp.id; document.getElementById('empName').value = emp.name; document.getElementById('empEmail').value = emp.email; document.getElementById('empPosition').value = emp.title || ''; document.getElementById('empRole').value = emp.role || 'employee'; } else { showScheduleToast(`Employee with ID ${empId} not found.`, "error"); return; } } else { modalTitle.textContent = 'Add New Employee'; editingEmpIdInput.value = ''; // Clear editing ID } employeeModal.style.display = 'flex'; } // --- Event Listeners --- if (prevWeekBtn) prevWeekBtn.addEventListener('click', function() { currentScheduleWeekStart.setDate(currentScheduleWeekStart.getDate() - 7); updateWeekDisplayAndTable(); }); if (nextWeekBtn) nextWeekBtn.addEventListener('click', function() { currentScheduleWeekStart.setDate(currentScheduleWeekStart.getDate() + 7); updateWeekDisplayAndTable(); }); if (shiftTypeSelect) shiftTypeSelect.addEventListener('change', function() { if (customShiftGroup) customShiftGroup.style.display = this.value === 'custom' ? 'block' : 'none'; }); if (addEmployeeBtn) addEmployeeBtn.addEventListener('click', () => openEmployeeModal()); // --- Add listener for modal close buttons --- scheduleContainer?.querySelectorAll('[data-modal-close]').forEach(btn => { btn.addEventListener('click', () => { const modal = btn.closest('.modal'); if (modal) modal.style.display = 'none'; }); }); // --- Add listener for modal backdrop clicks --- scheduleContainer?.querySelectorAll('.modal').forEach(modal => { modal.addEventListener('click', (event) => { if (event.target === modal) { modal.style.display = 'none'; } }); }); // Employee Form Submit (Add/Update) if (employeeForm) employeeForm.addEventListener('submit', function(e) { e.preventDefault(); const editingId = document.getElementById('editingEmpId').value; const name = document.getElementById('empName').value; const email = document.getElementById('empEmail').value; const position = document.getElementById('empPosition').value; // Simulate adding/updating global MOCK_USERS if (editingId) { // Update existing const userIndex = scheduleMockUsers.findIndex(u => u.id == editingId); if (userIndex > -1) { scheduleMockUsers[userIndex].name = name; scheduleMockUsers[userIndex].email = email; scheduleMockUsers[userIndex].title = position; // Maybe update initials? const nameParts = name.split(' '); scheduleMockUsers[userIndex].initials = (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || ''); showScheduleToast(`Employee ${name} updated (simulated).`); } } else { // Add new const newId = Math.max(0, ...scheduleMockUsers.map(u => u.id)) + 1; const nameParts = name.split(' '); const newUser = { id: newId, name: name, email: email, title: position, department: 'Unknown', phone: '', avatar: '', initials: (nameParts[0]?.[0] || 'N') + (nameParts[1]?.[0] || 'U'), role: 'employee', // Default role twoFaEnabled: false }; scheduleMockUsers.push(newUser); showScheduleToast(`Employee ${name} added (simulated).`); } window.MOCK_USERS = scheduleMockUsers; // IMPORTANT: Update global array if necessary for other parts of dashboard if(employeeModal) employeeModal.style.display = 'none'; renderScheduleTable(); // Re-render schedule }); // Shift Edit Form Submit if (shiftForm) shiftForm.addEventListener('submit', function(e) { e.preventDefault(); const shiftTypeValue = shiftTypeSelect.value; const customShiftValue = document.getElementById('customShift').value; const empId = shiftModal.dataset.empId; const dateKey = shiftModal.dataset.dateKey; const scheduleKey = `${empId}-${dateKey}`; const employeeName = shiftEmployeeInput.value; scheduleData[scheduleKey] = shiftTypeValue; if (shiftTypeValue === 'custom') { scheduleData[`${scheduleKey}-custom`] = customShiftValue; } else { delete scheduleData[`${scheduleKey}-custom`]; // Remove custom text if not custom type } renderScheduleTable(); // Re-render the table if (shiftModal) shiftModal.style.display = 'none'; showScheduleToast(`Shift for ${employeeName} updated!`); }); // Delete Shift Button if (deleteShiftBtn) deleteShiftBtn.addEventListener('click', function() { const empId = shiftModal.dataset.empId; const dateKey = shiftModal.dataset.dateKey; const scheduleKey = `${empId}-${dateKey}`; const employeeName = shiftEmployeeInput.value; delete scheduleData[scheduleKey]; // Remove shift data delete scheduleData[`${scheduleKey}-custom`]; // Remove custom text renderScheduleTable(); if (shiftModal) shiftModal.style.display = 'none'; showScheduleToast(`Shift for ${employeeName} deleted!`, 'danger'); }); // Save Schedule Button if (saveScheduleBtn) saveScheduleBtn.addEventListener('click', function() { showScheduleConfirm('Save Schedule', 'Save all changes for the current week?', () => { saveScheduleBtn.disabled = true; saveScheduleBtn.innerHTML = '<span class="spinner" style="display: inline-block;"></span> Saving...'; saveScheduleDataForWeek(currentScheduleWeekStart) .then(() => { showScheduleToast("Schedule saved successfully!", "success"); }) .catch(err => { console.error("Save failed:", err); showScheduleToast("Failed to save schedule.", "error"); }) .finally(() => { saveScheduleBtn.disabled = false; saveScheduleBtn.innerHTML = '<i class="fas fa-save"></i> Save Schedule'; }); }, 'btn-primary'); }); // Send Reminders Button if (sendRemindersBtn) sendRemindersBtn.addEventListener('click', function() { const btn = this; btn.disabled = true; btn.innerHTML = '<span class="spinner" style="display: inline-block;"></span> Sending...'; const weekEnd = new Date(currentScheduleWeekStart); weekEnd.setDate(weekEnd.getDate() + 6); const weekStartStr = currentScheduleWeekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); const weekEndStr = weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); const subject = encodeURIComponent(`Schedule Reminder: ${weekStartStr} - ${weekEndStr}`); const body = encodeURIComponent(`Dear Team,\n\nPlease find your schedule for the week: ${weekStartStr} to ${weekEndStr}.\nCheck the dashboard for details.\n\nBest,\n${scheduleCurrentUser.name}`); const recipientEmails = scheduleMockUsers.map(e => e.email).join(','); const mailtoLink = `mailto:?bcc=${recipientEmails}&subject=${subject}&body=${body}`; try { window.open(mailtoLink, '_blank').focus(); } catch (e) { console.error("Could not open mailto link", e); showScheduleToast("Could not open email client.", "error"); } setTimeout(() => { // Simulate completion showScheduleToast('Reminder email prepared (simulated).'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-envelope"></i> Send Reminders'; }, 1000); }); // --- Initial Render --- console.log("Attempting initial schedule render..."); updateWeekDisplayAndTable(); // --- End of Schedule Script --- </script> </body> </html>
-                        <!-- END Employee Scheduling HTML -->
-                    `,
-                    // Add other features here
-                    // 'projects': `<h1>Projects Content</h1><p>...</p>`,
-                };
-
-                featureHTML = featureHTMLMap[featureId] || ''; // Get the HTML string
-
-                // Simulate Delay & Process
-                setTimeout(() => {
-                    if (!featureHTML) {
-                        // Show placeholder for unimplemented features
-                        featurePlaceholder.style.display = 'flex';
-                        featureLoadingEl.style.display = 'none';
-                        featureTitleEl.textContent = featureName;
-                        featureDescEl.textContent = `Content for ${featureName} not yet implemented.`;
-                        console.warn(`HTML content for feature "${featureId}" is missing.`);
-                        return;
-                    }
-
-                    try {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(featureHTML, 'text/html');
-
-                        const bodyContentNodes = doc.body.childNodes; // Get child nodes to append
-                        const styleContent = doc.querySelector('style#schedule-style-block')?.textContent || ''; // Use ID
-                        const scriptContent = doc.querySelector('script#schedule-script-block')?.textContent || ''; // Use ID
-
-                        // 1. Clear Placeholder & Inject Body HTML
-                        featureSectionsContainer.innerHTML = ''; // Clear placeholder
-                        bodyContentNodes.forEach(node => {
-                            // Import node to the current document before appending
-                            featureSectionsContainer.appendChild(document.importNode(node, true));
-                        });
-                         console.log(`Injected body content for ${featureId}`);
-
-
-                        // 2. Remove Previous Feature Styles (if any)
-                        document.querySelectorAll('style[data-feature-style]').forEach(el => el.remove());
-
-                        // 3. Inject Styles
-                        if (styleContent) {
-                            const styleElement = document.createElement('style');
-                            styleElement.setAttribute('data-feature-style', featureId); // Mark for removal later
-                            styleElement.textContent = styleContent;
-                            document.head.appendChild(styleElement);
-                            console.log(`Injected styles for ${featureId}`);
-                        }
-
-                         // 4. Remove Previous Feature Scripts (if any) - safer to remove before adding new
-                         document.querySelectorAll('script[data-feature-script]').forEach(el => el.remove());
-
-                        // 5. Inject and Execute Script
-                        if (scriptContent) {
-                            const scriptElement = document.createElement('script');
-                            scriptElement.setAttribute('data-feature-script', featureId); // Mark for removal later
-                            scriptElement.textContent = scriptContent;
-                            document.body.appendChild(scriptElement); // Append to execute
-                            console.log(`Added script element for ${featureId} to body for execution.`);
-                        } else {
-                             console.log(`No script found to execute for ${featureId}`);
-                        }
-
-                    } catch (error) {
-                        console.error(`Error processing or injecting feature ${featureId}:`, error);
-                        featureSectionsContainer.innerHTML = ''; // Clear on error
-                        featurePlaceholder.style.display = 'flex';
-                        featureLoadingEl.style.display = 'none';
-                        featureErrorEl.textContent = `Failed to load ${featureName}. Error: ${error.message}`;
-                        featureErrorEl.style.display = 'block';
-                        featureSectionsContainer.appendChild(featurePlaceholder);
-                    }
-                }, 300); // Simulate loading time
-            }
-
-
-            // --- Data Loading & Simulation ---
-            // (Keep loadInitialData, loadDashboardStats, updateStatCard, etc. as before)
-             function loadInitialData() { loadDashboardStats(); loadRecentActivities(); loadNotifications(); if (currentFeature === 'settings' && currentSettingsTab === 'team' && currentUser.role === 'admin') { loadTeamMembers(); } }
-             function loadDashboardStats() { console.log("Loading dashboard stats..."); setTimeout(() => { const teamMembersCount = MOCK_USERS.length; const tasksCompleted = MOCK_TASKS.filter(t => t.status === 'Completed').length + Math.floor(Math.random() * 50); const activeProjects = MOCK_PROJECTS.filter(p => p.status === 'Active').length; const upcomingDeadlines = Math.floor(Math.random() * 10); updateStatCard('teamMembersCount', 'Team Members', 'fas fa-users', teamMembersCount, Math.random() * 10 - 5); updateStatCard('tasksCompleted', 'Tasks Completed', 'fas fa-check-circle', tasksCompleted, Math.random() * 20); updateStatCard('activeProjects', 'Active Projects', 'fas fa-project-diagram', activeProjects, Math.random() * 5 - 2); updateStatCard('upcomingDeadlines', 'Upcoming Deadlines', 'fas fa-calendar-times', upcomingDeadlines, Math.random() * 15 - 10); }, 300); }
-             function updateStatCard(id, title, iconClass, value, trendPercent) { const cardIndex = ['teamMembersCount', 'tasksCompleted', 'activeProjects', 'upcomingDeadlines'].indexOf(id); if (cardIndex === -1 || !statsSection || !statsSection.children[cardIndex]) return; const card = statsSection.children[cardIndex]; let trendClass = 'trend-neutral'; let trendIcon = 'fas fa-minus'; if (trendPercent > 1) { trendClass = 'trend-up'; trendIcon = 'fas fa-arrow-up'; } else if (trendPercent < -1) { trendClass = 'trend-down'; trendIcon = 'fas fa-arrow-down'; } card.innerHTML = ` <div class="stat-title"><i class="${iconClass}"></i>${title}</div> <div class="stat-value"> <span>${value}</span> <span class="stat-trend ${trendClass}"> <i class="${trendIcon}"></i> ${trendPercent !== 0 ? Math.abs(trendPercent).toFixed(0) + '%' : ''} </span> </div> `; }
-             function loadRecentActivities(showAll = false) { console.log("Loading recent activities..."); if (activities.length === 0) { const now = Date.now(); activities = generateMockActivities(15, now); } showingAllActivities = showAll; const activitiesToDisplay = showAll ? activities : activities.slice(0, maxActivitiesToShow); activityList.innerHTML = ''; if (activitiesToDisplay.length === 0) { activityList.innerHTML = '<li style="text-align: center; padding: 2rem; color: var(--gray);">No recent activity.</li>'; deleteAllActivity.style.display = 'none'; viewAllActivity.style.display = 'none'; return; } activitiesToDisplay.forEach((activity, index) => { const li = document.createElement('li'); li.classList.add('activity-item'); li.dataset.id = activity.id; if (activity.isNew) { li.classList.add('new-activity'); setTimeout(() => { activity.isNew = false; const currentLi = activityList.querySelector(`[data-id='${activity.id}']`); if (currentLi) currentLi.classList.remove('new-activity'); }, 2500); } li.innerHTML = ` <div class="activity-icon"><i class="fas ${activity.icon}"></i></div> <div class="activity-content"> <div class="activity-message">${activity.message}</div> <div class="activity-time" title="${formatFullDateTime(activity.timestamp)}">${timeAgo(activity.timestamp)}</div> </div> <div class="activity-actions"> <i class="fas fa-trash-alt delete-activity" title="Delete Activity"></i> </div> `; activityList.appendChild(li); }); deleteAllActivity.style.display = activities.length > 0 ? 'inline-block' : 'none'; viewAllActivity.textContent = showAll ? 'Show Less' : 'Show All'; viewAllActivity.style.display = activities.length > maxActivitiesToShow ? 'inline-block' : 'none'; }
-             function loadNotifications() { console.log("Loading notifications..."); if (notifications.length === 0) { const now = Date.now(); notifications = generateMockNotifications(8, now); } renderNotifications(); }
-             function renderNotifications() { notificationsBody.innerHTML = ''; const unreadCount = notifications.filter(n => n.unread).length; if (notifications.length === 0) { noNotificationsMessage.textContent = 'You have no notifications.'; noNotificationsMessage.style.display = 'block'; notificationBadge.style.display = 'none'; notificationBadge.textContent = '0'; markAllReadBtn.disabled = true; deleteAllNotificationsBtn.disabled = true; return; } noNotificationsMessage.style.display = 'none'; markAllReadBtn.disabled = unreadCount === 0; deleteAllNotificationsBtn.disabled = false; notifications.forEach(notification => { const div = document.createElement('div'); div.classList.add('notification-list-item'); div.dataset.id = notification.id; if (notification.unread) { div.classList.add('unread'); } div.innerHTML = ` <div class="notification-icon-wrapper"><i class="fas ${notification.icon}"></i></div> <div class="notification-content"> <div class="notification-message">${notification.message}</div> <div class="notification-time" title="${formatFullDateTime(notification.timestamp)}">${timeAgo(notification.timestamp)}</div> </div> <i class="fas fa-times delete-notification" title="Delete Notification"></i> `; notificationsBody.appendChild(div); }); notificationBadge.textContent = unreadCount; notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none'; }
-             function loadTeamMembers() { const teamListContainer = document.getElementById('teamList'); if (!teamListContainer) return; console.log("Loading team members for settings..."); teamListContainer.innerHTML = '<p style="color: var(--gray);">Loading...</p>'; setTimeout(() => { teamListContainer.innerHTML = ''; if (MOCK_USERS.length === 0) { teamListContainer.innerHTML = '<p style="color: var(--gray);">No team members found.</p>'; return; } MOCK_USERS.forEach(member => { const card = document.createElement('div'); card.classList.add('team-member-card'); card.dataset.id = member.id; const avatarStyle = member.avatar ? `background-image: url('${member.avatar}')` : ''; const avatarContent = member.avatar ? '' : member.initials; card.innerHTML = ` <div class="member-avatar" style="${avatarStyle}">${avatarContent}</div> <div class="member-details"> <div class="member-name">${member.name}</div> <div class="member-email">${member.email}</div> </div> <span class="member-role role-${member.role}">${formatRole(member.role)}</span> ${currentUser.id !== member.id ? ` <div class="member-actions"> <button class="btn btn-outline btn-sm edit-member" title="Edit Member"><i class="fas fa-pencil-alt"></i></button> <button class="btn btn-danger btn-sm remove-member" title="Remove Member"><i class="fas fa-trash-alt"></i></button> </div> ` : '<div class="member-actions" style="width: 70px;"></div>'} `; teamListContainer.appendChild(card); }); }, 500); }
-
-
-            // --- Dynamic Updates Simulation ---
-            // (Keep startDynamicUpdates, changeWelcomeBackground as before)
-             function startDynamicUpdates() { if (activityIntervalId) clearInterval(activityIntervalId); activityIntervalId = setInterval(() => { const newActivity = generateMockActivities(1, Date.now())[0]; newActivity.isNew = true; activities.unshift(newActivity); if (activities.length > 50) activities.pop(); if (currentFeature === 'dashboard') { loadRecentActivities(showingAllActivities); } showToast(`New Activity: ${newActivity.message.substring(0, 30)}...`); }, Math.random() * 10000 + 10000); if (notificationIntervalId) clearInterval(notificationIntervalId); notificationIntervalId = setInterval(() => { const newNotification = generateMockNotifications(1, Date.now())[0]; newNotification.unread = true; notifications.unshift(newNotification); if (notifications.length > 30) notifications.pop(); renderNotifications(); playNotificationSound(); }, Math.random() * 20000 + 20000); if (statsIntervalId) clearInterval(statsIntervalId); statsIntervalId = setInterval(loadDashboardStats, 30000); if (welcomeBgIntervalId) clearInterval(welcomeBgIntervalId); welcomeBgIntervalId = setInterval(changeWelcomeBackground, 15000); }
-             function changeWelcomeBackground() { const backgrounds = ['--welcome-bg-1', '--welcome
-                             // --- Event Listeners ---
+                        <!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Employee Schedule | Team Management Platform</title> <style id="schedule-style-block"> :root { /* Inherit from main dashboard */ } * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; } header { display: none; /* Hide internal header */ } .main-container { max-width: 1400px; margin: 0 auto; /* Adjusted margin */ padding: 0; /* Adjusted padding */ } .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; } .page-title { font-size: 1.5rem; /* Adjusted size */ color: var(--primary-dark); font-weight: 600; margin: 0; /* Removed default h1 margin */ } .page-header > div { display: flex; gap: 0.75rem; } /* Button container */ .schedule-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; background-color: var(--white); padding: 1rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); flex-wrap: wrap; gap: 1rem; } .week-navigation { display: flex; align-items: center; gap: 1rem; } .week-display { font-weight: 600; min-width: 180px; /* Adjusted width */ text-align: center; } .btn { padding: 0.5rem 1rem; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; display: flex; align-items: center; gap: 0.5rem; } /* Basic btn styles - more specific below */ .btn-primary { background-color: var(--primary); color: white; } .btn-primary:hover:not(:disabled) { background-color: var(--primary-dark); } .btn-outline { background-color: transparent; border: 1px solid var(--primary); color: var(--primary); } .btn-outline:hover:not(:disabled) { background-color: var(--primary-light); } .btn-danger { background-color: var(--danger); color: white; } .btn-danger:hover:not(:disabled) { background-color: #dc2626; } .btn-success { background-color: var(--success); color: white; } .btn-success:hover:not(:disabled) { background-color: #0d9f6e; } .btn-warning { background-color: var(--warning); color: var(--primary-dark); } .btn-warning:hover:not(:disabled) { background-color: #d97706; } .btn:disabled { opacity: 0.6; cursor: not-allowed; } .schedule-container { background-color: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); overflow-x: auto; margin-top: 1rem; } .schedule-table { width: 100%; border-collapse: separate; border-spacing: 0; /* Changed from 8px */ border: 1px solid var(--light-gray); border-radius: 8px; overflow: hidden; /* Clip rounded corners */ } .schedule-table thead th { padding: 0.75rem 0.5rem; text-align: center; background-color: var(--primary); color: white; font-weight: 600; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--primary-dark); border-right: 1px solid var(--primary-dark); } .schedule-table thead th:last-child { border-right: none; } .schedule-table thead th:first-child { border-top-left-radius: 7px; /* Match border radius */ } .schedule-table thead th:last-child { border-top-right-radius: 7px; } .schedule-table tbody td { padding: 0.6rem 0.5rem; /* Adjusted padding */ text-align: center; background-color: var(--white); border-bottom: 1px solid var(--light-gray); border-right: 1px solid var(--light-gray); vertical-align: middle; } .schedule-table tbody tr:last-child td { border-bottom: none; } .schedule-table tbody td:last-child { border-right: none; } .schedule-table tbody tr:nth-child(even) td { background-color: #f9fafb; /* Subtle striping */ } .schedule-table tbody tr:hover td { background-color: var(--primary-light); } .employee-name { font-weight: 600; text-align: left; position: sticky; left: 0; background-color: var(--white); /* Needs to match row bg */ padding: 0.6rem 1rem; white-space: nowrap; z-index: 5; border-right: 2px solid var(--gray); /* Make divider more prominent */ } .schedule-table tbody tr:nth-child(even) td.employee-name { background-color: #f9fafb; } .schedule-table tbody tr:hover td.employee-name { background-color: var(--primary-light); } .shift { padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: 500; white-space: nowrap; display: inline-block; border: 1px solid transparent; cursor: default; min-width: 60px; text-align: center; } .shift.editable { cursor: pointer; transition: transform 0.15s ease-in-out; } .shift.editable:hover { transform: scale(1.05); box-shadow: 0 1px 3px rgba(0,0,0,0.1); } .shift-morning { background-color: #dbeafe; color: #1e40af; border-color: #bfdbfe; } .shift-afternoon { background-color: #e0f2fe; color: #0c4a6e; border-color: #bae6fd;} .shift-night { background-color: #ede9fe; color: #5b21b6; border-color: #ddd6fe; } .shift-day-off { background-color: #f0fdf4; color: #166534; border-color: #bbf7d0; } .shift-sick-leave { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; } .shift-vacation { background-color: #ffedd5; color: #9a3412; border-color: #fed7aa; } .shift-custom { background-color: var(--light-gray); color: var(--dark); border-color: var(--gray); } .day-header { display: flex; flex-direction: column; gap: 0.25rem; align-items: center; } .day-name { font-weight: 600; font-size: 0.9rem; color: white; } .day-date { font-size: 0.8rem; opacity: 0.9; color: rgba(255,255,255, 0.85); } .form-group { margin-bottom: 1.5rem; } .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark); } .form-control { width: 100%; padding: 0.75rem; border: 1px solid var(--light-gray); border-radius: 6px; font-size: 1rem; background-color: var(--white); color: var(--dark); } .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); } .form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; } .admin-controls { position: relative; /* Container for edit span */ } .edit-shift { cursor: pointer; color: var(--primary); font-size: 0.7rem; display: inline-block; /* Always show if admin */ margin-left: 4px; opacity: 0.6; transition: opacity 0.2s; } .admin-controls:hover .edit-shift { opacity: 1; } @media (max-width: 768px) { .schedule-controls { flex-direction: column; gap: 1rem; align-items: stretch; } .schedule-controls .btn { width: 100%; justify-content: center; } .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; } .employee-name { position: static !important; /* Ensure it's not sticky */ border-right: none; border-bottom: 2px solid var(--gray); } .schedule-table tbody td { border-right: none; } } </style> <body> <div class="main-container"> <div class="page-header"> <h1 class="page-title">Employee Schedule</h1> <div> <button class="btn btn-success" id="scheduleAddEmployeeBtn" title="Add New Employee"> <i class="fas fa-plus"></i> Add Employee </button> <!-- Edit/Delete might be better in Team Management --> </div> </div> <div class="schedule-controls"> <div class="week-navigation"> <button class="btn btn-outline" id="prevWeekBtn"> <i class="fas fa-chevron-left"></i> </button> <div class="week-display" id="weekDisplay">Loading...</div> <button class="btn btn-outline" id="nextWeekBtn"> <i class="fas fa-chevron-right"></i> </button> </div> <div> <!-- Group save/send buttons --> <button class="btn btn-secondary" id="sendRemindersBtn" style="background-color: var(--secondary);"> <i class="fas fa-envelope"></i> Send Reminders </button> <button class="btn btn-primary" id="saveScheduleBtn"> <i class="fas fa-save"></i> Save Schedule </button> </div> </div> <div class="schedule-container"> <table class="schedule-table"> <thead> <tr> <th>Employee</th> <!-- Day headers populated by JS (Mon-Sun) --> <th><div class="day-header"><span class="day-name">Mon</span><span class="day-date">...</span></div></th> <th><div class="day-header"><span class="day-name">Tue</span><span class="day-date">...</span></div></th> <th><div class="day-header"><span class="day-name">Wed</span><span class="day-date">...</span></div></th> <th><div class="day-header"><span class="day-name">Thu</span><span class="day-date">...</span></div></th> <th><div class="day-header"><span class="day-name">Fri</span><span class="day-date">...</span></div></th> <th><div class="day-header"><span class="day-name">Sat</span><span class="day-date">...</span></div></th> <th><div class="day-header"><span class="day-name">Sun</span><span class="day-date">...</span></div></th> </tr> </thead> <tbody> <!-- Rows loaded by JS --> <tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">Loading schedule...</td></tr> </tbody> </table> </div> </div> <div class="toast" id="scheduleToastInternal" style="display: none; position: fixed; bottom: 20px; right: 20px; background-color: var(--dark); color: var(--white); padding: 1rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 1350;">Internal Toast</div> <div class="modal" id="employeeModal"> <div class="modal-content"> <div class="modal-header"> <h2 class="modal-title">Manage Employee</h2> <button class="close-modal" data-modal-close>&times;</button> </div> <form id="employeeForm"> <input type="hidden" id="editingEmpId" value=""> <div class="form-group"> <label for="empName">Full Name</label> <input type="text" id="empName" class="form-control" required> </div> <div class="form-group"> <label for="empEmail">Email</label> <input type="email" id="empEmail" class="form-control" required> </div> <div class="form-group"> <label for="empPosition">Position</label> <input type="text" id="empPosition" class="form-control"> </div> <div class="form-group"> <label for="empRole">Role (Informational)</label> <select id="empRole" class="form-control" disabled> <option value="employee">Employee</option> <option value="supervisor">Supervisor</option> <option value="admin">Admin</option> </select> <small>Role managed in main Settings.</small> </div> <div class="form-actions"> <button type="button" class="btn btn-outline" data-modal-close>Cancel</button> <button type="submit" class="btn btn-primary">Save Employee</button> </div> </form> </div> </div> <div class="modal" id="shiftModal"> <div class="modal-content"> <div class="modal-header"> <h2 class="modal-title">Edit Shift</h2> <button class="close-modal" data-modal-close>&times;</button> </div> <form id="shiftForm"> <div class="form-group"> <label for="shiftEmployee">Employee</label> <input type="text" id="shiftEmployee" class="form-control" readonly> </div> <div class="form-group"> <label for="shiftDate">Date</label> <input type="date" id="shiftDate" class="form-control" readonly> </div> <div class="form-group"> <label for="shiftTypeSelect">Shift Type</label> <select id="shiftTypeSelect" class="form-control" required> <option value="morning">Morning (9AM-5PM)</option> <option value="afternoon">Afternoon (12PM-8PM)</option> <option value="night">Night (5PM-1AM)</option> <option value="day-off">Day Off</option> <option value="sick-leave">Sick Leave</option> <option value="vacation">Vacation</option> <option value="custom">Custom</option> </select> </div> <div class="form-group" id="customShiftGroup" style="display: none;"> <label for="customShift">Custom Shift Times</label> <input type="text" id="customShift" class="form-control" placeholder="e.g., 10AM-6PM"> </div> <div class="form-group"> <label for="shiftNotes">Notes</label> <textarea id="shiftNotes" class="form-control" rows="3"></textarea> </div> <div class="form-actions"> <button type="button" class="btn btn-danger" id="deleteShiftBtn">Delete Shift</button> <button type="button" class="btn btn-outline" data-modal-close>Cancel</button> <button type="submit" class="btn btn-primary">Save Changes</button> </div> </form> </div> </div> <script id="schedule-script-block"> // --- Start of Schedule Script --- (No DOMContentLoaded wrapper) try { console.log("%cExecuting Employee Schedule Script...", "color: green; font-weight: bold;"); // --- Access Global Data --- const scheduleCurrentUser = window.currentUser || { name: "Admin User", email: "admin@company.com", role: "admin" }; let scheduleMockUsers = window.MOCK_USERS || [ { id: 1, name: 'Mohamed Elmenisy', email: 'mohamed@example.com' }, { id: 2, name: 'Yousef', email: 'yousef@example.com' }, { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com' }, { id: 4, name: 'Bassant Badr', email: 'bassant@example.com' }, { id: 5, name: 'Nada Mahmoud', email: 'nada@example.com'} ]; const showScheduleToast = window.showToast || function(message, type = 'info') { console.warn(`SCHEDULE TOAST (${type}): ${message}`); const internalToast = document.getElementById('scheduleToastInternal'); if (internalToast) { internalToast.textContent = message; internalToast.style.display = 'block'; setTimeout(() => { internalToast.style.display = 'none'; }, 3000); } }; const showScheduleConfirm = window.showConfirmModal || function(title, msg, cb, type) { if (confirm(`${title}\n${msg}`)) cb(); }; // --- DOM Elements (Scoped to loaded content) --- const scheduleContainer = document.querySelector('#featureSectionsContainer.employee-scheduling'); if (!scheduleContainer) { throw new Error("Schedule container not found in DOM!"); } const employeeModal = scheduleContainer.querySelector('#employeeModal'); const shiftModal = scheduleContainer.querySelector('#shiftModal'); const addEmployeeBtn = scheduleContainer.querySelector('#scheduleAddEmployeeBtn'); const sendRemindersBtn = scheduleContainer.querySelector('#sendRemindersBtn'); const employeeForm = scheduleContainer.querySelector('#employeeForm'); const shiftForm = scheduleContainer.querySelector('#shiftForm'); const shiftTypeSelect = scheduleContainer.querySelector('#shiftTypeSelect'); const customShiftGroup = scheduleContainer.querySelector('#customShiftGroup'); const deleteShiftBtn = scheduleContainer.querySelector('#deleteShiftBtn'); const prevWeekBtn = scheduleContainer.querySelector('#prevWeekBtn'); const nextWeekBtn = scheduleContainer.querySelector('#nextWeekBtn'); const weekDisplay = scheduleContainer.querySelector('#weekDisplay'); const saveScheduleBtn = scheduleContainer.querySelector('#saveScheduleBtn'); const scheduleTableBody = scheduleContainer.querySelector('.schedule-table tbody'); const shiftDateInput = scheduleContainer.querySelector('#shiftDate'); const shiftEmployeeInput = scheduleContainer.querySelector('#shiftEmployee'); // Check essential elements if (!employeeModal || !shiftModal || !addEmployeeBtn || !sendRemindersBtn || !employeeForm || !shiftForm || !shiftTypeSelect || !prevWeekBtn || !nextWeekBtn || !weekDisplay || !saveScheduleBtn || !scheduleTableBody || !shiftDateInput || !shiftEmployeeInput) { console.error("One or more essential schedule elements not found!"); } // --- Schedule State --- let currentScheduleWeekStart = new Date(2025, 4, 5); // May 5th, 2025 (Monday) const scheduleMinDate = new Date(2025, 4, 1); const scheduleMaxDate = new Date(2025, 5, 30); // Allow up to June 30th let scheduleData = window.scheduleDataStore || {}; // Use global store or initialize if first time window.scheduleDataStore = scheduleData; // Persist across loads (simple simulation) // --- Functions --- function getWeekKey(date) { const year = date.getFullYear(); const month = date.getMonth(); const day = date.getDate(); const dayOfWeek = date.getDay(); const diff = day - (dayOfWeek === 0 ? 6 : dayOfWeek - 1); const monday = new Date(year, month, diff); return monday.toISOString().split('T')[0]; } function loadScheduleDataForWeek(weekStartDate) { console.log("Simulating load/check for week:", getWeekKey(weekStartDate)); // In real app, fetch here. We use mock logic in render. } function saveScheduleDataForWeek(weekStartDate) { showScheduleToast("Saving schedule...", "info"); console.log("Simulating save for week:", getWeekKey(weekStartDate), scheduleData); return new Promise(resolve => setTimeout(resolve, 800)); } function updateWeekDisplayAndTable() { if (!weekDisplay || !scheduleTableBody || !scheduleContainer) { console.error("Schedule display/table/container not found!"); return; } const weekEnd = new Date(currentScheduleWeekStart); weekEnd.setDate(weekEnd.getDate() + 6); const options = { month: 'short', day: 'numeric' }; const startStr = currentScheduleWeekStart.toLocaleDateString('en-US', options); const endStr = weekEnd.toLocaleDateString('en-US', options); const year = currentScheduleWeekStart.getFullYear(); weekDisplay.textContent = `${startStr} - ${endStr}, ${year}`; const headerDateCells = scheduleContainer.querySelectorAll('.day-date'); const headerDayCells = scheduleContainer.querySelectorAll('.day-name'); const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; const tempDateHeader = new Date(currentScheduleWeekStart); headerDateCells?.forEach((cell, index) => { const dateStr = tempDateHeader.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); cell.textContent = dateStr; if (headerDayCells?.[index]) headerDayCells[index].textContent = days[index]; tempDateHeader.setDate(tempDateHeader.getDate() + 1); }); const prevWeek = new Date(currentScheduleWeekStart); prevWeek.setDate(prevWeek.getDate() - 7); if (prevWeekBtn) prevWeekBtn.disabled = prevWeek < scheduleMinDate; const nextWeek = new Date(weekEnd); nextWeek.setDate(nextWeek.getDate() + 1); if (nextWeekBtn) nextWeekBtn.disabled = nextWeek > scheduleMaxDate; loadScheduleDataForWeek(currentScheduleWeekStart); renderScheduleTable(); } function renderScheduleTable() { if (!scheduleTableBody) return; console.log("Rendering schedule table body..."); scheduleTableBody.innerHTML = ''; if (scheduleMockUsers.length === 0) { scheduleTableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">No employees found. Add one using Team Management.</td></tr>`; return; } scheduleMockUsers.forEach(emp => { const row = document.createElement('tr'); const nameCell = document.createElement('td'); nameCell.classList.add('employee-name'); nameCell.textContent = emp.name; row.appendChild(nameCell); const tempDate = new Date(currentScheduleWeekStart); for (let i = 0; i < 7; i++) { const currentDate = new Date(tempDate); const dateKey = currentDate.toISOString().split('T')[0]; const scheduleKey = `${emp.id}-${dateKey}`; const cell = document.createElement('td'); cell.classList.add('admin-controls'); const shiftDiv = document.createElement('div'); shiftDiv.classList.add('shift'); let shiftType = scheduleData[scheduleKey]; let shiftText = ''; if (!shiftType) { const dayOfWeek = currentDate.getDay(); if (dayOfWeek === 6 || dayOfWeek === 0) { shiftType = 'day-off'; } else if (emp.id === 1 && i === 2) shiftType = 'afternoon'; else if (emp.id === 1 && i === 4) shiftType = 'day-off'; else if (emp.id === 1 && i >= 5) shiftType = 'night'; else if (emp.id === 2 && (i === 0 || i === 3)) shiftType = 'afternoon'; else if (emp.id === 2 && i >= 5) shiftType = 'day-off'; else if (emp.id === 3 && i < 2) shiftType = 'night'; else if (emp.id === 3 && i === 2) shiftType = 'day-off'; else if (emp.id === 3 && i === 4) shiftType = 'afternoon'; else if (emp.id === 3 && i === 6) shiftType = 'sick-leave'; else if (emp.id === 4 && i < 2) shiftType = 'vacation'; else if (emp.id === 4 && (i === 3 || i === 4)) shiftType = 'night'; else if (emp.id === 4 && i === 5) shiftType = 'day-off'; else shiftType = 'morning'; scheduleData[scheduleKey] = shiftType; } switch(shiftType) { case 'morning': shiftText = '9AM-5PM'; break; case 'afternoon': shiftText = '12PM-8PM'; break; case 'night': shiftText = '5PM-1AM'; break; case 'day-off': shiftText = 'OFF'; break; case 'sick-leave': shiftText = 'SICK'; break; case 'vacation': shiftText = 'VAC'; break; case 'custom': shiftText = scheduleData[`${scheduleKey}-custom`] || 'Custom'; break; default: shiftText = 'N/A'; shiftType = 'day-off'; break; } shiftDiv.className = 'shift'; // Reset classes before adding new one shiftDiv.classList.add(`shift-${shiftType.replace('_', '-')}`); shiftDiv.textContent = shiftText; shiftDiv.dataset.date = dateKey; shiftDiv.dataset.empId = emp.id; cell.appendChild(shiftDiv); if (scheduleCurrentUser.role === 'admin' || scheduleCurrentUser.role === 'supervisor') { shiftDiv.classList.add('editable'); shiftDiv.title = `Click to edit shift`; const editSpan = document.createElement('span'); editSpan.classList.add('edit-shift'); editSpan.dataset.emp = emp.id; editSpan.dataset.date = dateKey; editSpan.textContent = '(edit)'; editSpan.addEventListener('click', handleEditShiftClick); cell.appendChild(editSpan); } row.appendChild(cell); tempDate.setDate(tempDate.getDate() + 1); } scheduleTableBody.appendChild(row); }); console.log("Schedule table render complete."); } function handleEditShiftClick(event) { try { if (scheduleCurrentUser.role !== 'admin' && scheduleCurrentUser.role !== 'supervisor') return; const target = event.target; const empId = target.dataset.emp; const dateKey = target.dataset.date; const employee = scheduleMockUsers.find(e => e.id == empId); const scheduleKey = `${empId}-${dateKey}`; const currentShiftType = scheduleData[scheduleKey] || 'morning'; const customShiftText = scheduleData[`${scheduleKey}-custom`] || ''; if (!employee) throw new Error(`Employee not found for ID: ${empId}`); if (!shiftModal || !shiftEmployeeInput || !shiftDateInput || !shiftTypeSelect) { throw new Error("Shift modal elements not found."); } shiftEmployeeInput.value = employee.name; shiftDateInput.value = dateKey; shiftTypeSelect.value = currentShiftType; const customGroup = shiftModal.querySelector('#customShiftGroup'); const customInput = shiftModal.querySelector('#customShift'); if(customGroup) customGroup.style.display = currentShiftType === 'custom' ? 'block' : 'none'; if(customInput) customInput.value = customShiftText; shiftModal.dataset.empId = empId; shiftModal.dataset.dateKey = dateKey; shiftModal.style.display = 'flex'; } catch(error) { console.error("Error in handleEditShiftClick:", error); showScheduleToast("Error opening shift editor.", "error"); } } function openEmployeeModal(empId = null) { if (!employeeModal || !employeeForm) return; employeeForm.reset(); const modalTitle = employeeModal.querySelector('.modal-title'); const editingEmpIdInput = employeeModal.querySelector('#editingEmpId'); const empRoleSelect = employeeModal.querySelector('#empRole'); if (empId) { const emp = scheduleMockUsers.find(e => e.id == empId); if (emp) { modalTitle.textContent = `Edit ${emp.name}`; editingEmpIdInput.value = emp.id; employeeForm.querySelector('#empName').value = emp.name; employeeForm.querySelector('#empEmail').value = emp.email; employeeForm.querySelector('#empPosition').value = emp.title || ''; if(empRoleSelect) empRoleSelect.value = emp.role || 'employee'; } else { showScheduleToast(`Employee with ID ${empId} not found.`, "error"); return; } } else { modalTitle.textContent = 'Add New Employee'; editingEmpIdInput.value = ''; if(empRoleSelect) empRoleSelect.value = 'employee'; } employeeModal.style.display = 'flex'; } // --- Event Listeners --- if(prevWeekBtn) prevWeekBtn.addEventListener('click', function() { currentScheduleWeekStart.setDate(currentScheduleWeekStart.getDate() - 7); updateWeekDisplayAndTable(); }); if(nextWeekBtn) nextWeekBtn.addEventListener('click', function() { currentScheduleWeekStart.setDate(currentScheduleWeekStart.getDate() + 7); updateWeekDisplayAndTable(); }); if(shiftTypeSelect) shiftTypeSelect.addEventListener('change', function() { if(customShiftGroup) customShiftGroup.style.display = this.value === 'custom' ? 'block' : 'none'; }); if(addEmployeeBtn) addEmployeeBtn.addEventListener('click', () => openEmployeeModal()); scheduleContainer.querySelectorAll('[data-modal-close]').forEach(btn => { btn.addEventListener('click', () => { const modal = btn.closest('.modal'); if (modal) modal.style.display = 'none'; }); }); scheduleContainer.querySelectorAll('.modal').forEach(modal => { modal.addEventListener('click', (event) => { if (event.target === modal) { modal.style.display = 'none'; } }); }); if(employeeForm) employeeForm.addEventListener('submit', function(e) { e.preventDefault(); const editingId = document.getElementById('editingEmpId').value; const name = document.getElementById('empName').value; const email = document.getElementById('empEmail').value; const position = document.getElementById('empPosition').value; if (editingId) { const userIndex = scheduleMockUsers.findIndex(u => u.id == editingId); if (userIndex > -1) { scheduleMockUsers[userIndex].name = name; scheduleMockUsers[userIndex].email = email; scheduleMockUsers[userIndex].title = position; const nameParts = name.split(' '); scheduleMockUsers[userIndex].initials = (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || ''); showScheduleToast(`Employee ${name} updated (simulated).`); } } else { const newId = Math.max(0, ...scheduleMockUsers.map(u => u.id)) + 1; const nameParts = name.split(' '); const newUser = { id: newId, name: name, email: email, title: position, department: 'Unknown', phone: '', avatar: '', initials: (nameParts[0]?.[0] || 'N') + (nameParts[1]?.[0] || 'U'), role: 'employee', twoFaEnabled: false }; scheduleMockUsers.push(newUser); showScheduleToast(`Employee ${name} added (simulated).`); } window.MOCK_USERS = scheduleMockUsers; if(employeeModal) employeeModal.style.display = 'none'; renderScheduleTable(); }); if(shiftForm) shiftForm.addEventListener('submit', function(e) { e.preventDefault(); const shiftTypeValue = shiftTypeSelect.value; const customShiftValue = document.getElementById('customShift').value; const empId = shiftModal.dataset.empId; const dateKey = shiftModal.dataset.dateKey; const scheduleKey = `${empId}-${dateKey}`; const employeeName = shiftEmployeeInput?.value || 'Employee'; scheduleData[scheduleKey] = shiftTypeValue; if (shiftTypeValue === 'custom') { scheduleData[`${scheduleKey}-custom`] = customShiftValue; } else { delete scheduleData[`${scheduleKey}-custom`]; } renderScheduleTable(); if (shiftModal) shiftModal.style.display = 'none'; showScheduleToast(`Shift for ${employeeName} updated!`); }); if(deleteShiftBtn) deleteShiftBtn.addEventListener('click', function() { const empId = shiftModal.dataset.empId; const dateKey = shiftModal.dataset.dateKey; const scheduleKey = `${empId}-${dateKey}`; const employeeName = shiftEmployeeInput?.value || 'Employee'; delete scheduleData[scheduleKey]; delete scheduleData[`${scheduleKey}-custom`]; renderScheduleTable(); if (shiftModal) shiftModal.style.display = 'none'; showScheduleToast(`Shift for ${employeeName} deleted!`, 'danger'); }); if(saveScheduleBtn) saveScheduleBtn.addEventListener('click', function() { showScheduleConfirm('Save Schedule', 'Save all changes for the current week?', () => { saveScheduleBtn.disabled = true; saveScheduleBtn.innerHTML = '<span class="spinner" style="display: inline-block;"></span> Saving...'; saveScheduleDataForWeek(currentScheduleWeekStart) .then(() => { showScheduleToast("Schedule saved successfully!", "success"); }) .catch(err => { console.error("Save failed:", err); showScheduleToast("Failed to save schedule.", "error"); }) .finally(() => { saveScheduleBtn.disabled = false; saveScheduleBtn.innerHTML = '<i class="fas fa-save"></i> Save Schedule'; }); }, 'btn-primary'); }); if(sendRemindersBtn) sendRemindersBtn.addEventListener('click', function() { const btn = this; btn.disabled = true; btn.innerHTML = '<span class="spinner" style="display: inline-block;"></span> Sending...'; const weekEnd = new Date(currentScheduleWeekStart); weekEnd.setDate(weekEnd.getDate() + 6); const weekStartStr = currentScheduleWeekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); const weekEndStr = weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); const subject = encodeURIComponent(`Schedule Reminder: ${weekStartStr} - ${weekEndStr}`); const body = encodeURIComponent(`Dear Team,\n\nPlease find your schedule for the week: ${weekStartStr} to ${weekEndStr}.\nCheck the dashboard for details.\n\nBest,\n${scheduleCurrentUser.name}`); const recipientEmails = scheduleMockUsers.map(e => e.email).join(','); const mailtoLink = `mailto:?bcc=${recipientEmails}&subject=${subject}&body=${body}`; try { window.open(mailtoLink, '_blank')?.focus(); } catch (e) { console.error("Could not open mailto link", e); showScheduleToast("Could not open email client.", "error"); } setTimeout(() => { showScheduleToast('Reminder email prepared (simulated).'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-envelope"></i> Send Reminders'; }, 1000); }); // --- Initial Render --- console.log("Attempting initial schedule render..."); updateWeekDisplayAndTable(); } catch (error) { console.error("Error executing schedule script:", error); const errorContainer = document.getElementById('featureSectionsContainer'); if(errorContainer) errorContainer.innerHTML = `<div class="error-message" style="display: block; padding: 2rem; text-align: center;">Error loading Employee Schedule feature. Check console for details.</div>`; } // --- End of Schedule Script --- </script> </body> </html>            // --- Event Listeners ---
             // (Keep setupEventListeners as before - it handles static dashboard elements)
              function setupEventListeners() { if (sidebarToggle) sidebarToggle.addEventListener('click', () => { sidebar.classList.add('active'); mainContent.classList.add('sidebar-active'); if(closeSidebar) closeSidebar.style.display = 'block'; }); if (closeSidebar) closeSidebar.addEventListener('click', () => { sidebar.classList.remove('active'); mainContent.classList.remove('sidebar-active'); closeSidebar.style.display = 'none'; }); document.addEventListener('click', (event) => { if (window.innerWidth <= 992 && sidebar.classList.contains('active')) { const isClickInsideSidebar = sidebar.contains(event.target); const isClickOnToggler = sidebarToggle && sidebarToggle.contains(event.target); if (!isClickInsideSidebar && !isClickOnToggler) { sidebar.classList.remove('active'); mainContent.classList.remove('sidebar-active'); if(closeSidebar) closeSidebar.style.display = 'none'; } } }); menuItems.forEach(item => { item.addEventListener('click', function(e) { e.preventDefault(); const featureId = this.getAttribute('data-feature'); setActiveFeature(featureId); }); }); document.body.addEventListener('click', function(e) { const target = e.target; if (target.closest('.settings-tab') && !target.closest('.settings-tab.active')) { const tabId = target.closest('.settings-tab').getAttribute('data-tab'); activateSettingsTab(tabId); updateBrowserHistory('settings', tabId); } else if (target.closest('.settings-link') && target.closest('.settings-link').dataset.tabTarget) { e.preventDefault(); const tabId = target.closest('.settings-link').dataset.tabTarget; setActiveFeature('settings', tabId); } }); backButton.addEventListener('click', function() { setActiveFeature('dashboard'); }); userProfileContainer.addEventListener('click', function(e) { if (e.target.closest('.dropdown-item')) { const feature = e.target.closest('.dropdown-item').getAttribute('data-feature'); if (feature) { setActiveFeature(feature); } else if (e.target.closest('#logoutLink')) { /* Handled below */ } return; } userDropdownOpen = !userDropdownOpen; userDropdown.classList.toggle('active', userDropdownOpen); }); document.addEventListener('click', function(event) { if (!userProfileContainer.contains(event.target) && userDropdownOpen) { userDropdown.classList.remove('active'); userDropdownOpen = false; } }); searchInput.addEventListener('input', handleSearch); searchInput.addEventListener('focus', handleSearch); document.addEventListener('click', (event) => { if (!searchInput.contains(event.target) && !searchResultsContainer.contains(event.target)) { searchResultsContainer.classList.remove('active'); } }); searchResultsContainer.addEventListener('click', (event) => { const targetItem = event.target.closest('.search-result-item'); if (targetItem && targetItem.dataset.feature) { const featureId = targetItem.dataset.feature; const itemId = targetItem.dataset.id; console.log(`Search result clicked: Feature=${featureId}, ID=${itemId}`); setActiveFeature(featureId); searchResultsContainer.classList.remove('active'); searchInput.value = ''; } }); notificationIcon.addEventListener('click', () => { notificationsModal.classList.add('active'); }); closeNotifications.addEventListener('click', () => { notificationsModal.classList.remove('active'); }); notificationsModal.addEventListener('click', (event) => { if (event.target === notificationsModal) { notificationsModal.classList.remove('active'); } }); notificationsBody.addEventListener('click', (event) => { const target = event.target; const notificationItem = target.closest('.notification-list-item'); const notificationId = notificationItem ? parseInt(notificationItem.dataset.id) : null; if (target.classList.contains('delete-notification') && notificationId) { showConfirmModal('Delete Notification', 'Are you sure?', () => { notifications = notifications.filter(n => n.id !== notificationId); renderNotifications(); showToast('Notification deleted.', 'success'); }); } else if (notificationItem && notificationId) { const notification = notifications.find(n => n.id === notificationId); if (notification && notification.unread) { notification.unread = false; renderNotifications(); } console.log(`Clicked notification ${notificationId}`); } }); markAllReadBtn.addEventListener('click', markAllNotificationsAsRead); deleteAllNotificationsBtn.addEventListener('click', () => { if (notifications.length === 0) return; showConfirmModal('Delete All Notifications', 'Are you sure?', () => { notifications = []; renderNotifications(); showToast('All notifications deleted.', 'success'); }); }); activityList.addEventListener('click', (event) => { const target = event.target; if (target.classList.contains('delete-activity')) { const activityItem = target.closest('.activity-item'); const activityId = activityItem ? parseInt(activityItem.dataset.id) : null; if (activityId) { activities = activities.filter(a => a.id !== activityId); loadRecentActivities(showingAllActivities); showToast('Activity deleted.'); } } }); viewAllActivity.addEventListener('click', () => { loadRecentActivities(!showingAllActivities); }); deleteAllActivity.addEventListener('click', () => { if (activities.length === 0) return; showConfirmModal('Delete All Activities', 'Are you sure?', () => { activities = []; loadRecentActivities(false); showToast('All activities deleted.'); }); }); profileAvatarLarge.addEventListener('click', () => { profileAvatarInput.click(); }); profileAvatarInput.addEventListener('change', handleAvatarUpload); profileForm.addEventListener('submit', handleProfileSave); cancelProfileBtn.addEventListener('click', handleProfileCancel); firstNameInput.addEventListener('input', updateFullNameDisplay); lastNameInput.addEventListener('input', updateFullNameDisplay); logoutLink.addEventListener('click', handleLogout); const teamListContainer = document.getElementById('teamList'); if (teamListContainer) { teamListContainer.addEventListener('click', (event) => { const target = event.target; const memberCard = target.closest('.team-member-card'); const memberId = memberCard ? parseInt(memberCard.dataset.id) : null; if (!memberId || memberId === currentUser.id) return; if (target.closest('.edit-member')) { openEditMemberModal(memberId); } else if (target.closest('.remove-member')) { const memberToRemove = MOCK_USERS.find(u => u.id === memberId); showConfirmModal('Remove Team Member', `Remove ${memberToRemove?.name || 'this member'}?`, () => { showToast(`Removing ${memberToRemove?.name || 'member'}...`, 'info'); setTimeout(() => { MOCK_USERS = MOCK_USERS.filter(u => u.id !== memberId); window.MOCK_USERS = MOCK_USERS; /* Update global */ loadTeamMembers(); loadDashboardStats(); /* Update schedule view if active - Handled by schedule's own refresh/logic now */ showToast('Team member removed.', 'success'); }, 500); }, 'btn-danger'); } }); } if (editMemberForm) { editMemberForm.addEventListener('submit', handleEditMemberSave); } if(editMemberModal) { editMemberModal.querySelectorAll('[data-close-modal]').forEach(btn => { btn.addEventListener('click', () => editMemberModal.classList.remove('active')); }); editMemberModal.addEventListener('click', (event) => { if (event.target === editMemberModal) { editMemberModal.classList.remove('active'); } }); } const inviteMemberForm = document.getElementById('inviteMemberForm'); if (inviteMemberForm) { inviteMemberForm.addEventListener('submit', handleInviteMember); } themeOptions.forEach(option => { option.addEventListener('click', () => setTheme(option.dataset.theme)); }); if (highContrastToggle) highContrastToggle.addEventListener('change', (e) => setContrast(e.target.checked)); if (languageSelect) languageSelect.addEventListener('change', (e) => applyLanguage(e.target.value)); if (regionSelect) regionSelect.addEventListener('change', (e) => localStorage.setItem('region', e.target.value)); if (timeFormatSelect || dateFormatSelect) { const applyDateTimeListener = () => { applyDateTimeFormat(timeFormatSelect.value, dateFormatSelect.value); }; if (timeFormatSelect) timeFormatSelect.addEventListener('change', applyDateTimeListener); if (dateFormatSelect) dateFormatSelect.addEventListener('change', applyDateTimeListener); } if (toastToggle) toastToggle.addEventListener('change', (e) => applyToastPreference(e.target.checked)); if (soundToggle) soundToggle.addEventListener('change', (e) => applySoundPreference(e.target.checked)); if(savePreferencesBtn) savePreferencesBtn.addEventListener('click', handleSavePreferences); if(changePasswordForm) changePasswordForm.addEventListener('submit', handleChangePassword); if(saveAccountSettingsBtn) saveAccountSettingsBtn.addEventListener('click', handleSaveAccountSettings); if(saveSessionSettingsBtn) saveSessionSettingsBtn.addEventListener('click', handleSaveSessionSettings); if(saveNotificationSettingsBtn) saveNotificationSettingsBtn.addEventListener('click', handleSaveNotificationSettings); if (enable2faBtn) enable2faBtn.addEventListener('click', handleEnable2FA); if (setupAuthAppBtn) setupAuthAppBtn.addEventListener('click', showAuthAppSetup); if (setupSmsBtn) setupSmsBtn.addEventListener('click', showSmsSetup); if (verifyAuthCodeBtn) verifyAuthCodeBtn.addEventListener('click', handleVerifyAuthCode); if (sendSmsCodeBtn) sendSmsCodeBtn.addEventListener('click', handleSendSmsCode); if (verifySmsCodeBtn) verifySmsCodeBtn.addEventListener('click', handleVerifySmsCode); if (disable2faBtn) disable2faBtn.addEventListener('click', handleDisable2FA); if(logoutAllDevicesBtn) logoutAllDevicesBtn.addEventListener('click', handleLogoutAllDevices); if(deleteAccountBtn) deleteAccountBtn.addEventListener('click', handleDeleteAccount); cancelConfirmBtn.addEventListener('click', hideConfirmModal); confirmBtn.addEventListener('click', () => { if (confirmCallback) confirmCallback(); hideConfirmModal(); }); }
 
@@ -1301,3 +1062,97 @@
     </script>
 </body>
 </html>
+                        <!-- END Employee Scheduling HTML -->
+                    `,
+                    // Add other features here
+                    // 'projects': `<h1>Projects Content</h1><p>...</p>`,
+                };
+
+                featureHTML = featureHTMLMap[featureId] || ''; // Get the HTML string
+
+                // Simulate Delay & Process
+                setTimeout(() => {
+                    if (!featureHTML) {
+                        // Show placeholder for unimplemented features
+                        featurePlaceholder.style.display = 'flex';
+                        featureLoadingEl.style.display = 'none';
+                        featureTitleEl.textContent = featureName;
+                        featureDescEl.textContent = `Content for ${featureName} not yet implemented.`;
+                        console.warn(`HTML content for feature "${featureId}" is missing.`);
+                        return;
+                    }
+
+                    try {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(featureHTML, 'text/html');
+
+                        const bodyContentNodes = Array.from(doc.body.childNodes); // Get live collection copy
+                        const styleContent = doc.querySelector('style#schedule-style-block')?.textContent || ''; // Use ID
+                        const scriptContent = doc.querySelector('script#schedule-script-block')?.textContent || ''; // Use ID
+
+                        // 1. Clear Placeholder & Inject Body HTML
+                        featureSectionsContainer.innerHTML = ''; // Clear placeholder
+                        bodyContentNodes.forEach(node => {
+                            // Import node to the current document's context before appending
+                            featureSectionsContainer.appendChild(document.importNode(node, true));
+                        });
+                         console.log(`Injected body content for ${featureId}`);
+
+
+                        // 2. Remove Previous Feature Styles (if any)
+                        document.querySelectorAll('style[data-feature-style]').forEach(el => el.remove());
+
+                        // 3. Inject Styles
+                        if (styleContent) {
+                            const styleElement = document.createElement('style');
+                            styleElement.setAttribute('data-feature-style', featureId); // Mark for removal later
+                            styleElement.textContent = styleContent;
+                            document.head.appendChild(styleElement);
+                            console.log(`Injected styles for ${featureId}`);
+                        }
+
+                         // 4. Remove Previous Feature Scripts (if any)
+                         document.querySelectorAll('script[data-feature-script]').forEach(el => el.remove());
+
+                        // 5. Inject and Execute Script
+                        if (scriptContent) {
+                            const scriptElement = document.createElement('script');
+                            scriptElement.setAttribute('data-feature-script', featureId); // Mark for removal later
+                            // Use try-catch within the dynamically added script itself for better error isolation
+                            scriptElement.textContent = scriptContent; // No try-catch wrapper here
+                            document.body.appendChild(scriptElement); // Append to execute
+                            console.log(`Added script element for ${featureId} to body for execution.`);
+                            // Optionally remove the script tag after a minimal delay,
+                            // assuming all synchronous code and event listener attachments are done.
+                            // setTimeout(() => { try { document.body.removeChild(scriptElement); } catch(e){} }, 10);
+                        } else {
+                             console.log(`No script found to execute for ${featureId}`);
+                        }
+
+                    } catch (error) {
+                        console.error(`Error processing or injecting feature ${featureId}:`, error);
+                        featureSectionsContainer.innerHTML = ''; // Clear on error
+                        featurePlaceholder.style.display = 'flex'; // Show placeholder again
+                        featureLoadingEl.style.display = 'none';
+                        featureErrorEl.textContent = `Failed to load ${featureName}. Error: ${error.message}`;
+                        featureErrorEl.style.display = 'block';
+                        featureSectionsContainer.appendChild(featurePlaceholder); // Add placeholder back
+                    }
+                }, 300); // Simulate loading time
+            }
+
+
+            // --- Data Loading & Simulation ---
+            // (Keep loadInitialData, loadDashboardStats, updateStatCard, etc. as before)
+             function loadInitialData() { loadDashboardStats(); loadRecentActivities(); loadNotifications(); if (currentFeature === 'settings' && currentSettingsTab === 'team' && currentUser.role === 'admin') { loadTeamMembers(); } }
+             function loadDashboardStats() { console.log("Loading dashboard stats..."); setTimeout(() => { const teamMembersCount = MOCK_USERS.length; const tasksCompleted = MOCK_TASKS.filter(t => t.status === 'Completed').length + Math.floor(Math.random() * 50); const activeProjects = MOCK_PROJECTS.filter(p => p.status === 'Active').length; const upcomingDeadlines = Math.floor(Math.random() * 10); updateStatCard('teamMembersCount', 'Team Members', 'fas fa-users', teamMembersCount, Math.random() * 10 - 5); updateStatCard('tasksCompleted', 'Tasks Completed', 'fas fa-check-circle', tasksCompleted, Math.random() * 20); updateStatCard('activeProjects', 'Active Projects', 'fas fa-project-diagram', activeProjects, Math.random() * 5 - 2); updateStatCard('upcomingDeadlines', 'Upcoming Deadlines', 'fas fa-calendar-times', upcomingDeadlines, Math.random() * 15 - 10); }, 300); }
+             function updateStatCard(id, title, iconClass, value, trendPercent) { const cardIndex = ['teamMembersCount', 'tasksCompleted', 'activeProjects', 'upcomingDeadlines'].indexOf(id); if (cardIndex === -1 || !statsSection || !statsSection.children[cardIndex]) return; const card = statsSection.children[cardIndex]; let trendClass = 'trend-neutral'; let trendIcon = 'fas fa-minus'; if (trendPercent > 1) { trendClass = 'trend-up'; trendIcon = 'fas fa-arrow-up'; } else if (trendPercent < -1) { trendClass = 'trend-down'; trendIcon = 'fas fa-arrow-down'; } card.innerHTML = ` <div class="stat-title"><i class="${iconClass}"></i>${title}</div> <div class="stat-value"> <span>${value}</span> <span class="stat-trend ${trendClass}"> <i class="${trendIcon}"></i> ${trendPercent !== 0 ? Math.abs(trendPercent).toFixed(0) + '%' : ''} </span> </div> `; }
+             function loadRecentActivities(showAll = false) { console.log("Loading recent activities..."); if (activities.length === 0) { const now = Date.now(); activities = generateMockActivities(15, now); } showingAllActivities = showAll; const activitiesToDisplay = showAll ? activities : activities.slice(0, maxActivitiesToShow); activityList.innerHTML = ''; if (activitiesToDisplay.length === 0) { activityList.innerHTML = '<li style="text-align: center; padding: 2rem; color: var(--gray);">No recent activity.</li>'; deleteAllActivity.style.display = 'none'; viewAllActivity.style.display = 'none'; return; } activitiesToDisplay.forEach((activity, index) => { const li = document.createElement('li'); li.classList.add('activity-item'); li.dataset.id = activity.id; if (activity.isNew) { li.classList.add('new-activity'); setTimeout(() => { activity.isNew = false; const currentLi = activityList.querySelector(`[data-id='${activity.id}']`); if (currentLi) currentLi.classList.remove('new-activity'); }, 2500); } li.innerHTML = ` <div class="activity-icon"><i class="fas ${activity.icon}"></i></div> <div class="activity-content"> <div class="activity-message">${activity.message}</div> <div class="activity-time" title="${formatFullDateTime(activity.timestamp)}">${timeAgo(activity.timestamp)}</div> </div> <div class="activity-actions"> <i class="fas fa-trash-alt delete-activity" title="Delete Activity"></i> </div> `; activityList.appendChild(li); }); deleteAllActivity.style.display = activities.length > 0 ? 'inline-block' : 'none'; viewAllActivity.textContent = showAll ? 'Show Less' : 'Show All'; viewAllActivity.style.display = activities.length > maxActivitiesToShow ? 'inline-block' : 'none'; }
+             function loadNotifications() { console.log("Loading notifications..."); if (notifications.length === 0) { const now = Date.now(); notifications = generateMockNotifications(8, now); } renderNotifications(); }
+             function renderNotifications() { notificationsBody.innerHTML = ''; const unreadCount = notifications.filter(n => n.unread).length; if (notifications.length === 0) { noNotificationsMessage.textContent = 'You have no notifications.'; noNotificationsMessage.style.display = 'block'; notificationBadge.style.display = 'none'; notificationBadge.textContent = '0'; markAllReadBtn.disabled = true; deleteAllNotificationsBtn.disabled = true; return; } noNotificationsMessage.style.display = 'none'; markAllReadBtn.disabled = unreadCount === 0; deleteAllNotificationsBtn.disabled = false; notifications.forEach(notification => { const div = document.createElement('div'); div.classList.add('notification-list-item'); div.dataset.id = notification.id; if (notification.unread) { div.classList.add('unread'); } div.innerHTML = ` <div class="notification-icon-wrapper"><i class="fas ${notification.icon}"></i></div> <div class="notification-content"> <div class="notification-message">${notification.message}</div> <div class="notification-time" title="${formatFullDateTime(notification.timestamp)}">${timeAgo(notification.timestamp)}</div> </div> <i class="fas fa-times delete-notification" title="Delete Notification"></i> `; notificationsBody.appendChild(div); }); notificationBadge.textContent = unreadCount; notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none'; }
+             function loadTeamMembers() { const teamListContainer = document.getElementById('teamList'); if (!teamListContainer) return; console.log("Loading team members for settings..."); teamListContainer.innerHTML = '<p style="color: var(--gray);">Loading...</p>'; setTimeout(() => { teamListContainer.innerHTML = ''; if (MOCK_USERS.length === 0) { teamListContainer.innerHTML = '<p style="color: var(--gray);">No team members found.</p>'; return; } MOCK_USERS.forEach(member => { const card = document.createElement('div'); card.classList.add('team-member-card'); card.dataset.id = member.id; const avatarStyle = member.avatar ? `background-image: url('${member.avatar}')` : ''; const avatarContent = member.avatar ? '' : member.initials; card.innerHTML = ` <div class="member-avatar" style="${avatarStyle}">${avatarContent}</div> <div class="member-details"> <div class="member-name">${member.name}</div> <div class="member-email">${member.email}</div> </div> <span class="member-role role-${member.role}">${formatRole(member.role)}</span> ${currentUser.id !== member.id ? ` <div class="member-actions"> <button class="btn btn-outline btn-sm edit-member" title="Edit Member"><i class="fas fa-pencil-alt"></i></button> <button class="btn btn-danger btn-sm remove-member" title="Remove Member"><i class="fas fa-trash-alt"></i></button> </div> ` : '<div class="member-actions" style="width: 70px;"></div>'} `; teamListContainer.appendChild(card); }); }, 500); }
+
+
+            // --- Dynamic Updates Simulation ---
+            // (Keep startDynamicUpdates, changeWelcomeBackground as before)
+             function startDynamicUpdates() { if (activityIntervalId) clearInterval(activityIntervalId); activityIntervalId = setInterval(() => { const newActivity = generateMockActivities(1, Date.now())[0]; newActivity.isNew = true; activities.unshift(newActivity); if (activities.length > 50) activities.pop(); if (currentFeature === 'dashboard') { loadRecentActivities(showingAllActivities); } showToast(`New Activity: ${newActivity.message.substring(0, 30)}...`); }, Math.random() * 10000 + 
