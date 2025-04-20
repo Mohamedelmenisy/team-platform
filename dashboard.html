@@ -298,6 +298,7 @@
         body.spacious .form-control { padding: 1rem; }
         .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
         .form-control[readonly] { background-color: var(--light-gray); cursor: not-allowed; opacity: 0.7; }
+        .form-control:disabled { background-color: var(--light-gray); cursor: not-allowed; opacity: 0.7; } /* Added disabled style */
         .form-actions { grid-column: span 2; display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; transition: margin-top 0.3s ease; }
         body.compact .form-actions { margin-top: 0.5rem; }
         body.spacious .form-actions { margin-top: 2rem; }
@@ -344,10 +345,16 @@
              color: var(--primary-dark);
              margin-bottom: 1rem;
         }
-        .setting-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0.5rem 0; }
+        .setting-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0.5rem 0; flex-wrap: wrap; /* Allow wrapping */}
         .setting-item-label { font-weight: 500; color: var(--dark); }
-        .setting-item-description { font-size: 0.9rem; color: var(--gray); margin-top: 0.25rem;}
+        .setting-item-description { font-size: 0.9rem; color: var(--gray); margin-top: 0.25rem; flex-basis: 100%; /* Take full width below label */}
         .setting-item-control { flex-shrink: 0; margin-left: 1rem; }
+        @media (max-width: 768px) { /* Adjust control position on smaller screens */
+            .setting-item { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+            .setting-item-control { margin-left: 0; width: 100%; }
+            .setting-item-description { margin-top: 0.5rem; }
+        }
+
 
         .switch { position: relative; display: inline-block; width: 50px; height: 24px; flex-shrink: 0; }
         body.compact .switch { width: 40px; height: 20px; }
@@ -389,6 +396,11 @@
         .add-member-form { margin-top: 2rem; padding: 1.5rem; border: 1px dashed var(--light-gray); border-radius: 8px; background-color: var(--light); }
         body.compact .add-member-form { margin-top: 1.5rem; padding: 1rem; }
         body.spacious .add-member-form { margin-top: 3rem; padding: 2rem; }
+        /* MODIFICATION: Invite Layout Style */
+        #inviteMemberForm { display: flex; align-items: flex-end; gap: 1rem; flex-wrap: wrap; }
+        #inviteMemberForm .form-group { margin-bottom: 0; flex: 1; min-width: 180px; } /* Allow wrapping, set min width */
+        #inviteMemberForm .btn { flex-shrink: 0; } /* Prevent button from shrinking */
+
         .password-error { color: var(--danger); font-size: 0.85rem; margin-top: 0.25rem; display: none; }
         .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; display: none; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -403,9 +415,9 @@
         body.light-theme { --primary-light: #f1f5f9; --light: #ffffff; --white: #ffffff; --dark: #1e293b; --gray: #64748b; --light-gray: #e2e8f0; background-color: var(--primary-light); }
         body.dark-theme { --primary: #3b82f6; --primary-dark: #1e40af; --primary-light: #1e293b; --light: #334155; --white: #0f172a; --dark: #e2e8f0; --gray: #94a3b8; --light-gray: #334155; background-color: var(--white); }
         body.dark-theme .top-nav { background-color: var(--primary-light); border-bottom-color: var(--light-gray); }
-        body.dark-theme .stat-card, body.dark-theme .activity-section, body.dark-theme .content-section, body.dark-theme .team-member-card, body.dark-theme .add-member-form { background-color: var(--primary-light); }
+        body.dark-theme .stat-card, body.dark-theme .activity-section, body.dark-theme .content-section, body.dark-theme .team-member-card, body.dark-theme .add-member-form, body.dark-theme .modal-content { background-color: var(--primary-light); } /* Added modal */
         body.dark-theme .search-bar input, body.dark-theme .form-control { background-color: var(--light); border-color: var(--light-gray); color: var(--dark); }
-        body.dark-theme .form-control[readonly] { background-color: var(--primary-light); opacity: 0.7; }
+        body.dark-theme .form-control[readonly], body.dark-theme .form-control:disabled { background-color: var(--primary-light); opacity: 0.7; color: var(--gray); } /* Added disabled */
         body.dark-theme .search-results { background-color: var(--light); border-color: var(--light-gray); }
         body.dark-theme .search-result-item:hover { background-color: var(--primary-light); }
         body.dark-theme .user-dropdown { background-color: var(--light); border-color: var(--light-gray); }
@@ -446,6 +458,20 @@
         body.dark-theme .qr-code-placeholder { border-color: var(--light-gray); color: var(--gray); }
         body.dark-theme .danger-zone-item .btn-danger { background-color: #dc2626; } /* Ensure danger button stands out */
         body.dark-theme .danger-zone-item .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
+        /* Dark theme for schedule */
+        body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table thead th { background-color: var(--primary-dark); border-bottom-color: #0f172a; }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:nth-child(even) td { background-color: #1e293b; }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:hover td { background-color: #334155; }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .employee-name { background-color: var(--primary-light); border-right-color: var(--light-gray);}
+        body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:nth-child(even) td.employee-name { background-color: #1e293b; }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:hover td.employee-name { background-color: #334155; }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .shift { border: 1px solid transparent; }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .shift-morning { background-color: #1e3a8a; color: #dbeafe; border-color: #3b82f6; }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .shift-afternoon { background-color: #0e7490; color: #ecfeff; border-color: #22d3ee;}
+        body.dark-theme #featureSectionsContainer.employee-scheduling .shift-night { background-color: #4c1d95; color: #f5f3ff; border-color: #a78bfa; }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .shift-off { background-color: #065f46; color: #dcfce7; border-color: #4ade80; }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .shift-sick { background-color: #991b1b; color: #fee2e2; border-color: #f87171; }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .shift-vacation { background-color: #9a3412; color: #ffedd5; border-color: #fb923c; }
 
 
         /* Theme Selection Styles */
@@ -468,7 +494,7 @@
         .two-fa-status .status-indicator.disabled { background-color: var(--danger); }
         .two-fa-setup { border: 1px dashed var(--light-gray); padding: 1.5rem; border-radius: 6px; margin-top: 1rem; background-color: var(--light); }
         .qr-code-placeholder { width: 150px; height: 150px; border: 2px dashed var(--light-gray); display: flex; align-items: center; justify-content: center; text-align: center; color: var(--gray); font-size: 0.9rem; margin: 1rem auto; }
-        .two-fa-actions { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; }
+        .two-fa-actions { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; } /* Added wrap */
 
         /* Danger Zone Styles */
          .danger-zone-item {
@@ -480,8 +506,12 @@
              background-color: rgba(239, 68, 68, 0.05);
              border-radius: 8px;
              margin-bottom: 1rem;
+             flex-wrap: wrap; /* Allow wrapping */
          }
-         .danger-zone-item div { max-width: 70%; }
+         .danger-zone-item div { max-width: 70%; margin-bottom: 1rem; /* Add margin for wrap */}
+         @media (max-width: 768px) {
+             .danger-zone-item div { max-width: 100%; }
+         }
          .danger-zone-item h5 { color: var(--danger); margin-bottom: 0.25rem; }
          .danger-zone-item p { color: var(--gray); font-size: 0.9rem; }
 
@@ -507,13 +537,20 @@
         .delete-notification:hover { opacity: 1; background: rgba(239, 68, 68, 0.1); }
         .no-notifications-message { text-align: center; padding: 2rem; color: var(--gray); }
         .notifications-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--light-gray); display: flex; justify-content: space-between; flex-shrink: 0; background-color: var(--light); }
-        .confirm-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1100; display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
-        .confirm-modal.active { display: flex; }
-        .confirm-container { background-color: var(--white); border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); width: 400px; max-width: 90%; padding: 2rem; animation: fadeInScale 0.3s ease-out; }
+        .confirm-modal, .edit-member-modal { /* Shared modal class */
+             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1100; display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px);
+        }
+        .confirm-modal.active, .edit-member-modal.active { display: flex; }
+        .confirm-container, .edit-member-container { /* Shared container class */
+            background-color: var(--white); border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); width: 400px; max-width: 90%; padding: 2rem; animation: fadeInScale 0.3s ease-out;
+         }
+        .edit-member-container { width: 500px; } /* Slightly larger for edit form */
         @keyframes fadeInScale { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        .confirm-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--dark); }
+        .confirm-title, .edit-member-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--dark); }
         .confirm-message { margin-bottom: 1.5rem; line-height: 1.5; color: var(--gray); }
-        .confirm-actions { display: flex; justify-content: flex-end; gap: 1rem; }
+        .confirm-actions, .edit-member-actions { display: flex; justify-content: flex-end; gap: 1rem; }
+        .edit-member-form { margin-top: 1rem; } /* Spacing for edit form */
+
         .success-message { position: fixed; top: 20px; right: 20px; background-color: var(--success); color: white; padding: 1rem 1.5rem; border-radius: 6px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 0.75rem; z-index: 1200; transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
         .success-message.show { transform: translateX(0); }
         .success-message i { font-size: 1.25rem; }
@@ -527,6 +564,8 @@
         .placeholder-content h2 { color: var(--dark); margin-bottom: 1rem; }
         .placeholder-content .loading-indicator { font-size: 1.2rem; margin-top: 1rem; }
         .placeholder-content .error-message { color: var(--danger); font-weight: 500; margin-top: 1rem; white-space: pre-wrap; text-align: left; padding: 1rem; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 4px; max-width: 100%; overflow-wrap: break-word; }
+        .coming-soon { color: var(--gray); font-style: italic; font-size: 0.9em; } /* Style for placeholder features */
+
 
         /* --- Additional styles from employee-schedule.txt (Scoped) --- */
         /* Scope these styles to only apply when the schedule content is loaded */
@@ -616,17 +655,19 @@
             .stats-section { grid-template-columns: 1fr; }
             .settings-tabs { flex-wrap: wrap; }
             .settings-tab { padding: 0.5rem 1rem; }
-            .setting-item { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
-            .setting-item-control { margin-left: 0; width: 100%; }
-            .confirm-container { width: 90%; }
+            /*.setting-item adjustments moved above */
+            .confirm-container, .edit-member-container { width: 90%; }
             .team-member-card { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
             .member-role { margin: 0.5rem 0; }
             .member-actions { margin-top: 0.5rem; }
             .profile-avatar-section { margin-bottom: 1.5rem; }
             #profileAvatarLarge { width: 100px; height: 100px; font-size: 2.5rem; }
-            .add-member-form .data-form { grid-template-columns: 1fr; align-items: stretch; }
+            .add-member-form .data-form { grid-template-columns: 1fr; align-items: stretch; } /* Kept for potential complex forms */
             .add-member-form .data-form > div { margin-bottom: 1rem; }
             .add-member-form .data-form > div:last-child { margin-top: 0; }
+            #inviteMemberForm { flex-direction: column; align-items: stretch; } /* Stack invite form on mobile */
+            #inviteMemberForm .form-group { min-width: 0; } /* Reset min-width */
+
             /* Schedule mobile fixes */
             #featureSectionsContainer.employee-scheduling .schedule-controls { flex-direction: column; gap: 1rem; align-items: stretch; }
             #featureSectionsContainer.employee-scheduling .schedule-controls .btn { width: 100%; justify-content: center; }
@@ -931,12 +972,32 @@
                  </div>
 
                  <!-- Account Panel -->
-                 <div class="settings-panel" id="accountPanel"> <h3 class="section-title">Account Settings</h3> <form class="data-form" id="accountForm"> <p>Account settings (e.g., change email - requires backend) will go here.</p> </form> </div>
-
-                 <!-- Security Panel -->
-                 <div class="settings-panel" id="securityPanel">
+                 <div class="settings-panel" id="accountPanel">
                      <div class="settings-subsection">
-                         <h4>Password</h4>
+                         <h4>Change Email Address</h4>
+                         <form class="data-form" id="changeEmailForm">
+                              <div class="form-group">
+                                 <label for="currentEmailDisplay">Current Email</label>
+                                 <input type="email" id="currentEmailDisplay" class="form-control" readonly>
+                             </div>
+                             <div class="form-group">
+                                 <label for="newEmail">New Email Address</label>
+                                 <input type="email" id="newEmail" class="form-control" disabled>
+                             </div>
+                             <div class="form-group">
+                                 <label for="confirmEmailPassword">Confirm Password</label>
+                                 <input type="password" id="confirmEmailPassword" class="form-control" disabled>
+                             </div>
+                              <p class="setting-item-description coming-soon">Changing email requires backend verification.</p>
+                             <div class="form-actions" style="grid-column: span 2;">
+                                <button type="submit" class="btn btn-primary" disabled>Update Email</button>
+                             </div>
+                         </form>
+                     </div>
+
+                     <!-- MODIFICATION: Moved Password Change Here -->
+                     <div class="settings-subsection">
+                         <h4>Change Password</h4>
                          <form class="data-form" id="changePasswordForm">
                              <div class="form-group">
                                  <label for="currentPassword">Current Password</label>
@@ -950,11 +1011,46 @@
                                  <label for="confirmPassword">Confirm New Password</label>
                                  <input type="password" id="confirmPassword" class="form-control">
                              </div>
-                             <div class="form-actions">
-                                <button type="submit" class="btn btn-primary" disabled>Change Password</button>
+                             <div class="form-actions" style="grid-column: span 2;"> <!-- Adjust span if needed -->
+                                <button type="submit" class="btn btn-primary" id="updatePasswordBtn" disabled>Update Password</button>
                              </div>
                          </form>
                      </div>
+                     <!-- END MOVE -->
+
+                     <div class="settings-subsection">
+                         <h4>Account Notifications</h4>
+                          <div class="setting-item">
+                             <div>
+                                 <span class="setting-item-label">Login Notifications</span>
+                                 <p class="setting-item-description">Receive an email when your account is logged in from a new device or location.</p>
+                             </div>
+                             <div class="setting-item-control">
+                                 <label class="switch">
+                                     <input type="checkbox" id="loginNotificationsToggle" checked>
+                                     <span class="slider round"></span>
+                                 </label>
+                             </div>
+                         </div>
+                         <div class="setting-item">
+                             <div>
+                                 <span class="setting-item-label">Password Change Alerts</span>
+                                 <p class="setting-item-description">Notify via email if your password is changed.</p>
+                             </div>
+                             <div class="setting-item-control">
+                                 <label class="switch">
+                                     <input type="checkbox" id="passwordChangeAlertsToggle" checked>
+                                     <span class="slider round"></span>
+                                 </label>
+                             </div>
+                         </div>
+                         <!-- Add more account-specific notification toggles as needed -->
+                     </div>
+                </div>
+
+                 <!-- Security Panel -->
+                 <div class="settings-panel" id="securityPanel">
+                     <!-- MODIFICATION: Password Change Section REMOVED from here -->
 
                      <div class="settings-subsection">
                          <h4>Two-Factor Authentication (2FA)</h4>
@@ -1027,7 +1123,70 @@
                  </div>
 
                  <!-- Notifications Panel -->
-                 <div class="settings-panel" id="notificationsPanel"> <h3 class="section-title">Notification Settings</h3> <form class="data-form" id="notificationsForm"> <p>Detailed notification preferences (e.g., email, push per category - requires backend) will go here.</p> </form> </div>
+                 <div class="settings-panel" id="notificationsPanel">
+                     <div class="settings-subsection">
+                         <h4>General Notification Preferences</h4>
+                         <div class="setting-item">
+                             <div>
+                                 <span class="setting-item-label">Enable Email Notifications</span>
+                                 <p class="setting-item-description">Receive summaries and important updates via email.</p>
+                             </div>
+                             <div class="setting-item-control">
+                                 <label class="switch">
+                                     <input type="checkbox" id="emailNotificationsToggle" checked>
+                                     <span class="slider round"></span>
+                                 </label>
+                             </div>
+                         </div>
+                         <!-- MODIFICATION: Added Sound Toggle -->
+                          <div class="setting-item">
+                             <div>
+                                 <span class="setting-item-label">Enable Notification Sounds</span>
+                                 <p class="setting-item-description">Play a sound for new notifications and activities within the app.</p>
+                             </div>
+                             <div class="setting-item-control">
+                                 <label class="switch">
+                                     <input type="checkbox" id="soundNotificationsToggle" checked>
+                                     <span class="slider round"></span>
+                                 </label>
+                             </div>
+                         </div>
+                         <!-- (Optional) Add sound selection dropdown here if needed -->
+                         <!-- <div class="form-group" style="margin-top: 1rem;">
+                             <label for="notificationToneSelect">Notification Tone</label>
+                             <select id="notificationToneSelect" class="form-control" disabled>
+                                 <option value="default">Default</option>
+                                 <option value="chime">Chime</option>
+                             </select>
+                         </div> -->
+                     </div>
+                     <div class="settings-subsection">
+                         <h4>Specific Notification Types (In-App & Email)</h4>
+                         <p class="setting-item-description">Choose which types of notifications you want to receive.</p>
+                         <div class="data-form" style="grid-template-columns: 1fr;"> <!-- Single column for checkboxes -->
+                             <div class="form-group">
+                                <label class="setting-item-label"><input type="checkbox" checked> Task Assignments</label>
+                             </div>
+                             <div class="form-group">
+                                <label class="setting-item-label"><input type="checkbox" checked> Task Comments & Mentions</label>
+                             </div>
+                             <div class="form-group">
+                                <label class="setting-item-label"><input type="checkbox" checked> Project Updates</label>
+                             </div>
+                             <div class="form-group">
+                                <label class="setting-item-label"><input type="checkbox" checked> Deadline Reminders</label>
+                             </div>
+                              <div class="form-group">
+                                <label class="setting-item-label"><input type="checkbox"> File Sharing</label>
+                             </div>
+                              <div class="form-group">
+                                <label class="setting-item-label"><input type="checkbox"> Team Announcements</label>
+                             </div>
+                             <!-- Add more specific types -->
+                         </div>
+                         <p class="coming-soon" style="margin-top: 1rem;">Fine-grained control requires backend implementation.</p>
+                     </div>
+                 </div>
 
                  <!-- Team Management Panel -->
                  <div class="settings-panel" id="teamPanel">
@@ -1037,10 +1196,22 @@
                              <div class="team-list" id="teamList"> <!-- Team List populated by JS --> <p>Loading team members...</p> </div>
                              <div class="add-member-form">
                                  <h4>Invite New Member</h4>
-                                 <form id="inviteMemberForm" class="data-form" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end; gap: 1rem;">
-                                    <div class="form-group"> <label for="inviteEmail">Email</label> <input type="email" id="inviteEmail" class="form-control" required> </div>
-                                    <div class="form-group"> <label for="inviteRole">Role</label> <select id="inviteRole" class="form-control" required> <option value="member">Member</option> <option value="supervisor">Supervisor</option> <option value="senior">Senior</option> <option value="admin">Admin</option> </select> </div>
-                                    <button type="submit" class="btn btn-primary">Invite</button>
+                                 <!-- MODIFICATION: Adjusted form layout structure and style -->
+                                 <form id="inviteMemberForm">
+                                     <div class="form-group">
+                                         <label for="inviteEmail">Email</label>
+                                         <input type="email" id="inviteEmail" class="form-control" required>
+                                     </div>
+                                     <div class="form-group">
+                                         <label for="inviteRole">Role</label>
+                                         <select id="inviteRole" class="form-control" required>
+                                             <option value="member">Member</option>
+                                             <option value="supervisor">Supervisor</option>
+                                             <option value="senior">Senior</option>
+                                             <option value="admin">Admin</option>
+                                         </select>
+                                     </div>
+                                     <button type="submit" class="btn btn-primary">Invite</button>
                                  </form>
                              </div>
                          </div>
@@ -1053,7 +1224,40 @@
                  </div>
 
                  <!-- Collaboration Panel -->
-                 <div class="settings-panel" id="collaborationPanel"> <h3 class="section-title">Collaboration Settings</h3> <form class="data-form" id="collaborationForm"> <p>Collaboration settings (e.g., integration options) will go here.</p> </form> </div>
+                 <div class="settings-panel" id="collaborationPanel">
+                     <div class="settings-subsection">
+                         <h4>Application Integrations</h4>
+                         <p class="setting-item-description">Connect TeamFlow with other tools you use.</p>
+                         <div class="integration-icons" style="display: flex; gap: 1rem; margin-top: 1rem; font-size: 1.5rem; color: var(--gray);">
+                             <i class="fab fa-slack" title="Slack (Coming Soon)"></i>
+                             <i class="fab fa-google-drive" title="Google Drive (Coming Soon)"></i>
+                             <i class="fab fa-github" title="GitHub (Coming Soon)"></i>
+                             <i class="fas fa-plus-circle" title="More Integrations Coming Soon"></i>
+                         </div>
+                          <p class="coming-soon" style="margin-top: 1rem;">Integration features require backend development.</p>
+                         <button class="btn btn-outline" style="margin-top: 1rem;" disabled>Manage Integrations</button>
+                     </div>
+                     <div class="settings-subsection">
+                         <h4>Sharing & Invitations</h4>
+                         <p class="setting-item-description">Control how projects and files can be shared outside the team.</p>
+                          <div class="setting-item">
+                             <div><span class="setting-item-label">Allow Public Sharing Links</span></div>
+                             <div class="setting-item-control">
+                                 <label class="switch"> <input type="checkbox" id="publicSharingToggle"> <span class="slider round"></span> </label>
+                             </div>
+                         </div>
+                         <div class="form-group">
+                             <label for="inviteExpiration">Invitation Link Expiration (Days)</label>
+                             <input type="number" id="inviteExpiration" class="form-control" value="7" min="1">
+                         </div>
+                         <p class="coming-soon" style="margin-top: 1rem;">Collaboration permissions require backend.</p>
+                     </div>
+                     <div class="settings-subsection">
+                         <h4>Collaboration Permissions</h4>
+                         <p class="setting-item-description">Set default permissions for newly created shared resources.</p>
+                         <button class="btn btn-outline" disabled>Set Default Permissions</button>
+                     </div>
+                 </div>
 
                  <!-- Danger Zone Panel -->
                  <div class="settings-panel" id="dangerPanel">
@@ -1121,6 +1325,42 @@
          </div>
     </div>
 
+    <!-- Edit Member Modal -->
+    <div class="edit-member-modal" id="editMemberModal">
+        <div class="edit-member-container">
+            <h3 class="edit-member-title" id="editMemberTitle">Edit Team Member</h3>
+             <form id="editMemberForm" class="data-form">
+                 <input type="hidden" id="editMemberId">
+                 <div class="form-group">
+                     <label for="editMemberName">Full Name</label>
+                     <input type="text" id="editMemberName" class="form-control" required>
+                 </div>
+                 <div class="form-group">
+                     <label for="editMemberEmail">Email</label>
+                     <input type="email" id="editMemberEmail" class="form-control" readonly> <!-- Email generally not editable -->
+                 </div>
+                 <div class="form-group">
+                     <label for="editMemberTitle">Job Title</label>
+                     <input type="text" id="editMemberTitle" class="form-control">
+                 </div>
+                 <div class="form-group">
+                     <label for="editMemberRole">Role</label>
+                     <select id="editMemberRole" class="form-control" required>
+                         <option value="member">Member</option>
+                         <option value="supervisor">Supervisor</option>
+                         <option value="senior">Senior</option>
+                         <option value="admin">Admin</option>
+                     </select>
+                 </div>
+                 <div class="form-actions" style="grid-column: span 2;">
+                     <button type="button" class="btn btn-outline" id="cancelEditMemberBtn">Cancel</button>
+                     <button type="submit" class="btn btn-primary">Save Changes</button>
+                 </div>
+             </form>
+        </div>
+    </div>
+
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
@@ -1170,13 +1410,13 @@
             const lastNameInput = document.getElementById('lastName');
             const fullNameDisplay = document.getElementById('fullNameDisplay');
             const jobTitleInput = document.getElementById('jobTitle');
-            const emailDisplay = document.getElementById('email');
+            const emailDisplay = document.getElementById('email'); // Profile display email
             const phoneInput = document.getElementById('phone');
             const departmentInput = document.getElementById('department');
             const saveProfileBtn = document.getElementById('saveProfileBtn');
             const cancelProfileBtn = document.getElementById('cancelProfileBtn');
 
-            // Settings Elements (New)
+            // Settings Elements
             const themeOptions = document.querySelectorAll('.theme-option');
             const highContrastToggle = document.getElementById('highContrastToggle');
             const languageSelect = document.getElementById('languageSelect');
@@ -1184,7 +1424,15 @@
             const timeFormatSelect = document.getElementById('timeFormatSelect');
             const dateFormatSelect = document.getElementById('dateFormatSelect');
             const toastToggle = document.getElementById('toastToggle');
-            const savePreferencesBtn = document.getElementById('savePreferencesBtn'); // Might need later
+            const savePreferencesBtn = document.getElementById('savePreferencesBtn');
+
+            // Account Settings
+            const currentEmailDisplay = document.getElementById('currentEmailDisplay');
+            const changePasswordForm = document.getElementById('changePasswordForm'); // Now under Account panel
+            const updatePasswordBtn = document.getElementById('updatePasswordBtn'); // Button for password update
+            const loginNotificationsToggle = document.getElementById('loginNotificationsToggle');
+            const passwordChangeAlertsToggle = document.getElementById('passwordChangeAlertsToggle');
+
 
             // Security Settings
             const enable2faBtn = document.getElementById('enable2faBtn');
@@ -1204,10 +1452,13 @@
             const verifySmsCodeBtn = document.getElementById('verifySmsCodeBtn');
             const disable2faBtn = document.getElementById('disable2faBtn');
 
+            // Notification Settings
+            const emailNotificationsToggle = document.getElementById('emailNotificationsToggle');
+            const soundNotificationsToggle = document.getElementById('soundNotificationsToggle'); // Added
+
             // Danger Zone
             const logoutAllDevicesBtn = document.getElementById('logoutAllDevicesBtn');
             const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-
 
             // Modals & Messages
             const confirmModal = document.getElementById('confirmModal');
@@ -1218,6 +1469,18 @@
             const successMessage = document.getElementById('successMessage');
             const successMessageText = document.getElementById('successMessageText');
             const toastMessage = document.getElementById('toastMessage');
+
+            // Edit Member Modal Elements
+            const editMemberModal = document.getElementById('editMemberModal');
+            const editMemberForm = document.getElementById('editMemberForm');
+            const editMemberTitle = document.getElementById('editMemberTitle');
+            const editMemberIdInput = document.getElementById('editMemberId');
+            const editMemberNameInput = document.getElementById('editMemberName');
+            const editMemberEmailInput = document.getElementById('editMemberEmail');
+            const editMemberTitleInput = document.getElementById('editMemberTitle');
+            const editMemberRoleSelect = document.getElementById('editMemberRole');
+            const cancelEditMemberBtn = document.getElementById('cancelEditMemberBtn');
+
 
             // Logout Link
             const logoutLink = document.getElementById('logoutLink');
@@ -1237,14 +1500,16 @@
             let showingAllActivities = false;
             let userDropdownOpen = false; // Track dropdown state
             let showToasts = true; // Default for toast preference
+            let playSounds = true; // Default for sound preference
 
             // --- Mock Data ---
-            const MOCK_USERS = [
-                 { id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', title: 'Administrator', department: 'Management', phone: '+201234567890', avatar: '', initials: 'ME', role: 'admin', twoFaEnabled: false }, // Added 2FA status
+            // MODIFICATION: Removed Ali Hassan (ID 5)
+            let MOCK_USERS = [
+                 { id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', title: 'Administrator', department: 'Management', phone: '+201234567890', avatar: '', initials: 'ME', role: 'admin', twoFaEnabled: false },
                  { id: 2, name: 'Yousef Ahmed', email: 'yousef@example.com', title: 'Supervisor', department: 'Operations', phone: '+20111222333', avatar: '', initials: 'YA', role: 'supervisor', twoFaEnabled: false },
-                 { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com', title: 'Senior Developer', department: 'Engineering', phone: '+20100999888', avatar: '', initials: 'EL', role: 'senior', twoFaEnabled: true }, // Example enabled
+                 { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com', title: 'Senior Developer', department: 'Engineering', phone: '+20100999888', avatar: '', initials: 'EL', role: 'senior', twoFaEnabled: true },
                  { id: 4, name: 'Bassant Badr', email: 'bassant@example.com', title: 'Junior Designer', department: 'Design', phone: '+20155444333', avatar: '', initials: 'BB', role: 'member', twoFaEnabled: false },
-                 { id: 5, name: 'Ali Hassan', email: 'ali@example.com', title: 'Project Manager', department: 'Management', phone: '+20122333444', avatar: '', initials: 'AH', role: 'supervisor', twoFaEnabled: false },
+                // { id: 5, name: 'Ali Hassan', email: 'ali@example.com', title: 'Project Manager', department: 'Management', phone: '+20122333444', avatar: '', initials: 'AH', role: 'supervisor', twoFaEnabled: false }, // Removed
             ];
 
             const MOCK_PROJECTS = [
@@ -1320,6 +1585,10 @@
                     profileAvatarLarge.textContent = currentUser.initials;
                 }
 
+                // Account Settings Panel (Email display)
+                if (currentEmailDisplay) currentEmailDisplay.value = currentUser.email;
+
+
                 // Admin specific elements
                 const teamSettingsTab = document.getElementById('teamSettingsTab');
                 const dangerZoneTab = document.getElementById('dangerZoneTab');
@@ -1350,7 +1619,7 @@
                 lastNameInput.value = nameParts.slice(1).join(' ') || '';
                 fullNameDisplay.value = currentUser.name; // Update readonly full name
                 jobTitleInput.value = currentUser.title || '';
-                emailDisplay.value = currentUser.email || '';
+                emailDisplay.value = currentUser.email || ''; // Profile section email
                 phoneInput.value = currentUser.phone || '';
                 departmentInput.value = currentUser.department || '';
             }
@@ -1393,6 +1662,13 @@
                 showToasts = storedToastPref === null ? true : (storedToastPref === 'true');
                 if (toastToggle) toastToggle.checked = showToasts;
                 applyToastPreference(showToasts);
+
+                 // Sound Notifications
+                const storedSoundPref = localStorage.getItem('playSounds');
+                playSounds = storedSoundPref === null ? true : (storedSoundPref === 'true'); // Default true
+                if (soundNotificationsToggle) soundNotificationsToggle.checked = playSounds;
+                applySoundPreference(playSounds);
+
 
             }
 
@@ -1452,7 +1728,7 @@
                 localStorage.setItem('timeFormat', timeFormat);
                 localStorage.setItem('dateFormat', dateFormat);
                 // Re-render any visible dates/times if needed (e.g., activity list)
-                if (currentFeature === 'dashboard' && activityList.children.length > 0) {
+                if (currentFeature === 'dashboard' && activityList.children.length > 0 && !activityList.children[0].textContent.includes('Loading')) {
                     loadRecentActivities(showingAllActivities);
                 }
                 // Add logic to re-render other dynamic dates/times here
@@ -1463,6 +1739,12 @@
                  showToasts = enabled;
                  localStorage.setItem('showToasts', enabled);
              }
+
+            function applySoundPreference(enabled) {
+                 console.log("Applying sound preference:", enabled);
+                 playSounds = enabled;
+                 localStorage.setItem('playSounds', enabled);
+            }
 
 
             // --- Navigation & Content Loading ---
@@ -1562,6 +1844,10 @@
                  // Update 2FA UI if security tab is activated
                  if (tabId === 'security') {
                      update2FA_UI();
+                 }
+                 // Update Account panel display email if activated
+                 if (tabId === 'account' && currentEmailDisplay) {
+                    currentEmailDisplay.value = currentUser.email;
                  }
             }
 
@@ -1714,7 +2000,6 @@
             function loadRecentActivities(showAll = false) {
                 console.log("Loading recent activities...");
                 // Simulate fetching activities
-                // In a real app, this would be an API call
                 if (activities.length === 0) { // Generate initial activities only once
                     activities = generateMockActivities(15);
                 }
@@ -1735,20 +2020,41 @@
                     const li = document.createElement('li');
                     li.classList.add('activity-item');
                     li.dataset.id = activity.id;
-                    if (activity.isNew) {
-                         li.classList.add('new-activity');
-                         // Remove the 'new' status after animation
-                         setTimeout(() => {
-                            activity.isNew = false;
-                            li.classList.remove('new-activity');
-                         }, 2500);
+
+                    // MODIFICATION: Format time based on isNew or age
+                    const now = new Date();
+                    const secondsPast = (now.getTime() - activity.timestamp.getTime()) / 1000;
+                    let timeString;
+                    const timeFormatOptions = { hour: 'numeric', minute: '2-digit', hour12: (localStorage.getItem('timeFormat') || '12h') === '12h' };
+
+                    if (activity.isNew || secondsPast < 60) { // Show time for very recent or explicitly new
+                        timeString = activity.timestamp.toLocaleTimeString([], timeFormatOptions);
+                        // Optionally add "Just now" for very recent ones?
+                        if(secondsPast < 10) timeString = "Just now";
+
+                        li.classList.add('new-activity'); // Keep applying the class for 'new' ones
+                        // Remove the 'new' status after animation - only if explicitly marked
+                        if (activity.isNew) {
+                            setTimeout(() => {
+                                // Find the original activity in the main array and mark it not new
+                                const originalActivity = activities.find(a => a.id === activity.id);
+                                if(originalActivity) originalActivity.isNew = false;
+                                // Only remove class from the currently rendered item if it still exists
+                                const renderedLi = activityList.querySelector(`li[data-id='${activity.id}']`);
+                                if(renderedLi) renderedLi.classList.remove('new-activity');
+                            }, 2500);
+                        }
+                    } else {
+                         // Use timeAgo for older activities
+                         timeString = timeAgo(activity.timestamp);
                     }
+
 
                     li.innerHTML = `
                         <div class="activity-icon"><i class="fas ${activity.icon}"></i></div>
                         <div class="activity-content">
                             <div class="activity-message">${activity.message}</div>
-                            <div class="activity-time" title="${activity.timestamp.toLocaleString()}">${timeAgo(activity.timestamp)}</div>
+                            <div class="activity-time" title="${activity.timestamp.toLocaleString()}">${timeString}</div>
                         </div>
                         <div class="activity-actions">
                             <i class="fas fa-trash-alt delete-activity" title="Delete Activity"></i>
@@ -1762,9 +2068,9 @@
                  viewAllActivity.textContent = showAll ? 'Show Less' : 'Show All';
                  viewAllActivity.style.display = activities.length > maxActivitiesToShow ? 'inline-block' : 'none';
 
-                 // Add event listeners for delete icons (delegated)
-                 // Done in setupEventListeners
+                 // Event listeners for delete icons are delegated in setupEventListeners
             }
+
 
             function loadNotifications() {
                  console.log("Loading notifications...");
@@ -1872,11 +2178,15 @@
                 if (activityIntervalId) clearInterval(activityIntervalId);
                 activityIntervalId = setInterval(() => {
                     const newActivity = generateMockActivities(1)[0];
-                    newActivity.isNew = true; // Mark as new
+                    // MODIFICATION: Set timestamp to NOW for new activity
+                    newActivity.timestamp = new Date();
+                    newActivity.isNew = true; // Mark as new for special formatting/animation
+
                     activities.unshift(newActivity); // Add to beginning
                     if (activities.length > 50) activities.pop(); // Limit history size
                     loadRecentActivities(showingAllActivities); // Refresh list
                     showToast(`New Activity: ${newActivity.message.substring(0, 30)}...`);
+                    playNotificationSound(); // Play sound for new activity too
                 }, Math.random() * 10000 + 10000);
 
                 // Simulate new notification every 20-40 seconds
@@ -2131,15 +2441,14 @@
 
                         if (target.closest('.edit-member')) {
                             console.log(`Edit member ${memberId}`);
-                            showToast(`Editing member ${memberId} (Not Implemented)`);
-                            // Implement edit modal/logic here
+                            handleEditMember(memberId); // Call function to show edit modal
                         } else if (target.closest('.remove-member')) {
                             console.log(`Remove member ${memberId}`);
                              const memberToRemove = MOCK_USERS.find(u => u.id === memberId);
-                             showConfirmModal('Remove Team Member', `Are you sure you want to remove ${memberToRemove?.name || 'this member'}?`, () => {
+                             showConfirmModal('Remove Team Member', `Are you sure you want to delete this member (${memberToRemove?.name || ''})?`, () => {
                                 MOCK_USERS = MOCK_USERS.filter(u => u.id !== memberId); // Update mock data
                                 loadTeamMembers(); // Refresh list
-                                showToast('Team member removed.');
+                                showToast('Team member removed.', 'success');
                                 // Also update dashboard stats if necessary
                                 loadDashboardStats();
                              }, 'btn-danger');
@@ -2153,7 +2462,7 @@
                      inviteMemberForm.addEventListener('submit', handleInviteMember);
                  }
 
-                 // Settings Controls Listeners (New)
+                 // Settings Controls Listeners
                  themeOptions.forEach(option => {
                      option.addEventListener('click', () => setTheme(option.dataset.theme));
                  });
@@ -2177,6 +2486,30 @@
                  if (toastToggle) {
                     toastToggle.addEventListener('change', (e) => applyToastPreference(e.target.checked));
                  }
+                 // Notification Sound Toggle Listener
+                 if (soundNotificationsToggle) {
+                     soundNotificationsToggle.addEventListener('change', (e) => applySoundPreference(e.target.checked));
+                 }
+
+
+                // Account Settings Listeners
+                if (changePasswordForm) {
+                    changePasswordForm.addEventListener('submit', handleChangePassword);
+                    // Add input listeners to enable button? (Optional)
+                }
+                // Add listeners for account notification toggles (simulation)
+                if (loginNotificationsToggle) {
+                    loginNotificationsToggle.addEventListener('change', (e) => {
+                        console.log("Login Notifications Toggle:", e.target.checked);
+                        // In real app: save preference
+                    });
+                }
+                 if (passwordChangeAlertsToggle) {
+                    passwordChangeAlertsToggle.addEventListener('change', (e) => {
+                        console.log("Password Change Alerts Toggle:", e.target.checked);
+                         // In real app: save preference
+                    });
+                }
 
                  // 2FA Button Listeners
                  if (enable2faBtn) enable2faBtn.addEventListener('click', handleEnable2FA);
@@ -2200,6 +2533,11 @@
                     }
                     hideConfirmModal();
                 });
+
+                 // Edit Member Modal Buttons
+                 cancelEditMemberBtn.addEventListener('click', hideEditMemberModal);
+                 editMemberForm.addEventListener('submit', handleSaveMemberChanges);
+
             }
 
             // --- Specific Feature Logic ---
@@ -2398,6 +2736,42 @@
                  );
              }
 
+            // --- Account Settings Logic ---
+            function handleChangePassword(event) {
+                 event.preventDefault();
+                 console.log("Changing password (simulation)...");
+                 const currentPassword = document.getElementById('currentPassword').value;
+                 const newPassword = document.getElementById('newPassword').value;
+                 const confirmPassword = document.getElementById('confirmPassword').value;
+
+                 // Basic validation (add more as needed)
+                 if (!currentPassword || !newPassword || !confirmPassword) {
+                     showToast("Please fill in all password fields.", "error");
+                     return;
+                 }
+                 if (newPassword !== confirmPassword) {
+                     showToast("New passwords do not match.", "error");
+                     return;
+                 }
+                 if (newPassword.length < 8) { // Example minimum length
+                     showToast("New password must be at least 8 characters.", "error");
+                     return;
+                 }
+
+                 // Simulate backend check for current password and update
+                 showToast("Updating password...", "info");
+                 setTimeout(() => {
+                     // Assume current password was correct in simulation
+                     console.log("Password change successful (simulated).");
+                     showSuccessMessage("Password updated successfully!");
+                     // Clear password fields
+                     document.getElementById('currentPassword').value = '';
+                     document.getElementById('newPassword').value = '';
+                     document.getElementById('confirmPassword').value = '';
+                 }, 1500);
+            }
+
+
              // --- 2FA Logic (Simulation) ---
              function update2FA_UI() {
                 const isEnabled = currentUser.twoFaEnabled;
@@ -2499,8 +2873,9 @@
                          showToast('Deleting account...', 'error');
                          // Simulate logout and redirection
                          setTimeout(() => {
-                             alert("Account Deleted (Simulated). You would be redirected now.");
-                             handleLogout(new Event('click')); // Trigger logout flow
+                             // MODIFICATION: Redirect instead of alert
+                             // alert("Account Deleted (Simulated). You would be redirected now.");
+                             window.location.href = 'login.html'; // Redirect to login page
                          }, 2000);
                      }, 'btn-danger');
                  }, 'btn-danger');
@@ -2517,10 +2892,19 @@
              }
 
              function playNotificationSound() {
+                // MODIFICATION: Check preference before playing
+                if (!playSounds) {
+                    console.log("Sound suppressed by preference.");
+                    return;
+                }
                 try {
                     // Check if audio context needs user interaction first (common browser policy)
                     if (notificationSound.paused) {
                         notificationSound.play().catch(e => console.warn("Audio play failed - requires user interaction or unsupported format:", e));
+                    } else {
+                        // If already playing, maybe restart it? Or let it finish.
+                        // Restarting might be jarring. Let's allow it to finish.
+                        // Optional: notificationSound.currentTime = 0; notificationSound.play().catch(...)
                     }
                  } catch(e) {
                      console.warn("Audio playback error:", e);
@@ -2549,14 +2933,10 @@
 
                          // Simulate redirection after a short delay
                          setTimeout(() => {
-                             // In a real app, redirect to the login page
-                             // window.location.href = '/login.html'; // Or appropriate logout URL
-                             // For this simulation, just show an alert
-                              alert("Logged Out (Simulated) - Redirecting to login page...");
-                              // You might want to clear user data/state here too
-                              currentUser = null;
-                              // Potentially reload or navigate away
-                              window.location.reload(); // Simple way to reset state for demo
+                             // MODIFICATION: Redirect instead of alert
+                             console.log("Redirecting to login.html...");
+                             window.location.href = 'login.html';
+                             // Clear user data/state - redirection handles this implicitly
                          }, 1500);
                      },
                      'btn-danger'
@@ -2577,12 +2957,12 @@
 
                  console.log(`Inviting ${email} as ${role}`);
                  inviteButton.disabled = true;
-                 inviteButton.innerHTML = '<span class="spinner"></span> Sending...'; // Add spinner
+                 inviteButton.innerHTML = '<span class="spinner" style="display: inline-block; border-top-color: white;"></span> Sending...'; // Add spinner
 
                  // Simulate API call
                  setTimeout(() => {
                     // Add a new mock user (simplified)
-                    const newId = Math.max(...MOCK_USERS.map(u => u.id)) + 1;
+                    const newId = MOCK_USERS.length > 0 ? Math.max(...MOCK_USERS.map(u => u.id)) + 1 : 1;
                     const nameParts = email.split('@')[0].split('.').map(part => part.charAt(0).toUpperCase() + part.slice(1));
                     const newUser = {
                         id: newId,
@@ -2608,77 +2988,74 @@
                  }, 1000);
              }
 
+            // MODIFICATION: Added Edit Member Modal Logic
+            function handleEditMember(memberId) {
+                const member = MOCK_USERS.find(u => u.id === memberId);
+                if (!member) {
+                    showToast("Member not found.", "error");
+                    return;
+                }
+
+                editMemberIdInput.value = member.id;
+                editMemberNameInput.value = member.name;
+                editMemberEmailInput.value = member.email; // Display but keep readonly
+                editMemberTitleInput.value = member.title;
+                editMemberRoleSelect.value = member.role;
+                editMemberTitle.textContent = `Edit ${member.name}`;
+
+                editMemberModal.classList.add('active');
+            }
+
+            function hideEditMemberModal() {
+                editMemberModal.classList.remove('active');
+                editMemberForm.reset(); // Clear the form
+            }
+
+            function handleSaveMemberChanges(event) {
+                event.preventDefault();
+                const memberId = parseInt(editMemberIdInput.value);
+                const memberIndex = MOCK_USERS.findIndex(u => u.id === memberId);
+
+                if (memberIndex === -1) {
+                    showToast("Error saving: Member not found.", "error");
+                    hideEditMemberModal();
+                    return;
+                }
+
+                const updatedMember = {
+                    ...MOCK_USERS[memberIndex], // Keep existing data like ID, email, avatar
+                    name: editMemberNameInput.value,
+                    title: editMemberTitleInput.value,
+                    role: editMemberRoleSelect.value,
+                    // Recalculate initials if name changed and no avatar
+                    initials: '',
+                };
+
+                // Update initials if name changed and no avatar
+                 if (!updatedMember.avatar) {
+                     const nameParts = updatedMember.name.split(' ');
+                     updatedMember.initials = (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || '');
+                 }
+
+
+                console.log(`Saving changes for member ${memberId}:`, updatedMember);
+
+                // Update the MOCK_USERS array
+                MOCK_USERS[memberIndex] = updatedMember;
+
+                loadTeamMembers(); // Refresh the list display
+                hideEditMemberModal();
+                showToast("Member details updated successfully.", "success");
+
+                // If the edited user is the current user, update their UI too
+                if (currentUser && currentUser.id === memberId) {
+                    currentUser = { ...updatedMember }; // Update current user state
+                    updateUserUI(); // Refresh dashboard/profile elements
+                }
+            }
+
 
              // --- Employee Scheduling ---
-             // Placeholder functions for the scheduling feature
-             function getEmployeeScheduleHTML() {
-                 // Return the basic HTML structure for the scheduling page
-                 // This should match the structure expected by initializeEmployeeScheduleLogic
-                 // and use the scoped CSS classes (e.g., schedule-table, employee-name)
-                 // Added save/reminder buttons based on admin role
-                 return `
-                    <div class="schedule-page-header section-main-header"> <!-- Use existing header style -->
-                        <h2 class="schedule-page-title section-main-title">Employee Scheduling</h2> <!-- Use existing title style -->
-                         ${currentUser.role === 'admin' ? `
-                         <button class="btn btn-primary" id="saveScheduleBtn">
-                             <i class="fas fa-save"></i> Save Schedule
-                         </button>` : ''}
-                    </div>
-                    <div class="schedule-controls">
-                        <button class="btn btn-outline" id="prevWeekBtn"><i class="fas fa-chevron-left"></i> Prev</button>
-                        <span id="weekDisplay" style="margin: 0 1rem; font-weight: 500;">Loading...</span>
-                        <button class="btn btn-outline" id="nextWeekBtn">Next <i class="fas fa-chevron-right"></i></button>
-                        ${currentUser.role === 'admin' ? `
-                        <button class="btn btn-success" id="sendRemindersBtn" style="margin-left: auto;">
-                             <i class="fas fa-envelope"></i> Send Reminders
-                         </button>` : ''}
-                    </div>
-                    <div class="schedule-container">
-                        <table class="schedule-table">
-                            <thead>
-                                <tr>
-                                    <th>Employee</th>
-                                    <!-- Day headers populated by JS -->
-                                </tr>
-                            </thead>
-                            <tbody id="scheduleTableBody">
-                                <!-- Schedule content loaded by JS -->
-                                <tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">Loading schedule...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <!-- Shift Edit Modal -->
-                    <div class="modal" id="editShiftModal">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h3 class="modal-title" id="editShiftModalTitle">Edit Shift</h3>
-                                <button class="close-modal" data-close-modal>&times;</button>
-                            </div>
-                            <form id="editShiftForm">
-                                <input type="hidden" id="editShiftEmployeeId">
-                                <input type="hidden" id="editShiftDayIndex">
-                                <input type="hidden" id="editShiftWeekOffset"> <!-- Store week offset for key -->
-                                <div class="form-group">
-                                    <label for="shiftType">Shift Type</label>
-                                    <select id="shiftType" class="form-control">
-                                        <option value="morning">Morning (9AM-5PM)</option>
-                                        <option value="afternoon">Afternoon (12PM-8PM)</option>
-                                        <option value="night">Night (8PM-4AM)</option>
-                                        <option value="off">Day Off</option>
-                                        <option value="sick">Sick Leave</option>
-                                        <option value="vacation">Vacation</option>
-                                    </select>
-                                </div>
-                                <div class="form-actions" style="grid-column: span 1;">
-                                     <button type="button" class="btn btn-outline" data-close-modal>Cancel</button>
-                                     <button type="submit" class="btn btn-primary">Save Shift</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                `;
-             }
-
             let currentScheduleWeekOffset = 0; // 0 for current week, -1 for previous, 1 for next etc.
             let mockScheduleData = {}; // Store schedule data { 'employeeId-weekOffset-dayIndex': 'shiftType' }
 
@@ -2687,33 +3064,30 @@
 
                 // --- MODIFICATION: Calculate initial offset for May 2025 ---
                 const today = new Date();
-                const targetStartDate = new Date(2025, 4, 1); // Month is 0-indexed (4 = May)
+                // Target the *Monday* of the week containing May 1st, 2025
+                const targetDate = new Date(2025, 4, 1); // May 1st, 2025 (Month is 0-indexed)
 
-                // Calculate difference in days
-                 const msPerDay = 24 * 60 * 60 * 1000;
-                 const daysDifference = Math.floor((targetStartDate - today) / msPerDay);
+                const msPerDay = 24 * 60 * 60 * 1000;
 
-                 // Calculate difference in weeks (adjusting for current day of week)
-                 // Get Monday of the current week
-                 const currentDayOfWeek = today.getDay(); // 0=Sun, 1=Mon,...
-                 const diffToMonday = today.getDate() - currentDayOfWeek + (currentDayOfWeek === 0 ? -6 : 1);
-                 const startOfCurrentWeek = new Date(today);
-                 startOfCurrentWeek.setDate(diffToMonday);
-                 startOfCurrentWeek.setHours(0, 0, 0, 0); // Normalize time
+                // Get Monday of the current week
+                const currentDayOfWeek = today.getDay(); // 0=Sun, 1=Mon,...
+                const diffToMonday = today.getDate() - currentDayOfWeek + (currentDayOfWeek === 0 ? -6 : 1);
+                const startOfCurrentWeek = new Date(today);
+                startOfCurrentWeek.setDate(diffToMonday);
+                startOfCurrentWeek.setHours(0, 0, 0, 0); // Normalize time
 
-                 // Get Monday of the target week
-                 const targetDayOfWeek = targetStartDate.getDay();
-                 const diffToTargetMonday = targetStartDate.getDate() - targetDayOfWeek + (targetDayOfWeek === 0 ? -6 : 1);
-                 const startOfTargetWeek = new Date(targetStartDate);
-                 startOfTargetWeek.setDate(diffToTargetMonday);
-                 startOfTargetWeek.setHours(0, 0, 0, 0); // Normalize time
+                // Get Monday of the target week
+                const targetDayOfWeek = targetDate.getDay();
+                const diffToTargetMonday = targetDate.getDate() - targetDayOfWeek + (targetDayOfWeek === 0 ? -6 : 1);
+                const startOfTargetWeek = new Date(targetDate);
+                startOfTargetWeek.setDate(diffToTargetMonday);
+                startOfTargetWeek.setHours(0, 0, 0, 0); // Normalize time
 
+                const weeksDifference = Math.round((startOfTargetWeek.getTime() - startOfCurrentWeek.getTime()) / (7 * msPerDay));
 
-                 const weeksDifference = Math.round((startOfTargetWeek - startOfCurrentWeek) / (7 * msPerDay));
-
-                 currentScheduleWeekOffset = weeksDifference;
-                 console.log(`Target Start: May 1, 2025. Calculated initial week offset: ${currentScheduleWeekOffset}`);
-                 // --- END MODIFICATION ---
+                currentScheduleWeekOffset = weeksDifference;
+                console.log(`Target Week Start: ${startOfTargetWeek.toDateString()}. Current Week Start: ${startOfCurrentWeek.toDateString()}. Calculated initial week offset: ${currentScheduleWeekOffset}`);
+                // --- END MODIFICATION ---
 
 
                 const weekDisplay = document.getElementById('weekDisplay');
@@ -2723,13 +3097,24 @@
                 const nextWeekBtn = document.getElementById('nextWeekBtn');
                 const saveScheduleBtn = document.getElementById('saveScheduleBtn');
                 const sendRemindersBtn = document.getElementById('sendRemindersBtn');
-                const editShiftModal = document.getElementById('editShiftModal');
-                const editShiftForm = document.getElementById('editShiftForm');
-                const shiftTypeSelect = document.getElementById('shiftType');
-                const editShiftEmployeeIdInput = document.getElementById('editShiftEmployeeId');
-                const editShiftDayIndexInput = document.getElementById('editShiftDayIndex');
-                const editShiftWeekOffsetInput = document.getElementById('editShiftWeekOffset'); // Added input
-                const editShiftModalTitle = document.getElementById('editShiftModalTitle');
+                const editShiftModal = document.getElementById('editShiftModal'); // Ensure this matches the HTML ID
+                const editShiftForm = document.getElementById('editShiftForm'); // Ensure this matches the HTML ID
+                const shiftTypeSelect = document.getElementById('shiftType'); // Ensure this matches the HTML ID
+                const editShiftEmployeeIdInput = document.getElementById('editShiftEmployeeId'); // Ensure this matches the HTML ID
+                const editShiftDayIndexInput = document.getElementById('editShiftDayIndex'); // Ensure this matches the HTML ID
+                const editShiftWeekOffsetInput = document.getElementById('editShiftWeekOffset'); // Ensure this matches the HTML ID
+                const editShiftModalTitle = document.getElementById('editShiftModalTitle'); // Ensure this matches the HTML ID
+
+                // Check if elements exist before proceeding
+                if (!weekDisplay || !scheduleTableBody || !scheduleThead || !prevWeekBtn || !nextWeekBtn || !editShiftModal || !editShiftForm || !shiftTypeSelect || !editShiftEmployeeIdInput || !editShiftDayIndexInput || !editShiftWeekOffsetInput || !editShiftModalTitle) {
+                     console.error("One or more schedule elements not found in the DOM.");
+                     featureErrorEl.textContent = "Failed to initialize schedule view: Missing required elements.";
+                     featureErrorEl.style.display = "block";
+                     featurePlaceholder.style.display = 'flex'; // Show placeholder with error
+                     featureSectionsContainer.appendChild(featurePlaceholder);
+                     return; // Stop initialization
+                }
+
 
                 function getWeekDates(weekOffset = 0) {
                     const today = new Date();
@@ -2856,7 +3241,7 @@
                  if (saveScheduleBtn) {
                      saveScheduleBtn.addEventListener('click', () => {
                          saveScheduleBtn.disabled = true;
-                         saveScheduleBtn.innerHTML = '<span class="spinner"></span> Saving...';
+                         saveScheduleBtn.innerHTML = '<span class="spinner" style="display: inline-block; border-top-color: white;"></span> Saving...';
                          console.log("Saving schedule...", mockScheduleData);
                          // Simulate save
                          setTimeout(() => {
@@ -2866,18 +3251,46 @@
                          }, 1000);
                      });
                  }
+                 // MODIFICATION: Send Reminders Simulation
                  if (sendRemindersBtn) {
                      sendRemindersBtn.addEventListener('click', () => {
                          sendRemindersBtn.disabled = true;
-                         sendRemindersBtn.innerHTML = '<span class="spinner"></span> Sending...';
-                         // Simulate sending
+                         sendRemindersBtn.innerHTML = '<span class="spinner" style="display: inline-block; border-top-color: white;"></span> Sending...';
+
+                         const weekDates = getWeekDates(currentScheduleWeekOffset);
+                         const weekRange = `${formatDateForDisplay(weekDates[0])} - ${formatDateForDisplay(weekDates[6])}`;
+
+                         console.log(`Simulating sending schedule reminders for week ${weekRange}`);
+                         // Simulate sending email to each user
+                         let emailsSent = 0;
+                         MOCK_USERS.forEach(user => {
+                             const subject = `Schedule Reminder for Week: ${weekRange}`;
+                             const body = `
+Hello ${user.name.split(' ')[0]},
+
+This is a friendly reminder to check your schedule for the upcoming week (${weekRange}) in the TeamFlow system.
+
+Please ensure your availability is correctly reflected.
+
+Regards,
+Team Management System
+                             `;
+                             console.log("--- Email Simulation ---");
+                             console.log("To:", user.email);
+                             console.log("Subject:", subject);
+                             console.log("Body:", body.trim());
+                             console.log("------------------------");
+                             emailsSent++;
+                         });
+
                          setTimeout(() => {
-                             showToast("Schedule reminders sent!", "success");
+                             showToast(`Simulated sending reminders to ${emailsSent} team members.`, "success");
                              sendRemindersBtn.disabled = false;
                              sendRemindersBtn.innerHTML = '<i class="fas fa-envelope"></i> Send Reminders';
                          }, 1500);
                      });
                  }
+
 
                  // Modal close buttons
                  editShiftModal.querySelectorAll('[data-close-modal]').forEach(btn => {
@@ -2910,31 +3323,33 @@
                  renderSchedule(currentScheduleWeekOffset); // Initial render
             }
 
+
             // --- Utility Functions ---
             function timeAgo(timestamp) {
                 // Use stored preferences for formatting
                 const timeFormat = localStorage.getItem('timeFormat') || '12h';
-                // const dateFormat = localStorage.getItem('dateFormat') || 'MM/DD/YYYY'; // Get date format too
+                const dateFormat = localStorage.getItem('dateFormat') || 'MM/DD/YYYY';
 
                 const now = new Date();
                 const secondsPast = (now.getTime() - timestamp.getTime()) / 1000;
 
-                if (secondsPast < 60) {
+                if (secondsPast < 60) { // Less than a minute
                     return parseInt(secondsPast) + 's ago';
                 }
-                if (secondsPast < 3600) {
+                if (secondsPast < 3600) { // Less than an hour
                     return parseInt(secondsPast / 60) + 'm ago';
                 }
-                if (secondsPast <= 86400) { // Within 24 hours
-                    // Maybe show time if needed? For now, hours ago is fine.
+                if (secondsPast < 86400) { // Less than 24 hours
                     return parseInt(secondsPast / 3600) + 'h ago';
                 }
-                // Older than a day, show formatted date
+                 // Older than a day, show formatted date (using helper)
                 return formatDateForDisplay(timestamp);
             }
 
-             // Helper to format date based on stored preference (Simplified Simulation)
+            // Helper to format date based on stored preference
              function formatDateForDisplay(date) {
+                 if (!(date instanceof Date)) date = new Date(date); // Ensure it's a Date object
+
                  const dateFormat = localStorage.getItem('dateFormat') || 'MM/DD/YYYY';
                  const year = date.getFullYear();
                  const month = date.getMonth() + 1; // 0-indexed
@@ -2942,14 +3357,20 @@
 
                  const monthPadded = String(month).padStart(2, '0');
                  const dayPadded = String(day).padStart(2, '0');
-                 const monthName = date.toLocaleDateString(undefined, { month: 'short' }); // e.g., 'Jan'
+                 const monthNameShort = date.toLocaleDateString(undefined, { month: 'short' }); // e.g., 'May'
+                 const monthNameLong = date.toLocaleDateString(undefined, { month: 'long' }); // e.g., 'May'
 
-                 switch (dateFormat) {
-                     case 'DD/MM/YYYY': return `${dayPadded}/${monthPadded}/${year}`;
-                     case 'YYYY-MM-DD': return `${year}-${monthPadded}-${dayPadded}`;
-                     case 'Month D, YYYY': return `${monthName} ${day}, ${year}`;
-                     case 'MM/DD/YYYY':
-                     default:           return `${monthPadded}/${dayPadded}/${year}`;
+                 try {
+                     switch (dateFormat) {
+                         case 'DD/MM/YYYY': return `${dayPadded}/${monthPadded}/${year}`;
+                         case 'YYYY-MM-DD': return `${year}-${monthPadded}-${dayPadded}`;
+                         case 'Month D, YYYY': return `${monthNameLong} ${day}, ${year}`; // Use full month name
+                         case 'MM/DD/YYYY':
+                         default:           return `${monthPadded}/${dayPadded}/${year}`;
+                     }
+                 } catch (e) {
+                     console.error("Error formatting date:", date, e);
+                     return "Invalid Date"; // Fallback
                  }
             }
 
