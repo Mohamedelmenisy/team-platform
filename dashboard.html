@@ -56,6 +56,10 @@
 
             /* Text Color Variable (for request ✅ 2️⃣) - Aliased to existing variables */
             --text-color: var(--dark);
+
+             /* Schedule specific */
+             --schedule-weekend-bg: #f3f4f6; /* Light gray for weekend cells */
+             --schedule-weekend-text: #9ca3af; /* Muted text for weekend OFF */
         }
         /* --- Base Styles --- */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -426,6 +430,8 @@
             --gray: #94a3b8; /* Lighter gray text */
             --light-gray: #475569; /* Darker borders/dividers */
             --text-color: var(--dark); /* Update text-color for dark mode */
+            --schedule-weekend-bg: #262f3e; /* Darker gray for weekend cells */
+            --schedule-weekend-text: #6b7280; /* Muted dark text for weekend OFF */
             background-color: var(--white); /* Use darkest for body */
             color: var(--text-color); /* Default text color */
         }
@@ -493,9 +499,11 @@
         body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:hover td,
         body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:hover td.employee-name { background-color: #475569; } /* Hover effect */
         body.dark-theme #featureSectionsContainer.employee-scheduling .employee-name { background-color: var(--white); border-right-color: var(--light-gray); color: var(--text-color); } /* Dark sticky column bg */
-        body.dark-theme #featureSectionsContainer.employee-scheduling .day-name { color: var(--text-color); }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .day-name { color: white; } /* Keep day name white */
         body.dark-theme #featureSectionsContainer.employee-scheduling .day-date { color: var(--gray); }
         body.dark-theme #featureSectionsContainer.employee-scheduling .shift { /* Adjust shift colors for dark mode if needed, current ones might be okay */ }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody td.weekend-cell { background-color: var(--schedule-weekend-bg); } /* Dark weekend bg */
+        body.dark-theme #featureSectionsContainer.employee-scheduling .shift-weekend-off { color: var(--schedule-weekend-text); background-color: transparent; border-color: transparent; }
 
         body.dark-theme .checkbox-group { border-color: var(--light-gray); }
         body.dark-theme .checkbox-group label { color: var(--text-color); } /* Checkbox label text */
@@ -598,29 +606,27 @@
         .placeholder-content .loading-indicator { font-size: 1.2rem; margin-top: 1rem; }
         .placeholder-content .error-message { color: var(--danger); font-weight: 500; margin-top: 1rem; white-space: pre-wrap; text-align: left; padding: 1rem; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 4px; max-width: 100%; overflow-wrap: break-word; }
 
-        /* --- Additional styles from employee-schedule.txt (Scoped) --- */
-        /* Scope these styles to only apply when the schedule content is loaded */
+        /* --- Employee Scheduling Scoped Styles --- */
         #featureSectionsContainer.employee-scheduling .schedule-page-header { margin-bottom: 1.5rem; }
-        /* Style schedule title */
         #featureSectionsContainer.employee-scheduling .schedule-page-title {
             font-size: 1.5rem;
             font-weight: 600;
             border-bottom: none;
             margin-bottom: 0;
-            background-color: var(--primary-light); /* Example background */
+            background-color: var(--primary-light);
             color: var(--primary-dark);
             padding: 0.75rem 1.5rem;
             border-radius: 6px;
-            display: inline-block; /* Fit content */
+            display: inline-block;
          }
         body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-page-title {
             background-color: var(--light);
-            color: #93c5fd; /* Lighter primary text */
+            color: #93c5fd;
         }
 
         #featureSectionsContainer.employee-scheduling .schedule-controls { margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
         #featureSectionsContainer.employee-scheduling .schedule-container { margin-top: 1rem; overflow-x: auto; }
-        #featureSectionsContainer.employee-scheduling .schedule-table { width: 100%; min-width: 600px; border-collapse: separate; border-spacing: 0; border: 1px solid var(--light-gray); border-radius: 8px; overflow: hidden; } /* Reduced min-width for 5 days */
+        #featureSectionsContainer.employee-scheduling .schedule-table { width: 100%; min-width: 800px; border-collapse: separate; border-spacing: 0; border: 1px solid var(--light-gray); border-radius: 8px; overflow: hidden; } /* Adjusted min-width for 7 days */
         #featureSectionsContainer.employee-scheduling .schedule-table thead th { padding: 1rem 0.75rem; text-align: center; background-color: var(--primary); color: white; font-weight: 600; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--primary-dark); }
         #featureSectionsContainer.employee-scheduling .schedule-table thead th:first-child { border-top-left-radius: 8px; }
         #featureSectionsContainer.employee-scheduling .schedule-table thead th:last-child { border-top-right-radius: 8px; }
@@ -632,18 +638,31 @@
         #featureSectionsContainer.employee-scheduling .employee-name { font-weight: 600; text-align: left; position: sticky; left: 0; background-color: var(--white); z-index: 5; border-right: 2px solid var(--gray); /* Make divider more prominent */ white-space: nowrap; color: var(--text-color); } /* Use text-color */
         #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:nth-child(even) td.employee-name { background-color: #f9fafb; }
         #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:hover td.employee-name { background-color: #f0f9ff; }
+        /* Weekend Cell Specific Style */
+        #featureSectionsContainer.employee-scheduling .schedule-table tbody td.weekend-cell {
+            background-color: var(--schedule-weekend-bg);
+        }
         #featureSectionsContainer.employee-scheduling .shift { padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.8rem; font-weight: 500; white-space: nowrap; display: inline-block; min-width: 60px; border: 1px solid transparent; cursor: default; }
         #featureSectionsContainer.employee-scheduling .shift.editable { cursor: pointer; transition: transform 0.2s; }
         #featureSectionsContainer.employee-scheduling .shift.editable:hover { transform: scale(1.05); box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+        /* Weekend OFF shift style */
+        #featureSectionsContainer.employee-scheduling .shift-weekend-off {
+            color: var(--schedule-weekend-text);
+            background-color: transparent; /* Or keep var(--schedule-weekend-bg) */
+            font-style: italic;
+            border: none;
+            cursor: default;
+        }
         #featureSectionsContainer.employee-scheduling .shift-morning { background-color: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
         #featureSectionsContainer.employee-scheduling .shift-afternoon { background-color: #e0f2fe; color: #0c4a6e; border-color: #bae6fd;}
         #featureSectionsContainer.employee-scheduling .shift-night { background-color: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
-        #featureSectionsContainer.employee-scheduling .shift-off { background-color: #f0fdf4; color: #166534; border-color: #bbf7d0; } /* Renamed from day-off */
-        #featureSectionsContainer.employee-scheduling .shift-sick { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; } /* Renamed */
-        #featureSectionsContainer.employee-scheduling .shift-vacation { background-color: #ffedd5; color: #9a3412; border-color: #fed7aa; } /* Renamed */
+        #featureSectionsContainer.employee-scheduling .shift-off { background-color: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+        #featureSectionsContainer.employee-scheduling .shift-sick { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; }
+        #featureSectionsContainer.employee-scheduling .shift-vacation { background-color: #ffedd5; color: #9a3412; border-color: #fed7aa; }
         #featureSectionsContainer.employee-scheduling .day-header { display: flex; flex-direction: column; gap: 0.25rem; align-items: center; }
-        #featureSectionsContainer.employee-scheduling .day-name { font-weight: 600; font-size: 0.9rem; color: var(--text-color); } /* Use text-color */
-        #featureSectionsContainer.employee-scheduling .day-date { font-size: 0.8rem; opacity: 0.8; color: var(--gray); } /* Use gray */
+        #featureSectionsContainer.employee-scheduling .day-name { font-weight: 600; font-size: 0.9rem; color: white; } /* Day name in header is white */
+        #featureSectionsContainer.employee-scheduling .day-date { font-size: 0.8rem; opacity: 0.8; color: rgba(255, 255, 255, 0.8); } /* Date slightly transparent */
+
 
         /* Generic Modal Styles */
         .modal {
@@ -1076,7 +1095,7 @@
                      </div>
 
                      <div class="form-actions" style="grid-column: span 1; justify-content: flex-end;">
-                         <button type="button" class="btn btn-primary" id="savePreferencesBtn" disabled>Save Preferences</button>
+                         <button type="button" class="btn btn-primary" id="savePreferencesBtn">Save Preferences</button> <!-- Removed disabled -->
                      </div>
                  </div>
 
@@ -1091,15 +1110,15 @@
                              </div>
                              <div class="form-group">
                                 <label for="changeEmail">New Email Address</label>
-                                <input type="email" id="changeEmail" class="form-control" placeholder="Enter new email" disabled>
+                                <input type="email" id="changeEmail" class="form-control" placeholder="Enter new email" disabled> <!-- Keep disabled, needs backend -->
                                 <p class="setting-item-description">Changing email requires backend verification.</p>
                             </div>
                              <div class="form-group" style="grid-column: span 2;">
                                 <label for="accountConfirmPassword">Confirm Password (to change email)</label>
-                                <input type="password" id="accountConfirmPassword" class="form-control" placeholder="Enter current password" disabled>
+                                <input type="password" id="accountConfirmPassword" class="form-control" placeholder="Enter current password" disabled> <!-- Keep disabled -->
                             </div>
                             <div class="form-actions" style="grid-column: span 2;">
-                                <button type="button" class="btn btn-primary" id="saveAccountEmailBtn" disabled>Change Email Address</button>
+                                <button type="button" class="btn btn-primary" id="saveAccountEmailBtn" disabled>Change Email Address</button> <!-- Keep disabled -->
                             </div>
                          </div>
                          <p style="margin-top: 1rem;">Note: Password changes are managed under the <a href="#settings-security" data-feature="settings" data-tab-target="security" class="settings-link">Security Tab</a>.</p>
@@ -1120,7 +1139,7 @@
                          </div>
                      </div>
                      <div class="form-actions" style="grid-column: span 1; justify-content: flex-end;">
-                         <button type="button" class="btn btn-primary" id="saveAccountSettingsBtn" disabled>Save Account Settings</button>
+                         <button type="button" class="btn btn-primary" id="saveAccountSettingsBtn">Save Account Settings</button> <!-- Removed disabled -->
                      </div>
                  </div>
 
@@ -1142,7 +1161,7 @@
                                  <input type="password" id="confirmPassword" class="form-control">
                              </div>
                              <div class="form-actions">
-                                <button type="submit" class="btn btn-primary" disabled>Change Password</button>
+                                <button type="submit" class="btn btn-primary">Change Password</button> <!-- Removed disabled -->
                              </div>
                          </form>
                      </div>
@@ -1173,7 +1192,7 @@
                                         <label for="authCode">Verification Code</label>
                                         <input type="text" id="authCode" class="form-control" placeholder="123456" maxlength="6">
                                     </div>
-                                     <button class="btn btn-primary" id="verifyAuthCodeBtn" disabled>Verify & Enable</button>
+                                     <button class="btn btn-primary" id="verifyAuthCodeBtn">Verify & Enable</button> <!-- Removed disabled -->
                                  </div>
                                   <!-- SMS Setup -->
                                  <div id="smsSetup" style="display: none; margin-top: 1.5rem;">
@@ -1190,7 +1209,7 @@
                          <div id="twoFaManagementSection" style="display: none;"> <!-- Visible when enabled -->
                               <p>2FA is enabled. You can manage recovery codes or disable 2FA.</p>
                               <div class="two-fa-actions">
-                                 <button class="btn btn-outline" disabled>View Recovery Codes</button>
+                                 <button class="btn btn-outline" disabled>View Recovery Codes</button> <!-- Keep disabled for demo -->
                                  <button class="btn btn-danger" id="disable2faBtn">Disable 2FA</button>
                              </div>
                          </div>
@@ -1211,7 +1230,7 @@
                             </div>
                          </div>
                          <div class="form-actions" style="grid-column: span 1; justify-content: flex-end;">
-                             <button type="button" class="btn btn-primary" id="saveSessionSettingsBtn" disabled>Save Session Settings</button>
+                             <button type="button" class="btn btn-primary" id="saveSessionSettingsBtn">Save Session Settings</button> <!-- Removed disabled -->
                          </div>
                      </div>
 
@@ -1287,7 +1306,7 @@
                          </div>
                      </div>
                       <div class="form-actions" style="grid-column: span 1; justify-content: flex-end;">
-                         <button type="button" class="btn btn-primary" id="saveNotificationSettingsBtn" disabled>Save Notification Settings</button>
+                         <button type="button" class="btn btn-primary" id="saveNotificationSettingsBtn">Save Notification Settings</button> <!-- Removed disabled -->
                      </div>
                  </div>
 
@@ -1542,6 +1561,7 @@
 
 
             // Security Settings
+            const changePasswordForm = document.getElementById('changePasswordForm'); // Form element
             const enable2faBtn = document.getElementById('enable2faBtn');
             const twoFaSetupSection = document.getElementById('twoFaSetupSection');
             const twoFaManagementSection = document.getElementById('twoFaManagementSection');
@@ -1558,6 +1578,7 @@
             const smsCodeInputGroup = document.getElementById('smsCodeInputGroup');
             const verifySmsCodeBtn = document.getElementById('verifySmsCodeBtn');
             const disable2faBtn = document.getElementById('disable2faBtn');
+            const saveSessionSettingsBtn = document.getElementById('saveSessionSettingsBtn'); // Added
 
             // Danger Zone
             const logoutAllDevicesBtn = document.getElementById('logoutAllDevicesBtn');
@@ -1602,16 +1623,18 @@
             let showToasts = true; // Default for toast preference
             let playSounds = true; // Default for sound preference
             let currentScheduleWeekOffset = 0; // Updated in init
+            let scheduleMinWeekOffset = 0; // Will store offset for May 4, 2025 week start
             let mockScheduleData = {}; // Store schedule data { 'employeeId-weekOffset-dayIndex': 'shiftType' }
 
 
             // --- Mock Data ---
-            let MOCK_USERS = [ // Use 'let' so Ali Hassan can be removed
-                 { id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', title: 'Administrator', department: 'Management', phone: '+201234567890', avatar: '', initials: 'ME', role: 'admin', twoFaEnabled: false }, // Added 2FA status
+            let MOCK_USERS = [ // Use 'let' so users can be added/removed
+                 { id: 1, name: 'Mohamed Elmenisy', email: 'm.elsayed@thechefz.co', title: 'Administrator', department: 'Management', phone: '+201234567890', avatar: '', initials: 'ME', role: 'admin', twoFaEnabled: false },
                  { id: 2, name: 'Yousef Ahmed', email: 'yousef@example.com', title: 'Supervisor', department: 'Operations', phone: '+20111222333', avatar: '', initials: 'YA', role: 'supervisor', twoFaEnabled: false },
-                 { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com', title: 'Senior Developer', department: 'Engineering', phone: '+20100999888', avatar: '', initials: 'EL', role: 'senior', twoFaEnabled: true }, // Example enabled
+                 { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com', title: 'Senior Developer', department: 'Engineering', phone: '+20100999888', avatar: '', initials: 'EL', role: 'senior', twoFaEnabled: true },
                  { id: 4, name: 'Bassant Badr', email: 'bassant@example.com', title: 'Junior Designer', department: 'Design', phone: '+20155444333', avatar: '', initials: 'BB', role: 'member', twoFaEnabled: false },
-                 // { id: 5, name: 'Ali Hassan', email: 'ali@example.com', title: 'Project Manager', department: 'Management', phone: '+20122333444', avatar: '', initials: 'AH', role: 'supervisor', twoFaEnabled: false }, // REMOVED per request
+                 // *** FIX 4️⃣: Add Nada Mahmoud ***
+                 { id: 5, name: 'Nada Mahmoud', email: 'nada@example.com', title: 'Member', department: 'Marketing', phone: '+20101234567', avatar: '', initials: 'NM', role: 'member', twoFaEnabled: false },
             ];
 
             const MOCK_PROJECTS = [
@@ -2126,7 +2149,7 @@
                 // Generate initial activities only once if needed
                 if (activities.length === 0) {
                     const now = Date.now(); // Get current time for generation
-                    activities = generateMockActivities(15, now);
+                    activities = generateMockActivities(15, now); // Generate sorted initial activities
                 }
 
                 showingAllActivities = showAll;
@@ -2183,7 +2206,7 @@
                  // Simulate fetching notifications
                  if (notifications.length === 0) {
                      const now = Date.now(); // Get current time for generation
-                     notifications = generateMockNotifications(8, now);
+                     notifications = generateMockNotifications(8, now); // Generate sorted initial notifications
                  }
 
                  renderNotifications();
@@ -2626,21 +2649,16 @@
                  if (soundToggle) {
                      soundToggle.addEventListener('change', (e) => applySoundPreference(e.target.checked));
                  }
-                 // Add listeners for Account, Notification settings toggles/buttons if they need saving
-                 if (accountNotificationsToggle) {
-                     accountNotificationsToggle.addEventListener('change', (e) => {
-                         console.log('Account Notification Toggle:', e.target.checked);
-                         // Add save logic if needed, perhaps enable save button
-                     });
-                 }
-                 if (emailNotificationsToggle) {
-                     emailNotificationsToggle.addEventListener('change', (e) => {
-                         console.log('Email Notification Toggle:', e.target.checked);
-                         // Add save logic if needed
-                     });
-                 }
-                 // Add more listeners for new settings elements as required
 
+                // *** FIX 6️⃣: Add listeners for enabled Settings buttons ***
+                if(savePreferencesBtn) savePreferencesBtn.addEventListener('click', handleSavePreferences);
+                if(changePasswordForm) changePasswordForm.addEventListener('submit', handleChangePassword);
+                if(saveAccountSettingsBtn) saveAccountSettingsBtn.addEventListener('click', handleSaveAccountSettings);
+                if(saveSessionSettingsBtn) saveSessionSettingsBtn.addEventListener('click', handleSaveSessionSettings);
+                if(saveNotificationSettingsBtn) saveNotificationSettingsBtn.addEventListener('click', handleSaveNotificationSettings);
+
+                // Email change button remains disabled for this demo
+                // if(saveAccountEmailBtn) saveAccountEmailBtn.addEventListener('click', handleSaveAccountEmail);
 
                  // 2FA Button Listeners
                  if (enable2faBtn) enable2faBtn.addEventListener('click', handleEnable2FA);
@@ -2801,51 +2819,54 @@
                 fullNameDisplay.value = `${firstNameInput.value.trim()} ${lastNameInput.value.trim()}`.trim();
             }
 
-            function handleProfileSave(event) {
-                event.preventDefault();
-                console.log("Saving profile...");
+             function handleProfileSave(event) {
+                 event.preventDefault();
+                 console.log("Attempting to save profile...");
 
-                const saveButtonText = saveProfileBtn.querySelector('.btn-text');
-                const spinner = saveProfileBtn.querySelector('.spinner');
+                 showConfirmModal(
+                     'Save Profile Changes',
+                     'Are you sure you want to save these changes to your profile?',
+                     () => {
+                         console.log("Profile save confirmed.");
+                         const saveButtonText = saveProfileBtn.querySelector('.btn-text');
+                         const spinner = saveProfileBtn.querySelector('.spinner');
 
-                saveProfileBtn.disabled = true;
-                if (saveButtonText) saveButtonText.textContent = 'Saving...'; // Check if element exists
-                if (spinner) spinner.style.display = 'inline-block';
+                         saveProfileBtn.disabled = true;
+                         if (saveButtonText) saveButtonText.textContent = 'Saving...';
+                         if (spinner) spinner.style.display = 'inline-block';
 
-                // Simulate network delay
-                setTimeout(() => {
-                    // Update currentUser object with form values
-                    currentUser.name = fullNameDisplay.value;
-                    currentUser.title = jobTitleInput.value;
-                    currentUser.phone = phoneInput.value;
-                    currentUser.department = departmentInput.value;
-                    // Email is readonly, Avatar updated separately
+                         // Simulate network delay
+                         setTimeout(() => {
+                             // Update currentUser object with form values
+                             currentUser.name = fullNameDisplay.value;
+                             currentUser.title = jobTitleInput.value;
+                             currentUser.phone = phoneInput.value;
+                             currentUser.department = departmentInput.value;
+                             // Email is readonly, Avatar updated separately
 
-                    // Update initials if name changed and no avatar
-                    if (!currentUser.avatar) {
-                        const nameParts = currentUser.name.split(' ');
-                        currentUser.initials = (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || '');
-                    }
+                             // Update initials if name changed and no avatar
+                             if (!currentUser.avatar) {
+                                 const nameParts = currentUser.name.split(' ');
+                                 currentUser.initials = (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || '');
+                             }
 
-                     // Update phone number in 2FA section if changed
-                     userPhoneNumberForSms.textContent = currentUser.phone || 'Not Available';
+                              // Update phone number in 2FA section if changed
+                              userPhoneNumberForSms.textContent = currentUser.phone || 'Not Available';
 
-                    // Refresh UI elements that depend on currentUser
-                    updateUserUI();
+                             // Refresh UI elements that depend on currentUser
+                             updateUserUI();
 
-                    saveProfileBtn.disabled = false;
-                    if (saveButtonText) saveButtonText.textContent = 'Save Changes';
-                    if (spinner) spinner.style.display = 'none';
+                             saveProfileBtn.disabled = false;
+                             if (saveButtonText) saveButtonText.textContent = 'Save Changes';
+                             if (spinner) spinner.style.display = 'none';
 
-                    // Show success message
-                    showSuccessMessage('Profile updated successfully!');
-
-                    // Optionally, refresh the page *content* without full reload if needed,
-                    // but usually just updating the UI is enough.
-                    // E.g., if stats depend on department, call loadDashboardStats()
-
-                }, 1000); // Simulate 1 second save time
-            }
+                             // Show success message
+                             showSuccessMessage('Profile updated successfully!');
+                         }, 1000); // Simulate 1 second save time
+                     },
+                     'btn-primary' // Use primary style for save confirmation
+                 );
+             }
 
              function handleProfileCancel() {
                  showConfirmModal(
@@ -2861,6 +2882,93 @@
                      'btn-warning' // Use warning style for cancel confirmation
                  );
              }
+
+             // --- Settings Save Logic (with Confirmation) ---
+             function handleSavePreferences() {
+                 showConfirmModal('Save Preferences', 'Save changes to Appearance and Localization?', () => {
+                     console.log("Saving Preferences...");
+                     // In a real app, collect values from toggles/selects and send to backend
+                     // Example: localStorage is already updated by the individual controls' event listeners
+                     showToast('Preferences saved (simulated).', 'success');
+                 }, 'btn-primary');
+             }
+
+             function handleSaveAccountSettings() {
+                 showConfirmModal('Save Account Settings', 'Save changes to account notifications?', () => {
+                     console.log("Saving Account Settings...");
+                     const enableNotifications = document.getElementById('accountNotificationsToggle').checked;
+                     console.log("Account Notifications Enabled:", enableNotifications);
+                     // Simulate saving
+                     showToast('Account settings saved (simulated).', 'success');
+                 }, 'btn-primary');
+             }
+
+             function handleChangePassword(event) {
+                 event.preventDefault(); // Prevent default form submission
+                  showConfirmModal('Change Password', 'Are you sure you want to attempt to change your password?', () => {
+                     console.log("Changing password...");
+                     const currentPass = document.getElementById('currentPassword').value;
+                     const newPass = document.getElementById('newPassword').value;
+                     const confirmPass = document.getElementById('confirmPassword').value;
+
+                     // Basic validation (add more robust checks in real app)
+                     if (!currentPass || !newPass || !confirmPass) {
+                         showToast('Please fill in all password fields.', 'error');
+                         return;
+                     }
+                     if (newPass !== confirmPass) {
+                         showToast('New passwords do not match.', 'error');
+                         return;
+                     }
+                     if (newPass.length < 8) { // Example minimum length
+                         showToast('New password must be at least 8 characters.', 'error');
+                         return;
+                     }
+
+                     // Simulate backend call
+                     showToast('Attempting password change...', 'info');
+                     setTimeout(() => {
+                         // Simulate success/failure
+                         const success = Math.random() > 0.2; // 80% success rate
+                         if (success) {
+                             showSuccessMessage('Password changed successfully!');
+                             document.getElementById('currentPassword').value = '';
+                             document.getElementById('newPassword').value = '';
+                             document.getElementById('confirmPassword').value = '';
+                         } else {
+                             showToast('Password change failed. Incorrect current password?', 'error');
+                         }
+                     }, 1500);
+                  }, 'btn-danger'); // Use danger style for password change confirmation
+             }
+
+             function handleSaveSessionSettings() {
+                 showConfirmModal('Save Session Settings', 'Save changes to session duration and idle timeout?', () => {
+                     console.log("Saving Session Settings...");
+                     const sessionDuration = document.getElementById('sessionDuration').value;
+                     const idleTimeout = document.getElementById('idleTimeout').value;
+                     console.log("Session Duration:", sessionDuration, "Idle Timeout:", idleTimeout);
+                     // Simulate saving
+                     showToast('Session settings saved (simulated).', 'success');
+                 }, 'btn-primary');
+             }
+
+             function handleSaveNotificationSettings() {
+                  showConfirmModal('Save Notification Settings', 'Save changes to notification delivery and types?', () => {
+                     console.log("Saving Notification Settings...");
+                     const emailEnabled = document.getElementById('emailNotificationsToggle').checked;
+                     const inAppEnabled = document.getElementById('inAppNotificationsToggle').checked;
+                     const pushEnabled = document.getElementById('pushNotificationsToggle').checked; // Currently disabled
+                     const selectedTypes = Array.from(document.querySelectorAll('input[name="notificationType"]:checked')).map(cb => cb.value);
+
+                     console.log("Email Notifications:", emailEnabled);
+                     console.log("In-App Notifications:", inAppEnabled);
+                     console.log("Selected Types:", selectedTypes);
+                     // Simulate saving
+                     showToast('Notification settings saved (simulated).', 'success');
+                  }, 'btn-primary');
+             }
+
 
              // --- 2FA Logic (Simulation) ---
              function update2FA_UI() {
@@ -3137,11 +3245,10 @@
              // --- Employee Scheduling ---
              function getEmployeeScheduleHTML() {
                  // Return the basic HTML structure for the scheduling page
-                 // Added save/reminder buttons based on admin role
-                 // Adjusted colspan for loading row to 6 (1 + 5 days)
+                 // Colspan updated to 8 (1 + 7 days)
                  return `
-                    <div class="schedule-page-header section-main-header"> <!-- Use existing header style -->
-                        <h2 class="schedule-page-title section-main-title">Employee Scheduling</h2> <!-- Use existing title style -->
+                    <div class="schedule-page-header section-main-header">
+                        <h2 class="schedule-page-title section-main-title">Employee Scheduling</h2>
                          ${currentUser.role === 'admin' ? `
                          <button class="btn btn-primary" id="saveScheduleBtn">
                              <i class="fas fa-save"></i> Save Schedule
@@ -3161,12 +3268,12 @@
                             <thead>
                                 <tr>
                                     <th>Employee</th>
-                                    <!-- Day headers populated by JS (Sun-Thu) -->
+                                    <!-- Day headers populated by JS (Sun-Sat) -->
                                 </tr>
                             </thead>
                             <tbody id="scheduleTableBody">
                                 <!-- Schedule content loaded by JS -->
-                                <tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--gray);">Loading schedule...</td></tr>
+                                <tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">Loading schedule...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -3175,12 +3282,12 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h3 class="modal-title" id="editShiftModalTitle">Edit Shift</h3>
-                                <button class="close-modal" data-close-modal>&times;</button>
+                                <button class="close-modal" data-close-modal>×</button>
                             </div>
                             <form id="editShiftForm">
                                 <input type="hidden" id="editShiftEmployeeId">
                                 <input type="hidden" id="editShiftDayIndex">
-                                <input type="hidden" id="editShiftWeekOffset"> <!-- Store week offset for key -->
+                                <input type="hidden" id="editShiftWeekOffset">
                                 <div class="form-group">
                                     <label for="shiftType">Shift Type</label>
                                     <select id="shiftType" class="form-control">
@@ -3205,38 +3312,43 @@
             function initializeEmployeeScheduleLogic() {
                 console.log("Initializing Employee Schedule Logic...");
 
-                // *** FIX: Calculate initial offset for week of Sunday May 4, 2025 ***
-                const calculateInitialOffset = () => {
+                 // *** FIX 🗓️ 2️⃣: Calculate offset for week of May 1, 2025 AND the minimum allowed offset ***
+                const calculateOffsets = () => {
                     const today = new Date();
-                    const targetStartDate = new Date(2025, 4, 4); // Month is 0-indexed (4 = May), Day = 4 (Sunday)
-                    targetStartDate.setHours(0, 0, 0, 0); // Normalize target date time
+                    const mayFirst2025 = new Date(2025, 4, 1); // May 1st
+                    mayFirst2025.setHours(0, 0, 0, 0);
 
                     // Get Sunday of the current week
-                    const currentDayOfWeek = today.getDay(); // 0=Sun, 1=Mon,...
+                    const currentDayOfWeek = today.getDay(); // 0=Sun
                     const diffToSunday = today.getDate() - currentDayOfWeek;
                     const startOfCurrentWeek = new Date(today);
                     startOfCurrentWeek.setDate(diffToSunday);
-                                        startOfCurrentWeek.setHours(0, 0, 0, 0); // Normalize time
+                    startOfCurrentWeek.setHours(0, 0, 0, 0);
 
-                    // Get Sunday of the target week (already set as May 4th)
-                    const startOfTargetWeek = new Date(targetStartDate); // targetStartDate is already Sunday
-                    startOfTargetWeek.setHours(0, 0, 0, 0); // Normalize time
+                    // Get Sunday of the week containing May 1st, 2025
+                    const mayFirstDayOfWeek = mayFirst2025.getDay();
+                    const diffToMayFirstSunday = mayFirst2025.getDate() - mayFirstDayOfWeek;
+                    const startOfMayFirstWeek = new Date(mayFirst2025);
+                    startOfMayFirstWeek.setDate(diffToMayFirstSunday);
+                    startOfMayFirstWeek.setHours(0, 0, 0, 0);
 
                     const msPerDay = 24 * 60 * 60 * 1000;
-                    // Calculate difference based on Sunday starts
-                    const weeksDifference = Math.round((startOfTargetWeek.getTime() - startOfCurrentWeek.getTime()) / (7 * msPerDay));
+                    const weeksDifference = Math.round((startOfMayFirstWeek.getTime() - startOfCurrentWeek.getTime()) / (7 * msPerDay));
 
                     console.log(`Current Week Start (Sun): ${startOfCurrentWeek.toDateString()}`);
-                    console.log(`Target Week Start (Sun May 4, 2025): ${startOfTargetWeek.toDateString()}`);
+                    console.log(`Target Week Start (Sun of May 1st): ${startOfMayFirstWeek.toDateString()}`);
                     console.log(`Calculated initial week offset: ${weeksDifference}`);
-                    return weeksDifference; // Return the calculated offset
+
+                    // Store both the initial offset and the minimum allowed offset
+                    currentScheduleWeekOffset = weeksDifference;
+                    scheduleMinWeekOffset = weeksDifference; // This week is the minimum allowed
                 };
 
-                currentScheduleWeekOffset = calculateInitialOffset(); // SET THE CALCULATED OFFSET
+                calculateOffsets(); // Calculate and set offsets
                 // *** END FIX ***
 
-                // *** FIX ✅ 1️⃣: Define days array ***
-                const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"]; // Only Sun-Thu
+                // *** FIX ✅ 1️⃣: Define full days array ***
+                const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
                 const weekDisplay = document.getElementById('weekDisplay');
                 const scheduleTableBody = document.getElementById('scheduleTableBody');
@@ -3250,21 +3362,20 @@
                 const shiftTypeSelect = document.getElementById('shiftType');
                 const editShiftEmployeeIdInput = document.getElementById('editShiftEmployeeId');
                 const editShiftDayIndexInput = document.getElementById('editShiftDayIndex');
-                const editShiftWeekOffsetInput = document.getElementById('editShiftWeekOffset'); // Added input
+                const editShiftWeekOffsetInput = document.getElementById('editShiftWeekOffset');
                 const editShiftModalTitle = document.getElementById('editShiftModalTitle');
 
                 function getWeekDates(weekOffset = 0) {
-                    const baseDate = new Date(); // Use today as the base for offset calculation
+                    const baseDate = new Date();
                     const startOfWeek = new Date(baseDate);
-                    // Adjust to Sunday (assuming week starts Sunday based on new req)
-                    const dayOfWeek = baseDate.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-                    const diff = baseDate.getDate() - dayOfWeek; // Adjust to Sunday
+                    const dayOfWeek = baseDate.getDay(); // 0=Sun
+                    const diff = baseDate.getDate() - dayOfWeek;
                     startOfWeek.setDate(diff + (weekOffset * 7));
-                    startOfWeek.setHours(0,0,0,0); // Normalize time
+                    startOfWeek.setHours(0,0,0,0);
 
                     const dates = [];
-                    // *** FIX: Get only 5 dates (Sun-Thu) ***
-                    for (let i = 0; i < 5; i++) {
+                    // *** FIX 🗓️ 1️⃣: Get all 7 dates ***
+                    for (let i = 0; i < 7; i++) {
                         const date = new Date(startOfWeek);
                         date.setDate(startOfWeek.getDate() + i);
                         dates.push(date);
@@ -3272,26 +3383,32 @@
                     return dates;
                 }
 
-                function renderSchedule(weekOffset) { // Make sure weekOffset is passed correctly
+                function renderSchedule(weekOffset) {
                      console.log(`Rendering schedule for week offset: ${weekOffset}`);
                      if (isNaN(weekOffset)) {
                          console.error("Invalid weekOffset provided to renderSchedule:", weekOffset);
-                         weekOffset = currentScheduleWeekOffset; // Fallback to current
+                         weekOffset = currentScheduleWeekOffset; // Fallback
                      }
-                     const weekDates = getWeekDates(weekOffset); // Gets Sun-Thu
+                     const weekDates = getWeekDates(weekOffset); // Gets Sun-Sat
                      const start = weekDates[0]; // Sunday
-                     const end = weekDates[4]; // Thursday
+                     const end = weekDates[6]; // Saturday
                      if(weekDisplay) weekDisplay.textContent = `${formatDateForDisplay(start)} - ${formatDateForDisplay(end)}`;
 
-                     // Render Table Header (Sun-Thu)
+                     // *** FIX 🗓️ 2️⃣: Disable Prev button if at or before May start week ***
+                     if (prevWeekBtn) {
+                        prevWeekBtn.disabled = weekOffset <= scheduleMinWeekOffset;
+                     }
+
+
+                     // Render Table Header (Sun-Sat)
                      if(scheduleThead) {
                          scheduleThead.innerHTML = '<th>Employee</th>'; // Reset header days
-                         // Use the defined 5-day array
+                         // Use the full 7-day array
                          weekDates.forEach((date, index) => {
                              scheduleThead.innerHTML += `
                                  <th>
                                     <div class="day-header">
-                                        <span class="day-name">${days[index]}</span>
+                                        <span class="day-name" style="color: white;">${days[index]}</span> <!-- FIX 🎨 3️⃣: White text -->
                                         <span class="day-date">${date.toLocaleDateString(undefined, { month: 'short', day: 'numeric'})}</span>
                                     </div>
                                  </th>
@@ -3299,11 +3416,11 @@
                          });
                      }
 
-                     // Render Table Body (Sun-Thu)
+                     // Render Table Body (Sun-Sat)
                      if(scheduleTableBody) {
                          scheduleTableBody.innerHTML = ''; // Clear body
                          if (MOCK_USERS.length === 0) {
-                             scheduleTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--gray);">No employees found.</td></tr>`; // Colspan = 6
+                             scheduleTableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">No employees found.</td></tr>`; // Colspan = 8
                              return;
                          }
 
@@ -3311,48 +3428,59 @@
                              const row = document.createElement('tr');
                              row.innerHTML = `<td class="employee-name">${employee.name}</td>`;
 
-                              // *** FIX: Loop only 5 times for Sun-Thu ***
-                             for (let dayIndex = 0; dayIndex < 5; dayIndex++) {
+                              // *** FIX 🗓️ 1️⃣: Loop 7 times for Sun-Sat ***
+                             for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
                                  const cell = document.createElement('td');
-                                 // Key now includes week offset to store data uniquely per week
                                  const scheduleKey = `${employee.id}-${weekOffset}-${dayIndex}`;
+                                 const isWeekend = dayIndex >= 5; // Friday (5) or Saturday (6)
 
-                                 // Generate random shift if not set, store it
-                                 if (!mockScheduleData[scheduleKey]) {
-                                     const shiftTypes = ['morning', 'afternoon', 'night', 'off', 'sick', 'vacation'];
-                                     // Note: Friday (index 5) and Saturday (index 6) are now implicitly OFF
-                                     // We only generate for index 0-4 (Sun-Thu)
-                                     const randomType = shiftTypes[Math.floor(Math.random() * shiftTypes.length)];
-                                     mockScheduleData[scheduleKey] = randomType;
+                                 let shiftType;
+                                 let isEditable = currentUser.role === 'admin' && !isWeekend; // Editable only if admin and not weekend
+
+                                 // Force 'off' for weekends, otherwise get stored/random shift
+                                 if (isWeekend) {
+                                     shiftType = 'off';
+                                     mockScheduleData[scheduleKey] = 'off'; // Ensure data consistency
+                                     cell.classList.add('weekend-cell'); // Add class for specific styling
+                                 } else {
+                                     // Generate random shift if not set for weekdays
+                                     if (!mockScheduleData[scheduleKey]) {
+                                         const shiftTypes = ['morning', 'afternoon', 'night', 'off', 'sick', 'vacation'];
+                                         const randomType = shiftTypes[Math.floor(Math.random() * shiftTypes.length)];
+                                         mockScheduleData[scheduleKey] = randomType;
+                                     }
+                                     shiftType = mockScheduleData[scheduleKey];
                                  }
-                                 const shiftType = mockScheduleData[scheduleKey];
 
                                  const shiftDiv = document.createElement('div');
-                                 shiftDiv.classList.add('shift', `shift-${shiftType.replace('_', '-')}`); // Use CSS classes like shift-off, shift-sick
+                                 shiftDiv.classList.add('shift');
+
+                                 // Apply specific class based on shift type, including special weekend style
+                                 if (isWeekend) {
+                                     shiftDiv.classList.add('shift-weekend-off');
+                                 } else {
+                                    shiftDiv.classList.add(`shift-${shiftType.replace('_', '-')}`);
+                                 }
+
                                  shiftDiv.textContent = getShiftText(shiftType);
 
-                                 // *** FIX ✅ 4️⃣: Make shift editable ***
-                                  if (currentUser.role === 'admin') {
+                                  if (isEditable) {
                                      shiftDiv.classList.add('editable');
                                      shiftDiv.dataset.employeeId = employee.id;
                                      shiftDiv.dataset.employeeName = employee.name;
-                                     shiftDiv.dataset.dayIndex = dayIndex; // 0-4 for Sun-Thu
-                                     shiftDiv.dataset.weekOffset = weekOffset; // Pass offset to modal
+                                     shiftDiv.dataset.dayIndex = dayIndex;
+                                     shiftDiv.dataset.weekOffset = weekOffset;
                                      shiftDiv.dataset.date = formatDateForDisplay(weekDates[dayIndex]);
                                      shiftDiv.title = `Click to edit ${employee.name}'s shift on ${days[dayIndex]}`;
                                      shiftDiv.addEventListener('click', handleEditShiftClick);
+                                 } else if (isWeekend) {
+                                     shiftDiv.title = "Weekend Off"; // Title for non-editable weekend
                                  }
 
                                  cell.appendChild(shiftDiv);
                                  row.appendChild(cell);
                              }
                              scheduleTableBody.appendChild(row);
-                         });
-                         // Friday & Saturday are implicitly OFF
-                         // Store OFF data for Fri/Sat for consistency if needed (e.g. for reminders)
-                         MOCK_USERS.forEach(employee => {
-                            mockScheduleData[`${employee.id}-${weekOffset}-5`] = 'off'; // Friday
-                            mockScheduleData[`${employee.id}-${weekOffset}-6`] = 'off'; // Saturday
                          });
                     } // end if scheduleTableBody
                  }
@@ -3371,9 +3499,12 @@
 
                 function handleEditShiftClick(event) {
                     const target = event.target;
+                     // Ensure click is on an editable shift (should already be handled by lack of listener on weekends)
+                    if (!target.classList.contains('editable')) return;
+
                     const employeeId = target.dataset.employeeId;
                     const dayIndex = target.dataset.dayIndex; // Will be 0-4
-                    const weekOffset = target.dataset.weekOffset; // Get offset
+                    const weekOffset = target.dataset.weekOffset;
                     const employeeName = target.dataset.employeeName;
                     const dateStr = target.dataset.date;
 
@@ -3382,10 +3513,9 @@
 
                      if (editShiftEmployeeIdInput) editShiftEmployeeIdInput.value = employeeId;
                      if (editShiftDayIndexInput) editShiftDayIndexInput.value = dayIndex;
-                     if (editShiftWeekOffsetInput) editShiftWeekOffsetInput.value = weekOffset; // Store offset in hidden input
+                     if (editShiftWeekOffsetInput) editShiftWeekOffsetInput.value = weekOffset;
                      if (shiftTypeSelect) shiftTypeSelect.value = currentShift;
-                     // Use the 5-day 'days' array for title
-                     if (editShiftModalTitle) editShiftModalTitle.textContent = `Edit ${employeeName}'s Shift on ${days[dayIndex] || dateStr}`; // Fallback to dateStr if index out of bounds
+                     if (editShiftModalTitle) editShiftModalTitle.textContent = `Edit ${employeeName}'s Shift on ${days[dayIndex] || dateStr}`;
 
                      if (editShiftModal) editShiftModal.classList.add('active');
                 }
@@ -3393,8 +3523,11 @@
                  // Event listeners for schedule controls
                  if (prevWeekBtn) {
                      prevWeekBtn.addEventListener('click', () => {
-                         currentScheduleWeekOffset--;
-                         renderSchedule(currentScheduleWeekOffset);
+                         // Check if already at the minimum offset before decrementing
+                         if (currentScheduleWeekOffset > scheduleMinWeekOffset) {
+                             currentScheduleWeekOffset--;
+                             renderSchedule(currentScheduleWeekOffset);
+                         }
                      });
                  }
                  if (nextWeekBtn) {
@@ -3406,15 +3539,17 @@
 
                  if (saveScheduleBtn) {
                      saveScheduleBtn.addEventListener('click', () => {
-                         saveScheduleBtn.disabled = true;
-                         saveScheduleBtn.innerHTML = '<span class="spinner"></span> Saving...';
-                         console.log("Saving schedule...", mockScheduleData);
-                         // Simulate save
-                         setTimeout(() => {
-                             showToast("Schedule saved successfully!", "success");
-                             saveScheduleBtn.disabled = false;
-                             saveScheduleBtn.innerHTML = '<i class="fas fa-save"></i> Save Schedule';
-                         }, 1000);
+                         showConfirmModal('Save Schedule', 'Are you sure you want to save the current schedule changes?', () => {
+                             saveScheduleBtn.disabled = true;
+                             saveScheduleBtn.innerHTML = '<span class="spinner"></span> Saving...';
+                             console.log("Saving schedule...", mockScheduleData);
+                             // Simulate save
+                             setTimeout(() => {
+                                 showToast("Schedule saved successfully!", "success");
+                                 saveScheduleBtn.disabled = false;
+                                 saveScheduleBtn.innerHTML = '<i class="fas fa-save"></i> Save Schedule';
+                             }, 1000);
+                         }, 'btn-primary');
                      });
                  }
                  if (sendRemindersBtn) {
@@ -3439,14 +3574,13 @@
                          event.preventDefault();
                          const employeeId = editShiftEmployeeIdInput.value;
                          const dayIndex = editShiftDayIndexInput.value;
-                         const weekOffset = editShiftWeekOffsetInput.value; // Get offset from hidden input
+                         const weekOffset = editShiftWeekOffsetInput.value;
                          const newShiftType = shiftTypeSelect.value;
 
                          const scheduleKey = `${employeeId}-${weekOffset}-${dayIndex}`;
-                         mockScheduleData[scheduleKey] = newShiftType; // Update the data for the correct week
+                         mockScheduleData[scheduleKey] = newShiftType; // Update the data
 
-                         // *** FIX ✅ 4️⃣: Update table immediately ***
-                         renderSchedule(parseInt(weekOffset)); // Re-render the *edited* week (ensure offset is number)
+                         renderSchedule(parseInt(weekOffset)); // Re-render the currently viewed week
                          if(editShiftModal) editShiftModal.classList.remove('active'); // Close modal
                          showToast("Shift updated.");
                          // Mark schedule as potentially unsaved if needed
@@ -3468,41 +3602,29 @@
 
                  console.log("Preparing to send schedule reminders...");
 
-                 const weekDates = getWeekDates(currentScheduleWeekOffset); // Get Sun-Thu dates for the *currently viewed* week
+                 const weekDates = getWeekDates(currentScheduleWeekOffset); // Get Sun-Sat dates for the *currently viewed* week
                  const weekStart = formatDateForDisplay(weekDates[0]);
-                 const weekEnd = formatDateForDisplay(weekDates[4]); // End date is Thursday
+                 const weekEnd = formatDateForDisplay(weekDates[6]);
 
-                 const emailSubject = `Schedule Reminder for Week: ${weekStart} - ${weekEnd}`; // Adjust subject
+                 const emailSubject = `Schedule Reminder for Week: ${weekStart} - ${weekEnd}`;
                  const emailFooter = "\n\nRegards,\nTeam Management System";
-                 // *** FIX ✅ 1️⃣: Define days array (using 7 days here for reminder, Fri/Sat will show OFF) ***
                  const fullDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-                 const fullWeekDates = getWeekDates(currentScheduleWeekOffset); // Get all 7 dates for lookup
-                 fullWeekDates.push(new Date(fullWeekDates[4].getTime() + 24 * 60 * 60 * 1000)); // Add Friday Date
-                 fullWeekDates.push(new Date(fullWeekDates[5].getTime() + 24 * 60 * 60 * 1000)); // Add Saturday Date
-
 
                  let emailsSent = 0;
                  let emailsFailed = 0;
 
                  // Simulate sending email to each user
                  MOCK_USERS.forEach((user, index) => {
-                     // Construct personalized body (example for full week Sun-Sat)
+                     // Construct personalized body for the full week
                      let userScheduleInfo = `Your schedule for the week starting ${weekStart}:\n`;
-                     let hasShifts = false;
+                     let hasShifts = false; // Technically will always have OFF days
                      // Loop through all 7 days for reminder email
                      for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
                          const scheduleKey = `${user.id}-${currentScheduleWeekOffset}-${dayIndex}`;
-                         // Get shift, default to 'off' if not explicitly set (covers Fri/Sat implicitly)
+                         // Get shift, default to 'off' if not explicitly set (covers any potential gaps)
                          const shiftType = mockScheduleData[scheduleKey] || 'off';
-
-                         // Only include if not off, or customize if you want to show 'OFF' days too
-                         // if (shiftType !== 'off') {
-                             hasShifts = true;
-                              userScheduleInfo += `- ${fullDays[dayIndex]} (${formatDateForDisplay(fullWeekDates[dayIndex])}): ${getShiftText(shiftType)}\n`;
-                         // }
-                     }
-                     if (!hasShifts) { // Should not happen if we include OFF days
-                         userScheduleInfo += "- No shifts assigned for this week.\n";
+                         hasShifts = true; // Since we include OFF days
+                         userScheduleInfo += `- ${fullDays[dayIndex]} (${formatDateForDisplay(weekDates[dayIndex])}): ${getShiftText(shiftType)}\n`;
                      }
 
                      const emailBody = `Hi ${user.name.split(' ')[0]},\n\nPlease find your work schedule details below. Remember to check the system for any updates.\n\n${userScheduleInfo}\nPlease ensure you log your times accurately.${emailFooter}`;
@@ -3511,12 +3633,6 @@
                      console.log(`Subject: ${emailSubject}`);
                      console.log(`Body:\n${emailBody}`);
                      console.log(`---------------------------------`);
-                     // !!! IMPORTANT: Actual email sending requires a backend server or third-party service.
-                     // This is just a simulation. You would replace the console logs with an API call.
-                     // Example (pseudo-code):
-                     // sendEmailAPI(user.email, emailSubject, emailBody)
-                     //    .then(() => emailsSent++)
-                     //    .catch(() => emailsFailed++);
 
                      // Simulate API call success/failure
                      const success = Math.random() > 0.1; // 90% success rate simulation
@@ -3636,9 +3752,8 @@
                     if (count === 1) { // If generating a single 'live' activity
                         timestampMillis = nowMillis - Math.random() * 1000 * 10; // Within last 10 seconds
                     } else {
-                        // For initial load, spread them out more over the last few hours/days relative to 'now'
-                        // Increase multiplier for more spread
-                        timestampMillis = nowMillis - (Math.random() * 1000 * 3600 * (i + 1) * 0.8 + 60000); // Min 1 min ago, spread over hours/days
+                        // *** FIX 5️⃣: Increase multiplier for more spread, add larger base offset ***
+                        timestampMillis = nowMillis - (Math.random() * 1000 * 3600 * (i + 1) * 1.5 + 300000); // Min 5 mins ago, spread over hours/days more
                     }
                      timestampMillis = Math.min(timestampMillis, nowMillis); // Ensure no future dates
 
@@ -3651,7 +3766,7 @@
                         isNew: false // Set to true when dynamically adding
                     });
                 }
-                // Only sort if generating initial batch
+                // Only sort if generating initial batch - This ensures correct initial order
                 return count > 1 ? newActivities.sort((a, b) => b.timestamp - a.timestamp) : newActivities;
             }
 
@@ -3685,7 +3800,7 @@
                      if (count === 1) { // Live update
                          timestampMillis = nowMillis - Math.random() * 1000 * 15; // Within last 15 seconds
                      } else { // Initial load
-                         timestampMillis = nowMillis - (Math.random() * 1000 * 3600 * (i + 1) * 1.2 + 120000); // Min 2 mins ago, spread over hours/days
+                         timestampMillis = nowMillis - (Math.random() * 1000 * 3600 * (i + 1) * 1.8 + 180000); // Min 3 mins ago, spread more
                      }
                       timestampMillis = Math.min(timestampMillis, nowMillis); // Ensure not future
 
