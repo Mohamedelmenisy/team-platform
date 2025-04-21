@@ -1,3 +1,23 @@
+Okay, I understand the requirement. You want to integrate the standalone "Task Management" page (`task.txt`) into the "TeamFlow Dashboard" (`finaaaal.txt`). When the "Task Management" link in the dashboard's sidebar is clicked, the content area should display the task management interface exactly as styled and functional in `task.txt`, including a highlighted title, without affecting the rest of the dashboard.
+
+Here's the plan:
+
+1.  **Modify Dashboard HTML:** No major changes needed here, the structure is already set up for dynamic content loading.
+2.  **Modify Dashboard CSS:** Add styles for the specific "Task Management" highlighted title container.
+3.  **Modify Dashboard JavaScript:**
+    *   Update `setActiveFeature` to recognize `task-management`.
+    *   Create a function `loadTaskManagementFeature` (or similar) to handle the specific loading process.
+    *   This function will:
+        *   Inject the CSS from `task.txt` into a temporary `<style>` tag in the `<head>` when the feature is active, and remove it when navigating away.
+        *   Inject the HTML content (the `<div class="container">...</div>` part) from `task.txt` into the dashboard's `.featureSectionsContainer`, preceded by the new highlighted title.
+        *   Wrap the JavaScript from `task.txt` into a function that can be called *after* the HTML/CSS are loaded. This function needs to target elements within the newly injected container.
+        *   Implement a cleanup mechanism for the Task Management JS listeners when navigating away.
+4.  **Extract Assets:** The CSS and JS from `task.txt` will be embedded within the dashboard's JavaScript for dynamic loading/unloading.
+
+Let's integrate this.
+
+**Modified `finaaaal.txt` (Incorporating `task.txt`)**
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -5,7 +25,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TeamFlow | Dashboard</title>
-    <!-- Font Awesome -->
+    <!-- Font Awesome (Dashboard already includes it) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="https://img.icons8.com/fluency/48/000000/group-task.png">
@@ -492,18 +512,94 @@
         body.dark-theme .danger-zone-item p { color: var(--gray); } /* Danger zone description */
 
         /* Dark Theme Employee Scheduling Specifics */
+        body.dark-theme #featureSectionsContainer.task-management-feature .schedule-table thead th, /* Apply to task mgmt too */
         body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table thead th { background-color: var(--primary); color: white; border-bottom-color: var(--primary-dark);}
+        body.dark-theme #featureSectionsContainer.task-management-feature .schedule-table tbody td, /* Apply to task mgmt too */
         body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody td { color: var(--text-color); border-color: var(--light-gray); } /* Ensure table cell text is light */
+        body.dark-theme #featureSectionsContainer.task-management-feature .schedule-table tbody tr:nth-child(even) td, /* Apply to task mgmt too */
+        body.dark-theme #featureSectionsContainer.task-management-feature .schedule-table tbody tr:nth-child(even) td.employee-name, /* Apply to task mgmt too */
         body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:nth-child(even) td,
         body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:nth-child(even) td.employee-name { background-color: var(--primary-light); } /* Darker even row background */
+        body.dark-theme #featureSectionsContainer.task-management-feature .schedule-table tbody tr:hover td, /* Apply to task mgmt too */
+        body.dark-theme #featureSectionsContainer.task-management-feature .schedule-table tbody tr:hover td.employee-name, /* Apply to task mgmt too */
         body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:hover td,
         body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:hover td.employee-name { background-color: #475569; } /* Hover effect */
+        body.dark-theme #featureSectionsContainer.task-management-feature .employee-name, /* Apply to task mgmt too */
         body.dark-theme #featureSectionsContainer.employee-scheduling .employee-name { background-color: var(--white); border-right-color: var(--light-gray); color: var(--text-color); } /* Dark sticky column bg */
+        body.dark-theme #featureSectionsContainer.task-management-feature .day-name, /* Apply to task mgmt too */
         body.dark-theme #featureSectionsContainer.employee-scheduling .day-name { color: white; } /* Keep day name white */
+        body.dark-theme #featureSectionsContainer.task-management-feature .day-date, /* Apply to task mgmt too */
         body.dark-theme #featureSectionsContainer.employee-scheduling .day-date { color: var(--gray); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .shift, /* Apply to task mgmt too */
         body.dark-theme #featureSectionsContainer.employee-scheduling .shift { /* Adjust shift colors for dark mode if needed, current ones might be okay */ }
+        body.dark-theme #featureSectionsContainer.task-management-feature .schedule-table tbody td.weekend-cell, /* Apply to task mgmt too */
         body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody td.weekend-cell { background-color: var(--schedule-weekend-bg); } /* Dark weekend bg */
+        body.dark-theme #featureSectionsContainer.task-management-feature .shift-weekend-off, /* Apply to task mgmt too */
         body.dark-theme #featureSectionsContainer.employee-scheduling .shift-weekend-off { color: var(--schedule-weekend-text); background-color: transparent; border-color: transparent; }
+
+        /* Dark Theme Task Management Specific Overrides (Based on original task.txt CSS) */
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content {
+            background-color: var(--light); /* Use lighter dark bg for the container */
+            color: var(--text-color);
+        }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content h1 { color: #93c5fd; /* Lighter primary */ }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .controls { background-color: var(--primary-light); /* Darker controls bg */ }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content #search-input,
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .filters select {
+            background-color: var(--white); /* Darkest for inputs */
+            border-color: var(--light-gray);
+            color: var(--text-color);
+        }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .search-icon { color: var(--gray); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .no-tasks { background-color: var(--primary-light); color: var(--gray); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-card {
+             background-color: var(--light); /* Lighter card bg */
+             border-color: var(--light-gray); /* Default border */
+             border-left-color: var(--primary); /* Keep primary color for left border default */
+        }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-card.priority-High { border-left-color: var(--danger); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-card.priority-Medium { border-left-color: var(--warning); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-card.priority-Low { border-left-color: var(--success); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-card h3 { color: #93c5fd; /* Lighter primary */}
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-card p { color: var(--gray); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-card .description { color: var(--gray); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-card strong { color: var(--text-color); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-card .links a { color: #60a5fa; /* Lighter blue for links */ }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-meta { color: var(--gray); border-top-color: var(--light-gray); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .status-badge { color: var(--dark); /* Ensure text visible on colored badges */ }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .status-Pending { background-color: var(--warning); color: #333; }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .status-InProgress { background-color: #3b82f6; color: white; } /* Adjust teal to blue */
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .status-Completed { background-color: var(--success); color: white; }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-card.status-Completed { background-color: var(--primary-light); border-left-color: var(--gray); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-card.status-Completed h3,
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-card.status-Completed p,
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-card.status-Completed .description,
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-card.status-Completed .task-meta,
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-card.status-Completed strong {
+             color: var(--gray); /* Grey out completed text */
+        }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-actions { border-top-color: var(--light-gray); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-actions button { color: var(--gray); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-actions .edit-btn:hover { color: #60a5fa; }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-actions .delete-btn { color: var(--danger); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-actions .complete-btn { color: var(--success); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-management-content .task-actions .reopen-btn { color: var(--warning); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .modal { /* Task modal */ background-color: rgba(0, 0, 0, 0.7); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .modal-content { background-color: var(--light); /* Use lighter dark for modal */ color: var(--text-color); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .modal-content .close-btn { color: var(--gray); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .modal-content .close-btn:hover { color: var(--text-color); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .modal-content #modal-title { color: #93c5fd; }
+        body.dark-theme #featureSectionsContainer.task-management-feature .modal-content label { color: var(--text-color); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .modal-content input[type="text"],
+        body.dark-theme #featureSectionsContainer.task-management-feature .modal-content input[type="date"],
+        body.dark-theme #featureSectionsContainer.task-management-feature .modal-content textarea,
+        body.dark-theme #featureSectionsContainer.task-management-feature .modal-content select {
+            background-color: var(--primary-light); /* Darker input bg */
+            border-color: var(--light-gray);
+            color: var(--text-color);
+        }
+        body.dark-theme #featureSectionsContainer.task-management-feature .modal-content .form-actions { border-top-color: var(--light-gray); }
+
 
         body.dark-theme .checkbox-group { border-color: var(--light-gray); }
         body.dark-theme .checkbox-group label { color: var(--text-color); } /* Checkbox label text */
@@ -663,8 +759,54 @@
         #featureSectionsContainer.employee-scheduling .day-name { font-weight: 600; font-size: 0.9rem; color: white; } /* Day name in header is white */
         #featureSectionsContainer.employee-scheduling .day-date { font-size: 0.8rem; opacity: 0.8; color: rgba(255, 255, 255, 0.8); } /* Date slightly transparent */
 
+        /* --- Task Management Integration Styles --- */
+        /* Scoped container for Task Management feature */
+        #featureSectionsContainer.task-management-feature {
+            background-color: var(--primary-light); /* Match task page background */
+            padding: 0; /* Remove default content-section padding */
+        }
+        /* Highlighted Title for Task Management */
+        .task-page-header {
+             margin-bottom: 1.5rem; /* Space below title */
+             padding: 1rem 1.5rem; /* Padding around title */
+             background-color: var(--primary); /* Use primary color for highlight */
+             border-radius: 6px;
+             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .task-page-title {
+             font-size: 1.5rem;
+             font-weight: 600;
+             color: var(--white); /* White text on primary background */
+             border-bottom: none;
+             margin-bottom: 0;
+        }
+        /* Container for the actual task content */
+        .task-management-content {
+            background-color: var(--white); /* Original task page container background */
+            padding: 30px; /* Original task page padding */
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Original task page shadow */
+            /* Use the original task management styles for elements inside this */
+        }
+        /* Adjustments if needed based on theme */
+        body.dark-theme #featureSectionsContainer.task-management-feature {
+            background-color: var(--white); /* Darkest background for the feature area */
+        }
+        body.dark-theme .task-page-header {
+            background-color: var(--primary-dark); /* Darker primary for title bg */
+            color: var(--dark); /* Light text */
+        }
+        body.dark-theme .task-management-content {
+             background-color: var(--light); /* Use lighter dark bg for the container */
+             /* Other dark theme overrides for task elements are handled above */
+        }
+        /* Ensure Task Management Modals appear above dashboard elements */
+        #featureSectionsContainer.task-management-feature .modal {
+            z-index: 1060; /* Higher than dashboard modals/confirm */
+        }
 
-        /* Generic Modal Styles */
+
+        /* Generic Modal Styles (Used by Edit Shift, Edit Member) */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.6); z-index: 1050; /* Higher than confirm modal */
@@ -714,6 +856,13 @@
             .main-content.sidebar-active { margin-left: 250px; } /* Adjust main content when sidebar is open */
             .sidebar-toggle { display: block; /* Show hamburger */ position: fixed; top: 15px; left: 15px; z-index: 101; background: var(--primary); color: white; border: none; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 1.2rem; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
             .top-nav { padding-left: 60px; } /* Make space for hamburger */
+            /* Task Management Responsive */
+             #featureSectionsContainer.task-management-feature .task-management-content .task-list {
+                 grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+             }
+             #featureSectionsContainer.task-management-feature .task-management-content .container {
+                padding: 20px;
+            }
         }
         @media (min-width: 993px) {
              .sidebar-toggle { display: none; } /* Hide hamburger on larger screens */
@@ -755,6 +904,47 @@
             .notifications-container { width: 100%; max-width: 100%; }
             .sidebar-toggle { top: 10px; left: 10px; }
             .top-nav { padding-top: 60px; /* Make space for hamburger */ }
+            /* Task Management Responsive */
+            #featureSectionsContainer.task-management-feature .task-management-content .controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            #featureSectionsContainer.task-management-feature .task-management-content .search-container {
+                 margin: 0; /* Remove side margin */
+            }
+            #featureSectionsContainer.task-management-feature .task-management-content #add-task-btn {
+                 width: 100%;
+                 margin-left: 0; /* Remove left margin */
+                 order: -1; /* Move button to top on mobile */
+                 margin-bottom: 10px;
+            }
+            #featureSectionsContainer.task-management-feature .task-management-content .filters {
+                flex-direction: column;
+                width: 100%;
+                gap: 10px;
+            }
+            #featureSectionsContainer.task-management-feature .task-management-content .filters select {
+                width: 100%;
+                min-width: unset; /* Remove min-width */
+            }
+            #featureSectionsContainer.task-management-feature .task-management-content .task-list {
+                grid-template-columns: 1fr; /* Stack tasks vertically */
+            }
+             #featureSectionsContainer.task-management-feature .modal-content { /* Task modal responsive */
+                width: 95%;
+                padding: 20px;
+            }
+             #featureSectionsContainer.task-management-feature .modal-content .form-row {
+                 flex-direction: column;
+                 gap: 15px; /* Keep gap consistent */
+             }
+             #featureSectionsContainer.task-management-feature .modal-content .form-row > div {
+                 min-width: unset; /* Remove min-width */
+             }
+             #featureSectionsContainer.task-management-feature .task-management-content h1 {
+                 font-size: 1.8em;
+             }
         }
         @media (max-width: 480px) {
             .section-header > div { justify-content: center; width: 100%; }
@@ -767,6 +957,42 @@
             .notifications-footer { flex-direction: column; gap: 0.5rem; }
             .notifications-footer .btn { width: 100%; justify-content: center; }
             /* Danger zone handled above for better wrapping */
+             /* Task Management Responsive */
+            #featureSectionsContainer.task-management-feature {
+                padding: 10px; /* Adjust padding for small screens */
+            }
+             #featureSectionsContainer.task-management-feature .task-management-content {
+                 padding: 15px;
+             }
+             #featureSectionsContainer.task-management-feature .task-management-content .btn { /* Task buttons */
+                 font-size: 0.95em;
+                 padding: 9px 15px;
+             }
+             #featureSectionsContainer.task-management-feature .modal-content .form-actions .btn {
+                padding: 10px 20px;
+             }
+             #featureSectionsContainer.task-management-feature .task-management-content .task-card {
+                 padding: 15px;
+             }
+             #featureSectionsContainer.task-management-feature .task-management-content .task-card h3 {
+                 font-size: 1.15em;
+             }
+             #featureSectionsContainer.task-management-feature .task-management-content .task-card p,
+             #featureSectionsContainer.task-management-feature .task-management-content .task-card .description,
+             #featureSectionsContainer.task-management-feature .task-management-content .task-meta {
+                font-size: 0.9em;
+             }
+              #featureSectionsContainer.task-management-feature .task-management-content .task-actions button {
+                 font-size: 1.1em;
+                 margin-left: 8px;
+             }
+             #featureSectionsContainer.task-management-feature .modal-content { /* Task modal */
+                 padding: 20px 15px;
+             }
+              #featureSectionsContainer.task-management-feature .modal-content #modal-title {
+                 font-size: 1.5em;
+                 margin-bottom: 20px;
+             }
         }
          /* Checkbox Group for Notification Types */
          .checkbox-group {
@@ -1392,7 +1618,7 @@
                  </div>
              </div>
 
-             <!-- Container for other feature sections -->
+             <!-- Container for other feature sections (like Task Management, Scheduling etc) -->
              <div id="featureSectionsContainer" class="content-section">
                  <!-- Content loaded dynamically here -->
                  <div class="placeholder-content" id="featurePlaceholder">
@@ -1483,6 +1709,1055 @@
         </div>
     </div>
 
+    <!-- Container for Task Management CSS and JS -->
+    <template id="taskManagementAssets">
+        <style id="task-management-styles">
+            /* --- PASTE CSS FROM task.txt HERE --- */
+            /* --- CSS Styles --- */
+            /* Basic Reset & Body Styling */
+            /* SELECTORS MODIFIED TO SCOPE WHERE POSSIBLE */
+            #featureSectionsContainer.task-management-feature * {
+                /* Apply basic box-sizing within the feature only */
+                /* margin: 0;  -- Potentially problematic, removed */
+                /* padding: 0; -- Potentially problematic, removed */
+                box-sizing: border-box;
+            }
+
+            /* Apply body-like styles to the content container */
+            #featureSectionsContainer.task-management-feature .task-management-content {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f4f7fc; /* Light blue-grey background */
+                color: #333;
+                line-height: 1.6;
+                /* Padding is applied by dashboard's container or task-management-content itself */
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .container {
+                max-width: 1200px;
+                margin: 20px auto; /* Keep auto margins */
+                background-color: #fff; /* Should match .task-management-content bg */
+                padding: 30px; /* Should match .task-management-content padding */
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Should match .task-management-content */
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content h1 {
+                color: #333;
+                margin-bottom: 25px;
+                text-align: center;
+                font-weight: 600;
+            }
+
+            /* Buttons */
+            #featureSectionsContainer.task-management-feature .task-management-content .btn {
+                /* Use existing dashboard .btn and add specific overrides if needed */
+                /* Example: Overriding padding specifically for task buttons */
+                padding: 10px 18px;
+                margin-left: 5px; /* Spacing between buttons */
+                gap: 5px; /* Space between icon and text */
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .btn i { /* Style for icons inside buttons */
+                 font-size: 0.9em;
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .btn-primary {
+                /* Use dashboard's .btn-primary or define here */
+                 background-color: #007bff; color: white;
+            }
+            #featureSectionsContainer.task-management-feature .task-management-content .btn-primary:hover { background-color: #0056b3; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .btn-secondary { background-color: #6c757d; color: white; }
+            #featureSectionsContainer.task-management-feature .task-management-content .btn-secondary:hover { background-color: #5a6268; }
+            #featureSectionsContainer.task-management-feature .task-management-content .btn-danger { background-color: #dc3545; color: white; }
+            #featureSectionsContainer.task-management-feature .task-management-content .btn-danger:hover { background-color: #c82333; }
+            #featureSectionsContainer.task-management-feature .task-management-content .btn-warning { background-color: #ffc107; color: #333; }
+            #featureSectionsContainer.task-management-feature .task-management-content .btn-warning:hover { background-color: #e0a800; }
+            #featureSectionsContainer.task-management-feature .task-management-content .btn-success { background-color: #28a745; color: white; }
+            #featureSectionsContainer.task-management-feature .task-management-content .btn-success:hover { background-color: #218838; }
+            #featureSectionsContainer.task-management-feature .task-management-content .btn-info { background-color: #17a2b8; color: white; }
+            #featureSectionsContainer.task-management-feature .task-management-content .btn-info:hover { background-color: #138496; }
+
+            /* Controls Area: Add, Search, Filters */
+            #featureSectionsContainer.task-management-feature .task-management-content .controls {
+                display: flex;
+                flex-wrap: wrap; /* Allow wrapping on smaller screens */
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 30px;
+                padding: 15px;
+                background-color: #e9ecef; /* Light grey background for controls */
+                border-radius: 6px;
+                gap: 15px; /* Add gap between control groups */
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .search-container {
+                position: relative;
+                display: flex;
+                align-items: center;
+                flex-grow: 1; /* Allow search to take available space */
+                min-width: 200px; /* Ensure search has some minimum width */
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content #search-input {
+                padding: 10px 35px 10px 15px; /* Space for icon */
+                border: 1px solid #ced4da;
+                border-radius: 5px;
+                font-size: 1em;
+                width: 100%; /* Take full width of its container */
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .search-icon {
+                position: absolute;
+                right: 12px;
+                color: #6c757d;
+                pointer-events: none; /* Make icon non-interactive */
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .filters {
+                display: flex;
+                flex-wrap: wrap; /* Allow filters to wrap too */
+                gap: 10px; /* Space between filters */
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .filters select {
+                padding: 10px;
+                border: 1px solid #ced4da;
+                border-radius: 5px;
+                background-color: #fff;
+                font-size: 0.95em;
+                cursor: pointer;
+                min-width: 150px; /* Give selects a minimum width */
+            }
+
+            /* Task List */
+            #featureSectionsContainer.task-management-feature .task-management-content .task-list {
+                margin-top: 20px;
+                display: grid;
+                gap: 20px;
+                /* Responsive grid: start with 1 column, increase as space allows */
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Slightly wider min */
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .no-tasks {
+                text-align: center;
+                color: #6c757d;
+                padding: 40px 20px;
+                font-size: 1.1em;
+                background-color: #f8f9fa;
+                border-radius: 6px;
+                grid-column: 1 / -1; /* Span all columns if grid is active */
+            }
+
+            /* Task Card Styling */
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card {
+                background-color: #ffffff;
+                border: 1px solid #e0e0e0;
+                border-left: 5px solid #007bff; /* Default border color (can be overridden by priority) */
+                border-radius: 6px;
+                padding: 20px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+                transition: box-shadow 0.3s ease, transform 0.2s ease;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between; /* Push actions to bottom */
+                position: relative; /* For potential absolute positioning inside */
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card:hover {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+                transform: translateY(-2px); /* Slight lift effect */
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card h3 {
+                font-size: 1.25em; /* Slightly smaller */
+                margin-bottom: 10px;
+                color: #0056b3; /* Darker blue for title */
+                word-break: break-word; /* Prevent long titles from overflowing */
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card p {
+                margin-bottom: 8px;
+                color: #555;
+                font-size: 0.95em;
+                word-break: break-word;
+                line-height: 1.5;
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card .description {
+                color: #666;
+                font-size: 0.9em;
+                margin-bottom: 15px;
+                max-height: 80px; /* Limit description height */
+                overflow-y: auto; /* Add scroll if needed */
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card strong {
+                color: #333;
+                min-width: 90px; /* Align labels slightly better */
+                display: inline-block;
+                margin-right: 5px;
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card .links {
+                font-size: 0.9em;
+            }
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card .links a,
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card .links span {
+                display: inline-block; /* Prevent breaking mid-link */
+                margin-right: 5px;
+                margin-bottom: 3px; /* Space between wrapped links */
+                word-break: break-all; /* Break long URLs/text */
+            }
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card .links a {
+                color: #007bff;
+                text-decoration: none;
+            }
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card .links a:hover {
+                text-decoration: underline;
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .task-meta {
+                font-size: 0.85em;
+                color: #777;
+                margin-top: 15px;
+                border-top: 1px solid #eee;
+                padding-top: 15px;
+            }
+             /* Display meta info more compactly */
+            #featureSectionsContainer.task-management-feature .task-management-content .task-meta > div {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px 15px; /* Row gap, column gap */
+                margin-bottom: 5px;
+            }
+            #featureSectionsContainer.task-management-feature .task-management-content .task-meta span {
+                white-space: nowrap; /* Prevent labels/values from breaking */
+            }
+
+            /* Priority Styling */
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card.priority-High { border-left-color: #dc3545; } /* Red */
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card.priority-Medium { border-left-color: #ffc107; } /* Yellow */
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card.priority-Low { border-left-color: #28a745; } /* Green */
+
+            /* Status Styling */
+            #featureSectionsContainer.task-management-feature .task-management-content .status-badge {
+                padding: 3px 10px;
+                border-radius: 12px;
+                font-size: 0.8em;
+                font-weight: 600;
+                color: white;
+                white-space: nowrap;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            #featureSectionsContainer.task-management-feature .task-management-content .status-Pending { background-color: #ffc107; color: #333;} /* Yellow */
+            #featureSectionsContainer.task-management-feature .task-management-content .status-InProgress { background-color: #17a2b8; } /* Teal */
+            #featureSectionsContainer.task-management-feature .task-management-content .status-Completed { background-color: #28a745; } /* Green */
+
+            /* Overdue Styling */
+            #featureSectionsContainer.task-management-feature .task-management-content .overdue-indicator {
+                color: #dc3545; /* Red */
+                font-weight: bold;
+                margin-left: 5px;
+                font-size: 0.9em;
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card.status-Completed {
+                background-color: #f8f9fa; /* Slightly greyed out when completed */
+                border-left-color: #6c757d; /* Grey border for completed */
+            }
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card.status-Completed h3 {
+                color: #6c757d;
+                text-decoration: line-through;
+            }
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card.status-Completed p,
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card.status-Completed .description,
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card.status-Completed .task-meta {
+                 color: #6c757d; /* Grey out text */
+            }
+            #featureSectionsContainer.task-management-feature .task-management-content .task-card.status-Completed strong {
+                 color: #5a6268;
+            }
+
+
+            /* Task Actions */
+            #featureSectionsContainer.task-management-feature .task-management-content .task-actions {
+                margin-top: 15px;
+                text-align: right;
+                border-top: 1px solid #eee;
+                padding-top: 15px;
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .task-actions button {
+                /* Resetting some properties that might conflict with dashboard .btn */
+                background: none;
+                border: none;
+                font-size: 1.2em; /* Make icons slightly larger */
+                padding: 5px 8px;
+                margin-left: 10px;
+                vertical-align: middle; /* Align icons better */
+                /* Keep colors and hover effects */
+                color: #6c757d; /* Default greyish color */
+                cursor: pointer;
+                transition: color 0.2s ease, transform 0.2s ease;
+            }
+             #featureSectionsContainer.task-management-feature .task-management-content .task-actions button:hover {
+                transform: scale(1.1); /* Slightly enlarge icon on hover */
+            }
+
+            #featureSectionsContainer.task-management-feature .task-management-content .task-actions .edit-btn:hover { color: #007bff; } /* Blue */
+            #featureSectionsContainer.task-management-feature .task-management-content .task-actions .delete-btn { color: #dc3545; } /* Red */
+            #featureSectionsContainer.task-management-feature .task-management-content .task-actions .delete-btn:hover { color: #a71d2a; }
+            #featureSectionsContainer.task-management-feature .task-management-content .task-actions .complete-btn { color: #28a745; } /* Green */
+            #featureSectionsContainer.task-management-feature .task-management-content .task-actions .complete-btn:hover { color: #1e7e34; }
+            #featureSectionsContainer.task-management-feature .task-management-content .task-actions .reopen-btn { color: #ffc107; } /* Yellow */
+            #featureSectionsContainer.task-management-feature .task-management-content .task-actions .reopen-btn:hover { color: #d39e00; }
+
+
+            /* Modal Styling */
+            #featureSectionsContainer.task-management-feature .modal {
+                display: none; /* Hidden by default */
+                position: fixed; /* Stay in place */
+                z-index: 1060; /* Sit on top (Higher than dashboard confirm) */
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto; /* Enable scroll if needed */
+                background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+                padding-top: 50px; /* Location of the box */
+                backdrop-filter: blur(3px); /* Optional blur effect */
+            }
+
+            #featureSectionsContainer.task-management-feature .modal-content {
+                background-color: #fefefe;
+                margin: 5% auto 10% auto; /* Add more bottom margin */
+                padding: 30px 40px; /* More padding */
+                border: none; /* Remove default border */
+                width: 90%;
+                max-width: 650px; /* Slightly wider modal */
+                border-radius: 8px;
+                position: relative;
+                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+                animation: slideDown 0.4s ease-out; /* Slide down animation */
+            }
+
+            @keyframes slideDown {
+                from {opacity: 0; transform: translateY(-30px);}
+                to {opacity: 1; transform: translateY(0);}
+            }
+
+            #featureSectionsContainer.task-management-feature .modal-content .close-btn {
+                color: #aaa;
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                font-size: 28px;
+                font-weight: bold;
+                line-height: 1;
+                transition: color 0.2s ease;
+                 text-decoration: none; /* Override potential link styles */
+                 cursor: pointer;
+                 background: none; /* Ensure no button bg */
+                 border: none; /* Ensure no button border */
+            }
+
+            #featureSectionsContainer.task-management-feature .modal-content .close-btn:hover,
+            #featureSectionsContainer.task-management-feature .modal-content .close-btn:focus {
+                color: #333; /* Darker on hover */
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+            /* Modal Form Styling */
+             #featureSectionsContainer.task-management-feature .modal-content #modal-title {
+                 margin-bottom: 25px;
+                 font-weight: 600;
+                 color: #333;
+                 text-align: left; /* Override centered H2 */
+             }
+
+            #featureSectionsContainer.task-management-feature .modal-content #task-form {
+                margin-top: 20px;
+            }
+
+            #featureSectionsContainer.task-management-feature .modal-content .form-group {
+                margin-bottom: 18px; /* Slightly more space */
+            }
+
+            #featureSectionsContainer.task-management-feature .modal-content .form-group label {
+                display: block;
+                margin-bottom: 6px;
+                font-weight: 600;
+                color: #555;
+                font-size: 0.9em;
+            }
+
+             /* Explicitly target inputs/textarea/select within the task modal form */
+            #featureSectionsContainer.task-management-feature .modal-content #task-form input[type="text"],
+            #featureSectionsContainer.task-management-feature .modal-content #task-form input[type="date"],
+            #featureSectionsContainer.task-management-feature .modal-content #task-form textarea,
+            #featureSectionsContainer.task-management-feature .modal-content #task-form select {
+                width: 100%;
+                padding: 12px; /* More padding */
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                font-size: 1em;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease;
+                background-color: white; /* Ensure bg color */
+                color: #333; /* Ensure text color */
+            }
+             #featureSectionsContainer.task-management-feature .modal-content #task-form input:focus,
+             #featureSectionsContainer.task-management-feature .modal-content #task-form textarea:focus,
+             #featureSectionsContainer.task-management-feature .modal-content #task-form select:focus {
+                 border-color: #007bff;
+                 box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+                 outline: none;
+             }
+
+            #featureSectionsContainer.task-management-feature .modal-content #task-form textarea {
+                resize: vertical; /* Allow vertical resizing */
+                min-height: 80px; /* Minimum height */
+            }
+
+            #featureSectionsContainer.task-management-feature .modal-content .form-row {
+                display: flex;
+                flex-wrap: wrap; /* Allow wrapping on small screens */
+                gap: 20px; /* More space between items in a row */
+            }
+            #featureSectionsContainer.task-management-feature .modal-content .form-row > div {
+                flex: 1; /* Each item takes equal space */
+                min-width: 200px; /* Prevent extreme squishing */
+            }
+
+            #featureSectionsContainer.task-management-feature .modal-content .form-actions {
+                text-align: right;
+                margin-top: 30px;
+                padding-top: 20px;
+                border-top: 1px solid #eee;
+            }
+             /* Ensure task modal buttons use task-specific styles */
+            #featureSectionsContainer.task-management-feature .modal-content .form-actions .btn {
+                padding: 12px 25px; /* Larger save/cancel buttons */
+            }
+
+             /* --- END OF PASTED CSS --- */
+
+        </style>
+        <script>
+            // --- PASTE JS LOGIC FROM task.txt HERE (will be wrapped) ---
+            function initializeTaskManagementFeature(container) {
+                 // --- DOM Elements ---
+                // IMPORTANT: Select elements *within the provided container*
+                const taskContentContainer = container.querySelector('.task-management-content');
+                if (!taskContentContainer) {
+                    console.error("Task Management content container not found!");
+                    return { cleanup: () => {} }; // Return dummy cleanup
+                }
+
+                const addTaskBtn = taskContentContainer.querySelector('#add-task-btn');
+                const taskModal = taskContentContainer.querySelector('#task-modal');
+                const closeModalBtn = taskModal?.querySelector('.close-btn'); // Use optional chaining
+                const cancelBtn = taskContentContainer.querySelector('#cancel-btn');
+                const taskForm = taskContentContainer.querySelector('#task-form');
+                const taskListDiv = taskContentContainer.querySelector('#task-list');
+                const modalTitle = taskContentContainer.querySelector('#modal-title');
+                const saveTaskBtn = taskContentContainer.querySelector('#save-task-btn');
+
+                // Form Fields
+                const taskIdInput = taskContentContainer.querySelector('#task-id');
+                const taskNameInput = taskContentContainer.querySelector('#task-name');
+                const taskDescriptionInput = taskContentContainer.querySelector('#task-description');
+                const taskLinksInput = taskContentContainer.querySelector('#task-links');
+                const taskAssignedBySelect = taskContentContainer.querySelector('#task-assigned-by');
+                const taskAssignedToSelect = taskContentContainer.querySelector('#task-assigned-to');
+                const taskStartDateInput = taskContentContainer.querySelector('#task-start-date');
+                const taskDueDateInput = taskContentContainer.querySelector('#task-due-date');
+                const taskPrioritySelect = taskContentContainer.querySelector('#task-priority');
+                const taskStatusSelect = taskContentContainer.querySelector('#task-status');
+
+                // Filters & Search
+                const searchInput = taskContentContainer.querySelector('#search-input');
+                const filterStatusSelect = taskContentContainer.querySelector('#filter-status');
+                const filterPrioritySelect = taskContentContainer.querySelector('#filter-priority');
+                const filterAssignedToSelect = taskContentContainer.querySelector('#filter-assigned-to');
+
+                 // Check if essential elements exist
+                 if (!addTaskBtn || !taskModal || !closeModalBtn || !taskListDiv || !taskForm) {
+                     console.error("Essential Task Management elements missing within the container.");
+                     return { cleanup: () => {} };
+                 }
+
+
+                // --- Data Storage ---
+                let tasks = []; // Initialize empty, load from storage
+                let boundCloseOnEscape = null; // Store bound listener for removal
+                let boundCloseOnOutsideClick = null; // Store bound listener for removal
+
+                // Load tasks from localStorage
+                const loadTasks = () => {
+                    // Use a unique key for local storage to avoid conflicts if dashboard uses it too
+                    const storedTasks = localStorage.getItem('dashboard_tasks');
+                     if (storedTasks) {
+                        try {
+                           tasks = JSON.parse(storedTasks);
+                        } catch (e) {
+                           console.error("Error parsing tasks from localStorage:", e);
+                           tasks = getDefaultTasks(); // Fallback to defaults on error
+                        }
+                     } else {
+                         tasks = getDefaultTasks(); // Load defaults if nothing stored
+                     }
+                    renderTasks(); // Render after loading
+                };
+
+                 // Default task data function
+                function getDefaultTasks() {
+                    return [
+                        // --- Sample Tasks (Provide initial data if localStorage is empty) ---
+                        {
+                            id: 1,
+                            name: "Setup Project Environment",
+                            description: "Install Node.js, npm packages, and configure the basic project structure.",
+                            links: "https://nodejs.org, https://npmjs.com",
+                            assignedBy: "Nada",
+                            assignedTo: "Mohamed Elmenisy",
+                            startDate: "2024-07-20",
+                            dueDate: "2024-07-22",
+                            priority: "High",
+                            status: "In Progress",
+                            completionDate: null
+                        },
+                        {
+                            id: 2,
+                            name: "Design UI Mockups",
+                            description: "Create wireframes and high-fidelity mockups for the main pages using Figma.",
+                            links: "https://figma.com",
+                            assignedBy: "Yousef",
+                            assignedTo: "Esraa Lashin",
+                            startDate: "2024-07-21",
+                            dueDate: "2024-07-25",
+                            priority: "Medium",
+                            status: "Pending",
+                            completionDate: null
+                        },
+                        {
+                            id: 3,
+                            name: "Develop API Endpoints",
+                            description: "Build RESTful APIs for user authentication and task management. Focus on security and scalability.",
+                            links: "",
+                            assignedBy: "Self Assigned",
+                            assignedTo: "Yousef",
+                            startDate: "2024-07-23",
+                            dueDate: "2024-07-30",
+                            priority: "High",
+                            status: "Pending",
+                            completionDate: null
+                        },
+                        {
+                            id: 4,
+                            name: "Client Meeting Prep",
+                            description: "Prepare presentation slides and demo for the upcoming client meeting. Ensure all key features are covered.",
+                            links: "",
+                            assignedBy: "Nada",
+                            assignedTo: "Bassant Badr",
+                            startDate: "2024-07-28",
+                            dueDate: "2024-07-29",
+                            priority: "Medium",
+                            status: "Pending",
+                            completionDate: null
+                        },
+                        {
+                            id: 5,
+                            name: "Review Code Submission",
+                            description: "Review the latest code pushed to the 'feature/login' branch on GitHub by Yousef.",
+                            links: "https://github.com, PR #42",
+                            assignedBy: "Self Assigned",
+                            assignedTo: "Mohamed Elmenisy",
+                            startDate: "2024-07-26",
+                            dueDate: "2024-07-26",
+                            priority: "Low",
+                            status: "Completed",
+                            completionDate: "2024-07-25"
+                        },
+                        {
+                            id: 6,
+                            name: "Fix Login Bug (JIRA-123)",
+                            description: "Users reporting issues logging in with special characters (#, &) in password. Found in production logs.",
+                            links: "jira-123",
+                            assignedBy: "Yousef",
+                            assignedTo: "Yousef",
+                            startDate: "2024-07-15",
+                            dueDate: "2024-07-18", // Overdue
+                            priority: "High",
+                            status: "In Progress",
+                            completionDate: null
+                        }
+                        // --- End Sample Tasks ---
+                    ];
+                }
+
+
+                // Save tasks to localStorage
+                const saveTasks = () => {
+                    localStorage.setItem('dashboard_tasks', JSON.stringify(tasks));
+                };
+
+                // Format Date for display (e.g., Jul 26, 2024 or N/A)
+                const formatDate = (dateString) => {
+                    if (!dateString) return 'N/A';
+                    try {
+                        const date = new Date(dateString + 'T00:00:00'); // Treat as local date
+                        if (isNaN(date.getTime())) return 'Invalid Date'; // Check for invalid dates
+                        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    } catch (e) {
+                        console.error("Error formatting date:", dateString, e);
+                        return 'Invalid Date';
+                    }
+                };
+
+                 // Get current date in YYYY-MM-DD format for storage
+                const getCurrentDate = () => {
+                    // Use 'en-CA' locale for YYYY-MM-DD format reliably
+                    return new Date().toLocaleDateString('en-CA');
+                };
+
+
+                 // Check if task is overdue
+                const isOverdue = (task) => {
+                    if (task.status === 'Completed' || !task.dueDate) return false;
+                     try {
+                        // Compare dates in UTC to avoid timezone issues with just date comparison
+                        const dueDate = new Date(task.dueDate + 'T00:00:00Z'); // Assume input is UTC date if just YYYY-MM-DD
+                        const today = new Date();
+                        // Set today to UTC midnight for fair comparison
+                        const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+
+                        if (isNaN(dueDate.getTime())) return false; // Handle invalid due date
+
+                        return dueDate < todayUTC;
+                    } catch(e) {
+                         console.error("Error checking if task is overdue:", task.dueDate, e);
+                        return false; // Error parsing date
+                    }
+                };
+
+                // Render Tasks
+                const renderTasks = () => {
+                     // Ensure taskListDiv exists before proceeding
+                    if (!taskListDiv) return;
+
+                    taskListDiv.innerHTML = ''; // Clear current list
+                    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                    const statusFilter = filterStatusSelect ? filterStatusSelect.value : 'all';
+                    const priorityFilter = filterPrioritySelect ? filterPrioritySelect.value : 'all';
+                    const assignedToFilter = filterAssignedToSelect ? filterAssignedToSelect.value : 'all';
+
+                    let tasksToDisplay = tasks;
+
+                    // Apply Filters
+                     tasksToDisplay = tasksToDisplay.filter(task => {
+                        // Gracefully handle potentially missing task properties
+                        const taskStatus = task.status || '';
+                        const taskPriority = task.priority || '';
+                        const taskAssignedTo = task.assignedTo || '';
+
+                        const statusMatch = statusFilter === 'all' || taskStatus === statusFilter;
+                        const priorityMatch = priorityFilter === 'all' || taskPriority === priorityFilter;
+                        const assignedToMatch = assignedToFilter === 'all' || taskAssignedTo === assignedToFilter;
+                        return statusMatch && priorityMatch && assignedToMatch;
+                    });
+
+
+                     // Apply Search (after filtering for performance on large lists)
+                     if (searchTerm) {
+                         tasksToDisplay = tasksToDisplay.filter(task => {
+                             // Gracefully handle potentially missing task properties
+                             const nameMatch = (task.name || '').toLowerCase().includes(searchTerm);
+                             const descMatch = (task.description || '').toLowerCase().includes(searchTerm);
+                             const linksMatch = (task.links || '').toLowerCase().includes(searchTerm);
+                             const assignedToMatch = (task.assignedTo || '').toLowerCase().includes(searchTerm);
+                             const assignedByMatch = (task.assignedBy || '').toLowerCase().includes(searchTerm);
+                             return nameMatch || descMatch || linksMatch || assignedToMatch || assignedByMatch;
+                         });
+                     }
+
+
+                    if (tasksToDisplay.length === 0) {
+                        taskListDiv.innerHTML = '<p class="no-tasks">No tasks found matching your criteria.</p>';
+                        return;
+                    }
+
+                     // Sort tasks: Pending/In Progress first, then Completed. Within those groups, sort by due date (earliest first, nulls last), then priority (High > Medium > Low)
+                    tasksToDisplay.sort((a, b) => {
+                        // Group by status: Active (Pending, In Progress) before Completed
+                        const statusOrder = { "Pending": 1, "In Progress": 1, "Completed": 2 };
+                        const statusA = statusOrder[a.status] || 3; // Default to last if unknown status
+                        const statusB = statusOrder[b.status] || 3;
+                        if (statusA !== statusB) return statusA - statusB;
+
+                        // Sort by due date (earliest first, nulls last)
+                        const dateA = a.dueDate ? new Date(a.dueDate + 'T00:00:00Z') : null;
+                        const dateB = b.dueDate ? new Date(b.dueDate + 'T00:00:00Z') : null;
+
+                        const dateValA = dateA && !isNaN(dateA) ? dateA.getTime() : Infinity;
+                        const dateValB = dateB && !isNaN(dateB) ? dateB.getTime() : Infinity;
+
+                        if (dateValA !== dateValB) return dateValA - dateValB;
+
+                        // If due dates are same/both null, sort by priority (High > Medium > Low)
+                        const priorityOrder = { High: 3, Medium: 2, Low: 1 };
+                        const priorityA = priorityOrder[a.priority] || 0;
+                        const priorityB = priorityOrder[b.priority] || 0;
+                        return priorityB - priorityA; // Descending priority
+                    });
+
+
+                    tasksToDisplay.forEach(task => {
+                        const taskCard = document.createElement('div');
+                         // Add base class and dataset
+                        taskCard.classList.add('task-card');
+                        taskCard.dataset.taskId = task.id;
+                        // Add dynamic classes based on task properties
+                        if (task.priority) taskCard.classList.add(`priority-${task.priority}`);
+                        if (task.status) taskCard.classList.add(`status-${task.status.replace(/\s+/g, '')}`); // e.g., status-InProgress
+                        if(task.status === 'Completed') taskCard.classList.add('task-completed'); // Generic completed class if needed
+                        if(isOverdue(task)) taskCard.classList.add('task-overdue'); // Overdue class
+
+
+                        const overdue = isOverdue(task);
+                        const overdueText = overdue ? `<span class="overdue-indicator">(Overdue!)</span>` : '';
+
+                        // Format links - make URLs clickable, show others as text
+                        let linksHTML = 'N/A';
+                        if (task.links && task.links.trim()) {
+                             linksHTML = task.links.split(',')
+                                .map(link => link.trim())
+                                .filter(link => link) // Remove empty strings
+                                .map(link => {
+                                    let href = link;
+                                    let isUrl = false;
+                                    try {
+                                        // More robust URL check
+                                        const url = new URL(link.startsWith('http') ? link : `http://${link}`);
+                                        // Basic check if it looks like a domain name or IP
+                                        if(url.hostname && (url.hostname.includes('.') || url.hostname.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/))) {
+                                             isUrl = true;
+                                             // Ensure protocol for display link
+                                             href = url.protocol + "//" + url.hostname + url.pathname + url.search + url.hash;
+                                        } else {
+                                            href = link; // Keep original if not URL-like
+                                        }
+                                    } catch (_) {
+                                        isUrl = false; // Invalid URL construction
+                                        href = link;
+                                    }
+
+                                    const displayText = link.length > 35 ? link.substring(0, 32) + '...' : link;
+                                    return isUrl ? `<a href="${href}" target="_blank" rel="noopener noreferrer" title="${link}">${displayText}</a>` : `<span title="${link}">${displayText}</span>`;
+                                })
+                                .join(' '); // Display links separated by space
+                        }
+
+
+                        taskCard.innerHTML = `
+                            <h3>${task.name || 'Unnamed Task'}</h3>
+                            ${task.description ? `<p class="description">${task.description}</p>` : ''}
+                            <p><strong>Links:</strong> <span class="links">${linksHTML}</span></p>
+                            <p><strong>Assigned By:</strong> ${task.assignedBy || 'N/A'}</p>
+                            <p><strong>Assigned To:</strong> ${task.assignedTo || 'N/A'}</p>
+
+                            <div class="task-meta">
+                                <div> <!-- Row 1: Dates -->
+                                     <span><strong>Start:</strong> ${formatDate(task.startDate)}</span>
+                                     <span><strong>Due:</strong> ${formatDate(task.dueDate)} ${overdueText}</span>
+                                 </div>
+                                 <div> <!-- Row 2: Priority & Status -->
+                                     <span><strong>Priority:</strong> ${task.priority || 'N/A'}</span>
+                                     <span><strong>Status:</strong> <span class="status-badge status-${(task.status || '').replace(/\s+/g, '')}">${task.status || 'N/A'}</span></span>
+                                 </div>
+                                 ${task.status === 'Completed' ? `<div><span><strong>Completed:</strong> ${formatDate(task.completionDate)}</span></div>` : ''}
+                            </div>
+
+                            <div class="task-actions">
+                                <button class="edit-btn" title="Edit Task"><i class="fas fa-edit"></i></button>
+                                <button class="delete-btn" title="Delete Task"><i class="fas fa-trash-alt"></i></button>
+                                ${task.status === 'Completed'
+                                    ? `<button class="reopen-btn" title="Reopen Task"><i class="fas fa-undo"></i></button>`
+                                    : `<button class="complete-btn" title="Mark as Completed"><i class="fas fa-check-circle"></i></button>`
+                                }
+                            </div>
+                        `;
+
+                        // Add event listeners for action buttons within the card
+                        const editBtn = taskCard.querySelector('.edit-btn');
+                        if (editBtn) {
+                            editBtn.addEventListener('click', (e) => {
+                                e.stopPropagation(); // Prevent card click if needed
+                                openEditModal(task.id);
+                            });
+                        }
+                        const deleteBtn = taskCard.querySelector('.delete-btn');
+                        if (deleteBtn) {
+                            deleteBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                deleteTask(task.id);
+                            });
+                        }
+
+                        const completeOrReopenBtn = taskCard.querySelector('.complete-btn, .reopen-btn');
+                        if (completeOrReopenBtn) {
+                             completeOrReopenBtn.addEventListener('click', (e) => {
+                                 e.stopPropagation();
+                                 toggleTaskStatus(task.id);
+                             });
+                         }
+
+                        taskListDiv.appendChild(taskCard);
+                    });
+                };
+
+
+                // Show Modal
+                const showModal = () => {
+                    if (!taskModal) return;
+                    taskModal.style.display = 'block';
+                     // Prevent background scrolling - apply to body
+                     document.body.style.overflow = 'hidden';
+                };
+
+                // Hide Modal
+                const hideModal = () => {
+                     if (!taskModal) return;
+                    taskModal.style.display = 'none';
+                    if (taskForm) taskForm.reset(); // Clear form fields
+                    if (taskIdInput) taskIdInput.value = ''; // Clear hidden ID field
+                    if (modalTitle) modalTitle.textContent = "Add New Task"; // Reset title
+                    if (saveTaskBtn) saveTaskBtn.textContent = "Save Task";
+                     // Restore background scrolling
+                    document.body.style.overflow = '';
+                };
+
+                // Open Modal for Adding Task
+                const openAddModal = () => {
+                    hideModal(); // Reset form first
+                     if (modalTitle) modalTitle.textContent = "Add New Task";
+                     if (saveTaskBtn) saveTaskBtn.textContent = "Save Task";
+                     // Set default values
+                     if (taskStatusSelect) taskStatusSelect.value = "Pending";
+                     if (taskPrioritySelect) taskPrioritySelect.value = "Medium";
+                     // Optionally set default assigned to/by if applicable
+                     // if(taskAssignedToSelect) taskAssignedToSelect.value = "Mohamed Elmenisy";
+                    showModal();
+                    if (taskNameInput) taskNameInput.focus(); // Focus the first field
+                };
+
+                // Open Modal for Editing Task
+                const openEditModal = (id) => {
+                    const task = tasks.find(t => t.id === id);
+                    if (!task || !taskIdInput || !taskNameInput || !taskDescriptionInput || !taskLinksInput || !taskAssignedBySelect || !taskAssignedToSelect || !taskStartDateInput || !taskDueDateInput || !taskPrioritySelect || !taskStatusSelect) {
+                         console.error("Cannot open edit modal: Task or form elements not found.");
+                         return;
+                    };
+
+                    hideModal(); // Reset form first
+                     if (modalTitle) modalTitle.textContent = "Edit Task";
+                     if (saveTaskBtn) saveTaskBtn.textContent = "Update Task";
+
+                    // Populate form
+                    taskIdInput.value = task.id;
+                    taskNameInput.value = task.name;
+                    taskDescriptionInput.value = task.description || ''; // Handle null/undefined
+                    taskLinksInput.value = task.links || '';
+                    taskAssignedBySelect.value = task.assignedBy;
+                    taskAssignedToSelect.value = task.assignedTo;
+                    taskStartDateInput.value = task.startDate || ''; // Handle cases where dates might be null
+                    taskDueDateInput.value = task.dueDate || '';
+                    taskPrioritySelect.value = task.priority;
+                    taskStatusSelect.value = task.status;
+
+                    showModal();
+                     taskNameInput.focus(); // Focus the first field
+                };
+
+                // Handle Form Submission (Add/Edit)
+                const handleFormSubmit = (event) => {
+                    event.preventDefault();
+
+                    // Ensure all form elements exist before proceeding
+                    if (!taskIdInput || !taskNameInput || !taskDescriptionInput || !taskLinksInput || !taskAssignedBySelect || !taskAssignedToSelect || !taskStartDateInput || !taskDueDateInput || !taskPrioritySelect || !taskStatusSelect) {
+                        console.error("Cannot submit form: one or more form elements are missing.");
+                        alert("An error occurred. Please try again.");
+                        return;
+                    }
+
+
+                     const taskId = taskIdInput.value ? parseInt(taskIdInput.value) : Date.now(); // Use existing ID or generate a new one
+                     const currentTask = tasks.find(t => t.id === taskId);
+                     const newStatus = taskStatusSelect.value;
+
+                     let completionDate = currentTask?.completionDate || null; // Keep existing completion date by default
+
+                     // Update completion date logic based on status change
+                     if (newStatus === 'Completed') {
+                         if (!taskIdInput.value || (currentTask && currentTask.status !== 'Completed')) {
+                             // New task added as completed OR existing task changing TO completed
+                             completionDate = getCurrentDate();
+                         }
+                         // If it was already completed and remains completed, keep the original date
+                     } else {
+                         // If status is not 'Completed' (or changes away from it), clear the date
+                         completionDate = null;
+                     }
+
+                    // Validate dates if necessary (e.g., due date not before start date)
+                    const startDate = taskStartDateInput.value;
+                    const dueDate = taskDueDateInput.value;
+                    if (startDate && dueDate && new Date(dueDate) < new Date(startDate)) {
+                        alert("Due Date cannot be before Start Date.");
+                        taskDueDateInput.focus();
+                        return; // Stop submission
+                    }
+
+                    const taskData = {
+                        id: taskId,
+                        name: taskNameInput.value.trim(),
+                        description: taskDescriptionInput.value.trim(),
+                        links: taskLinksInput.value.trim(),
+                        assignedBy: taskAssignedBySelect.value,
+                        assignedTo: taskAssignedToSelect.value,
+                        startDate: startDate || null, // Store as null if empty
+                        dueDate: dueDate || null,     // Store as null if empty
+                        priority: taskPrioritySelect.value,
+                        status: newStatus,
+                        completionDate: completionDate
+                    };
+
+                    if (!taskData.name) {
+                        alert("Task Name is required.");
+                        taskNameInput.focus();
+                        return;
+                    }
+
+                    if (taskIdInput.value) {
+                        // Editing existing task: Find index and replace
+                         const index = tasks.findIndex(task => task.id === taskData.id);
+                         if (index > -1) {
+                             tasks[index] = taskData;
+                         } else {
+                             console.warn(`Task with ID ${taskData.id} not found for editing.`);
+                             tasks.push(taskData); // Add as new if not found (fallback)
+                         }
+                    } else {
+                        // Adding new task
+                        tasks.push(taskData);
+                    }
+
+                    saveTasks();    // Save to localStorage
+                    renderTasks();  // Update the UI
+                    hideModal();    // Close the modal
+                };
+
+                // Delete Task
+                const deleteTask = (id) => {
+                    const taskToDelete = tasks.find(t => t.id === id);
+                     if (confirm(`Are you sure you want to delete task: "${taskToDelete?.name || id}"?`)) {
+                        tasks = tasks.filter(task => task.id !== id);
+                        saveTasks();
+                        renderTasks();
+                    }
+                };
+
+                // Toggle Task Status (Complete/Reopen) via buttons on card
+                const toggleTaskStatus = (id) => {
+                     tasks = tasks.map(task => {
+                        if (task.id === id) {
+                            if (task.status === 'Completed') {
+                                // Reopen: Change status, clear completion date
+                                return { ...task, status: 'Pending', completionDate: null }; // Default to Pending on reopen
+                            } else {
+                                // Complete: Change status, set completion date to now
+                                return { ...task, status: 'Completed', completionDate: getCurrentDate() };
+                            }
+                        }
+                        return task;
+                    });
+                    saveTasks();
+                    renderTasks();
+                };
+
+                // --- Event Listeners Setup ---
+                addTaskBtn.addEventListener('click', openAddModal);
+                closeModalBtn.addEventListener('click', hideModal);
+                if (cancelBtn) cancelBtn.addEventListener('click', hideModal);
+                taskForm.addEventListener('submit', handleFormSubmit);
+
+                // Need to attach these listeners to the *document* because the modal is appended there (or handle differently)
+                // For simplicity, let's attach directly to the modal element IF it exists
+                 const handleOutsideClick = (event) => {
+                     if (event.target === taskModal) { // Check if the click is directly on the modal background
+                         hideModal();
+                     }
+                 };
+                 const handleEscapeKey = (event) => {
+                    if (event.key === 'Escape' && taskModal && taskModal.style.display === 'block') {
+                        hideModal();
+                    }
+                 };
+
+                // Attach modal-specific listeners
+                taskModal.addEventListener('click', handleOutsideClick);
+                document.addEventListener('keydown', handleEscapeKey); // Attach escape globally for simplicity
+
+                // Store references to bound functions for cleanup
+                boundCloseOnOutsideClick = handleOutsideClick;
+                boundCloseOnEscape = handleEscapeKey;
+
+
+                // Filters and Search listeners - trigger re-render on change/input
+                if (searchInput) searchInput.addEventListener('input', renderTasks);
+                if (filterStatusSelect) filterStatusSelect.addEventListener('change', renderTasks);
+                if (filterPrioritySelect) filterPrioritySelect.addEventListener('change', renderTasks);
+                if (filterAssignedToSelect) filterAssignedToSelect.addEventListener('change', renderTasks);
+
+                // --- Initial Load ---
+                loadTasks(); // Load tasks from storage and render them initially
+
+                // --- Cleanup Function ---
+                // This function will be returned and called by the dashboard when navigating away
+                const cleanup = () => {
+                    console.log("Cleaning up Task Management feature listeners...");
+                    // Remove listeners added specifically by this feature's JS
+                    addTaskBtn?.removeEventListener('click', openAddModal);
+                    closeModalBtn?.removeEventListener('click', hideModal);
+                    cancelBtn?.removeEventListener('click', hideModal);
+                    taskForm?.removeEventListener('submit', handleFormSubmit);
+                    taskModal?.removeEventListener('click', boundCloseOnOutsideClick);
+                    document.removeEventListener('keydown', boundCloseOnEscape); // Remove global listener
+
+                    searchInput?.removeEventListener('input', renderTasks);
+                    filterStatusSelect?.removeEventListener('change', renderTasks);
+                    filterPrioritySelect?.removeEventListener('change', renderTasks);
+                    filterAssignedToSelect?.removeEventListener('change', renderTasks);
+
+                    // Add removal for delegated listeners if they were attached to taskListDiv
+                    // (Currently, they are added dynamically during render, so clearing innerHTML suffices)
+
+                    // Clear any intervals if the task management feature had timers
+                    // clearInterval(someTaskIntervalId);
+
+                     // Restore body overflow if modal was open
+                     document.body.style.overflow = '';
+
+                    console.log("Task Management cleanup complete.");
+                };
+
+                 return { cleanup }; // Return the cleanup function
+            }
+            // --- END OF PASTED JS LOGIC ---
+        </script>
+    </template>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -1625,6 +2900,7 @@
             let currentScheduleWeekOffset = 0; // Updated in init
             let scheduleMinWeekOffset = 0; // Will store offset for May 4, 2025 week start
             let mockScheduleData = {}; // Store schedule data { 'employeeId-weekOffset-dayIndex': 'shiftType' }
+            let currentFeatureCleanup = null; // Stores the cleanup function for the loaded feature
 
 
             // --- Mock Data ---
@@ -1633,7 +2909,6 @@
                  { id: 2, name: 'Yousef Ahmed', email: 'yousef@example.com', title: 'Supervisor', department: 'Operations', phone: '+20111222333', avatar: '', initials: 'YA', role: 'supervisor', twoFaEnabled: false },
                  { id: 3, name: 'Esraa Lashin', email: 'esraa@example.com', title: 'Senior Developer', department: 'Engineering', phone: '+20100999888', avatar: '', initials: 'EL', role: 'senior', twoFaEnabled: true },
                  { id: 4, name: 'Bassant Badr', email: 'bassant@example.com', title: 'Junior Designer', department: 'Design', phone: '+20155444333', avatar: '', initials: 'BB', role: 'member', twoFaEnabled: false },
-                 // *** FIX 4️⃣: Add Nada Mahmoud ***
                  { id: 5, name: 'Nada Mahmoud', email: 'nada@example.com', title: 'Member', department: 'Marketing', phone: '+20101234567', avatar: '', initials: 'NM', role: 'member', twoFaEnabled: false },
             ];
 
@@ -1882,6 +3157,16 @@
             // --- Navigation & Content Loading ---
             function setActiveFeature(featureId, settingsTab = null, skipHistory = false) {
                 console.log(`Navigating to: ${featureId}` + (settingsTab ? ` / Tab: ${settingsTab}` : ''));
+
+                 // --- Cleanup previous feature ---
+                 removeTaskManagementStyles(); // Remove specific styles if they exist
+                 if (typeof currentFeatureCleanup === 'function') {
+                     currentFeatureCleanup(); // Call the cleanup function for the previous feature
+                     currentFeatureCleanup = null; // Reset cleanup function
+                 }
+                 // --- End Cleanup ---
+
+
                 currentFeature = featureId;
 
                 // Update Menu Items
@@ -1892,14 +3177,14 @@
                 // Hide all top-level content sections first
                 contentSections.forEach(section => section.classList.remove('active'));
 
-                // Reset feature container styles
-                featureSectionsContainer.classList.remove('employee-scheduling'); // Remove specific feature classes
-                featureSectionsContainer.innerHTML = ''; // Clear dynamic content
-                featurePlaceholder.style.display = 'flex'; // Show placeholder by default
-                featureLoadingEl.style.display = 'none';
-                featureErrorEl.style.display = 'none';
-                // Add placeholder back to the container temporarily
-                featureSectionsContainer.appendChild(featurePlaceholder);
+                // Reset feature container styles and content
+                 featureSectionsContainer.className = 'content-section'; // Reset classes
+                 featureSectionsContainer.innerHTML = ''; // Clear dynamic content
+                 featurePlaceholder.style.display = 'flex'; // Show placeholder by default
+                 featureLoadingEl.style.display = 'none';
+                 featureErrorEl.style.display = 'none';
+                 // Add placeholder back to the container temporarily
+                 featureSectionsContainer.appendChild(featurePlaceholder);
 
 
                 // Show the correct section
@@ -1990,59 +3275,61 @@
                  }
             }
 
-            function loadFeatureContent(featureId) {
-                const menuItem = Array.from(menuItems).find(item => item.getAttribute('data-feature') === featureId);
-                const featureName = menuItem ? menuItem.querySelector('span').textContent : 'Feature';
+             function loadFeatureContent(featureId) {
+                 const menuItem = Array.from(menuItems).find(item => item.getAttribute('data-feature') === featureId);
+                 const featureName = menuItem ? menuItem.querySelector('span').textContent : 'Feature';
 
-                featurePlaceholder.style.display = 'none'; // Ensure placeholder is hidden
-                featureLoadingEl.style.display = 'block'; // Show loading
-                featureErrorEl.style.display = 'none';
-                featureSectionsContainer.innerHTML = ''; // Clear previous content
-                featureSectionsContainer.classList.remove('employee-scheduling'); // Reset class
+                 featurePlaceholder.style.display = 'none'; // Ensure placeholder is hidden
+                 featureLoadingEl.style.display = 'block'; // Show loading
+                 featureErrorEl.style.display = 'none';
+                 featureSectionsContainer.innerHTML = ''; // Clear previous content
+                 // Reset specific feature classes
+                 featureSectionsContainer.className = 'content-section active'; // Reset to base + active
                  // Add loading indicator to container while clearing
-                featureSectionsContainer.appendChild(featurePlaceholder);
-                featurePlaceholder.style.display = 'flex';
-                featureTitleEl.textContent = '';
-                featureDescEl.textContent = '';
+                 featureSectionsContainer.appendChild(featurePlaceholder);
+                 featurePlaceholder.style.display = 'flex';
+                 featureTitleEl.textContent = '';
+                 featureDescEl.textContent = '';
 
 
-                console.log(`Loading content for: ${featureName}`);
+                 console.log(`Loading content for: ${featureName}`);
 
-                // Simulate loading delay
-                setTimeout(() => {
-                    try {
-                        featureLoadingEl.style.display = 'none';
-                        featurePlaceholder.style.display = 'none'; // Hide placeholder before adding content
-                        let contentHTML = '';
+                 // Simulate loading delay
+                 setTimeout(() => {
+                     try {
+                         featureLoadingEl.style.display = 'none';
+                         featurePlaceholder.style.display = 'none'; // Hide placeholder before adding content
+                         featureSectionsContainer.innerHTML = ''; // Clear loading indicator completely
 
-                        // Specific loading logic for features
-                        if (featureId === 'employee-scheduling') {
-                            featureSectionsContainer.classList.add('employee-scheduling'); // Add class for scoping CSS
-                            contentHTML = getEmployeeScheduleHTML();
-                            featureSectionsContainer.innerHTML = contentHTML;
-                            initializeEmployeeScheduleLogic(); // Attach JS logic for this feature
-                        }
-                        // Add cases for other features here
-                        // else if (featureId === 'projects') { ... }
-                        else {
-                            // Default placeholder for unimplemented features
-                            featureSectionsContainer.innerHTML = ''; // Clear loading indicator
-                            featurePlaceholder.style.display = 'flex';
-                            featureTitleEl.textContent = featureName;
-                            featureDescEl.textContent = `Content for ${featureName} would be loaded here. This feature is not yet implemented.`;
-                            featureSectionsContainer.appendChild(featurePlaceholder); // Re-add placeholder
-                        }
+                         // Specific loading logic for features
+                         if (featureId === 'employee-scheduling') {
+                             featureSectionsContainer.classList.add('employee-scheduling'); // Add class for scoping CSS
+                             featureSectionsContainer.innerHTML = getEmployeeScheduleHTML();
+                             initializeEmployeeScheduleLogic(); // Attach JS logic for this feature
+                         } else if (featureId === 'task-management') {
+                             featureSectionsContainer.classList.add('task-management-feature'); // Add class for scoping CSS
+                             loadTaskManagementFeature(); // Call the specific loader
+                         }
+                         // Add cases for other features here
+                         // else if (featureId === 'projects') { ... }
+                         else {
+                             // Default placeholder for unimplemented features
+                             featurePlaceholder.style.display = 'flex';
+                             featureTitleEl.textContent = featureName;
+                             featureDescEl.textContent = `Content for ${featureName} would be loaded here. This feature is not yet implemented.`;
+                             featureSectionsContainer.appendChild(featurePlaceholder); // Re-add placeholder
+                         }
 
-                    } catch (error) {
-                        console.error(`Error loading feature ${featureId}:`, error);
-                        featureLoadingEl.style.display = 'none';
-                        featurePlaceholder.style.display = 'flex'; // Show placeholder again on error
-                        featureErrorEl.textContent = `Failed to load ${featureName}. Error: ${error.message}`;
-                        featureErrorEl.style.display = 'block';
-                        featureSectionsContainer.appendChild(featurePlaceholder); // Show placeholder with error
-                    }
-                }, 500); // Simulate network delay
-            }
+                     } catch (error) {
+                         console.error(`Error loading feature ${featureId}:`, error);
+                         featureLoadingEl.style.display = 'none';
+                         featurePlaceholder.style.display = 'flex'; // Show placeholder again on error
+                         featureErrorEl.textContent = `Failed to load ${featureName}. Error: ${error.message}`;
+                         featureErrorEl.style.display = 'block';
+                         featureSectionsContainer.appendChild(featurePlaceholder); // Show placeholder with error
+                     }
+                 }, 300); // Reduced delay for faster loading feel
+             }
 
 
             function updateBrowserHistory(featureId, settingsTab = null) {
@@ -2583,14 +3870,13 @@
                                     loadTeamMembers(); // Refresh list in settings
                                     loadDashboardStats(); // Update dashboard stats (team count)
 
-                                    // *** FIX: Refresh schedule view if it's currently active ***
+                                    // Refresh schedule view if it's currently active
                                     if (currentFeature === 'employee-scheduling') {
                                          const scheduleTableBody = document.getElementById('scheduleTableBody');
                                          if(scheduleTableBody) { // Check if schedule body exists
                                             renderSchedule(currentScheduleWeekOffset); // Re-render schedule with updated user list
                                          }
                                     }
-                                    // *** END FIX ***
 
                                     showToast('Team member removed.', 'success');
                                 }, 500); // Simulate delay
@@ -2650,7 +3936,7 @@
                      soundToggle.addEventListener('change', (e) => applySoundPreference(e.target.checked));
                  }
 
-                // *** FIX 6️⃣: Add listeners for enabled Settings buttons ***
+                // Settings Save Buttons
                 if(savePreferencesBtn) savePreferencesBtn.addEventListener('click', handleSavePreferences);
                 if(changePasswordForm) changePasswordForm.addEventListener('submit', handleChangePassword);
                 if(saveAccountSettingsBtn) saveAccountSettingsBtn.addEventListener('click', handleSaveAccountSettings);
@@ -2910,7 +4196,6 @@
                      const currentPass = document.getElementById('currentPassword').value;
                      const newPass = document.getElementById('newPassword').value;
                      const confirmPass = document.getElementById('confirmPassword').value;
-
                      // Basic validation (add more robust checks in real app)
                      if (!currentPass || !newPass || !confirmPass) {
                          showToast('Please fill in all password fields.', 'error');
@@ -3312,8 +4597,7 @@
             function initializeEmployeeScheduleLogic() {
                 console.log("Initializing Employee Schedule Logic...");
 
-                 // *** FIX 🗓️ 2️⃣: Calculate offset for week of May 1, 2025 AND the minimum allowed offset ***
-                const calculateOffsets = () => {
+                 const calculateOffsets = () => {
                     const today = new Date();
                     const mayFirst2025 = new Date(2025, 4, 1); // May 1st
                     mayFirst2025.setHours(0, 0, 0, 0);
@@ -3345,9 +4629,7 @@
                 };
 
                 calculateOffsets(); // Calculate and set offsets
-                // *** END FIX ***
 
-                // *** FIX ✅ 1️⃣: Define full days array ***
                 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
                 const weekDisplay = document.getElementById('weekDisplay');
@@ -3374,7 +4656,6 @@
                     startOfWeek.setHours(0,0,0,0);
 
                     const dates = [];
-                    // *** FIX 🗓️ 1️⃣: Get all 7 dates ***
                     for (let i = 0; i < 7; i++) {
                         const date = new Date(startOfWeek);
                         date.setDate(startOfWeek.getDate() + i);
@@ -3394,7 +4675,6 @@
                      const end = weekDates[6]; // Saturday
                      if(weekDisplay) weekDisplay.textContent = `${formatDateForDisplay(start)} - ${formatDateForDisplay(end)}`;
 
-                     // *** FIX 🗓️ 2️⃣: Disable Prev button if at or before May start week ***
                      if (prevWeekBtn) {
                         prevWeekBtn.disabled = weekOffset <= scheduleMinWeekOffset;
                      }
@@ -3403,12 +4683,11 @@
                      // Render Table Header (Sun-Sat)
                      if(scheduleThead) {
                          scheduleThead.innerHTML = '<th>Employee</th>'; // Reset header days
-                         // Use the full 7-day array
                          weekDates.forEach((date, index) => {
                              scheduleThead.innerHTML += `
                                  <th>
                                     <div class="day-header">
-                                        <span class="day-name" style="color: white;">${days[index]}</span> <!-- FIX 🎨 3️⃣: White text -->
+                                        <span class="day-name">${days[index]}</span>
                                         <span class="day-date">${date.toLocaleDateString(undefined, { month: 'short', day: 'numeric'})}</span>
                                     </div>
                                  </th>
@@ -3428,11 +4707,11 @@
                              const row = document.createElement('tr');
                              row.innerHTML = `<td class="employee-name">${employee.name}</td>`;
 
-                              // *** FIX 🗓️ 1️⃣: Loop 7 times for Sun-Sat ***
                              for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
                                  const cell = document.createElement('td');
                                  const scheduleKey = `${employee.id}-${weekOffset}-${dayIndex}`;
-                                 const isWeekend = dayIndex >= 5; // Friday (5) or Saturday (6)
+                                 const isWeekend = dayIndex === 5 || dayIndex === 6; // Friday (5) or Saturday (6)
+
 
                                  let shiftType;
                                  let isEditable = currentUser.role === 'admin' && !isWeekend; // Editable only if admin and not weekend
@@ -3499,7 +4778,6 @@
 
                 function handleEditShiftClick(event) {
                     const target = event.target;
-                     // Ensure click is on an editable shift (should already be handled by lack of listener on weekends)
                     if (!target.classList.contains('editable')) return;
 
                     const employeeId = target.dataset.employeeId;
@@ -3523,7 +4801,6 @@
                  // Event listeners for schedule controls
                  if (prevWeekBtn) {
                      prevWeekBtn.addEventListener('click', () => {
-                         // Check if already at the minimum offset before decrementing
                          if (currentScheduleWeekOffset > scheduleMinWeekOffset) {
                              currentScheduleWeekOffset--;
                              renderSchedule(currentScheduleWeekOffset);
@@ -3543,7 +4820,6 @@
                              saveScheduleBtn.disabled = true;
                              saveScheduleBtn.innerHTML = '<span class="spinner"></span> Saving...';
                              console.log("Saving schedule...", mockScheduleData);
-                             // Simulate save
                              setTimeout(() => {
                                  showToast("Schedule saved successfully!", "success");
                                  saveScheduleBtn.disabled = false;
@@ -3553,7 +4829,7 @@
                      });
                  }
                  if (sendRemindersBtn) {
-                     sendRemindersBtn.addEventListener('click', handleSendReminders); // Use dedicated handler
+                     sendRemindersBtn.addEventListener('click', handleSendReminders);
                  }
 
                  // Modal close buttons
@@ -3561,7 +4837,7 @@
                      editShiftModal.querySelectorAll('[data-close-modal]').forEach(btn => {
                          btn.addEventListener('click', () => editShiftModal.classList.remove('active'));
                      });
-                     editShiftModal.addEventListener('click', (event) => { // Close on backdrop click
+                     editShiftModal.addEventListener('click', (event) => {
                          if (event.target === editShiftModal) {
                              editShiftModal.classList.remove('active');
                          }
@@ -3578,17 +4854,16 @@
                          const newShiftType = shiftTypeSelect.value;
 
                          const scheduleKey = `${employeeId}-${weekOffset}-${dayIndex}`;
-                         mockScheduleData[scheduleKey] = newShiftType; // Update the data
+                         mockScheduleData[scheduleKey] = newShiftType;
 
-                         renderSchedule(parseInt(weekOffset)); // Re-render the currently viewed week
-                         if(editShiftModal) editShiftModal.classList.remove('active'); // Close modal
+                         renderSchedule(parseInt(weekOffset));
+                         if(editShiftModal) editShiftModal.classList.remove('active');
                          showToast("Shift updated.");
-                         // Mark schedule as potentially unsaved if needed
                      });
                  }
 
 
-                 renderSchedule(currentScheduleWeekOffset); // Initial render with the calculated offset
+                 renderSchedule(currentScheduleWeekOffset); // Initial render
             }
 
 
@@ -3656,31 +4931,220 @@
              }
 
 
+             // --- Task Management Feature Loading ---
+             function loadTaskManagementFeature() {
+                 console.log("Loading Task Management feature...");
+                 const template = document.getElementById('taskManagementAssets');
+                 if (!template) {
+                     console.error("Task Management template not found!");
+                     featureSectionsContainer.innerHTML = '<p class="error-message">Error: Task Management assets could not be loaded.</p>';
+                     return;
+                 }
+
+                 // 1. Inject Styles
+                 const styleContent = template.content.querySelector('#task-management-styles');
+                 if (styleContent) {
+                     const styleTag = document.createElement('style');
+                     styleTag.id = 'injected-task-management-styles'; // ID for easy removal
+                     styleTag.textContent = styleContent.textContent;
+                     document.head.appendChild(styleTag);
+                     console.log("Task Management styles injected.");
+                 } else {
+                     console.warn("Task Management styles not found in template.");
+                 }
+
+                 // 2. Prepare and Inject HTML
+                 // Extract the main container from the original task.txt HTML
+                 const taskHTML = `
+                    <div class="task-page-header">
+                        <h2 class="task-page-title">Task Management</h2>
+                    </div>
+                    <div class="task-management-content">
+                        <!-- Task Management Controls -->
+                        <div class="controls">
+                            <button id="add-task-btn" class="btn btn-primary"><i class="fas fa-plus"></i> New Task</button>
+                            <div class="search-container">
+                                <input type="text" id="search-input" placeholder="Search tasks...">
+                                <i class="fas fa-search search-icon"></i>
+                            </div>
+                            <div class="filters">
+                                <select id="filter-status">
+                                    <option value="all">Status: All</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                                <select id="filter-priority">
+                                    <option value="all">Priority: All</option>
+                                    <option value="High">High</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Low">Low</option>
+                                </select>
+                                <select id="filter-assigned-to">
+                                    <option value="all">Assigned To: All</option>
+                                    <option value="Mohamed Elmenisy">Mohamed Elmenisy</option>
+                                    <option value="Yousef">Yousef</option>
+                                    <option value="Esraa Lashin">Esraa Lashin</option>
+                                    <option value="Bassant Badr">Bassant Badr</option>
+                                    <!-- Add more assignees as needed -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Task List Area -->
+                        <div id="task-list" class="task-list">
+                            <p class="no-tasks">Loading tasks...</p>
+                        </div>
+
+                        <!-- Add/Edit Task Modal (Hidden by default) -->
+                        <div id="task-modal" class="modal">
+                            <div class="modal-content">
+                                <span class="close-btn">×</span>
+                                <h2 id="modal-title">Add New Task</h2>
+                                <form id="task-form">
+                                    <input type="hidden" id="task-id"> <!-- For editing -->
+                                    <div class="form-group">
+                                        <label for="task-name">Task Name:</label>
+                                        <input type="text" id="task-name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="task-description">Description:</label>
+                                        <textarea id="task-description" rows="3"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="task-links">Links (comma-separated URLs or identifiers):</label>
+                                        <input type="text" id="task-links" placeholder="e.g., https://example.com, jira-123">
+                                    </div>
+                                    <div class="form-group form-row">
+                                        <div>
+                                            <label for="task-assigned-by">Assigned By:</label>
+                                            <select id="task-assigned-by" required>
+                                                <option value="Nada">Nada</option>
+                                                <option value="Yousef">Yousef</option>
+                                                <option value="Self Assigned">Self Assigned</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label for="task-assigned-to">Assigned To:</label>
+                                            <select id="task-assigned-to" required>
+                                                <option value="Mohamed Elmenisy">Mohamed Elmenisy</option>
+                                                <option value="Yousef">Yousef</option>
+                                                <option value="Esraa Lashin">Esraa Lashin</option>
+                                                <option value="Bassant Badr">Bassant Badr</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group form-row">
+                                        <div>
+                                            <label for="task-start-date">Start Date:</label>
+                                            <input type="date" id="task-start-date">
+                                        </div>
+                                        <div>
+                                            <label for="task-due-date">Due Date:</label>
+                                            <input type="date" id="task-due-date">
+                                        </div>
+                                    </div>
+                                    <div class="form-group form-row">
+                                        <div>
+                                            <label for="task-priority">Priority:</label>
+                                            <select id="task-priority" required>
+                                                <option value="Low">Low</option>
+                                                <option value="Medium">Medium</option>
+                                                <option value="High">High</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label for="task-status">Status:</label>
+                                            <select id="task-status" required>
+                                                <option value="Pending">Pending</option>
+                                                <option value="In Progress">In Progress</option>
+                                                <option value="Completed">Completed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="submit" id="save-task-btn" class="btn btn-primary">Save Task</button>
+                                        <button type="button" id="cancel-btn" class="btn btn-secondary">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                 featureSectionsContainer.innerHTML = taskHTML;
+
+                 // 3. Initialize JavaScript
+                 const scriptContent = template.content.querySelector('script');
+                 if (scriptContent) {
+                     // Extract the initialization function
+                     // IMPORTANT: The function `initializeTaskManagementFeature` is defined INSIDE the template's script tag.
+                     // We need to make it accessible globally or evaluate the script carefully.
+                     // A safer way: Evaluate the script text to define the function, then call it.
+                     try {
+                         // Define the function in the current scope
+                         const initFunction = new Function(`${scriptContent.textContent}\n return initializeTaskManagementFeature;`)();
+                         // Call the function and store the cleanup method
+                         if (typeof initFunction === 'function') {
+                             const result = initFunction(featureSectionsContainer);
+                             currentFeatureCleanup = result?.cleanup; // Store the cleanup function
+                             console.log("Task Management JS initialized.");
+                         } else {
+                             console.error("initializeTaskManagementFeature function not found after evaluating script.");
+                         }
+                     } catch (e) {
+                         console.error("Error evaluating or initializing Task Management script:", e);
+                         featureSectionsContainer.innerHTML = '<p class="error-message">Error initializing Task Management functionality.</p>';
+                     }
+                 } else {
+                      console.warn("Task Management script not found in template.");
+                 }
+             }
+
+             function removeTaskManagementStyles() {
+                 const injectedStyle = document.getElementById('injected-task-management-styles');
+                 if (injectedStyle) {
+                     injectedStyle.remove();
+                     console.log("Task Management styles removed.");
+                 }
+             }
+
             // --- Utility Functions ---
             function timeAgo(timestamp) {
-                if (!(timestamp instanceof Date)) return ''; // Check if valid date
-                const now = new Date();
-                const secondsPast = (now.getTime() - timestamp.getTime()) / 1000;
+                if (!(timestamp instanceof Date)) {
+                    // Try parsing if it's a string representation
+                    const date = new Date(timestamp);
+                    if (isNaN(date.getTime())) return '';
+                    timestamp = date;
+                }
+                 const now = new Date();
+                 const secondsPast = (now.getTime() - timestamp.getTime()) / 1000;
 
-                if (secondsPast < 10) { // Show 'Just now' for very recent items
-                    return 'Just now';
-                }
-                if (secondsPast < 60) {
-                    return parseInt(secondsPast) + 's ago'; // Show seconds
-                }
-                if (secondsPast < 3600) { // Less than an hour
-                    return parseInt(secondsPast / 60) + 'm ago';
-                }
-                 if (secondsPast < 3600 * 24) { // Within 24 hours
-                     return parseInt(secondsPast / 3600) + 'h ago';
+                 if (secondsPast < 10) { // Show 'Just now' for very recent items
+                     return 'Just now';
                  }
-                 // Older than a day, show formatted date
-                 return formatDateForDisplay(timestamp);
-             }
+                 if (secondsPast < 60) {
+                     return parseInt(secondsPast) + 's ago'; // Show seconds
+                 }
+                 if (secondsPast < 3600) { // Less than an hour
+                     return parseInt(secondsPast / 60) + 'm ago';
+                 }
+                  if (secondsPast < 3600 * 24) { // Within 24 hours
+                      return parseInt(secondsPast / 3600) + 'h ago';
+                  }
+                  // Older than a day, show formatted date
+                  return formatDateForDisplay(timestamp);
+              }
+
 
              // Helper to format date based on stored preference
              function formatDateForDisplay(date) {
-                 if (!(date instanceof Date)) return ''; // Basic check
+                 // Handle both Date objects and string representations
+                 if (!(date instanceof Date)) {
+                     const parsedDate = new Date(date);
+                     if (isNaN(parsedDate.getTime())) return ''; // Invalid date string
+                     date = parsedDate;
+                 }
+
                  const dateFormat = localStorage.getItem('dateFormat') || 'MM/DD/YYYY';
                  const year = date.getFullYear();
                  const month = date.getMonth() + 1; // 0-indexed
@@ -3706,7 +5170,11 @@
 
             // Helper to format date and time based on preferences
              function formatFullDateTime(date) {
-                 if (!(date instanceof Date)) return '';
+                  if (!(date instanceof Date)) {
+                     const parsedDate = new Date(date);
+                     if (isNaN(parsedDate.getTime())) return ''; // Invalid date string
+                     date = parsedDate;
+                 }
                  const formattedDate = formatDateForDisplay(date);
                  const timeFormat = localStorage.getItem('timeFormat') || '12h';
                  const options = {
@@ -3752,7 +5220,6 @@
                     if (count === 1) { // If generating a single 'live' activity
                         timestampMillis = nowMillis - Math.random() * 1000 * 10; // Within last 10 seconds
                     } else {
-                        // *** FIX 5️⃣: Increase multiplier for more spread, add larger base offset ***
                         timestampMillis = nowMillis - (Math.random() * 1000 * 3600 * (i + 1) * 1.5 + 300000); // Min 5 mins ago, spread over hours/days more
                     }
                      timestampMillis = Math.min(timestampMillis, nowMillis); // Ensure no future dates
