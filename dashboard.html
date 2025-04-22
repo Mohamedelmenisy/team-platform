@@ -16,7 +16,7 @@
     <!-- Bootstrap 5 CSS (Needed for Features) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
-    <!-- SweetAlert2 CSS (for File Sharing) -->
+    <!-- SweetAlert2 CSS (for File Sharing & Confirmations) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <style>
@@ -207,7 +207,9 @@
         }
         body.high-contrast .btn,
         body.high-contrast .form-control,
+        body.high-contrast .form-select, /* Added form-select */
         body.high-contrast .search-bar input,
+        body.high-contrast #settingsContent .member-select-checkbox, /* New HC for checkbox */
         body.high-contrast #featureSectionsContainer.team-members-feature .team-filter input,
         body.high-contrast #featureSectionsContainer.projects-feature .project-search-input,
         body.high-contrast #featureSectionsContainer.projects-feature .project-filter-select,
@@ -317,7 +319,8 @@
         .menu-item.active { background-color: var(--sidebar-active); color: var(--white); border-left-color: var(--white); font-weight: 600;}
         .menu-item i { margin-right: 0.75rem; font-size: 1.1rem; width: 24px; text-align: center; }
         .menu-divider { height: 1px; background-color: var(--sidebar-divider); margin: 1rem 1.5rem; }
-        .connection-status { padding: 0.75rem 1.5rem; margin-top: auto; border-top: 1px solid var(--sidebar-divider); display: flex; align-items: center; gap: 0.5rem; color: rgba(16, 185, 129, 0.9); font-size: 0.85rem; flex-shrink: 0; }
+        .connection-status { padding: 0.75rem 1.5rem; margin-top: auto; border-top: 1px solid var(--sidebar-divider); display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; flex-shrink: 0; }
+        .connection-status span { color: var(--success); opacity: 0.95; font-weight: 600; /* Make BOLDER */ }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); animation: pulseStatus 2s infinite; }
         @keyframes pulseStatus { 0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 50% { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); } }
 
@@ -569,7 +572,7 @@
         .team-list { margin-top: 1rem; }
         body.compact .team-list { margin-top: 0.75rem; }
         body.spacious .team-list { margin-top: 1.5rem; }
-        /* Settings Panel Team Member Card Style */
+        /* --- Settings Panel Team Member Card Style --- */
         #settingsContent .team-member-card { display: flex; align-items: center; padding: 1rem; border: 1px solid var(--light-gray); border-radius: 8px; margin-bottom: 1rem; transition: all 0.2s; background-color: var(--white); }
         body.compact #settingsContent .team-member-card { padding: 0.75rem; margin-bottom: 0.75rem; }
         body.spacious #settingsContent .team-member-card { padding: 1.25rem; margin-bottom: 1.25rem; }
@@ -589,6 +592,9 @@
         #settingsContent .role-member { background-color: rgba(100, 116, 139, 0.1); color: var(--gray); } /* Changed bg/color */
         #settingsContent .member-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
         #settingsContent .member-actions .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+        #settingsContent .member-select-checkbox { margin-right: 10px; vertical-align: middle; } /* Style for checkbox */
+        #settingsContent .team-management-actions { margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; } /* Admin delete buttons */
+
 
         .add-member-form { margin-top: 2rem; padding: 1.5rem; border: 1px dashed var(--light-gray); border-radius: 8px; background-color: var(--light); }
         body.compact .add-member-form { margin-top: 1.5rem; padding: 1rem; }
@@ -700,7 +706,7 @@
         body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody td { color: var(--text-color); border-color: var(--light-gray); }
         body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:nth-child(even) td, body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:nth-child(even) td.employee-name { background-color: var(--primary-light); }
         body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:hover td, body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:hover td.employee-name { background-color: #475569; }
-        body.dark-theme #featureSectionsContainer.employee-scheduling .employee-name { background-color: var(--white); border-right-color: var(--light-gray); color: var(--text-color); }
+        body.dark-theme #featureSectionsContainer.employee-scheduling .employee-name { background-color: var(--light); border-right-color: var(--light-gray); color: var(--text-color); }
         body.dark-theme #featureSectionsContainer.employee-scheduling .day-name { color: var(--text-color); }
         body.dark-theme #featureSectionsContainer.employee-scheduling .day-date { color: var(--gray); }
         body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table tbody td.weekend-cell { background-color: var(--schedule-weekend-bg) !important; }
@@ -1055,9 +1061,10 @@
              .settings-tabs { flex-wrap: nowrap; overflow-x: auto; }
              .settings-tab { padding: 0.5rem 1rem; flex-shrink: 0; }
              .confirm-container { width: 90%; }
-             #settingsContent .team-member-card { flex-direction: column; align-items: flex-start; gap: 0.5rem; } /* Settings list */
-             #settingsContent .member-role { margin: 0.5rem 0; }
-             #settingsContent .member-actions { margin-top: 0.5rem; width: 100%; justify-content: flex-end; } /* Adjust actions on mobile */
+             #settingsContent .team-member-card { flex-direction: row; align-items: center; gap: 0.5rem; /* Adjusted settings card for mobile */ }
+             #settingsContent .member-role { margin: 0 0.5rem; }
+             #settingsContent .member-actions { margin-left: auto; } /* Push actions right */
+             #settingsContent .member-avatar { width: 40px; height: 40px; }
              .profile-avatar-section { margin-bottom: 1.5rem; }
              #profileAvatarLarge { width: 100px; height: 100px; font-size: 2.5rem; }
              .add-member-form .data-form { grid-template-columns: 1fr; align-items: stretch; }
@@ -1072,7 +1079,7 @@
              #featureSectionsContainer.employee-scheduling .schedule-table { border-spacing: 0; /* Needed for sticky */ }
              #featureSectionsContainer.employee-scheduling .schedule-table thead th, #featureSectionsContainer.employee-scheduling .schedule-table tbody td { white-space: nowrap; /* Prevent wrapping */ }
              #featureSectionsContainer.employee-scheduling .employee-name { position: sticky !important; left: 0; z-index: 5 !important; border-right: 1px solid var(--feature-projects-border-color); background-color: var(--white); }
-             body.dark-theme #featureSectionsContainer.employee-scheduling .employee-name { background-color: var(--white); border-right-color: var(--light-gray); }
+             body.dark-theme #featureSectionsContainer.employee-scheduling .employee-name { background-color: var(--light); border-right-color: var(--light-gray); }
              #featureSectionsContainer.employee-scheduling .schedule-table thead th:first-child { position: sticky !important; left: 0; z-index: 11 !important; background-color: var(--primary); } /* Ensure header sticky bg */
              body.dark-theme #featureSectionsContainer.employee-scheduling .schedule-table thead th:first-child { background-color: var(--primary-dark); } /* Dark theme header sticky bg */
              #featureSectionsContainer.employee-scheduling .schedule-table tbody tr:nth-child(even) td.employee-name { background-color: #f9fafb; } /* Light mode */
@@ -1328,8 +1335,6 @@
              background-color: var(--light);
              border: 1px solid var(--light-gray);
         }
-
-
     </style>
 </head>
 <body class=""> <!-- JS applies theme -->
@@ -1371,9 +1376,9 @@
              <a href="#task-management" class="menu-item" data-feature="task-management"><i class="fas fa-tasks"></i><span>Task Management</span></a>
              <div class="menu-title">Team Tools</div>
              <a href="#employee-scheduling" class="menu-item" data-feature="employee-scheduling"><i class="fas fa-user-clock"></i><span>Employee Scheduling</span></a>
-             <!-- <a href="#team-calendar" class="menu-item" data-feature="team-calendar"><i class="fas fa-calendar-alt"></i><span>Team Calendar</span></a> -->
+             <a href="#team-calendar" class="menu-item" data-feature="team-calendar"><i class="fas fa-calendar-alt"></i><span>Team Calendar</span></a> <!-- Restored -->
              <!-- <a href="#deadline-tracking" class="menu-item" data-feature="deadline-tracking"><i class="fas fa-clock"></i><span>Deadline Tracking</span></a> -->
-             <!-- <a href="#innovation-hub" class="menu-item" data-feature="innovation-hub"><i class="fas fa-lightbulb"></i><span>Innovation Hub</span></a> -->
+             <a href="#innovation-hub" class="menu-item" data-feature="innovation-hub"><i class="fas fa-lightbulb"></i><span>Innovation Hub</span></a> <!-- Restored -->
              <div class="menu-divider"></div>
              <a href="#settings" class="menu-item" data-feature="settings"> <i class="fas fa-cog"></i><span>Settings</span> </a>
              <a href="#profile" class="menu-item" data-feature="profile"> <i class="fas fa-user-circle"></i><span>Profile</span> </a>
@@ -1621,6 +1626,11 @@
                       <div class="team-management">
                          <div class="settings-subsection">
                              <h4>Team Members</h4>
+                             <!-- Admin Action Buttons -->
+                             <div class="team-management-actions" style="margin-bottom: 1rem; display: flex; gap: 0.5rem;">
+                                <button class="btn btn-warning btn-sm" id="deleteSelectedMembersBtn" disabled><i class="fas fa-trash-alt"></i> Delete Selected</button>
+                                <button class="btn btn-danger btn-sm" id="deleteAllMembersBtn"><i class="fas fa-exclamation-triangle"></i> Delete All Others</button>
+                            </div>
                              <div class="team-list" id="teamList"> <p>Loading team members...</p> </div>
                              <div class="add-member-form">
                                  <h4>Invite New Member</h4>
@@ -1887,6 +1897,138 @@
              #featureSectionsContainer.task-management-feature .task-actions .complete-btn { color: var(--success); }
              #featureSectionsContainer.task-management-feature .task-actions .reopen-btn { color: var(--warning); }
         </style>
+        <!-- Task Management HTML Structure -->
+        <div class="task-management-content">
+            <div class="task-page-header">
+                <h1 class="task-page-title">Task Management</h1>
+            </div>
+            <div class="controls">
+                <div class="row gy-2 align-items-center">
+                    <div class="col-md-4 search-container">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="fas fa-search search-icon"></i></span>
+                            <input type="text" id="search-input" class="form-control form-control-sm" placeholder="Search tasks...">
+                        </div>
+                    </div>
+                    <div class="col-md filters">
+                        <div class="row gx-2 gy-2">
+                            <div class="col-sm-auto col-12">
+                                <select id="filter-status" class="form-select form-select-sm">
+                                    <option value="all">All Statuses</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-auto col-12">
+                                <select id="filter-priority" class="form-select form-select-sm">
+                                    <option value="all">All Priorities</option>
+                                    <option value="High">High</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Low">Low</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-auto col-12">
+                                <select id="filter-assigned-to" class="form-select form-select-sm">
+                                    <option value="all">All Assignees</option>
+                                    <option value="Mohamed Elmenisy">Mohamed Elmenisy</option>
+                                    <option value="Nada Mahmoud">Nada Mahmoud</option>
+                                    <option value="Yousef Ahmed">Yousef Ahmed</option>
+                                    <option value="Esraa Lashin">Esraa Lashin</option>
+                                    <option value="Bassant Badr">Bassant Badr</option>
+                                    <option value="Self Assigned">Self Assigned</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-auto">
+                        <button id="add-task-btn" class="btn btn-primary btn-sm w-100"><i class="fas fa-plus"></i> Add Task</button>
+                    </div>
+                </div>
+            </div>
+            <div class="task-list mt-3" id="task-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+                <!-- Task cards will be rendered here -->
+                <p class="no-tasks" style="grid-column: 1 / -1;">Loading tasks...</p>
+            </div>
+        </div>
+        <!-- Task Modal (Outside Container) -->
+        <div class="modal" id="task-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="modal-title">Add New Task</h3>
+                    <button type="button" class="close-btn close-modal" data-close-modal>×</button>
+                </div>
+                <form id="task-form">
+                    <input type="hidden" id="task-id">
+                    <div class="form-group">
+                        <label for="task-name">Task Name</label>
+                        <input type="text" id="task-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-description">Description</label>
+                        <textarea id="task-description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-links">Related Links (comma-separated)</label>
+                        <input type="text" id="task-links" class="form-control">
+                    </div>
+                    <div class="form-row" style="display: flex; gap: 1rem;">
+                         <div class="form-group" style="flex: 1;">
+                            <label for="task-assigned-by">Assigned By</label>
+                            <select id="task-assigned-by" class="form-select">
+                                <option value="Mohamed Elmenisy">Mohamed Elmenisy</option>
+                                <option value="Nada Mahmoud">Nada Mahmoud</option>
+                                <option value="Yousef Ahmed">Yousef Ahmed</option>
+                                <option value="Self Assigned">Self Assigned</option>
+                            </select>
+                         </div>
+                         <div class="form-group" style="flex: 1;">
+                            <label for="task-assigned-to">Assigned To</label>
+                            <select id="task-assigned-to" class="form-select">
+                                <option value="Mohamed Elmenisy">Mohamed Elmenisy</option>
+                                <option value="Nada Mahmoud">Nada Mahmoud</option>
+                                <option value="Yousef Ahmed">Yousef Ahmed</option>
+                                <option value="Esraa Lashin">Esraa Lashin</option>
+                                <option value="Bassant Badr">Bassant Badr</option>
+                                <option value="Self Assigned">Self Assigned</option>
+                             </select>
+                         </div>
+                    </div>
+                    <div class="form-row" style="display: flex; gap: 1rem;">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="task-start-date">Start Date</label>
+                            <input type="date" id="task-start-date" class="form-control">
+                        </div>
+                         <div class="form-group" style="flex: 1;">
+                            <label for="task-due-date">Due Date</label>
+                            <input type="date" id="task-due-date" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-row" style="display: flex; gap: 1rem;">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="task-priority">Priority</label>
+                            <select id="task-priority" class="form-select">
+                                <option value="Low">Low</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="High">High</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="task-status">Status</label>
+                            <select id="task-status" class="form-select">
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" id="cancel-btn" data-close-modal>Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="save-task-btn">Save Task</button>
+                    </div>
+                </form>
+            </div>
+        </div>
         <script>
             function initializeTaskManagementFeature(container) {
                  // --- DOM Elements (scoped to container) ---
@@ -1916,7 +2058,7 @@
 
                 if (!addTaskBtn || !taskModal || !closeModalBtn || !taskListDiv || !taskForm || !modalTitle || !saveTaskBtn || !taskIdInput || !taskNameInput || !taskDescriptionInput || !taskLinksInput || !taskAssignedBySelect || !taskAssignedToSelect || !taskStartDateInput || !taskDueDateInput || !taskPrioritySelect || !taskStatusSelect || !searchInput || !filterStatusSelect || !filterPrioritySelect || !filterAssignedToSelect) {
                     console.error("Essential Task Management elements missing in container or modal.");
-                    taskListDiv.innerHTML = '<p class="no-tasks">Error loading task components.</p>';
+                    if(taskListDiv) taskListDiv.innerHTML = '<p class="no-tasks" style="grid-column: 1 / -1;">Error loading task components.</p>';
                     return { cleanup: () => {} };
                  }
 
@@ -1929,10 +2071,10 @@
                 };
 
                 const loadTasks = () => { const storedTasks = localStorage.getItem('dashboard_tasks'); if (storedTasks) { try { tasks = JSON.parse(storedTasks); } catch (e) { console.error("Error parsing tasks:", e); tasks = getDefaultTasks(); } } else { tasks = getDefaultTasks(); } renderTasks(); };
-                function getDefaultTasks() { return [ { id: 1, name: "Setup Project Environment", description: "Install Node.js, npm packages, and configure.", links: "https://nodejs.org", assignedBy: "Nada", assignedTo: "Mohamed Elmenisy", startDate: "2024-07-20", dueDate: "2024-07-22", priority: "High", status: "In Progress", completionDate: null }, { id: 2, name: "Design UI Mockups", description: "Create mockups for main pages using Figma.", links: "https://figma.com", assignedBy: "Yousef", assignedTo: "Esraa Lashin", startDate: "2024-07-21", dueDate: "2024-07-25", priority: "Medium", status: "Pending", completionDate: null }, { id: 3, name: "Develop API Endpoints", description: "Build RESTful APIs.", links: "", assignedBy: "Self Assigned", assignedTo: "Yousef", startDate: "2024-07-23", dueDate: "2024-07-30", priority: "High", status: "Pending", completionDate: null }, { id: 4, name: "Client Meeting Prep", description: "Prepare presentation slides.", links: "", assignedBy: "Nada", assignedTo: "Bassant Badr", startDate: "2024-07-28", dueDate: "2024-07-29", priority: "Medium", status: "Pending", completionDate: null }, { id: 5, name: "Review Code Submission", description: "Review 'feature/login' branch.", links: "https://github.com, PR #42", assignedBy: "Self Assigned", assignedTo: "Mohamed Elmenisy", startDate: "2024-07-26", dueDate: "2024-07-26", priority: "Low", status: "Completed", completionDate: "2024-07-25" }, { id: 6, name: "Fix Login Bug (JIRA-123)", description: "Special characters issue.", links: "jira-123", assignedBy: "Yousef", assignedTo: "Yousef", startDate: "2024-07-15", dueDate: "2024-07-18", priority: "High", status: "In Progress", completionDate: null } ]; }
+                function getDefaultTasks() { return [ { id: 1, name: "Setup Project Environment", description: "Install Node.js, npm packages, and configure.", links: "https://nodejs.org", assignedBy: "Nada Mahmoud", assignedTo: "Mohamed Elmenisy", startDate: "2024-07-20", dueDate: "2024-07-22", priority: "High", status: "In Progress", completionDate: null }, { id: 2, name: "Design UI Mockups", description: "Create mockups for main pages using Figma.", links: "https://figma.com", assignedBy: "Yousef Ahmed", assignedTo: "Esraa Lashin", startDate: "2024-07-21", dueDate: "2024-07-25", priority: "Medium", status: "Pending", completionDate: null }, { id: 3, name: "Develop API Endpoints", description: "Build RESTful APIs.", links: "", assignedBy: "Self Assigned", assignedTo: "Yousef Ahmed", startDate: "2024-07-23", dueDate: "2024-07-30", priority: "High", status: "Pending", completionDate: null }, { id: 4, name: "Client Meeting Prep", description: "Prepare presentation slides.", links: "", assignedBy: "Nada Mahmoud", assignedTo: "Bassant Badr", startDate: "2024-07-28", dueDate: "2024-07-29", priority: "Medium", status: "Pending", completionDate: null }, { id: 5, name: "Review Code Submission", description: "Review 'feature/login' branch.", links: "https://github.com, PR #42", assignedBy: "Self Assigned", assignedTo: "Mohamed Elmenisy", startDate: "2024-07-26", dueDate: "2024-07-26", priority: "Low", status: "Completed", completionDate: "2024-07-25" }, { id: 6, name: "Fix Login Bug (JIRA-123)", description: "Special characters issue.", links: "jira-123", assignedBy: "Yousef Ahmed", assignedTo: "Yousef Ahmed", startDate: "2024-07-15", dueDate: "2024-07-18", priority: "High", status: "In Progress", completionDate: null } ]; }
                 const saveTasks = () => { localStorage.setItem('dashboard_tasks', JSON.stringify(tasks)); };
                 const formatDate = (dateString) => window.formatDateForDisplay(dateString); // Use global function
-                const getCurrentDate = () => new Date().toLocaleDateString('en-CA');
+                const getCurrentDate = () => { const today = new Date(); return `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`; }; // Format YYYY-MM-DD
                 const isOverdue = (task) => { if (task.status === 'Completed' || !task.dueDate) return false; try { const dueDate = new Date(task.dueDate + 'T00:00:00Z'); const today = new Date(); const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())); if (isNaN(dueDate.getTime())) return false; return dueDate < todayUTC; } catch(e) { console.error("Error checking overdue:", e); return false; } };
 
                 const renderTasks = () => {
@@ -1952,13 +2094,28 @@
                          return statusMatch && priorityMatch && assignedToMatch && searchMatch;
                     });
 
-                     if (tasksToDisplay.length === 0) { taskListDiv.innerHTML = '<p class="no-tasks" style="grid-column: 1 / -1;">No tasks found matching your criteria.</p>'; return; }
+                    // Sort: Pending/In Progress first, then by due date (earliest first), then by priority (High first)
+                    tasksToDisplay.sort((a, b) => {
+                         const statusOrder = { "Pending": 1, "In Progress": 2, "Completed": 3 };
+                         const statusA = statusOrder[a.status] || 4;
+                         const statusB = statusOrder[b.status] || 4;
+                         if (statusA !== statusB) return statusA - statusB;
 
-                    tasksToDisplay.sort((a, b) => { /* ... existing sort logic ... */ const statusOrder={"Pending":1,"In Progress":1,"Completed":2}; const statusA=statusOrder[a.status]||3; const statusB=statusOrder[b.status]||3; if(statusA!==statusB)return statusA-statusB; const dateA=a.dueDate?new Date(a.dueDate+'T00:00:00Z'):null; const dateB=b.dueDate?new Date(b.dueDate+'T00:00:00Z'):null; const dateValA=dateA&&!isNaN(dateA)?dateA.getTime():Infinity; const dateValB=dateB&&!isNaN(dateB)?dateB.getTime():Infinity; if(dateValA!==dateValB)return dateValA-dateValB; const priorityOrder={High:3,Medium:2,Low:1}; const priorityA=priorityOrder[a.priority]||0; const priorityB=priorityOrder[b.priority]||0; return priorityB-priorityA; });
+                         const dateA = a.dueDate ? new Date(a.dueDate + 'T00:00:00Z').getTime() : Infinity;
+                         const dateB = b.dueDate ? new Date(b.dueDate + 'T00:00:00Z').getTime() : Infinity;
+                         if (dateA !== dateB) return dateA - dateB;
+
+                         const priorityOrder = { "High": 3, "Medium": 2, "Low": 1 };
+                         const priorityA = priorityOrder[a.priority] || 0;
+                         const priorityB = priorityOrder[b.priority] || 0;
+                         return priorityB - priorityA; // Higher priority first
+                    });
+
+                    if (tasksToDisplay.length === 0) { taskListDiv.innerHTML = '<p class="no-tasks" style="grid-column: 1 / -1;">No tasks found matching your criteria.</p>'; return; }
 
                     tasksToDisplay.forEach(task => {
                         const taskCard = document.createElement('div'); taskCard.classList.add('task-card'); taskCard.dataset.taskId = task.id; if (task.priority) taskCard.classList.add(`priority-${task.priority}`); if (task.status) taskCard.classList.add(`status-${task.status.replace(/\s+/g, '')}`); if(task.status === 'Completed') taskCard.classList.add('task-completed'); if(isOverdue(task)) taskCard.classList.add('task-overdue');
-                        const overdue = isOverdue(task); const overdueText = overdue ? `<span class="overdue-indicator">(Overdue!)</span>` : ''; let linksHTML = 'N/A'; if (task.links && task.links.trim()) { /* ... existing links logic ... */ linksHTML=task.links.split(',').map(l=>l.trim()).filter(l=>l).map(link=>{let href=link;let isUrl=false;try{const url=new URL(link.startsWith('http')?link:`http://${link}`);if(url.hostname&&(url.hostname.includes('.')||url.hostname.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/))){isUrl=true;href=url.protocol+"//"+url.hostname+url.pathname+url.search+url.hash;}else{href=link;}}catch(_){isUrl=false;href=link;}const displayText=link.length>35?link.substring(0,32)+'...':link;return isUrl?`<a href="${href}" target="_blank" rel="noopener noreferrer" title="${link}">${displayText}</a>`:`<span title="${link}">${displayText}</span>`;}).join(' ');}
+                        const overdue = isOverdue(task); const overdueText = overdue ? `<span class="overdue-indicator text-danger ms-1">(Overdue!)</span>` : ''; let linksHTML = 'N/A'; if (task.links && task.links.trim()) { /* ... existing links logic ... */ linksHTML=task.links.split(',').map(l=>l.trim()).filter(l=>l).map(link=>{let href=link;let isUrl=false;try{const url=new URL(link.startsWith('http')?link:`http://${link}`);if(url.hostname&&(url.hostname.includes('.')||url.hostname.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/))){isUrl=true;href=url.protocol+"//"+url.hostname+url.pathname+url.search+url.hash;}else{href=link;}}catch(_){isUrl=false;href=link;}const displayText=link.length>35?link.substring(0,32)+'...':link;return isUrl?`<a href="${href}" target="_blank" rel="noopener noreferrer" title="${link}">${displayText}</a>`:`<span title="${link}">${displayText}</span>`;}).join(' ');}
 
                         taskCard.innerHTML = `
                             <h3>${task.name || 'Unnamed'}</h3>
@@ -1987,7 +2144,7 @@
                 const hideModal = () => { if (!taskModal) return; taskModal.classList.remove('active'); if (taskForm) taskForm.reset(); if (taskIdInput) taskIdInput.value = ''; if (modalTitle) modalTitle.textContent = "Add New Task"; if (saveTaskBtn) saveTaskBtn.textContent = "Save Task"; document.body.style.overflow = ''; };
                 const openAddModal = () => { hideModal(); if (modalTitle) modalTitle.textContent = "Add New Task"; if (saveTaskBtn) saveTaskBtn.textContent = "Save Task"; if (taskStatusSelect) taskStatusSelect.value = "Pending"; if (taskPrioritySelect) taskPrioritySelect.value = "Medium"; showModal(); if (taskNameInput) taskNameInput.focus(); };
                 const openEditModal = (id) => { const task = tasks.find(t => t.id === id); if (!task) return; hideModal(); if (modalTitle) modalTitle.textContent = "Edit Task"; if (saveTaskBtn) saveTaskBtn.textContent = "Update Task"; taskIdInput.value = task.id; taskNameInput.value = task.name; taskDescriptionInput.value = task.description || ''; taskLinksInput.value = task.links || ''; taskAssignedBySelect.value = task.assignedBy; taskAssignedToSelect.value = task.assignedTo; taskStartDateInput.value = task.startDate || ''; taskDueDateInput.value = task.dueDate || ''; taskPrioritySelect.value = task.priority; taskStatusSelect.value = task.status; showModal(); taskNameInput.focus(); };
-                const handleFormSubmit = (event) => { /* ... existing form submit logic ... */ event.preventDefault();const taskId=taskIdInput.value?parseInt(taskIdInput.value):Date.now();const currentTask=tasks.find(t=>t.id===taskId);const newStatus=taskStatusSelect.value;let completionDate=currentTask?.completionDate||null;if(newStatus==='Completed'){if(!taskIdInput.value||(currentTask&&currentTask.status!=='Completed')){completionDate=getCurrentDate();}}else{completionDate=null;}const startDate=taskStartDateInput.value;const dueDate=taskDueDateInput.value;if(startDate&&dueDate&&new Date(dueDate)<new Date(startDate)){alert("Due Date cannot be before Start Date.");taskDueDateInput.focus();return;}const taskData={id:taskId,name:taskNameInput.value.trim(),description:taskDescriptionInput.value.trim(),links:taskLinksInput.value.trim(),assignedBy:taskAssignedBySelect.value,assignedTo:taskAssignedToSelect.value,startDate:startDate||null,dueDate:dueDate||null,priority:taskPrioritySelect.value,status:newStatus,completionDate:completionDate};if(!taskData.name){alert("Task Name is required.");taskNameInput.focus();return;}if(taskIdInput.value){const index=tasks.findIndex(task=>task.id===taskData.id);if(index>-1){tasks[index]=taskData;}else{console.warn(`Task ${taskData.id} not found for edit.`);tasks.push(taskData);}}else{tasks.push(taskData);}saveTasks();renderTasks();hideModal(); };
+                const handleFormSubmit = (event) => { /* ... existing form submit logic ... */ event.preventDefault();const taskId=taskIdInput.value?parseInt(taskIdInput.value):Date.now();const currentTask=tasks.find(t=>t.id===taskId);const newStatus=taskStatusSelect.value;let completionDate=currentTask?.completionDate||null;if(newStatus==='Completed'){if(!taskIdInput.value||(currentTask&&currentTask.status!=='Completed')){completionDate=getCurrentDate();}}else{completionDate=null;}const startDate=taskStartDateInput.value;const dueDate=taskDueDateInput.value;if(startDate&&dueDate&&new Date(dueDate)<new Date(startDate)){window.showToast("Due Date cannot be before Start Date.","error");taskDueDateInput.focus();return;}const taskData={id:taskId,name:taskNameInput.value.trim(),description:taskDescriptionInput.value.trim(),links:taskLinksInput.value.trim(),assignedBy:taskAssignedBySelect.value,assignedTo:taskAssignedToSelect.value,startDate:startDate||null,dueDate:dueDate||null,priority:taskPrioritySelect.value,status:newStatus,completionDate:completionDate};if(!taskData.name){window.showToast("Task Name is required.","error");taskNameInput.focus();return;}if(taskIdInput.value){const index=tasks.findIndex(task=>task.id===taskData.id);if(index>-1){tasks[index]=taskData;}else{console.warn(`Task ${taskData.id} not found for edit.`);tasks.push(taskData);}}else{tasks.push(taskData);}saveTasks();renderTasks();hideModal(); };
                 const deleteTask = (id) => { const taskToDelete = tasks.find(t => t.id === id); window.showConfirmModal(`Delete Task`, `Are you sure you want to delete "${taskToDelete?.name || id}"?`, () => { tasks = tasks.filter(task => task.id !== id); saveTasks(); renderTasks(); window.showToast('Task deleted.', 'success'); }, 'btn-danger'); }; // Use global confirm
                 const toggleTaskStatus = (id) => { tasks = tasks.map(task => { if (task.id === id) { if (task.status === 'Completed') { return { ...task, status: 'Pending', completionDate: null }; } else { return { ...task, status: 'Completed', completionDate: getCurrentDate() }; } } return task; }); saveTasks(); renderTasks(); window.showToast('Task status updated.', 'success'); }; // Use global toast
 
@@ -1999,7 +2156,7 @@
                 const handleEscapeKey = (event) => { if (event.key === 'Escape' && taskModal && taskModal.classList.contains('active')) { hideModal(); } };
                 addListener(taskModal, 'click', handleOutsideClick);
                 addListener(document, 'keydown', handleEscapeKey);
-                boundCloseOnOutsideClick = handleOutsideClick; boundCloseOnEscape = handleEscapeKey; // Store for cleanup if needed, though maybe not strictly necessary for document listeners
+                boundCloseOnOutsideClick = handleOutsideClick; boundCloseOnEscape = handleEscapeKey; // Store for cleanup if needed
                 addListener(searchInput, 'input', renderTasks);
                 addListener(filterStatusSelect, 'change', renderTasks);
                 addListener(filterPrioritySelect, 'change', renderTasks);
@@ -2013,11 +2170,10 @@
                      listeners.forEach(({ element, event, handler }) => {
                          element?.removeEventListener(event, handler);
                      });
-                     listeners = []; // Clear the listeners array
+                     listeners = [];
                      // Explicitly remove document listeners if they were added outside 'addListener'
-                     // document.removeEventListener('keydown', boundCloseOnEscape);
-                     // If modal exists, remove its click listener too
-                     // taskModal?.removeEventListener('click', boundCloseOnOutsideClick);
+                      document.removeEventListener('keydown', boundCloseOnEscape);
+                      taskModal?.removeEventListener('click', boundCloseOnOutsideClick);
                     document.body.style.overflow = ''; // Ensure body scroll is restored
                     console.log("Task Management cleanup complete.");
                 };
@@ -2122,7 +2278,7 @@
              body.dark-theme #featureSectionsContainer.file-sharing-feature .file-name { color: var(--text-color); }
              #featureSectionsContainer.file-sharing-feature .badge { font-size: 0.75em; padding: 0.35em 0.6em; font-weight: 500; }
              #featureSectionsContainer.file-sharing-feature .upload-area { border: 2px dashed var(--app-primary); padding: 30px; text-align: center; margin-bottom: 20px; cursor: pointer; background-color: var(--app-light); border-radius: 8px; transition: background-color 0.2s ease, border-color 0.2s ease; }
-             #featureSectionsContainer.file-sharing-feature .upload-area:hover { background-color: var(--app-hover-bg); border-color: lighten(var(--app-primary), 10%); }
+             #featureSectionsContainer.file-sharing-feature .upload-area:hover { background-color: var(--app-hover-bg); border-color: color-mix(in srgb, var(--app-primary) 90%, white 10%); } /* Adjusted mix */
              #featureSectionsContainer.file-sharing-feature .upload-area i { color: var(--app-primary); }
              body.dark-theme #featureSectionsContainer.file-sharing-feature .upload-area { background-color: var(--primary-light) !important; border-color: var(--primary) !important; }
              body.dark-theme #featureSectionsContainer.file-sharing-feature .upload-area:hover { background-color: var(--light) !important; }
@@ -2182,153 +2338,143 @@
                      <ul class="list-group list-group-flush">
                          <li class="list-group-item d-flex justify-content-between align-items-center" data-timestamp="${new Date(Date.now() - 5 * 60 * 1000).toISOString()}"> <div><i class="fas fa-file-pdf file-icon text-danger"></i> Quarterly_Report_Q1.pdf</div> <small class="text-muted time-ago">calculating...</small> </li>
                          <li class="list-group-item d-flex justify-content-between align-items-center" data-timestamp="${new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()}"> <div><i class="fas fa-file-image file-icon text-success"></i> New_Company_Logo.png</div> <small class="text-muted time-ago">calculating...</small> </li>
-                         <li class="list-group-item d-flex justify-content-between align-Okay, continuing the code from the specified point within the `fileSharingAssets` template:
+                         <li class="list-group-item d-flex justify-content-between align-items-center" data-timestamp="${new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}"> <div><i class="fas fa-file-zipper file-icon text-warning"></i> Final_Project_Assets.zip</div> <small class="text-muted time-ago">calculating...</small> </li>
+                     </ul>
+                 </div>
 
-```html
-                         items-center" data-timestamp="${new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()}">
-                       <div><i class="fas fa-file-image file-icon text-success"></i> New_Company_Logo.png</div>
-                       <small class="text-muted time-ago">calculating...</small>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center" data-timestamp="${new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}">
-                       <div><i class="fas fa-file-zipper file-icon text-warning"></i> Final_Project_Assets.zip</div>
-                       <small class="text-muted time-ago">calculating...</small>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Files Table -->
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th scope="col" style="width: 5%;">Type</th>
-                            <th scope="col" style="width: 30%;">File Name</th>
-                            <th scope="col" style="width: 18%;">Upload Date</th>
-                            <th scope="col" style="width: 17%;">Tags</th>
-                            <th scope="col" style="width: 15%;">Uploader</th>
-                            <th scope="col" class="text-center" style="width: 15%;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="fileTableBody">
-                        <!-- Rows with data attributes -->
-                        <tr data-file-type="PDF" data-upload-date="2024-05-25" data-uploader="Mohamed Elmenisy">
-                            <td><i class="fas fa-file-pdf file-icon text-danger" title="PDF"></i></td>
-                            <td>
-                                <strong class="file-name">Monthly Performance Report.pdf</strong>
-                                <small class="d-block text-muted">Size: 2.5 MB</small>
-                            </td>
-                            <td class="upload-date">May 25, 2024, 10:30 AM</td>
-                            <td>
-                                <span class="badge text-bg-primary">Reports</span>
-                                <span class="badge text-bg-secondary">Monthly</span>
-                            </td>
-                            <td class="uploader-shared">Mohamed Elmenisy</td>
-                            <td class="text-center action-buttons">
-                                <button class="btn btn-sm btn-outline-success action-btn download-btn" title="Download" data-file-id="1" data-file-url="path/to/report.pdf">
-                                    <i class="fas fa-download original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
-                                </button>
-                                <button class="btn btn-sm btn-outline-info preview-btn" title="Preview" data-bs-toggle="modal" data-bs-target="#filePreviewModal" data-file-type="PDF" data-file-url="path/to/report.pdf">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger action-btn delete-btn" title="Delete" data-file-id="1">
-                                    <i class="fas fa-trash-alt original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr data-file-type="Image" data-upload-date="2024-05-24" data-uploader="Nada Mahmoud">
-                            <td><i class="fas fa-file-image file-icon text-success" title="Image"></i></td>
-                            <td>
-                                <strong class="file-name">New Product Photo.jpg</strong>
-                                <small class="d-block text-muted">Size: 800 KB</small>
-                            </td>
-                            <td class="upload-date">May 24, 2024, 03:15 PM</td>
-                            <td>
-                                <span class="badge text-bg-warning">Products</span>
-                                <span class="badge text-bg-info">Design</span>
-                            </td>
-                            <td class="uploader-shared">Nada Mahmoud</td>
-                            <td class="text-center action-buttons">
-                               <button class="btn btn-sm btn-outline-success action-btn download-btn" title="Download" data-file-id="2" data-file-url="path/to/image.jpg">
-                                    <i class="fas fa-download original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
-                                </button>
-                                <button class="btn btn-sm btn-outline-info preview-btn" title="Preview" data-bs-toggle="modal" data-bs-target="#filePreviewModal" data-file-type="Image" data-file-url="path/to/image.jpg">
-                                   <i class="fas fa-eye"></i>
-                                </button>
-                               <button class="btn btn-sm btn-outline-danger action-btn delete-btn" title="Delete" data-file-id="2">
-                                    <i class="fas fa-trash-alt original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr data-file-type="Archive" data-upload-date="2024-05-23" data-uploader="Yoused Ahmed">
-                            <td><i class="fas fa-file-zipper file-icon text-warning" title="Archive"></i></td>
-                            <td>
-                                <strong class="file-name">Project Resources.zip</strong>
-                                <small class="d-block text-muted">Size: 15.2 MB</small>
-                            </td>
-                            <td class="upload-date">May 23, 2024, 09:00 AM</td>
-                            <td><span class="badge text-bg-dark">Project X</span></td>
-                            <td class="uploader-shared">Yoused Ahmed</td>
-                            <td class="text-center action-buttons">
-                                <button class="btn btn-sm btn-outline-success action-btn download-btn" title="Download" data-file-id="3" data-file-url="path/to/archive.zip">
-                                    <i class="fas fa-download original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
-                                </button>
-                               <button class="btn btn-sm btn-outline-danger action-btn delete-btn" title="Delete" data-file-id="3">
-                                    <i class="fas fa-trash-alt original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
-                                </button>
-                            </td>
-                        </tr>
-                         <tr data-file-type="PDF" data-upload-date="2024-05-22" data-uploader="Esraa Lashin">
-                            <td><i class="fas fa-file-pdf file-icon text-danger" title="PDF"></i></td>
-                            <td>
-                                <strong class="file-name">Meeting Agenda.pdf</strong>
-                                <small class="d-block text-muted">Size: 150 KB</small>
-                            </td>
-                            <td class="upload-date">May 22, 2024, 11:00 AM</td>
-                            <td><span class="badge text-bg-info">Meetings</span></td>
-                            <td class="uploader-shared">Esraa Lashin</td>
-                            <td class="text-center action-buttons">
-                                <button class="btn btn-sm btn-outline-success action-btn download-btn" title="Download" data-file-id="4" data-file-url="path/to/agenda.pdf">
-                                    <i class="fas fa-download original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
-                                </button>
-                                <button class="btn btn-sm btn-outline-info preview-btn" title="Preview" data-bs-toggle="modal" data-bs-target="#filePreviewModal" data-file-type="PDF" data-file-url="path/to/agenda.pdf">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                               <button class="btn btn-sm btn-outline-danger action-btn delete-btn" title="Delete" data-file-id="4">
-                                    <i class="fas fa-trash-alt original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
-                                </button>
-                            </td>
-                        </tr>
-                         <tr data-file-type="Image" data-upload-date="2024-05-26" data-uploader="Bassant Badr">
-                            <td><i class="fas fa-file-image file-icon text-success" title="Image"></i></td>
-                            <td>
-                                <strong class="file-name">Team Photo.png</strong>
-                                <small class="d-block text-muted">Size: 1.2 MB</small>
-                            </td>
-                            <td class="upload-date">May 26, 2024, 09:00 AM</td>
-                            <td><span class="badge text-bg-secondary">Team</span></td>
-                            <td class="uploader-shared">Bassant Badr</td>
-                            <td class="text-center action-buttons">
-                                <button class="btn btn-sm btn-outline-success action-btn download-btn" title="Download" data-file-id="5" data-file-url="path/to/team.png">
-                                    <i class="fas fa-download original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
-                                </button>
-                                <button class="btn btn-sm btn-outline-info preview-btn" title="Preview" data-bs-toggle="modal" data-bs-target="#filePreviewModal" data-file-type="Image" data-file-url="path/to/team.png">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                               <button class="btn btn-sm btn-outline-danger action-btn delete-btn" title="Delete" data-file-id="5">
-                                    <i class="fas fa-trash-alt original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr id="noResultsRow" style="display: none;">
-                             <td colspan="6" class="text-center text-muted fst-italic py-4">No files found matching your criteria.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <!-- Pagination (Optional) -->
-            <nav aria-label="File list navigation" class="mt-3 d-flex justify-content-center">
-                 <!-- <ul class="pagination pagination-sm"> --> <!-- Pagination items here --> <!-- </ul> -->
-            </nav>
+                 <!-- Files Table -->
+                 <div class="table-responsive">
+                     <table class="table table-hover align-middle">
+                         <thead>
+                             <tr>
+                                 <th scope="col" style="width: 5%;">Type</th>
+                                 <th scope="col" style="width: 30%;">File Name</th>
+                                 <th scope="col" style="width: 18%;">Upload Date</th>
+                                 <th scope="col" style="width: 17%;">Tags</th>
+                                 <th scope="col" style="width: 15%;">Uploader</th>
+                                 <th scope="col" class="text-center" style="width: 15%;">Actions</th>
+                             </tr>
+                         </thead>
+                         <tbody id="fileTableBody">
+                             <!-- Rows with data attributes -->
+                             <tr data-file-type="PDF" data-upload-date="2024-05-25" data-uploader="Mohamed Elmenisy">
+                                 <td><i class="fas fa-file-pdf file-icon text-danger" title="PDF"></i></td>
+                                 <td>
+                                     <strong class="file-name">Monthly Performance Report.pdf</strong>
+                                     <small class="d-block text-muted">Size: 2.5 MB</small>
+                                 </td>
+                                 <td class="upload-date">May 25, 2024, 10:30 AM</td>
+                                 <td>
+                                     <span class="badge text-bg-primary">Reports</span>
+                                     <span class="badge text-bg-secondary">Monthly</span>
+                                 </td>
+                                 <td class="uploader-shared">Mohamed Elmenisy</td>
+                                 <td class="text-center action-buttons">
+                                     <button class="btn btn-sm btn-outline-success action-btn download-btn" title="Download" data-file-id="1" data-file-url="path/to/report.pdf">
+                                         <i class="fas fa-download original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
+                                     </button>
+                                     <button class="btn btn-sm btn-outline-info preview-btn" title="Preview" data-bs-toggle="modal" data-bs-target="#filePreviewModal" data-file-type="PDF" data-file-url="path/to/report.pdf">
+                                         <i class="fas fa-eye"></i>
+                                     </button>
+                                     <button class="btn btn-sm btn-outline-danger action-btn delete-btn" title="Delete" data-file-id="1">
+                                         <i class="fas fa-trash-alt original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
+                                     </button>
+                                 </td>
+                             </tr>
+                             <tr data-file-type="Image" data-upload-date="2024-05-24" data-uploader="Nada Mahmoud">
+                                 <td><i class="fas fa-file-image file-icon text-success" title="Image"></i></td>
+                                 <td>
+                                     <strong class="file-name">New Product Photo.jpg</strong>
+                                     <small class="d-block text-muted">Size: 800 KB</small>
+                                 </td>
+                                 <td class="upload-date">May 24, 2024, 03:15 PM</td>
+                                 <td>
+                                     <span class="badge text-bg-warning">Products</span>
+                                     <span class="badge text-bg-info">Design</span>
+                                 </td>
+                                 <td class="uploader-shared">Nada Mahmoud</td>
+                                 <td class="text-center action-buttons">
+                                    <button class="btn btn-sm btn-outline-success action-btn download-btn" title="Download" data-file-id="2" data-file-url="path/to/image.jpg">
+                                         <i class="fas fa-download original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
+                                     </button>
+                                     <button class="btn btn-sm btn-outline-info preview-btn" title="Preview" data-bs-toggle="modal" data-bs-target="#filePreviewModal" data-file-type="Image" data-file-url="path/to/image.jpg">
+                                        <i class="fas fa-eye"></i>
+                                     </button>
+                                    <button class="btn btn-sm btn-outline-danger action-btn delete-btn" title="Delete" data-file-id="2">
+                                         <i class="fas fa-trash-alt original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
+                                     </button>
+                                 </td>
+                             </tr>
+                             <tr data-file-type="Archive" data-upload-date="2024-05-23" data-uploader="Yousef Ahmed">
+                                 <td><i class="fas fa-file-zipper file-icon text-warning" title="Archive"></i></td>
+                                 <td>
+                                     <strong class="file-name">Project Resources.zip</strong>
+                                     <small class="d-block text-muted">Size: 15.2 MB</small>
+                                 </td>
+                                 <td class="upload-date">May 23, 2024, 09:00 AM</td>
+                                 <td><span class="badge text-bg-dark">Project X</span></td>
+                                 <td class="uploader-shared">Yousef Ahmed</td>
+                                 <td class="text-center action-buttons">
+                                     <button class="btn btn-sm btn-outline-success action-btn download-btn" title="Download" data-file-id="3" data-file-url="path/to/archive.zip">
+                                         <i class="fas fa-download original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
+                                     </button>
+                                    <button class="btn btn-sm btn-outline-danger action-btn delete-btn" title="Delete" data-file-id="3">
+                                         <i class="fas fa-trash-alt original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
+                                     </button>
+                                 </td>
+                             </tr>
+                              <tr data-file-type="PDF" data-upload-date="2024-05-22" data-uploader="Esraa Lashin">
+                                 <td><i class="fas fa-file-pdf file-icon text-danger" title="PDF"></i></td>
+                                 <td>
+                                     <strong class="file-name">Meeting Agenda.pdf</strong>
+                                     <small class="d-block text-muted">Size: 150 KB</small>
+                                 </td>
+                                 <td class="upload-date">May 22, 2024, 11:00 AM</td>
+                                 <td><span class="badge text-bg-info">Meetings</span></td>
+                                 <td class="uploader-shared">Esraa Lashin</td>
+                                 <td class="text-center action-buttons">
+                                     <button class="btn btn-sm btn-outline-success action-btn download-btn" title="Download" data-file-id="4" data-file-url="path/to/agenda.pdf">
+                                         <i class="fas fa-download original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
+                                     </button>
+                                     <button class="btn btn-sm btn-outline-info preview-btn" title="Preview" data-bs-toggle="modal" data-bs-target="#filePreviewModal" data-file-type="PDF" data-file-url="path/to/agenda.pdf">
+                                         <i class="fas fa-eye"></i>
+                                     </button>
+                                    <button class="btn btn-sm btn-outline-danger action-btn delete-btn" title="Delete" data-file-id="4">
+                                         <i class="fas fa-trash-alt original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
+                                     </button>
+                                 </td>
+                             </tr>
+                              <tr data-file-type="Image" data-upload-date="2024-05-26" data-uploader="Bassant Badr">
+                                 <td><i class="fas fa-file-image file-icon text-success" title="Image"></i></td>
+                                 <td>
+                                     <strong class="file-name">Team Photo.png</strong>
+                                     <small class="d-block text-muted">Size: 1.2 MB</small>
+                                 </td>
+                                 <td class="upload-date">May 26, 2024, 09:00 AM</td>
+                                 <td><span class="badge text-bg-secondary">Team</span></td>
+                                 <td class="uploader-shared">Bassant Badr</td>
+                                 <td class="text-center action-buttons">
+                                     <button class="btn btn-sm btn-outline-success action-btn download-btn" title="Download" data-file-id="5" data-file-url="path/to/team.png">
+                                         <i class="fas fa-download original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
+                                     </button>
+                                     <button class="btn btn-sm btn-outline-info preview-btn" title="Preview" data-bs-toggle="modal" data-bs-target="#filePreviewModal" data-file-type="Image" data-file-url="path/to/team.png">
+                                         <i class="fas fa-eye"></i>
+                                     </button>
+                                    <button class="btn btn-sm btn-outline-danger action-btn delete-btn" title="Delete" data-file-id="5">
+                                         <i class="fas fa-trash-alt original-icon"></i><span class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></span>
+                                     </button>
+                                 </td>
+                             </tr>
+                             <tr id="noResultsRow" style="display: none;">
+                                  <td colspan="6" class="text-center text-muted fst-italic py-4">No files found matching your criteria.</td>
+                             </tr>
+                         </tbody>
+                     </table>
+                 </div>
+                 <!-- Pagination (Optional) -->
+                 <nav aria-label="File list navigation" class="mt-3 d-flex justify-content-center">
+                      <!-- <ul class="pagination pagination-sm"> --> <!-- Pagination items here --> <!-- </ul> -->
+                 </nav>
             </div> <!-- End card-body -->
         </div> <!-- End card -->
 
@@ -2804,8 +2950,8 @@
                          // Simulate API response
                          projectData = [
                              { id: 1, name: "Website Overhaul", startDate: "2024-03-01", endDate: "2024-07-30", assignedTeam: ["Mohamed Elmenisy", "Esraa Lashin"], progress: 75, status: "In Progress", priority: "High", notes: "Phase 1 complete, focusing on backend." },
-                             { id: 2, name: "Mobile App Dev", startDate: "2024-04-15", endDate: "2024-09-15", assignedTeam: ["Yousef Ahmed", "Basssant Badr"], progress: 40, status: "In Progress", priority: "High", notes: "Core features implemented." },
-                             { id: 3, name: "Marketing Campaign Q3", startDate: "2024-07-01", endDate: "2024-09-30", assignedTeam: ["Basssant Badr", "Nada Mahmoud"], progress: 15, status: "Pending", priority: "Medium", notes: "Planning stage." },
+                             { id: 2, name: "Mobile App Dev", startDate: "2024-04-15", endDate: "2024-09-15", assignedTeam: ["Yousef Ahmed", "Bassant Badr"], progress: 40, status: "In Progress", priority: "High", notes: "Core features implemented." },
+                             { id: 3, name: "Marketing Campaign Q3", startDate: "2024-07-01", endDate: "2024-09-30", assignedTeam: ["Bassant Badr", "Nada Mahmoud"], progress: 15, status: "Pending", priority: "Medium", notes: "Planning stage." },
                              { id: 4, name: "Server Upgrade", startDate: "2024-05-20", endDate: "2024-06-10", assignedTeam: ["Yousef Ahmed"], progress: 100, status: "Completed", priority: "Medium", notes: "Completed ahead of schedule." },
                              { id: 5, name: "UI Kit Development", startDate: "2024-06-01", endDate: "2024-08-15", assignedTeam: ["Esraa Lashin"], progress: 60, status: "In Progress", priority: "Low", notes: "Delayed due to scope change." },
                              { id: 6, name: "API Documentation", startDate: "2024-07-10", endDate: "2024-07-25", assignedTeam: ["Mohamed Elmenisy"], progress: 90, status: "Delayed", priority: "Medium", notes: "Awaiting final review." },
@@ -2977,7 +3123,7 @@
                  }
 
                  // --- Sample Data & State ---
-                 const employeePerformanceData = [ { id: 1, name: "Mohamed Elmenisy", tasksCompleted: 85, tasksOverdue: 3, filesUploaded: 15, activityScore: 9.2, performanceMetrics: [8.5, 9, 7, 9.2, 8.4] }, { id: 3, name: "Yousef Ahmed", tasksCompleted: 70, tasksOverdue: 8, filesUploaded: 8, activityScore: 7.5, performanceMetrics: [7, 6, 6, 7.5, 6.6] }, { id: 4, name: "Esraa Lashin", tasksCompleted: 45, tasksOverdue: 12, filesUploaded: 5, activityScore: 6.1, performanceMetrics: [4.5, 5, 5, 6.1, 5.1] }, { id: 5, name: "Basssant Badr", tasksCompleted: 91, tasksOverdue: 2, filesUploaded: 18, activityScore: 9.5, performanceMetrics: [9.1, 9.5, 8, 9.5, 9.0] }, ];
+                 const employeePerformanceData = [ { id: 1, name: "Mohamed Elmenisy", tasksCompleted: 85, tasksOverdue: 3, filesUploaded: 15, activityScore: 9.2, performanceMetrics: [8.5, 9, 7, 9.2, 8.4] }, { id: 3, name: "Yousef Ahmed", tasksCompleted: 70, tasksOverdue: 8, filesUploaded: 8, activityScore: 7.5, performanceMetrics: [7, 6, 6, 7.5, 6.6] }, { id: 4, name: "Esraa Lashin", tasksCompleted: 45, tasksOverdue: 12, filesUploaded: 5, activityScore: 6.1, performanceMetrics: [4.5, 5, 5, 6.1, 5.1] }, { id: 5, name: "Bassant Badr", tasksCompleted: 91, tasksOverdue: 2, filesUploaded: 18, activityScore: 9.5, performanceMetrics: [9.1, 9.5, 8, 9.5, 9.0] }, ];
                  let currentFilteredData = [...employeePerformanceData];
                  let taskCompletionChartInstance = null; let overdueTasksChartInstance = null; let filesUploadedChartInstance = null; let performanceComparisonChartInstance = null;
                  let listeners = [];
@@ -3038,6 +3184,44 @@
          </script>
     </template>
 
+    <!-- Template for Employee Scheduling -->
+    <template id="employeeSchedulingAssets">
+        <style id="employee-scheduling-styles">
+            /* Placeholder for specific schedule styles if needed */
+            #featureSectionsContainer.employee-scheduling { padding: 1.5rem; /* Add padding to the container */ }
+            #featureSectionsContainer.employee-scheduling .schedule-page-title {
+                margin-bottom: 1rem; /* Space below title */
+                color: var(--primary-dark);
+            }
+        </style>
+        <!-- HTML structure generated by getEmployeeScheduleHTML() -->
+        <script>
+            // Initialization logic defined in initializeEmployeeScheduleLogic()
+            // No need to repeat the function here, just ensure it's callable globally or passed
+        </script>
+    </template>
+
+    <!-- Template for Team Members View (New) -->
+    <template id="teamMembersAssets">
+        <style id="team-members-view-styles">
+            /* Placeholder for specific team view styles if needed */
+        </style>
+        <!-- HTML Structure generated by getTeamMembersHTML() -->
+        <script>
+             // Initialization logic defined in initializeTeamMembersFeature()
+        </script>
+    </template>
+
+    <!-- Template for Projects View (New) -->
+    <template id="projectsAssets">
+        <style id="projects-view-styles">
+            /* Placeholder for specific projects view styles if needed */
+        </style>
+        <!-- HTML Structure generated by getProjectsHTML() -->
+        <script>
+            // Initialization logic defined in initializeProjectsFeature()
+        </script>
+    </template>
 
     <!-- ========= END Feature Templates ========= -->
 
@@ -3144,6 +3328,12 @@
             const verifySmsCodeBtn = document.getElementById('verifySmsCodeBtn');
             const disable2faBtn = document.getElementById('disable2faBtn');
             const saveSessionSettingsBtn = document.getElementById('saveSessionSettingsBtn'); // Added
+
+             // Team Management Settings
+             const teamList = document.getElementById('teamList'); // For settings panel
+             const deleteSelectedMembersBtn = document.getElementById('deleteSelectedMembersBtn'); // New button
+             const deleteAllMembersBtn = document.getElementById('deleteAllMembersBtn'); // New button
+
 
             // Danger Zone
             const logoutAllDevicesBtn = document.getElementById('logoutAllDevicesBtn');
@@ -3290,12 +3480,15 @@
                 // Admin specific elements
                 const teamSettingsTab = document.getElementById('teamSettingsTab');
                 const dangerZoneTab = document.getElementById('dangerZoneTab');
+                const teamManagementActions = document.querySelector('#teamPanel .team-management-actions');
                  if (currentUser.role === 'admin') {
                     if (teamSettingsTab) teamSettingsTab.style.display = 'flex'; // Use flex for tabs
                     if (dangerZoneTab) dangerZoneTab.style.display = 'flex';
+                    if (teamManagementActions) teamManagementActions.style.display = 'flex';
                 } else {
                     if (teamSettingsTab) teamSettingsTab.style.display = 'none';
                      if (dangerZoneTab) dangerZoneTab.style.display = 'none';
+                     if (teamManagementActions) teamManagementActions.style.display = 'none';
                      // Hide team panel if not admin and trying to access it directly
                      if (currentFeature === 'settings' && currentSettingsTab === 'team') {
                          activateSettingsTab('preferences'); // Default to preferences
@@ -3307,7 +3500,7 @@
 
                 // Update 2FA UI based on current user status
                 update2FA_UI();
-                userPhoneNumberForSms.textContent = currentUser.phone || 'Not Available';
+                if(userPhoneNumberForSms) userPhoneNumberForSms.textContent = currentUser.phone || 'Not Available';
             }
 
             function updateProfileForm() {
@@ -3411,6 +3604,8 @@
                       if (document.querySelector('[data-feature="task-management"] span')) document.querySelector('[data-feature="task-management"] span').textContent = "إدارة المهام";
                       if (document.querySelector('[data-feature="employee-scheduling"] span')) document.querySelector('[data-feature="employee-scheduling"] span').textContent = "جدولة الموظفين";
                       if (document.querySelector('[data-feature="reports-analytics"] span')) document.querySelector('[data-feature="reports-analytics"] span').textContent = "التقارير والتحليلات";
+                      if (document.querySelector('[data-feature="team-calendar"] span')) document.querySelector('[data-feature="team-calendar"] span').textContent = "تقويم الفريق";
+                      if (document.querySelector('[data-feature="innovation-hub"] span')) document.querySelector('[data-feature="innovation-hub"] span').textContent = "مركز الابتكار";
                  } else {
                      document.body.dir = 'ltr';
                       if (document.getElementById('welcomeName') && currentUser) document.getElementById('welcomeName').textContent = currentUser.name.split(' ')[0];
@@ -3423,6 +3618,8 @@
                       if (document.querySelector('[data-feature="task-management"] span')) document.querySelector('[data-feature="task-management"] span').textContent = "Task Management";
                       if (document.querySelector('[data-feature="employee-scheduling"] span')) document.querySelector('[data-feature="employee-scheduling"] span').textContent = "Employee Scheduling";
                       if (document.querySelector('[data-feature="reports-analytics"] span')) document.querySelector('[data-feature="reports-analytics"] span').textContent = "Reports & Analytics";
+                      if (document.querySelector('[data-feature="team-calendar"] span')) document.querySelector('[data-feature="team-calendar"] span').textContent = "Team Calendar";
+                      if (document.querySelector('[data-feature="innovation-hub"] span')) document.querySelector('[data-feature="innovation-hub"] span').textContent = "Innovation Hub";
                  }
                  localStorage.setItem('language', lang);
                  // --- End Simulation ---
@@ -3437,26 +3634,29 @@
                 if (currentFeature === 'dashboard' && notifications.length > 0) { renderNotifications(); }
                  if (currentFeature === 'employee-scheduling') {
                      const scheduleTableBody = document.getElementById('scheduleTableBody');
-                     if (scheduleTableBody) { renderSchedule(currentScheduleWeekOffset); }
+                     if (scheduleTableBody && typeof window.renderSchedule === 'function') { window.renderSchedule(currentScheduleWeekOffset); } // Use global func
                  }
                  if (currentFeature === 'projects') { // Re-render projects if visible
                     const container = document.getElementById('featureSectionsContainer'); // Get the main container
-                     if(container && container.classList.contains('projects-feature')) { // Check if projects feature is active
-                        renderProjects(container); // Pass container to render function
+                     if(container && container.classList.contains('projects-feature') && typeof window.renderProjects === 'function') { // Check if projects feature is active and func exists
+                        window.renderProjects(container); // Use global func
                      }
                  }
                  // Add similar checks for other features that display dates/times
                  if (currentFeature === 'file-sharing' || currentFeature === 'project-tracking') {
                       const container = document.getElementById('featureSectionsContainer');
                       if (container.classList.contains('file-sharing-feature')) {
-                          const fsInstance = window.fileSharingInstance; // Assuming instance is stored globally
-                          fsInstance?.updateRelativeTimes(); // Call method if it exists
-                          // Or re-run the init if necessary, but better to have an update method
+                           // File sharing might update relative times automatically via interval
+                           // or might need a specific update call if time formats affect absolute display
                       }
                       if (container.classList.contains('project-tracking-feature')) {
-                           const ptInstance = window.projectTrackingInstance;
-                           ptInstance?.renderTable(); // Example: re-render table to apply format
-                           ptInstance?.renderUpcomingDeadlines(ptInstance.filteredData); // Example: re-render deadlines
+                           // Re-render the table and deadlines in project tracking if the function exists
+                           if (typeof window.projectTrackingInstance?.renderTable === 'function') {
+                               window.projectTrackingInstance.renderTable();
+                           }
+                           if (typeof window.projectTrackingInstance?.renderUpcomingDeadlines === 'function' && window.projectTrackingInstance.filteredData) {
+                               window.projectTrackingInstance.renderUpcomingDeadlines(window.projectTrackingInstance.filteredData);
+                           }
                       }
                  }
              }
@@ -3555,7 +3755,7 @@
                     if(closeSidebar) closeSidebar.style.display = 'none';
                 }
                 // Close user dropdown if open
-                userDropdown.classList.remove('active');
+                if(userDropdown) userDropdown.classList.remove('active');
                 userDropdownOpen = false;
 
                 if (!skipHistory) {
@@ -3600,10 +3800,12 @@
                      'file-sharing': 'fileSharingAssets',
                      'project-tracking': 'projectTrackingAssets',
                      'reports-analytics': 'reportsAnalyticsAssets',
-                     'team-members-view': 'teamMembersAssets', // Using a separate template now
-                     'projects': 'projectsAssets', // Using a separate template
-                     'employee-scheduling': 'employeeSchedulingAssets', // Using a separate template
-                     // Add other features here
+                     'team-members-view': 'teamMembersAssets', // Use new template
+                     'projects': 'projectsAssets',             // Use new template
+                     'employee-scheduling': 'employeeSchedulingAssets', // Use new template
+                     // Add other features here (e.g., 'team-calendar', 'innovation-hub')
+                     'team-calendar': 'teamCalendarAssets', // Added Placeholder
+                     'innovation-hub': 'innovationHubAssets', // Added Placeholder
                  };
                  const templateId = templateIdMap[featureId];
 
@@ -3627,7 +3829,17 @@
 
                          const template = document.getElementById(templateId);
                          if (!template) {
-                             throw new Error(`Template not found for ${featureId}`);
+                             // If template not found, show placeholder with error
+                             console.error(`Template not found for ${featureId}`);
+                             featureSectionsContainer.innerHTML = ''; // Clear loading indicator if any
+                             featurePlaceholder.style.display = 'flex'; // Show placeholder
+                             featureTitleEl.textContent = `${featureName} (Coming Soon)`;
+                             featureDescEl.textContent = `Content for this feature (${featureId}) is not yet implemented or the template is missing.`;
+                             featureErrorEl.textContent = ''; // Clear any previous error
+                             featureErrorEl.style.display = 'none';
+                             featureSectionsContainer.appendChild(featurePlaceholder); // Append placeholder back
+                             return; // Stop execution for this feature
+                             // throw new Error(`Template not found for ${featureId}`);
                          }
 
                          // Inject Styles
@@ -3661,36 +3873,45 @@
                                      'projects': 'initializeProjectsFeature',
                                      'employee-scheduling': 'initializeEmployeeScheduleLogic',
                                      // Add other init functions here
+                                      // 'team-calendar': 'initializeTeamCalendarFeature',
+                                      // 'innovation-hub': 'initializeInnovationHubFeature',
                                  };
                                  const initFunctionName = initFunctionNameMap[featureId];
 
                                  if (initFunctionName) {
-                                     // Execute script content in the global scope to define the function
-                                     // then call the specific initialization function
-                                     // (This is safer than eval but still relies on global scope)
-                                     const scriptElement = document.createElement('script');
-                                     scriptElement.textContent = scriptContent.textContent;
-                                     document.body.appendChild(scriptElement); // Temporarily add to execute
-
+                                     // Ensure the JS function is available globally (defined in the template or main script)
                                      if (typeof window[initFunctionName] === 'function') {
                                          const result = window[initFunctionName](featureSectionsContainer);
                                          currentFeatureCleanup = result?.cleanup; // Store cleanup function if returned
-                                         console.log(`${featureName} JS initialized.`);
+                                         console.log(`${featureName} JS initialized via ${initFunctionName}.`);
                                      } else {
-                                         console.error(`Initialization function ${initFunctionName} not found after executing script.`);
+                                         console.error(`Initialization function ${initFunctionName} not found.`);
+                                          // Attempt to execute script content directly as fallback ONLY IF REALLY NEEDED
+                                          // This is less safe and harder to manage cleanup for.
+                                          /*
+                                          const scriptElement = document.createElement('script');
+                                          scriptElement.textContent = scriptContent.textContent;
+                                          featureSectionsContainer.appendChild(scriptElement); // Append to container to execute
+                                          console.warn(`Executed script content directly for ${featureId}. Cleanup might be manual.`);
+                                          */
+                                          throw new Error(`JS initialization function ${initFunctionName} missing for ${featureName}.`);
                                      }
-                                     document.body.removeChild(scriptElement); // Clean up the temporary script tag
                                  } else {
-                                      console.warn(`No specific JS init function mapped for ${featureId}. Script content might execute directly.`);
-                                      // Fallback: execute directly if no specific function name
-                                      const scriptElement = document.createElement('script');
-                                      scriptElement.textContent = scriptContent.textContent;
-                                      featureSectionsContainer.appendChild(scriptElement); // Append to container to execute
+                                      console.warn(`No specific JS init function mapped for ${featureId}.`);
+                                      // If no specific init function, don't execute generic script content by default
+                                      // unless you explicitly want that behavior.
                                  }
 
                              } catch (e) {
                                  console.error(`Error initializing JS for ${featureId}:`, e);
-                                 throw new Error(`JS initialization failed for ${featureName}.`);
+                                 // Display error in the placeholder
+                                 featureSectionsContainer.innerHTML = ''; // Clear potentially broken content
+                                 featurePlaceholder.style.display = 'flex'; // Show placeholder
+                                 featureTitleEl.textContent = `Error Loading ${featureName}`;
+                                 featureDescEl.textContent = '';
+                                 featureErrorEl.textContent = `Failed to initialize ${featureName}. Error: ${e.message}`;
+                                 featureErrorEl.style.display = 'block';
+                                 featureSectionsContainer.appendChild(featurePlaceholder); // Append placeholder back
                              }
                          } else {
                              console.warn(`No script found in template for ${featureId}`);
@@ -3700,12 +3921,14 @@
                          console.error(`Error loading feature ${featureId}:`, error);
                          featureLoadingEl.style.display = 'none';
                          featurePlaceholder.style.display = 'flex'; // Show placeholder again
+                         featureSectionsContainer.innerHTML = ''; // Clear loading indicator if any
                          featureErrorEl.textContent = `Failed to load ${featureName}. Error: ${error.message}`;
                          featureErrorEl.style.display = 'block';
-                         featureSectionsContainer.appendChild(featurePlaceholder);
+                         featureSectionsContainer.appendChild(featurePlaceholder); // Append placeholder back
                      }
                  }, 150); // Reduced timeout slightly
              }
+
 
             function updateBrowserHistory(featureId, settingsTab = null) {
                 let hash = `#${featureId}`;
@@ -3753,11 +3976,11 @@
 
              function loadMockProjects() {
                  MOCK_PROJECTS_DATA = [
-                    { id: "alpha001", name: "Project Alpha", status: "in-progress", participants: "Alice B.|Bob K.|Charlie M.", img: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=60", progress: 65, startDate: "2023-08-15", updatedDate: "2024-03-10", editable: true },
-                    { id: "web002", name: "Website Redesign", status: "completed", participants: "David L.|Eva G.", img: "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=60", progress: 100, startDate: "2023-05-01", updatedDate: "2024-01-20", editable: false },
-                    { id: "mobile003", name: "Mobile App V2", status: "active", participants: "Frank H.|Grace P.|Heidi R.|Ian S.", img: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=60", progress: 20, startDate: "2024-02-20", updatedDate: "2024-03-05", editable: true },
-                    { id: "mktg004", name: "Q4 Marketing Plan", status: "pending", participants: "Marketing Team", img: "https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=60", progress: 0, startDate: "2024-09-01", updatedDate: "2024-03-12", editable: true },
-                    { id: "infra005", name: "Server Migration", status: "in-progress", participants: "Admin Team|Mohamed Elmenisy", img: "https://images.unsplash.com/photo-1580894742597-87bc8789db3d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=60", progress: 85, startDate: "2024-01-10", updatedDate: "2024-03-15", editable: true }
+                    { id: "alpha001", name: "Project Alpha", status: "in-progress", participants: "Mohamed Elmenisy|Bassant Badr|Esraa Lashin", description: "Revamp the company website with a modern UI/UX and improved performance.", img: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=60", progress: 65, startDate: "2023-08-15", updatedDate: "2024-03-10", dueDate: "2024-09-30", editable: true },
+                    { id: "web002", name: "Website Redesign", status: "completed", participants: "Esraa Lashin|Yousef Ahmed", description: "Redesign of the main corporate website.", img: "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=60", progress: 100, startDate: "2023-05-01", updatedDate: "2024-01-20", dueDate: "2023-12-31", editable: false },
+                    { id: "mobile003", name: "Mobile App V2", status: "active", participants: "Yousef Ahmed|Nada Mahmoud|Mohamed Elmenisy", description: "Develop version 2 of the mobile application with new features.", img: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=60", progress: 20, startDate: "2024-02-20", updatedDate: "2024-03-05", dueDate: "2024-11-15", editable: true },
+                    { id: "mktg004", name: "Q4 Marketing Plan", status: "pending", participants: "Bassant Badr|Nada Mahmoud", description: "Develop and execute the marketing strategy for the fourth quarter.", img: "https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=60", progress: 0, startDate: "2024-09-01", updatedDate: "2024-03-12", dueDate: "2024-12-20", editable: true },
+                    { id: "infra005", name: "Server Migration", status: "in-progress", participants: "Mohamed Elmenisy|Yousef Ahmed", description: "Migrate existing servers to the new cloud infrastructure.", img: "https://images.unsplash.com/photo-1580894742597-87bc8789db3d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=60", progress: 85, startDate: "2024-01-10", updatedDate: "2024-03-15", dueDate: "2024-04-30", editable: true }
                 ];
                 console.log("Mock projects loaded into MOCK_PROJECTS_DATA");
             }
@@ -3768,7 +3991,7 @@
                      const teamMembersCount = MOCK_USERS.length;
                      const tasksCompleted = MOCK_TASKS.filter(t => t.status === 'Completed').length + Math.floor(Math.random() * 50);
                      const activeProjects = MOCK_PROJECTS_DATA.filter(p => p.status === 'active' || p.status === 'in-progress').length; // Count active & in-progress
-                     const upcomingDeadlines = Math.floor(Math.random() * 10);
+                     const upcomingDeadlines = MOCK_PROJECTS_DATA.filter(p => { const due = p.dueDate ? new Date(p.dueDate) : null; const today = new Date(); return due && due > today && due <= new Date(today.setDate(today.getDate() + 7)) && p.status !== 'completed'; }).length;
                      updateStatCard('teamMembersCount', 'Team Members', 'fas fa-users', teamMembersCount, Math.random() * 10 - 5);
                      updateStatCard('tasksCompleted', 'Tasks Completed', 'fas fa-check-circle', tasksCompleted, Math.random() * 20);
                      updateStatCard('activeProjects', 'Active Projects', 'fas fa-project-diagram', activeProjects, Math.random() * 5 - 2);
@@ -3800,6 +4023,9 @@
                     activities = generateMockActivities(15, now);
                 }
                 showingAllActivities = showAll;
+                // Sort activities *before* slicing or displaying
+                activities.sort((a, b) => b.timestamp - a.timestamp);
+
                 const activitiesToDisplay = showAll ? activities : activities.slice(0, maxActivitiesToShow);
                 activityList.innerHTML = '';
                 if (activitiesToDisplay.length === 0) {
@@ -3830,6 +4056,7 @@
                  notificationsBody.innerHTML = ''; const unreadCount = notifications.filter(n => n.unread).length;
                  if (notifications.length === 0) { noNotificationsMessage.textContent = 'You have no notifications.'; noNotificationsMessage.style.display = 'block'; notificationBadge.style.display = 'none'; notificationBadge.textContent = '0'; markAllReadBtn.disabled = true; deleteAllNotificationsBtn.disabled = true; return; }
                  noNotificationsMessage.style.display = 'none'; markAllReadBtn.disabled = unreadCount === 0; deleteAllNotificationsBtn.disabled = false;
+                 notifications.sort((a, b) => b.timestamp - a.timestamp); // Sort newest first
                  notifications.forEach(notification => {
                      const div = document.createElement('div'); div.classList.add('notification-list-item'); div.dataset.id = notification.id; if (notification.unread) { div.classList.add('unread'); }
                      div.innerHTML = `
@@ -3843,9 +4070,11 @@
 
              function loadTeamMembers(container) {
                  const teamListContainer = container ? container.querySelector('.team-list-display') : document.getElementById('teamList');
+                 const isSettingsPanel = !container; // Check if we are in the settings panel
+
                  if (!teamListContainer) return;
 
-                 console.log("Loading team members...");
+                 console.log(`Loading team members into ${isSettingsPanel ? 'settings panel' : 'feature view'}...`);
                  teamListContainer.innerHTML = '<p style="color: var(--gray);">Loading...</p>'; // Loading indicator
 
                  setTimeout(() => {
@@ -3856,7 +4085,7 @@
                      }
                      MOCK_USERS.forEach(member => {
                          const card = document.createElement('div');
-                         card.classList.add(container ? 'team-member-card' : 'team-member-card'); // Use feature class for grid view
+                         card.classList.add(isSettingsPanel ? 'team-member-card' : 'team-member-card'); // Use same class for simplicity, CSS handles difference
                          card.dataset.id = member.id;
                          card.dataset.name = member.name;
                          card.dataset.role = member.role;
@@ -3864,8 +4093,29 @@
 
                          const avatarStyle = member.avatar ? `background-image: url('${member.avatar}')` : '';
                          const avatarContent = member.avatar ? '' : member.initials;
+                         const isCurrentUser = currentUser && currentUser.id === member.id;
 
-                         if (container) { // Feature view (grid card) - uses feature CSS
+                         if (isSettingsPanel) { // Settings view (list item)
+                            const checkboxHTML = (currentUser.role === 'admin' && !isCurrentUser)
+                                ? `<input type="checkbox" class="member-select-checkbox" value="${member.id}" aria-label="Select ${member.name}">`
+                                : `<span style="display: inline-block; width: 18px;"></span>`; // Placeholder for alignment
+
+                             card.innerHTML = `
+                                ${checkboxHTML}
+                                <div class="member-avatar" style="${avatarStyle}">${avatarContent}</div>
+                                <div class="member-details">
+                                    <div class="member-name">${member.name} ${isCurrentUser ? '(You)' : ''}</div>
+                                    <div class="member-email">${member.email}</div>
+                                </div>
+                                <span class="member-role role-${member.role}">${formatRole(member.role)}</span>
+                                ${currentUser.role === 'admin' && !isCurrentUser ? `
+                                <div class="member-actions">
+                                    <button class="btn btn-outline btn-sm edit-member" title="Edit Member"><i class="fas fa-pencil-alt"></i></button>
+                                    <button class="btn btn-danger btn-sm remove-member" title="Remove Member"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                                ` : '<div class="member-actions" style="width: 70px;">&nbsp;</div>'}
+                             `;
+                         } else { // Feature view (grid card) - no actions, no checkbox
                              card.innerHTML = `
                                 <div class="member-info">
                                     <h4 class="member-name">${member.name}</h4>
@@ -3873,24 +4123,11 @@
                                     <span class="member-role role-${member.role}">${formatRole(member.role)}</span>
                                 </div>
                              `;
-                         } else { // Settings view (list item) - uses settings CSS
-                             card.innerHTML = `
-                                <div class="member-avatar" style="${avatarStyle}">${avatarContent}</div>
-                                <div class="member-details">
-                                    <div class="member-name">${member.name}</div>
-                                    <div class="member-email">${member.email}</div>
-                                </div>
-                                <span class="member-role role-${member.role}">${formatRole(member.role)}</span>
-                                ${currentUser.role === 'admin' && currentUser.id !== member.id ? `
-                                <div class="member-actions">
-                                    <button class="btn btn-outline btn-sm edit-member" title="Edit Member"><i class="fas fa-pencil-alt"></i></button>
-                                    <button class="btn btn-danger btn-sm remove-member" title="Remove Member"><i class="fas fa-trash-alt"></i></button>
-                                </div>
-                                ` : '<div class="member-actions" style="width: 70px;">&nbsp;</div>'}
-                             `;
                          }
                          teamListContainer.appendChild(card);
                      });
+                     // Update delete selected button state in settings
+                     if(isSettingsPanel) updateDeleteSelectedButtonState();
                  }, 300);
              }
 
@@ -3937,7 +4174,7 @@
                 document.body.addEventListener('click', function(e) { const target = e.target; if (target.closest('.settings-tab') && !target.closest('.settings-tab.active')) { const tabId = target.closest('.settings-tab').getAttribute('data-tab'); activateSettingsTab(tabId); updateBrowserHistory('settings', tabId); } else if (target.closest('.settings-link') && target.closest('.settings-link').dataset.tabTarget) { e.preventDefault(); const tabId = target.closest('.settings-link').dataset.tabTarget; setActiveFeature('settings', tabId); } });
                 backButton.addEventListener('click', function() { setActiveFeature('dashboard'); });
                 userProfileContainer.addEventListener('click', function(e) { if (e.target.closest('.dropdown-item')) { const feature = e.target.closest('.dropdown-item').getAttribute('data-feature'); if (feature) { setActiveFeature(feature); } return; } userDropdownOpen = !userDropdownOpen; userDropdown.classList.toggle('active', userDropdownOpen); });
-                 document.addEventListener('click', function(event) { if (!userProfileContainer.contains(event.target) && userDropdownOpen) { userDropdown.classList.remove('active'); userDropdownOpen = false; } });
+                 document.addEventListener('click', function(event) { if (userProfileContainer && !userProfileContainer.contains(event.target) && userDropdownOpen) { userDropdown.classList.remove('active'); userDropdownOpen = false; } });
                 searchInput.addEventListener('input', handleSearch); searchInput.addEventListener('focus', handleSearch);
                  document.addEventListener('click', (event) => { if (!searchInput.contains(event.target) && !searchResultsContainer.contains(event.target)) { searchResultsContainer.classList.remove('active'); } });
                  searchResultsContainer.addEventListener('click', (event) => { const targetItem = event.target.closest('.search-result-item'); if (targetItem && targetItem.dataset.feature) { const featureId = targetItem.dataset.feature; const itemId = targetItem.dataset.id; console.log(`Search result: Feature=${featureId}, ID=${itemId}`); setActiveFeature(featureId); searchResultsContainer.classList.remove('active'); searchInput.value = ''; } });
@@ -3959,17 +4196,22 @@
                  logoutLink.addEventListener('click', handleLogout);
 
                  // Team Management Actions (Settings Panel)
-                 const teamListContainer = document.getElementById('teamList');
-                 if (teamListContainer) {
-                    teamListContainer.addEventListener('click', (event) => {
+                 if (teamList) {
+                    teamList.addEventListener('click', (event) => {
                         const target = event.target;
                         const memberCard = target.closest('.team-member-card'); // Look for the card in settings list
                         const memberId = memberCard ? parseInt(memberCard.dataset.id) : null;
-                        if (!memberId || memberId === currentUser.id) return;
+                        if (!memberId || (currentUser && memberId === currentUser.id)) return; // Don't act on self
+
                         if (target.closest('.edit-member')) { openMemberModal(memberId); } // Use generic modal
                         else if (target.closest('.remove-member')) { handleRemoveMember(memberId); }
+                        else if (target.classList.contains('member-select-checkbox')) { updateDeleteSelectedButtonState(); } // Update button state on checkbox click
                     });
                  }
+                 // Admin Delete Buttons
+                 if (deleteSelectedMembersBtn) deleteSelectedMembersBtn.addEventListener('click', handleDeleteSelectedMembers);
+                 if (deleteAllMembersBtn) deleteAllMembersBtn.addEventListener('click', handleDeleteAllMembers);
+
                  // Use generic member modal/form for Add/Edit
                  if (memberForm) { memberForm.addEventListener('submit', handleSaveMember); }
                  if(memberModal) {
@@ -4027,7 +4269,7 @@
                 console.log(`Searching for: ${searchTerm}`); const results = [];
                 MOCK_USERS.forEach(user => { if (user.name.toLowerCase().includes(searchTerm) || user.email.toLowerCase().includes(searchTerm)) { results.push({ type: 'User', id: user.id, name: user.name, description: user.email, icon: 'fa-user', feature: 'team-members-view' }); } });
                 MOCK_PROJECTS_DATA.forEach(project => { if (project.name.toLowerCase().includes(searchTerm)) { results.push({ type: 'Project', id: project.id, name: project.name, description: `Status: ${project.status}`, icon: 'fa-briefcase', feature: 'projects' }); } });
-                MOCK_TASKS.forEach(task => { if (task.name.toLowerCase().includes(searchTerm)) { const projectName = MOCK_PROJECTS.find(p => p.id === task.project)?.name || 'Unknown Project'; results.push({ type: 'Task', id: task.id, name: task.name, description: `Project: ${projectName} | Status: ${task.status}`, icon: 'fa-tasks', feature: 'task-management' }); } });
+                MOCK_TASKS.forEach(task => { if (task.name.toLowerCase().includes(searchTerm)) { const projectName = MOCK_PROJECTS_DATA.find(p => p.id === task.project)?.name || 'Unknown Project'; results.push({ type: 'Task', id: task.id, name: task.name, description: `Project: ${projectName} | Status: ${task.status}`, icon: 'fa-tasks', feature: 'task-management' }); } });
                 menuItems.forEach(item => { const featureName = item.querySelector('span')?.textContent; const featureId = item.getAttribute('data-feature'); if (featureName && featureId && featureName.toLowerCase().includes(searchTerm)) { if (!results.some(r => r.feature === featureId && r.type !== 'User' && r.type !== 'Project' && r.type !== 'Task')) { results.push({ type: 'Feature', id: null, name: featureName, description: 'Navigate to section', icon: item.querySelector('i')?.className.split(' ')[1] || 'fa-compass', feature: featureId }); } } });
                 if (results.length > 0) { results.slice(0, 10).forEach(result => { const item = document.createElement('div'); item.classList.add('search-result-item'); item.dataset.feature = result.feature; if (result.id) item.dataset.id = result.id; item.innerHTML = `<i class="fas ${result.icon}"></i> <div> <strong>${result.name}</strong> <small>(${result.type})</small><br> <span style="font-size: 0.8em; color: var(--gray);">${result.description}</span> </div>`; searchResultsContainer.appendChild(item); }); searchResultsContainer.classList.add('active'); }
                 else { searchResultsContainer.innerHTML = '<div class="search-result-item" style="text-align: center; color: var(--gray); cursor: default;">No results found.</div>'; searchResultsContainer.classList.add('active'); }
@@ -4036,7 +4278,7 @@
             // --- Profile Logic ---
             function handleAvatarUpload(event) { const file = event.target.files[0]; if (file && file.type.startsWith('image/')) { const reader = new FileReader(); reader.onload = (e) => { const imageUrl = e.target.result; profileAvatarLarge.style.backgroundImage = `url(${imageUrl})`; profileAvatarLarge.textContent = ''; document.getElementById('userAvatar').style.backgroundImage = `url(${imageUrl})`; document.getElementById('userAvatar').textContent = ''; document.getElementById('profileAvatar').style.backgroundImage = `url(${imageUrl})`; document.getElementById('profileAvatar').textContent = ''; currentUser.avatar = imageUrl; showToast('Avatar preview updated. Save changes to persist.'); }; reader.readAsDataURL(file); } else if (file) { showToast('Please select a valid image file.', 'error'); } }
             function updateFullNameDisplay() { fullNameDisplay.value = `${firstNameInput.value.trim()} ${lastNameInput.value.trim()}`.trim(); }
-             function handleProfileSave(event) { event.preventDefault(); console.log("Saving profile..."); showConfirmModal( 'Save Profile Changes', 'Are you sure?', () => { console.log("Profile save confirmed."); const saveButtonText = saveProfileBtn.querySelector('.btn-text'); const spinner = saveProfileBtn.querySelector('.spinner'); saveProfileBtn.disabled = true; if (saveButtonText) saveButtonText.textContent = 'Saving...'; if (spinner) spinner.style.display = 'inline-block'; setTimeout(() => { currentUser.name = fullNameDisplay.value; currentUser.title = jobTitleInput.value; currentUser.phone = phoneInput.value; currentUser.department = departmentInput.value; if (!currentUser.avatar) { const nameParts = currentUser.name.split(' '); currentUser.initials = (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || ''); } userPhoneNumberForSms.textContent = currentUser.phone || 'Not Available'; updateUserUI(); saveProfileBtn.disabled = false; if (saveButtonText) saveButtonText.textContent = 'Save Changes'; if (spinner) spinner.style.display = 'none'; showSuccessMessage('Profile updated successfully!'); }, 1000); }, 'btn-primary' ); }
+             function handleProfileSave(event) { event.preventDefault(); console.log("Saving profile..."); showConfirmModal( 'Save Profile Changes', 'Are you sure?', () => { console.log("Profile save confirmed."); const saveButtonText = saveProfileBtn.querySelector('.btn-text'); const spinner = saveProfileBtn.querySelector('.spinner'); saveProfileBtn.disabled = true; if (saveButtonText) saveButtonText.textContent = 'Saving...'; if (spinner) spinner.style.display = 'inline-block'; setTimeout(() => { currentUser.name = fullNameDisplay.value; currentUser.title = jobTitleInput.value; currentUser.phone = phoneInput.value; currentUser.department = departmentInput.value; if (!currentUser.avatar) { const nameParts = currentUser.name.split(' '); currentUser.initials = (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || ''); } if(userPhoneNumberForSms) userPhoneNumberForSms.textContent = currentUser.phone || 'Not Available'; updateUserUI(); saveProfileBtn.disabled = false; if (saveButtonText) saveButtonText.textContent = 'Save Changes'; if (spinner) spinner.style.display = 'none'; showSuccessMessage('Profile updated successfully!'); }, 1000); }, 'btn-primary' ); }
              function handleProfileCancel() { showConfirmModal( 'Cancel Changes', 'Discard changes?', () => { updateProfileForm(); showToast('Changes discarded.'); }, 'btn-warning' ); }
 
              // --- Settings Save Logic ---
@@ -4087,6 +4329,72 @@
              function handleLogout(event) { event.preventDefault(); showConfirmModal( 'Confirm Logout', 'Are you sure?', () => { console.log("Logging out..."); clearInterval(activityIntervalId); clearInterval(notificationIntervalId); clearInterval(statsIntervalId); clearInterval(welcomeBgIntervalId); showSuccessMessage('Logout successful! Redirecting...'); setTimeout(() => { window.location.href = 'login.html'; }, 1500); }, 'btn-danger' ); }
 
             // --- Team Management Logic ---
+             function updateDeleteSelectedButtonState() {
+                if (!deleteSelectedMembersBtn) return;
+                const selectedCheckboxes = teamList.querySelectorAll('.member-select-checkbox:checked');
+                deleteSelectedMembersBtn.disabled = selectedCheckboxes.length === 0;
+             }
+
+             function handleDeleteSelectedMembers() {
+                 const selectedCheckboxes = teamList.querySelectorAll('.member-select-checkbox:checked');
+                 if (selectedCheckboxes.length === 0) {
+                     showToast('Please select at least one member to delete.', 'warning');
+                     return;
+                 }
+                 const memberIdsToDelete = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+                 const memberNames = memberIdsToDelete.map(id => MOCK_USERS.find(u => u.id === id)?.name || `ID ${id}`).join(', ');
+
+                 showConfirmModal(
+                     'Delete Selected Members',
+                     `Are you sure you want to delete the following members?<br><br><strong>${memberNames}</strong>`,
+                     () => {
+                         showToast(`Deleting ${memberIdsToDelete.length} members...`, 'info');
+                         setTimeout(() => {
+                             MOCK_USERS = MOCK_USERS.filter(user => !memberIdsToDelete.includes(user.id));
+                             loadTeamMembers(); // Refresh settings list
+                             if(currentFeature === 'team-members-view') { loadTeamMembers(featureSectionsContainer); }
+                             loadDashboardStats();
+                             updateDeleteSelectedButtonState(); // Disable button again
+                             showToast(`${memberIdsToDelete.length} members deleted.`, 'success');
+                         }, 1000);
+                     },
+                     'btn-danger'
+                 );
+             }
+
+             function handleDeleteAllMembers() {
+                 const otherMembers = MOCK_USERS.filter(user => user.id !== currentUser.id);
+                 if (otherMembers.length === 0) {
+                     showToast('No other members to delete.', 'info');
+                     return;
+                 }
+
+                 showConfirmModal(
+                     'Delete ALL Other Members',
+                     `<strong style="color: var(--danger);">EXTREME CAUTION!</strong><br>Are you sure you want to delete all <strong>${otherMembers.length}</strong> other members? This action CANNOT be undone and will remove their access permanently.`,
+                     () => {
+                         // Second confirmation
+                         showConfirmModal(
+                             'Final Confirmation: Delete All Others?',
+                             'This is your last chance. Deleting all other members is irreversible.',
+                             () => {
+                                showToast(`Deleting all ${otherMembers.length} other members...`, 'error');
+                                setTimeout(() => {
+                                    MOCK_USERS = MOCK_USERS.filter(user => user.id === currentUser.id); // Keep only current user
+                                    loadTeamMembers(); // Refresh settings list
+                                    if(currentFeature === 'team-members-view') { loadTeamMembers(featureSectionsContainer); }
+                                    loadDashboardStats();
+                                    updateDeleteSelectedButtonState(); // Disable button
+                                    showToast('All other members deleted.', 'success');
+                                }, 1500);
+                            },
+                            'btn-danger'
+                         );
+                     },
+                     'btn-danger'
+                 );
+             }
+
              function handleInviteMember(event) {
                  event.preventDefault();
                  const emailInput = document.getElementById('inviteEmail');
@@ -4237,7 +4545,9 @@
                         loadTeamMembers(); // Refresh settings list
                          if(currentFeature === 'team-members-view') { loadTeamMembers(featureSectionsContainer); } // Refresh feature view
                         loadDashboardStats(); // Update dashboard stats
-                         if (currentFeature === 'employee-scheduling') { const scheduleTableBody = document.getElementById('scheduleTableBody'); if(scheduleTableBody) { renderSchedule(currentScheduleWeekOffset); } }
+                         if (currentFeature === 'employee-scheduling' && typeof window.renderSchedule === 'function') {
+                             window.renderSchedule(currentScheduleWeekOffset);
+                         }
                         showToast('Team member removed.', 'success');
                     }, 500);
                  }, 'btn-danger');
@@ -4246,7 +4556,6 @@
             // --- Employee Scheduling (Existing + Refinements) ---
              // Define getEmployeeScheduleHTML globally or ensure it's defined before use
              function getEmployeeScheduleHTML() {
-                 // ... (HTML content from previous response) ...
                   return `
                     <div class="schedule-page-header section-main-header">
                         <h2 class="schedule-page-title section-main-title">Employee Scheduling</h2>
@@ -4290,7 +4599,8 @@
                     </div>`;
              }
 
-            function initializeEmployeeScheduleLogic(container) { // Pass container
+             // Define initializeEmployeeScheduleLogic globally or ensure it's accessible
+             window.initializeEmployeeScheduleLogic = function(container) { // Pass container
                  console.log("Initializing Employee Schedule Logic...");
                  const calculateOffsets = () => { /* ... (Offset calculation) ... */ const today=new Date();const mayFirst2025=new Date(2025,4,1);mayFirst2025.setHours(0,0,0,0);const currentDayOfWeek=today.getDay();const diffToSunday=today.getDate()-currentDayOfWeek;const startOfCurrentWeek=new Date(today);startOfCurrentWeek.setDate(diffToSunday);startOfCurrentWeek.setHours(0,0,0,0);const mayFirstDayOfWeek=mayFirst2025.getDay();const diffToMayFirstSunday=mayFirst2025.getDate()-mayFirstDayOfWeek;const startOfMayFirstWeek=new Date(mayFirst2025);startOfMayFirstWeek.setDate(diffToMayFirstSunday);startOfMayFirstWeek.setHours(0,0,0,0);const msPerDay=24*60*60*1000;const weeksDifference=Math.round((startOfMayFirstWeek.getTime()-startOfCurrentWeek.getTime())/(7*msPerDay));console.log(`Current Week Start: ${startOfCurrentWeek.toDateString()}`);console.log(`Target Week Start: ${startOfMayFirstWeek.toDateString()}`);console.log(`Calculated offset: ${weeksDifference}`);currentScheduleWeekOffset=weeksDifference;scheduleMinWeekOffset=weeksDifference; };
                  calculateOffsets();
@@ -4314,10 +4624,10 @@
                  let listeners = []; // Store listeners for cleanup
                  const addListener = (element, event, handler, options = {}) => { if (!element) return; element.addEventListener(event, handler, options); listeners.push({ element, event, handler, options }); };
 
-
                  function getWeekDates(weekOffset = 0) { /* ... (Get week dates) ... */ const baseDate=new Date();const startOfWeek=new Date(baseDate);const dayOfWeek=baseDate.getDay();const diff=baseDate.getDate()-dayOfWeek;startOfWeek.setDate(diff+(weekOffset*7));startOfWeek.setHours(0,0,0,0);const dates=[];for(let i=0;i<7;i++){const date=new Date(startOfWeek);date.setDate(startOfWeek.getDate()+i);dates.push(date);}return dates; }
 
-                 window.renderSchedule = function(weekOffset) { // Make global for refresh (or pass instance)
+                 // Make renderSchedule accessible for updates
+                 window.renderSchedule = function(weekOffset) {
                       console.log(`Rendering schedule offset: ${weekOffset}`);
                       if (isNaN(weekOffset)) { weekOffset = currentScheduleWeekOffset; }
                       const weekDates = getWeekDates(weekOffset); const start = weekDates[0]; const end = weekDates[6]; if(weekDisplay) weekDisplay.textContent = `${formatDateForDisplay(start)} - ${formatDateForDisplay(end)}`;
@@ -4329,7 +4639,7 @@
                               for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
                                   const cell = document.createElement('td'); const scheduleKey = `${employee.id}-${weekOffset}-${dayIndex}`; const isWeekend = dayIndex === 5 || dayIndex === 6; let shiftType; let isEditable = currentUser.role === 'admin' && !isWeekend;
                                   if (isWeekend) { shiftType = 'off'; mockScheduleData[scheduleKey] = 'off'; cell.classList.add('weekend-cell'); }
-                                  else { if (!mockScheduleData[scheduleKey]) { const shiftTypes = ['morning', 'afternoon', 'night', 'off', 'sick', 'vacation']; mockScheduleData[scheduleKey] = shiftTypes[Math.floor(Math.random() * shiftTypes.length)]; } shiftType = mockScheduleData[scheduleKey]; }
+                                  else { if (!mockScheduleData[scheduleKey]) { const shiftTypes = ['morning', 'afternoon', 'night', 'off']; mockScheduleData[scheduleKey] = shiftTypes[Math.floor(Math.random() * shiftTypes.length)]; } shiftType = mockScheduleData[scheduleKey]; } // Default shifts
                                   const shiftDiv = document.createElement('div'); shiftDiv.classList.add('shift');
                                   if (isWeekend) { shiftDiv.classList.add('shift-weekend-off'); } else { shiftDiv.classList.add(`shift-${shiftType.replace('_', '-')}`); }
                                   shiftDiv.textContent = getShiftText(shiftType);
@@ -4347,7 +4657,7 @@
                  addListener(prevWeekBtn, 'click', () => { if (currentScheduleWeekOffset > scheduleMinWeekOffset) { currentScheduleWeekOffset--; renderSchedule(currentScheduleWeekOffset); } });
                  addListener(nextWeekBtn, 'click', () => { currentScheduleWeekOffset++; renderSchedule(currentScheduleWeekOffset); });
                  addListener(saveScheduleBtn, 'click', () => { showConfirmModal('Save Schedule', 'Save changes?', () => { saveScheduleBtn.disabled = true; saveScheduleBtn.innerHTML = '<span class="spinner"></span> Saving...'; console.log("Saving schedule...", mockScheduleData); setTimeout(() => { showToast("Schedule saved!", "success"); saveScheduleBtn.disabled = false; saveScheduleBtn.innerHTML = '<i class="fas fa-save"></i> Save Schedule'; }, 1000); }, 'btn-primary'); });
-                 addListener(sendRemindersBtn, 'click', handleSendReminders); // Assuming handleSendReminders is global or passed
+                 addListener(sendRemindersBtn, 'click', handleSendReminders);
 
                  if (editShiftModal) {
                      editShiftModal.querySelectorAll('[data-close-modal]').forEach(btn => { addListener(btn, 'click', () => editShiftModal.classList.remove('active')); });
@@ -4391,8 +4701,7 @@
              // Definition moved to template
 
             // --- Team Members Feature ---
-             // Define getTeamMembersHTML globally or ensure it's defined before use
-              function getTeamMembersHTML() {
+              window.getTeamMembersHTML = function() { // Made global
                  const addMemberBtnHTML = currentUser.role === 'admin' ? `<button class="btn btn-primary add-team-member-btn"><i class="fas fa-user-plus"></i> Add Member</button>` : '';
                  return `
                  <div class="team-members-section">
@@ -4412,7 +4721,7 @@
                  `;
              }
 
-             function initializeTeamMembersFeature(container) { // Pass container
+             window.initializeTeamMembersFeature = function(container) { // Made global
                  console.log("Initializing Team Members Feature...");
                  const searchInput = container.querySelector('#teamSearchInputFeature');
                  const teamListContainer = container.querySelector('#teamListContainerFeature');
@@ -4453,8 +4762,7 @@
              }
 
             // --- Projects Feature ---
-             // Define getProjectsHTML globally or ensure it's defined before use
-             function getProjectsHTML() {
+             window.getProjectsHTML = function() { // Made global
                  const addProjectBtnHTML = (currentUser.role === 'admin' || currentUser.role === 'supervisor')
                     ? `<button class="btn add-project-btn" id="addProjectBtnFeature"> <i class="fas fa-plus-circle"></i> Add Project </button>`
                     : '';
@@ -4482,7 +4790,7 @@
                  `;
              }
 
-             function renderProjects(container) { // Pass container
+             window.renderProjects = function(container) { // Made global
                  const projectsListContainer = container.querySelector('#projectsListContainerFeature');
                  if (!projectsListContainer) return;
 
@@ -4661,7 +4969,7 @@
                  }, 500);
              }
 
-            function initializeProjectsFeature(container) { // Pass container
+            window.initializeProjectsFeature = function(container) { // Made global
                  console.log("Initializing Projects Feature...");
                  const searchInput = container.querySelector('#projectSearchInputFeature');
                  const filterSelect = container.querySelector('#projectFilterSelectFeature');
@@ -4712,8 +5020,8 @@
             window.timeAgo = function(timestamp) { if (!(timestamp instanceof Date)) { const date = new Date(timestamp); if (isNaN(date.getTime())) return ''; timestamp = date; } const now = new Date(); const secondsPast = (now.getTime() - timestamp.getTime()) / 1000; if (secondsPast < 10) { return 'Just now'; } if (secondsPast < 60) { return parseInt(secondsPast) + 's ago'; } if (secondsPast < 3600) { return parseInt(secondsPast / 60) + 'm ago'; } if (secondsPast < 3600 * 24) { return parseInt(secondsPast / 3600) + 'h ago'; } return formatDateForDisplay(timestamp); }
             window.formatDateForDisplay = function(date) { if (!(date instanceof Date)) { const parsedDate = new Date(date); if (isNaN(parsedDate.getTime())) return ''; date = parsedDate; } const dateFormat = localStorage.getItem('dateFormat') || 'MM/DD/YYYY'; const year = date.getFullYear(); const month = date.getMonth() + 1; const day = date.getDate(); const monthPadded = String(month).padStart(2, '0'); const dayPadded = String(day).padStart(2, '0'); const monthName = date.toLocaleDateString(undefined, { month: 'short' }); try { switch (dateFormat) { case 'DD/MM/YYYY': return `${dayPadded}/${monthPadded}/${year}`; case 'YYYY-MM-DD': return `${year}-${monthPadded}-${dayPadded}`; case 'Month D, YYYY': return `${monthName} ${day}, ${year}`; case 'MM/DD/YYYY': default: return `${monthPadded}/${dayPadded}/${year}`; } } catch (e) { console.error("Error formatting date:", e); return `${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}/${year}`; } }
             window.formatFullDateTime = function(date) { if (!(date instanceof Date)) { const parsedDate = new Date(date); if (isNaN(parsedDate.getTime())) return ''; date = parsedDate; } const formattedDate = formatDateForDisplay(date); const timeFormat = localStorage.getItem('timeFormat') || '12h'; const options = { hour: 'numeric', minute: 'numeric', hour12: timeFormat === '12h' }; try { const formattedTime = date.toLocaleTimeString(undefined, options); return `${formattedDate}, ${formattedTime}`; } catch (e) { console.error("Error formatting time:", e); return formattedDate; } }
-            window.generateMockActivities = function(count, baseTimestampMillis) { /* ... (mock generation) ... */ const nowMillis=baseTimestampMillis||Date.now();const newActivities=[];let users=MOCK_USERS.map(u=>u.name.split(' ')[0]);if(users.length===0)users.push('System');const actions=['updated profile','completed task','added project','commented on task','uploaded file','joined team'];const icons=['fa-user-edit','fa-check-circle','fa-plus-circle','fa-comment','fa-upload','fa-user-plus'];const tasks=MOCK_TASKS.map(t=>`'${t.name.substring(0,20)}...'`);const projects=MOCK_PROJECTS_DATA.map(p=>`'${p.name}'`);const files=['doc.pdf','img.png','sheet.xlsx','pres.pptx'];for(let i=0;i<count;i++){const user=users[Math.floor(Math.random()*users.length)];const actionIndex=Math.floor(Math.random()*actions.length);let message=`${user} ${actions[actionIndex]}`;if(actions[actionIndex].includes('task')&&tasks.length>0){message+=` ${tasks[Math.floor(Math.random()*tasks.length)]}`;}else if(actions[actionIndex].includes('project')&&projects.length>0){message+=` ${projects[Math.floor(Math.random()*projects.length)]}`;}else if(actions[actionIndex].includes('file')&&files.length>0){message+=` ${files[Math.floor(Math.random()*files.length)]}`;}let timestampMillis;if(count===1){timestampMillis=nowMillis-Math.random()*1000*10;}else{timestampMillis=nowMillis-(Math.random()*1000*3600*(i+1)*1.5+300000);}timestampMillis=Math.min(timestampMillis,nowMillis);newActivities.push({id:nowMillis+i+Math.floor(Math.random()*1000),icon:icons[actionIndex],message:message,timestamp:new Date(timestampMillis),isNew:false});}return count>1?newActivities.sort((a,b)=>b.timestamp-a.timestamp):newActivities; }
-            window.generateMockNotifications = function(count, baseTimestampMillis) { /* ... (mock generation) ... */ const nowMillis=baseTimestampMillis||Date.now();const newNotifications=[];const types=[{msg:'New task assigned:',icon:'fa-tasks',type:'task'},{msg:'Project deadline approaching:',icon:'fa-clock',type:'project'},{msg:'Mentioned you:',icon:'fa-comment-dots',type:'comment'},{msg:'System update:',icon:'fa-info-circle',type:'system'},{msg:'File shared:',icon:'fa-file-alt',type:'file'},];const tasks=MOCK_TASKS.map(t=>`'${t.name.substring(0,20)}...'`);const projects=MOCK_PROJECTS_DATA.map(p=>`'${p.name}'`);let users=MOCK_USERS.map(u=>u.name.split(' ')[0]);if(users.length===0)users.push('System');const files=['report.docx','logo.svg','data.csv'];for(let i=0;i<count;i++){const typeInfo=types[Math.floor(Math.random()*types.length)];let message=typeInfo.msg;if(typeInfo.type==='task'&&tasks.length>0)message+=` ${tasks[Math.floor(Math.random()*tasks.length)]}`;else if(typeInfo.type==='project'&&projects.length>0)message+=` ${projects[Math.floor(Math.random()*projects.length)]}`;else if(typeInfo.type==='comment'&&users.length>0)message+=` by ${users[Math.floor(Math.random()*users.length)]}`;else if(typeInfo.type==='file'&&files.length>0&&users.length>0)message+=` ${files[Math.floor(Math.random()*files.length)]} by ${users[Math.floor(Math.random()*users.length)]}`;let timestampMillis;if(count===1){timestampMillis=nowMillis-Math.random()*1000*15;}else{timestampMillis=nowMillis-(Math.random()*1000*3600*(i+1)*1.8+180000);}timestampMillis=Math.min(timestampMillis,nowMillis);newNotifications.push({id:nowMillis+i+10000+Math.floor(Math.random()*1000),icon:typeInfo.icon,message:message,timestamp:new Date(timestampMillis),unread:count===1?true:Math.random()>0.3});}return count>1?newNotifications.sort((a,b)=>b.timestamp-a.timestamp):newNotifications; }
+            window.generateMockActivities = function(count, baseTimestampMillis) { /* ... (mock generation) ... */ const nowMillis=baseTimestampMillis||Date.now();const newActivities=[];let users=MOCK_USERS.map(u=>u.name.split(' ')[0]);if(users.length===0)users.push('System');const actions=['updated profile','completed task','added project','commented on task','uploaded file','joined team'];const icons=['fa-user-edit','fa-check-circle','fa-plus-circle','fa-comment','fa-upload','fa-user-plus'];const tasks=MOCK_TASKS.map(t=>`'${t.name.substring(0,20)}...'`);const projects=MOCK_PROJECTS_DATA.map(p=>`'${p.name}'`);const files=['doc.pdf','img.png','sheet.xlsx','pres.pptx'];for(let i=0;i<count;i++){const user=users[Math.floor(Math.random()*users.length)];const actionIndex=Math.floor(Math.random()*actions.length);let message=`${user} ${actions[actionIndex]}`;if(actions[actionIndex].includes('task')&&tasks.length>0){message+=` ${tasks[Math.floor(Math.random()*tasks.length)]}`;}else if(actions[actionIndex].includes('project')&&projects.length>0){message+=` ${projects[Math.floor(Math.random()*projects.length)]}`;}else if(actions[actionIndex].includes('file')&&files.length>0){message+=` ${files[Math.floor(Math.random()*files.length)]}`;}let timestampMillis;if(count===1){timestampMillis=nowMillis-Math.random()*1000*10;}else{timestampMillis=nowMillis-(Math.random()*1000*3600*(i+1)*1.5+300000);}timestampMillis=Math.min(timestampMillis,nowMillis);newActivities.push({id:nowMillis+i+Math.floor(Math.random()*1000),icon:icons[actionIndex],message:message,timestamp:new Date(timestampMillis),isNew:false});}return newActivities; } // Removed sort here, sort happens in loadRecentActivities
+            window.generateMockNotifications = function(count, baseTimestampMillis) { /* ... (mock generation) ... */ const nowMillis=baseTimestampMillis||Date.now();const newNotifications=[];const types=[{msg:'New task assigned:',icon:'fa-tasks',type:'task'},{msg:'Project deadline approaching:',icon:'fa-clock',type:'project'},{msg:'Mentioned you:',icon:'fa-comment-dots',type:'comment'},{msg:'System update:',icon:'fa-info-circle',type:'system'},{msg:'File shared:',icon:'fa-file-alt',type:'file'},];const tasks=MOCK_TASKS.map(t=>`'${t.name.substring(0,20)}...'`);const projects=MOCK_PROJECTS_DATA.map(p=>`'${p.name}'`);let users=MOCK_USERS.map(u=>u.name.split(' ')[0]);if(users.length===0)users.push('System');const files=['report.docx','logo.svg','data.csv'];for(let i=0;i<count;i++){const typeInfo=types[Math.floor(Math.random()*types.length)];let message=typeInfo.msg;if(typeInfo.type==='task'&&tasks.length>0)message+=` ${tasks[Math.floor(Math.random()*tasks.length)]}`;else if(typeInfo.type==='project'&&projects.length>0)message+=` ${projects[Math.floor(Math.random()*projects.length)]}`;else if(typeInfo.type==='comment'&&users.length>0)message+=` by ${users[Math.floor(Math.random()*users.length)]}`;else if(typeInfo.type==='file'&&files.length>0&&users.length>0)message+=` ${files[Math.floor(Math.random()*files.length)]} by ${users[Math.floor(Math.random()*users.length)]}`;let timestampMillis;if(count===1){timestampMillis=nowMillis-Math.random()*1000*15;}else{timestampMillis=nowMillis-(Math.random()*1000*3600*(i+1)*1.8+180000);}timestampMillis=Math.min(timestampMillis,nowMillis);newNotifications.push({id:nowMillis+i+10000+Math.floor(Math.random()*1000),icon:typeInfo.icon,message:message,timestamp:new Date(timestampMillis),unread:count===1?true:Math.random()>0.3});}return newNotifications; } // Sort happens in renderNotifications
             window.showConfirmModal = function(title, message, onConfirm, buttonClass = 'btn-danger') { confirmTitle.textContent = title; confirmMessage.innerHTML = message; confirmCallback = onConfirm; confirmBtn.className = 'btn'; confirmBtn.classList.add(buttonClass); confirmModal.classList.add('active'); }
             function hideConfirmModal() { confirmModal.classList.remove('active'); confirmCallback = null; }
             window.showSuccessMessage = function(message) { successMessageText.textContent = message; successMessage.classList.add('show'); setTimeout(() => { successMessage.classList.remove('show'); }, 3000); }
@@ -4723,5 +5031,18 @@
             initDashboard();
         });
     </script>
+
+    <!-- Placeholder Templates for Missing Features -->
+    <template id="teamCalendarAssets">
+        <style id="injected-team-calendar-styles"></style>
+        <div><h2>Team Calendar</h2><p>Content coming soon...</p></div>
+        <script></script>
+    </template>
+    <template id="innovationHubAssets">
+        <style id="injected-innovation-hub-styles"></style>
+        <div><h2>Innovation Hub</h2><p>Content coming soon...</p></div>
+        <script></script>
+    </template>
+
 </body>
 </html>
