@@ -4,558 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TeamFlow | Dashboard</title>
-
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-
-    <!-- Font Awesome CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-    <!-- SweetAlert2 CSS (for delete confirmation) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-
-    <!-- Custom CSS -->
-    <style>
-        /* --- Color Palette (Example) --- */
-        :root {
-            --app-primary: #0d6efd; /* Bootstrap Blue */
-            --app-secondary: #6c757d; /* Bootstrap Gray */
-            --app-success: #198754; /* Bootstrap Green */
-            --app-danger: #dc3545; /* Bootstrap Red */
-            --app-warning: #ffc107; /* Bootstrap Yellow */
-            --app-info: #0dcaf0; /* Bootstrap Cyan */
-            --app-light: #f8f9fa;
-            --app-dark: #212529;
-            --app-hover-bg: #eef4ff; /* Light blue for hover */
-            --app-header-bg: linear-gradient(90deg, hsla(217, 91%, 60%, 1) 0%, hsla(245, 100%, 70%, 1) 100%); /* Gradient */
-        }
-
-        body {
-            background-color: #f0f2f5; /* Slightly off-white background */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Common UI font */
-            margin: 0; /* Ensure no body margin from iframe */
-            padding: 1rem; /* Add padding inside the iframe body */
-        }
-
-        .card {
-            border: none; /* Remove default card border */
-            border-radius: 0.5rem; /* Softer border radius */
-        }
-
-        .card-header {
-             background-color: #ffffff;
-             border-bottom: 1px solid #e9ecef; /* Lighter border */
-             padding: 0.75rem 1.25rem;
-        }
-
-        /* Fancy Header Title Style */
-        .fancy-header-title {
-            background: var(--app-header-bg);
-            color: white;
-            padding: 10px 20px; /* Increased padding */
-            border-radius: 50px;
-            display: inline-block;
-            font-weight: 600;
-            font-size: 1.1rem; /* Slightly larger */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease;
-        }
-        .fancy-header-title:hover {
-            transform: scale(1.02); /* Subtle hover effect */
-        }
-        .card-header .d-flex {
-            align-items: center;
-        }
-
-        .file-icon {
-            font-size: 1.6rem; /* Slightly larger icons */
-            vertical-align: middle;
-            margin-right: 10px;
-            width: 25px; /* Fixed width for alignment */
-            text-align: center;
-        }
-        /* Specific Icon Colors */
-        .file-icon.text-danger { color: var(--app-danger) !important; }
-        .file-icon.text-success { color: var(--app-success) !important; }
-        .file-icon.text-warning { color: var(--app-warning) !important; }
-        .file-icon.text-primary { color: var(--app-primary) !important; } /* For Docs etc */
-        .file-icon.text-info { color: var(--app-info) !important; } /* For other types */
-
-        .action-buttons .btn {
-            margin: 0 3px; /* Slightly more space */
-            transition: all 0.2s ease-in-out;
-            border-radius: 50px; /* Pill shape buttons */
-            padding: 0.25rem 0.6rem; /* Adjust padding */
-            font-size: 0.8rem; /* Slightly smaller icon buttons */
-        }
-         .action-buttons .btn:hover {
-            transform: translateY(-2px); /* Lift effect */
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-         }
-
-        /* Loading spinner style */
-        .action-btn .loading-spinner { display: none; margin: 0 2px; }
-        .action-btn.loading .original-icon { display: none; }
-        .action-btn.loading .loading-spinner { display: inline-block; }
-
-        /* Filters Area */
-        .filters-section {
-            background-color: #ffffff;
-            padding: 1rem 1.25rem;
-            border-radius: 0.375rem;
-            border: 1px solid #e9ecef;
-            margin-bottom: 1.5rem; /* More space below filters */
-        }
-        .filters-section .form-label {
-            font-size: 0.8rem;
-            color: var(--app-secondary);
-            margin-bottom: 0.25rem;
-        }
-        .filters-section .form-control-sm, .filters-section .form-select-sm {
-             font-size: 0.875rem;
-        }
-
-        /* Recent Uploads */
-        #recentUploadsSection {
-            background-color: #ffffff;
-            border: 1px solid #e9ecef;
-            border-radius: 0.375rem;
-            padding: 1rem 1.25rem;
-        }
-        #recentUploadsSection h6 {
-            color: var(--app-primary);
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        #recentUploadsSection .list-group-item {
-             border-bottom: 1px dashed #eee !important;
-             padding: 8px 0 !important;
-             background-color: transparent !important; /* Ensure bg is transparent */
-             border-top: none !important;
-             border-left: none !important;
-             border-right: none !important;
-        }
-         #recentUploadsSection .list-group-item:last-child { border-bottom: 0 !important; }
-        .time-ago {
-            font-style: normal; /* Removed italic */
-            font-size: 0.85em;
-            color: var(--app-secondary); /* Softer color */
-        }
-
-        /* Table Styling */
-        .table {
-            margin-bottom: 0; /* Remove default bottom margin if inside card body */
-             background-color: #ffffff; /* Ensure table bg is white */
-        }
-        .table thead {
-             background-color: var(--app-light) !important; /* Use light variable */
-             color: var(--app-secondary);
-             text-transform: uppercase;
-             font-size: 0.75rem;
-             letter-spacing: 0.5px;
-             border-bottom: 2px solid #dee2e6;
-        }
-        .table tbody tr td {
-             vertical-align: middle;
-             padding: 0.85rem 0.75rem; /* Adjust padding */
-        }
-        .table-hover > tbody > tr:hover > * {
-             background-color: var(--app-hover-bg) !important;
-             cursor: default; /* Indicate row isn't clickable unless intended */
-        }
-        .file-name {
-            font-weight: 500;
-            color: var(--app-dark);
-        }
-        /* Badge Styling - using text-bg-* for better contrast */
-        .badge {
-             font-size: 0.75em;
-             padding: 0.35em 0.6em;
-             font-weight: 500;
-        }
-
-        /* Upload Area */
-        .upload-area {
-            border: 2px dashed var(--app-primary);
-            padding: 30px;
-            text-align: center;
-            margin-bottom: 20px;
-            cursor: pointer;
-            background-color: var(--app-light);
-            border-radius: 8px;
-            transition: background-color 0.2s ease, border-color 0.2s ease;
-        }
-        .upload-area:hover {
-            background-color: var(--app-hover-bg);
-            border-color: lighten(var(--app-primary), 10%);
-        }
-        .upload-area i { color: var(--app-primary); }
-
-        /* Progress Bar Status Colors */
-        #uploadProgressContainer .progress-bar.bg-success { background-color: var(--app-success) !important; }
-        #uploadProgressContainer .progress-bar.bg-danger { background-color: var(--app-danger) !important; }
-        #uploadProgressContainer .progress-bar { background-color: var(--app-primary); } /* Default */
-
-        /* SweetAlert Customization (Optional) */
-        .swal2-confirm { background-color: var(--app-success) !important; }
-        .swal2-cancel { background-color: var(--app-danger) !important; }
-        .swal2-popup { font-size: 0.9rem !important; }
-
-    </style>
-</head>
-<body>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-
-        // --- Constants and Element Selectors ---
-        const fileTableBody = document.getElementById('fileTableBody');
-        const fileSearchInput = document.getElementById('fileSearchInput');
-        const fileTypeFilter = document.getElementById('fileTypeFilter');
-        const uploadDateFilter = document.getElementById('uploadDateFilter');
-        const userFilter = document.getElementById('userFilter');
-        const userFilterContainer = document.getElementById('userFilterContainer');
-        const noResultsRow = document.getElementById('noResultsRow');
-        const resetFiltersBtn = document.getElementById('resetFiltersBtn');
-
-        // --- Admin Check (Example) ---
-        const isAdmin = true;
-        if (isAdmin && userFilterContainer) {
-            userFilterContainer.style.display = 'block';
-        } else if(userFilterContainer) {
-            userFilterContainer.style.display = 'none'; // Ensure it's hidden if not admin
-        }
-
-        // --- Filtering Logic ---
-        function applyFilters() {
-            const searchTerm = fileSearchInput.value.toLowerCase().trim();
-            const selectedType = fileTypeFilter.value;
-            const selectedDate = uploadDateFilter.value;
-            const selectedUser = userFilter.value;
-
-            let hasVisibleRows = false;
-            if (!fileTableBody) return;
-
-            const rows = fileTableBody.querySelectorAll('tr:not(#noResultsRow)');
-
-            rows.forEach(row => {
-                const fileNameElement = row.querySelector('.file-name');
-                const uploaderElement = row.querySelector('.uploader-shared');
-
-                const fileName = fileNameElement ? fileNameElement.textContent.toLowerCase() : '';
-                const fileType = row.dataset.fileType || '';
-                const uploadDate = row.dataset.uploadDate || '';
-                const uploader = row.dataset.uploader || (uploaderElement ? uploaderElement.textContent : '');
-
-                const nameMatch = searchTerm === '' || fileName.includes(searchTerm);
-                const typeMatch = selectedType === '' || fileType === selectedType;
-                const dateMatch = selectedDate === '' || uploadDate === selectedDate;
-                const userMatch = (!isAdmin || selectedUser === '' || uploader === selectedUser);
-
-                if (nameMatch && typeMatch && dateMatch && userMatch) {
-                    row.style.display = '';
-                    hasVisibleRows = true;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            if(noResultsRow) {
-                noResultsRow.style.display = hasVisibleRows ? 'none' : '';
-            }
-        }
-
-        // --- Reset Filters ---
-        function resetFilters() {
-             if(fileSearchInput) fileSearchInput.value = '';
-             if(fileTypeFilter) fileTypeFilter.value = '';
-             if(uploadDateFilter) uploadDateFilter.value = '';
-             if(userFilter) userFilter.value = '';
-             applyFilters();
-        }
-
-        // --- Live Timestamp Update ---
-        function timeAgo(isoTimestamp) {
-            if (!isoTimestamp) return 'Invalid date'; // Handle missing timestamp
-            const past = new Date(isoTimestamp);
-             // Check if the date is valid AFTER parsing
-             if (isNaN(past.getTime())) {
-                 console.warn("Invalid date encountered:", isoTimestamp);
-                 return 'Invalid date';
-             }
-
-            const now = new Date();
-            const diffInSeconds = Math.floor((now - past) / 1000);
-
-            if (diffInSeconds < 5) return 'just now';
-            if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
-
-            const minutes = Math.floor(diffInSeconds / 60);
-            if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-
-            const hours = Math.floor(minutes / 60);
-            if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-
-            const days = Math.floor(hours / 24);
-            if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
-
-            return past.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        }
-
-        function updateRelativeTimes() {
-            const timeElements = document.querySelectorAll('#recentUploadsSection .time-ago');
-            timeElements.forEach(el => {
-                const timestamp = el.closest('li')?.dataset.timestamp;
-                el.textContent = timeAgo(timestamp);
-            });
-        }
-
-        updateRelativeTimes(); // Initial update
-        setInterval(updateRelativeTimes, 60000); // Update every 60 seconds (1 minute)
-
-        // --- Action Button Handlers ---
-        if (fileTableBody) {
-             fileTableBody.addEventListener('click', function(event) {
-                 const button = event.target.closest('.action-btn');
-                 if (!button) return; // Exit if click wasn't on an action button
-
-                 // Prevent multiple clicks
-                 if (button.classList.contains('loading')) return;
-
-                 const fileId = button.dataset.fileId;
-                 const row = button.closest('tr');
-                 const fileNameElement = row?.querySelector('.file-name');
-                 const fileName = fileNameElement ? fileNameElement.textContent : 'this file';
-
-                 // --- Download Action ---
-                 if (button.classList.contains('download-btn')) {
-                     const fileUrl = button.dataset.fileUrl;
-                     if (!fileUrl || fileUrl === 'path/to/...') { // Basic check for placeholder/missing URL
-                         console.error(`Download failed: File URL is missing or invalid for file ID ${fileId}.`);
-                         // Show user feedback (e.g., using SweetAlert)
-                         Swal.fire({
-                             icon: 'error',
-                             title: 'Download Error',
-                             text: 'Could not download the file. URL is missing.',
-                             timer: 2500,
-                             showConfirmButton: false
-                         });
-                         return; // Stop processing
-                     }
-
-                     button.classList.add('loading');
-                     button.disabled = true;
-                     console.log(`Attempting download for file ID: ${fileId}, URL: ${fileUrl}`);
-
-                     try {
-                         // Create temporary link to trigger download
-                         const link = document.createElement('a');
-                         link.href = fileUrl;
-                         link.setAttribute('download', fileName); // Suggest original file name
-                         document.body.appendChild(link);
-                         link.click();
-                         document.body.removeChild(link);
-                          console.log(`Download initiated for: ${fileName}`);
-                          // Optional: Show success feedback
-                          // Swal.fire({.. icon: 'success' ...})
-                     } catch (error) {
-                         console.error('Error triggering download:', error);
-                          Swal.fire({
-                             icon: 'error',
-                             title: 'Download Failed',
-                             text: 'An error occurred while trying to start the download.',
-                         });
-                     } finally {
-                          // Remove loading state after a short delay to allow download prompt
-                          setTimeout(() => {
-                                button.classList.remove('loading');
-                                button.disabled = false;
-                          }, 500);
-                     }
-                 }
-
-                 // --- Delete Action ---
-                 else if (button.classList.contains('delete-btn')) {
-                     Swal.fire({
-                         title: 'Are you sure?',
-                         html: `You are about to delete the file: <br><strong>${fileName}</strong>`, // Show file name
-                         icon: 'warning',
-                         showCancelButton: true,
-                         confirmButtonColor: 'var(--app-success)', // Use success color for confirm
-                         cancelButtonColor: 'var(--app-danger)', // Use danger color for cancel
-                         confirmButtonText: '<i class="fas fa-check me-1"></i> Yes, delete it!',
-                         cancelButtonText: '<i class="fas fa-times me-1"></i> Cancel'
-                     }).then((result) => {
-                         if (result.isConfirmed) {
-                             // User confirmed -> Show loading and simulate deletion
-                             button.classList.add('loading');
-                             button.disabled = true;
-                             console.log(`Attempting delete for file ID: ${fileId}`);
-
-                             // --- Simulate backend delete call ---
-                             setTimeout(() => {
-                                 const deleteSuccess = Math.random() > 0.1; // 90% success rate for demo
-
-                                 if (deleteSuccess) {
-                                     console.log(`Successfully deleted file ID: ${fileId}`);
-                                     // Remove row from table
-                                     row.style.opacity = '0'; // Fade out effect
-                                     setTimeout(() => {
-                                         row.remove();
-                                         applyFilters(); // Re-check if "no results" should be shown
-                                          Swal.fire(
-                                             'Deleted!',
-                                             `"${fileName}" has been deleted.`,
-                                             'success'
-                                          );
-                                     }, 300); // Delay removal for fade effect
-                                 } else {
-                                     console.error(`Failed to delete file ID: ${fileId}`);
-                                     button.classList.remove('loading'); // Remove loading on failure
-                                     button.disabled = false;
-                                     Swal.fire(
-                                         'Error!',
-                                         'Could not delete the file. Please try again.',
-                                         'error'
-                                     );
-                                 }
-                                 // No need to remove loading/disabled state on success because the button is removed
-                             }, 1000); // Simulate 1 second delay
-                         }
-                     });
-                 }
-             });
-        }
-
-        // --- Preview Modal Logic ---
-        const filePreviewModal = document.getElementById('filePreviewModal');
-        const previewContent = document.getElementById('previewContent');
-        const previewFileName = document.getElementById('previewFileName');
-        const previewFileType = document.getElementById('previewFileType');
-
-        if(filePreviewModal && previewContent && previewFileName && previewFileType) {
-            filePreviewModal.addEventListener('show.bs.modal', function (event) {
-                const button = event.relatedTarget;
-                const fileUrl = button.getAttribute('data-file-url');
-                const fileType = button.getAttribute('data-file-type');
-                const row = button.closest('tr');
-                 const fileNameElement = row?.querySelector('.file-name');
-                const fileName = fileNameElement ? fileNameElement.textContent : 'N/A';
-
-                previewFileName.textContent = `File Name: ${fileName}`;
-                previewFileType.textContent = `Type: ${fileType ? fileType.toUpperCase() : 'N/A'}`;
-                previewContent.innerHTML = '<div class="d-flex justify-content-center align-items-center" style="min-height: 200px;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>'; // Show spinner
-
-                if (fileUrl && fileUrl !== 'path/to/...') {
-                    setTimeout(() => { // Small delay for spinner visibility
-                        if (fileType === 'Image') {
-                            previewContent.innerHTML = `<img src="${fileUrl}" class="img-fluid" alt="Preview of ${fileName}" style="max-height: 75vh;">`;
-                        } else if (fileType === 'PDF') {
-                            previewContent.innerHTML = `<object data="${fileUrl}" type="application/pdf" width="100%" height="650px"><p class="text-warning p-4">Preview not available. Your browser might not support PDF embedding or the file is inaccessible. <a href="${fileUrl}" target="_blank" class="btn btn-sm btn-primary mt-2">Download PDF</a></p></object>`;
-                        } else {
-                            previewContent.innerHTML = `<p class="text-warning p-4">Preview is not available for this file type (${fileType}).</p>`;
-                        }
-                    }, 300);
-                } else {
-                     previewContent.innerHTML = `<p class="text-danger p-4">Could not load preview. File URL is missing or invalid.</p>`;
-                }
-            });
-             // Clear content when modal is hidden to prevent showing old preview briefly
-             filePreviewModal.addEventListener('hidden.bs.modal', function() {
-                  previewContent.innerHTML = ''; // Clear preview area
-             });
-        }
-
-        // --- Event Listeners for Filters ---
-        if(fileSearchInput) fileSearchInput.addEventListener('input', applyFilters);
-        if(fileTypeFilter) fileTypeFilter.addEventListener('change', applyFilters);
-        if(uploadDateFilter) uploadDateFilter.addEventListener('change', applyFilters);
-        if(userFilter) userFilter.addEventListener('change', applyFilters);
-        if(resetFiltersBtn) resetFiltersBtn.addEventListener('click', resetFilters);
-
-        // --- Upload Modal Logic (Placeholder - needs real implementation) ---
-        const startUploadButton = document.getElementById('startUploadButton');
-        const uploadProgressContainer = document.getElementById('uploadProgressContainer');
-        const uploadProgressBar = document.getElementById('uploadProgressBar');
-        const uploadStatus = document.getElementById('uploadStatus');
-        const uploadFileName = document.getElementById('uploadFileName');
-        const uploadPercentage = document.getElementById('uploadPercentage');
-        const fileInputManual = document.getElementById('fileInputManual');
-        const fileInputHidden = document.getElementById('fileInputHidden');
-
-        if(startUploadButton && uploadProgressContainer && uploadProgressBar && uploadStatus) {
-             startUploadButton.addEventListener('click', function() {
-                 const filesToUpload = fileInputManual.files.length > 0 ? fileInputManual.files : fileInputHidden.files;
-                 if (filesToUpload.length === 0) {
-                     Swal.fire('No File Selected', 'Please select at least one file to upload.', 'warning');
-                     return;
-                 }
-                 const firstFile = filesToUpload[0]; // Example: upload first selected file
-
-                 // --- Start actual upload process here (AJAX/Fetch) ---
-                 console.log("Starting upload for:", firstFile.name);
-                 uploadFileName.textContent = `Uploading: ${firstFile.name}`;
-                 uploadProgressContainer.style.display = 'block';
-                 uploadProgressBar.style.width = '0%';
-                 uploadProgressBar.classList.remove('bg-success', 'bg-danger');
-                 uploadProgressBar.classList.add('progress-bar-animated');
-                 uploadPercentage.textContent = '0%';
-                 uploadStatus.textContent = 'Initializing...';
-                 uploadStatus.className = 'text-muted d-block mt-1'; // Reset status class
-
-                 // --- Simulate upload progress ---
-                 let progress = 0;
-                 const interval = setInterval(() => {
-                     progress += Math.random() * 15; // Simulate variable progress
-                     progress = Math.min(progress, 100);
-
-                     uploadProgressBar.style.width = progress + '%';
-                     uploadProgressBar.setAttribute('aria-valuenow', progress);
-                     uploadPercentage.textContent = Math.round(progress) + '%';
-
-                     if (progress >= 100) {
-                         clearInterval(interval);
-                         const uploadSuccess = Math.random() > 0.2; // 80% success rate demo
-
-                         uploadProgressBar.classList.remove('progress-bar-animated');
-                         if(uploadSuccess) {
-                              uploadStatus.textContent = 'Upload successful!';
-                              uploadStatus.className = 'text-success d-block mt-1 fw-bold';
-                              uploadProgressBar.classList.add('bg-success');
-                              // Add the new file to the table (requires backend data or JS simulation)
-                              // Optionally close modal after success
-                              // setTimeout(() => bootstrap.Modal.getInstance(document.getElementById('uploadFileModal'))?.hide(), 1500);
-                         } else {
-                             uploadStatus.textContent = 'Upload failed. Please try again.';
-                             uploadStatus.className = 'text-danger d-block mt-1 fw-bold';
-                             uploadProgressBar.classList.add('bg-danger');
-                         }
-                         // Reset file inputs
-                         fileInputManual.value = '';
-                         fileInputHidden.value = '';
-                         // Maybe reset dropzone text here
-                     }
-                 }, 300); // Simulate progress update speed
-             });
-        }
-        // --- End Upload Modal Logic ---
-
-    }); // End DOMContentLoaded
-</script>
-
-</body>
-</html>
-```
-
-**2. ملف `dashboard.html` (مع التعديل المحدد في JavaScript):**
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeamFlow | Dashboard</title>
     <!-- Font Awesome (Dashboard already includes it) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Favicon - Ensuring it's present -->
@@ -1674,6 +1122,9 @@
              .search-bar { width: 100%; order: 2; }
              .user-menu { width: 100%; justify-content: space-between; order: 1; }
              .content-area { padding: 1.5rem; }
+             /* >>> START: Modified content-area padding for file sharing */
+             body.file-sharing-active .content-area { padding: 0 !important; }
+             /* >>> END: Modified content-area padding */
              .data-form { grid-template-columns: 1fr; }
              .form-actions { grid-column: span 1; }
              .user-info { flex-direction: column; text-align: center; }
@@ -2062,19 +1513,34 @@
         }
          /* --- END: Adapted Projects Styles --- */
 
-         /* Additional style for the iframe container */
-         #featureSectionsContainer.file-sharing-feature {
-            padding: 0; /* Remove padding from the container itself */
-            height: calc(100vh - 90px); /* Example height: viewport minus top nav height */
-            overflow: hidden; /* Hide container overflow */
+         /* --- START: Added/Refined CSS for File Sharing Iframe --- */
+         /* Remove padding from the content area when file sharing is active */
+         body.file-sharing-active .content-area {
+             padding: 0 !important; /* Remove padding */
+             /* Optionally set background to match iframe if needed */
+             /* background-color: #f0f2f5; */
          }
+
+         /* Style the container for the iframe */
+         #featureSectionsContainer.file-sharing-feature {
+             padding: 0 !important; /* Ensure no padding on the container */
+             /* Adjust height calculation if top-nav height changes */
+             height: calc(100vh - 70px); /* Example height */
+             overflow: hidden; /* Hide container overflow */
+             background-color: transparent; /* Ensure no background color interferes */
+             box-shadow: none; /* Remove any default box shadow */
+             border: none; /* Remove any default border */
+             border-radius: 0; /* Remove any default border radius */
+         }
+
          /* Style for the iframe itself */
          #fileShareIframe {
-            width: 100%;
-            height: 100%; /* Fill the container */
-            border: none; /* No iframe border */
-            display: block; /* Remove potential bottom space */
+             width: 100%;
+             height: 100%; /* Fill the container */
+             border: none; /* No iframe border */
+             display: block; /* Remove potential bottom space */
          }
+         /* --- END: Added CSS for File Sharing Iframe --- */
 
     </style>
 </head>
@@ -2163,94 +1629,97 @@
              </div>
          </nav>
 
-         <div class="content-area">
-             <!-- Back Button - Text dynamically updated -->
-             <div class="back-button" id="backButton" style="display: none;">
-                 <i class="fas fa-arrow-left"></i> <span id="backButtonText">Back</span>
-             </div>
+         <!-- MODIFIED: Removed content-area div wrapping all sections -->
+         <!-- Sections will be direct children of mainContent -->
 
-             <!-- Dashboard Content -->
-             <div id="dashboardContent" class="content-section active">
-                 <div class="welcome-section" id="welcomeSection">
-                     <h2 class="welcome-title">Welcome, <span id="welcomeName">User</span>!</h2>
-                     <p class="welcome-subtitle">Here's what's happening with your team today.</p>
-                     <div class="user-info">
-                         <div class="user-info-avatar" id="profileAvatar">U</div>
-                         <div class="user-info-details">
-                             <div class="user-info-name" id="userInfoName">Loading User...</div>
-                             <div class="user-info-title" id="userInfoRoleTitle">Loading Role...</div>
-                             <div class="user-info-email">
-                                 <i class="fas fa-envelope"></i> <span id="userEmail">loading@email.com</span>
-                             </div>
+         <!-- Back Button - Text dynamically updated -->
+         <div class="back-button content-area-element" id="backButton" style="display: none; padding: 0 2rem 1.5rem;"> <!-- Added padding here -->
+             <i class="fas fa-arrow-left"></i> <span id="backButtonText">Back</span>
+         </div>
+
+         <!-- Dashboard Content -->
+         <div id="dashboardContent" class="content-section active content-area"> <!-- Added content-area class -->
+             <div class="welcome-section" id="welcomeSection">
+                 <h2 class="welcome-title">Welcome, <span id="welcomeName">User</span>!</h2>
+                 <p class="welcome-subtitle">Here's what's happening with your team today.</p>
+                 <div class="user-info">
+                     <div class="user-info-avatar" id="profileAvatar">U</div>
+                     <div class="user-info-details">
+                         <div class="user-info-name" id="userInfoName">Loading User...</div>
+                         <div class="user-info-title" id="userInfoRoleTitle">Loading Role...</div>
+                         <div class="user-info-email">
+                             <i class="fas fa-envelope"></i> <span id="userEmail">loading@email.com</span>
                          </div>
                      </div>
                  </div>
-                 <div class="stats-section" id="statsSection">
-                     <!-- Stat cards will be populated by JS -->
-                     <div class="stat-card"> <div class="stat-title"><i class="fas fa-spinner fa-spin"></i>Loading...</div> <div class="stat-value"><span>-</span></div> </div>
-                     <div class="stat-card"> <div class="stat-title"><i class="fas fa-spinner fa-spin"></i>Loading...</div> <div class="stat-value"><span>-</span></div> </div>
-                     <div class="stat-card"> <div class="stat-title"><i class="fas fa-spinner fa-spin"></i>Loading...</div> <div class="stat-value"><span>-</span></div> </div>
-                     <div class="stat-card"> <div class="stat-title"><i class="fas fa-spinner fa-spin"></i>Loading...</div> <div class="stat-value"><span>-</span></div> </div>
-                 </div>
-                 <div class="activity-section">
-                     <div class="section-header">
-                         <h3 class="section-title">Recent Activity <span class="live-badge">LIVE</span></h3>
-                         <div>
-                             <span class="view-all" id="viewAllActivity">Show All</span>
-                             <span class="delete-all" id="deleteAllActivity">Delete All</span>
-                         </div>
+             </div>
+             <div class="stats-section" id="statsSection">
+                 <!-- Stat cards will be populated by JS -->
+                 <div class="stat-card"> <div class="stat-title"><i class="fas fa-spinner fa-spin"></i>Loading...</div> <div class="stat-value"><span>-</span></div> </div>
+                 <div class="stat-card"> <div class="stat-title"><i class="fas fa-spinner fa-spin"></i>Loading...</div> <div class="stat-value"><span>-</span></div> </div>
+                 <div class="stat-card"> <div class="stat-title"><i class="fas fa-spinner fa-spin"></i>Loading...</div> <div class="stat-value"><span>-</span></div> </div>
+                 <div class="stat-card"> <div class="stat-title"><i class="fas fa-spinner fa-spin"></i>Loading...</div> <div class="stat-value"><span>-</span></div> </div>
+             </div>
+             <div class="activity-section">
+                 <div class="section-header">
+                     <h3 class="section-title">Recent Activity <span class="live-badge">LIVE</span></h3>
+                     <div>
+                         <span class="view-all" id="viewAllActivity">Show All</span>
+                         <span class="delete-all" id="deleteAllActivity">Delete All</span>
                      </div>
-                     <ul class="activity-list" id="activityList">
-                         <li style="text-align: center; padding: 2rem; color: var(--gray);"> Loading activities... </li>
-                     </ul>
                  </div>
+                 <ul class="activity-list" id="activityList">
+                     <li style="text-align: center; padding: 2rem; color: var(--gray);"> Loading activities... </li>
+                 </ul>
+             </div>
+         </div>
+
+         <!-- Profile Content -->
+         <div class="content-section content-area" id="profileContent"> <!-- Added content-area class -->
+             <div class="section-main-header"> <h2 class="section-main-title">Profile</h2> </div>
+             <p class="profile-header-text">Your personal information and account security settings.</p>
+             <div class="profile-avatar-section">
+                 <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-color);">Avatar</label>
+                 <div id="profileAvatarLarge" title="Click to upload photo">ME</div>
+                 <!-- Button hidden, click avatar instead -->
+                 <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;">
+             </div>
+             <form class="data-form" id="profileForm">
+                 <div class="form-group"> <label for="firstName">First Name</label> <input type="text" id="firstName" class="form-control" value=""> </div>
+                 <div class="form-group"> <label for="lastName">Last Name</label> <input type="text" id="lastName" class="form-control" value=""> </div>
+                 <div class="form-group" style="grid-column: span 2;"> <label for="fullNameDisplay">Full Name</label> <input type="text" id="fullNameDisplay" class="form-control" value="" readonly> </div>
+                 <div class="form-group"> <label for="jobTitle">Job Title</label> <input type="text" id="jobTitle" class="form-control" value=""> </div>
+                 <div class="form-group"> <label for="email">Email</label> <input type="email" id="email" class="form-control" value="" readonly> </div>
+                 <div class="form-group"> <label for="phone">Phone Number</label> <input type="tel" id="phone" class="form-control" value=""> </div>
+                 <div class="form-group"> <label for="department">Department</label> <input type="text" id="department" class="form-control" value=""> </div>
+                 <div class="form-actions">
+                     <button type="button" class="btn btn-outline" id="cancelProfileBtn">Cancel</button>
+                     <button type="submit" class="btn btn-primary" id="saveProfileBtn">
+                        <span class="btn-text">Save Changes</span>
+                        <span class="spinner" style="display: none;"></span>
+                     </button>
+                 </div>
+             </form>
+         </div>
+
+         <!-- Settings Content -->
+         <div class="content-section content-area" id="settingsContent"> <!-- Added content-area class -->
+             <div class="section-main-header"> <h2 class="section-main-title">System Settings</h2> </div>
+             <div class="settings-tabs">
+                 <!-- Tabs remain the same -->
+                 <div class="settings-tab active" data-tab="preferences">Preferences</div>
+                 <div class="settings-tab" data-tab="account">Account</div>
+                 <div class="settings-tab" data-tab="security">Security</div>
+                 <div class="settings-tab" data-tab="notifications">Notifications</div>
+                 <div class="settings-tab" data-tab="team" id="teamSettingsTab">Team Management</div>
+                 <div class="settings-tab" data-tab="collaboration">Collaboration</div>
+                 <div class="settings-tab" data-tab="danger" id="dangerZoneTab">Danger Zone</div>
              </div>
 
-             <!-- Profile Content -->
-             <div class="content-section" id="profileContent">
-                 <div class="section-main-header"> <h2 class="section-main-title">Profile</h2> </div>
-                 <p class="profile-header-text">Your personal information and account security settings.</p>
-                 <div class="profile-avatar-section">
-                     <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-color);">Avatar</label>
-                     <div id="profileAvatarLarge" title="Click to upload photo">ME</div>
-                     <!-- Button hidden, click avatar instead -->
-                     <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;">
-                 </div>
-                 <form class="data-form" id="profileForm">
-                     <div class="form-group"> <label for="firstName">First Name</label> <input type="text" id="firstName" class="form-control" value=""> </div>
-                     <div class="form-group"> <label for="lastName">Last Name</label> <input type="text" id="lastName" class="form-control" value=""> </div>
-                     <div class="form-group" style="grid-column: span 2;"> <label for="fullNameDisplay">Full Name</label> <input type="text" id="fullNameDisplay" class="form-control" value="" readonly> </div>
-                     <div class="form-group"> <label for="jobTitle">Job Title</label> <input type="text" id="jobTitle" class="form-control" value=""> </div>
-                     <div class="form-group"> <label for="email">Email</label> <input type="email" id="email" class="form-control" value="" readonly> </div>
-                     <div class="form-group"> <label for="phone">Phone Number</label> <input type="tel" id="phone" class="form-control" value=""> </div>
-                     <div class="form-group"> <label for="department">Department</label> <input type="text" id="department" class="form-control" value=""> </div>
-                     <div class="form-actions">
-                         <button type="button" class="btn btn-outline" id="cancelProfileBtn">Cancel</button>
-                         <button type="submit" class="btn btn-primary" id="saveProfileBtn">
-                            <span class="btn-text">Save Changes</span>
-                            <span class="spinner" style="display: none;"></span>
-                         </button>
-                     </div>
-                 </form>
-             </div>
-
-             <!-- Settings Content -->
-             <div class="content-section" id="settingsContent">
-                 <div class="section-main-header"> <h2 class="section-main-title">System Settings</h2> </div>
-                 <div class="settings-tabs">
-                     <!-- Tabs remain the same -->
-                     <div class="settings-tab active" data-tab="preferences">Preferences</div>
-                     <div class="settings-tab" data-tab="account">Account</div>
-                     <div class="settings-tab" data-tab="security">Security</div>
-                     <div class="settings-tab" data-tab="notifications">Notifications</div>
-                     <div class="settings-tab" data-tab="team" id="teamSettingsTab">Team Management</div>
-                     <div class="settings-tab" data-tab="collaboration">Collaboration</div>
-                     <div class="settings-tab" data-tab="danger" id="dangerZoneTab">Danger Zone</div>
-                 </div>
-
-                 <!-- Preferences Panel -->
-                 <div class="settings-panel active" id="preferencesPanel">
-                     <div class="settings-subsection">
+             <!-- Settings Panels (No content-area class needed inside) -->
+             <div class="settings-panel active" id="preferencesPanel">
+                 <!-- Preferences Content -->
+                  <div class="settings-subsection">
                          <h4>Appearance</h4>
                          <div class="form-group">
                              <label class="settings-label">Theme</label>
@@ -2282,10 +1751,9 @@
                             </div>
                          </div>
                      </div>
-
-                     <div class="settings-subsection">
+                    <div class="settings-subsection">
                         <h4>Localization</h4>
-                         <div class="data-form" style="grid-template-columns: 1fr 1fr;"> <!-- Reuse data-form for layout -->
+                         <div class="data-form" style="grid-template-columns: 1fr 1fr;">
                              <div class="form-group">
                                  <label for="languageSelect">Language</label>
                                  <select id="languageSelect" class="form-control">
@@ -2325,7 +1793,6 @@
                              </div>
                          </div>
                      </div>
-
                      <div class="settings-subsection">
                         <h4>Messages & Sounds</h4>
                          <div class="setting-item">
@@ -2335,7 +1802,7 @@
                              </div>
                              <div class="setting-item-control">
                                  <label class="switch">
-                                     <input type="checkbox" id="toastToggle" checked> <!-- Default to checked -->
+                                     <input type="checkbox" id="toastToggle" checked>
                                      <span class="slider round"></span>
                                  </label>
                              </div>
@@ -2347,17 +1814,15 @@
                              </div>
                              <div class="setting-item-control">
                                  <label class="switch">
-                                     <input type="checkbox" id="soundToggle" checked> <!-- Default to checked -->
+                                     <input type="checkbox" id="soundToggle" checked>
                                      <span class="slider round"></span>
                                  </label>
                              </div>
                          </div>
                          <div class="form-group">
                              <label for="notificationToneSelect">Notification Tone</label>
-                             <select id="notificationToneSelect" class="form-control" disabled> <!-- Disabled for now -->
+                             <select id="notificationToneSelect" class="form-control" disabled>
                                  <option value="default">Default</option>
-                                 <option value="tone1">Tone 1 (Placeholder)</option>
-                                 <option value="tone2">Tone 2 (Placeholder)</option>
                              </select>
                              <p class="setting-item-description">Select the sound to play for notifications (Requires enabling sound).</p>
                          </div>
@@ -2367,15 +1832,13 @@
                              <button class="btn btn-outline btn-sm" disabled>View Shortcuts</button>
                          </div>
                      </div>
-
                      <div class="form-actions" style="grid-column: span 1; justify-content: flex-end;">
-                         <button type="button" class="btn btn-primary" id="savePreferencesBtn">Save Preferences</button> <!-- Removed disabled -->
+                         <button type="button" class="btn btn-primary" id="savePreferencesBtn">Save Preferences</button>
                      </div>
-                 </div>
-
-                 <!-- Account Panel -->
-                 <div class="settings-panel" id="accountPanel">
-                     <div class="settings-subsection">
+             </div>
+             <div class="settings-panel" id="accountPanel">
+                 <!-- Account Content -->
+                  <div class="settings-subsection">
                          <h4>Account Information</h4>
                          <div class="data-form">
                              <div class="form-group">
@@ -2384,15 +1847,15 @@
                              </div>
                              <div class="form-group">
                                 <label for="changeEmail">New Email Address</label>
-                                <input type="email" id="changeEmail" class="form-control" placeholder="Enter new email" disabled> <!-- Keep disabled, needs backend -->
+                                <input type="email" id="changeEmail" class="form-control" placeholder="Enter new email" disabled>
                                 <p class="setting-item-description">Changing email requires backend verification.</p>
                             </div>
                              <div class="form-group" style="grid-column: span 2;">
                                 <label for="accountConfirmPassword">Confirm Password (to change email)</label>
-                                <input type="password" id="accountConfirmPassword" class="form-control" placeholder="Enter current password" disabled> <!-- Keep disabled -->
+                                <input type="password" id="accountConfirmPassword" class="form-control" placeholder="Enter current password" disabled>
                             </div>
                             <div class="form-actions" style="grid-column: span 2;">
-                                <button type="button" class="btn btn-primary" id="saveAccountEmailBtn" disabled>Change Email Address</button> <!-- Keep disabled -->
+                                <button type="button" class="btn btn-primary" id="saveAccountEmailBtn" disabled>Change Email Address</button>
                             </div>
                          </div>
                          <p style="margin-top: 1rem;">Note: Password changes are managed under the <a href="#settings-security" data-feature="settings" data-tab-target="security" class="settings-link">Security Tab</a>.</p>
@@ -2402,24 +1865,23 @@
                          <div class="setting-item">
                              <div>
                                  <span class="setting-item-label">Enable Account Notifications</span>
-                                 <p class="setting-item-description">Receive email alerts for important account activities (e.g., password changes, new logins).</p>
+                                 <p class="setting-item-description">Receive email alerts for important account activities.</p>
                              </div>
                              <div class="setting-item-control">
                                  <label class="switch">
-                                     <input type="checkbox" id="accountNotificationsToggle" checked> <!-- Default to checked -->
+                                     <input type="checkbox" id="accountNotificationsToggle" checked>
                                      <span class="slider round"></span>
                                  </label>
                              </div>
                          </div>
                      </div>
                      <div class="form-actions" style="grid-column: span 1; justify-content: flex-end;">
-                         <button type="button" class="btn btn-primary" id="saveAccountSettingsBtn">Save Account Settings</button> <!-- Removed disabled -->
+                         <button type="button" class="btn btn-primary" id="saveAccountSettingsBtn">Save Account Settings</button>
                      </div>
-                 </div>
-
-                 <!-- Security Panel -->
-                 <div class="settings-panel" id="securityPanel">
-                     <div class="settings-subsection">
+             </div>
+             <div class="settings-panel" id="securityPanel">
+                 <!-- Security Content -->
+                    <div class="settings-subsection">
                          <h4>Password</h4>
                          <form class="data-form" id="changePasswordForm">
                              <div class="form-group">
@@ -2435,89 +1897,78 @@
                                  <input type="password" id="confirmPassword" class="form-control">
                              </div>
                              <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">Change Password</button> <!-- Removed disabled -->
+                                <button type="submit" class="btn btn-primary">Change Password</button>
                              </div>
                          </form>
                      </div>
-
                      <div class="settings-subsection">
                          <h4>Two-Factor Authentication (2FA)</h4>
                          <div class="two-fa-status">
                              <span class="status-indicator disabled" id="twoFaStatusIndicator"></span>
                              <span id="twoFaStatusText">2FA is currently Disabled</span>
                          </div>
-                         <p class="setting-item-description">Add an extra layer of security to your account using an authenticator app or SMS.</p>
-
-                         <!-- Placeholder for 2FA Setup UI -->
-                         <div id="twoFaSetupSection" style="display: block;"> <!-- Initially visible -->
+                         <p class="setting-item-description">Add an extra layer of security.</p>
+                         <div id="twoFaSetupSection" style="display: block;">
                              <button class="btn btn-primary" id="enable2faBtn">Enable 2FA</button>
                              <div class="two-fa-setup" id="twoFaSetupOptions" style="display:none;">
-                                 <h5>Choose Setup Method:</h5>
-                                 <div class="two-fa-actions">
+                                  <h5>Choose Setup Method:</h5>
+                                  <div class="two-fa-actions">
                                       <button class="btn btn-outline" id="setupAuthAppBtn"><i class="fas fa-mobile-alt"></i> Authenticator App</button>
                                       <button class="btn btn-outline" id="setupSmsBtn"><i class="fas fa-sms"></i> SMS Message</button>
                                  </div>
-                                 <!-- Authenticator App Setup -->
                                  <div id="authAppSetup" style="display: none; margin-top: 1.5rem;">
-                                     <p>1. Scan this QR code with your authenticator app (e.g., Google Authenticator, Authy).</p>
-                                     <div class="qr-code-placeholder">QR Code Placeholder</div>
-                                     <p>2. Enter the 6-digit code generated by your app below.</p>
+                                     <p>1. Scan this QR code...</p>
+                                     <div class="qr-code-placeholder">QR Code</div>
+                                     <p>2. Enter the 6-digit code...</p>
                                      <div class="form-group">
                                         <label for="authCode">Verification Code</label>
                                         <input type="text" id="authCode" class="form-control" placeholder="123456" maxlength="6">
                                     </div>
-                                     <button class="btn btn-primary" id="verifyAuthCodeBtn">Verify & Enable</button> <!-- Removed disabled -->
+                                     <button class="btn btn-primary" id="verifyAuthCodeBtn">Verify & Enable</button>
                                  </div>
-                                  <!-- SMS Setup -->
                                  <div id="smsSetup" style="display: none; margin-top: 1.5rem;">
-                                     <p>1. We'll send a verification code via SMS to your registered phone number (<span id="userPhoneNumberForSms"></span>).</p>
+                                     <p>1. Send SMS to (<span id="userPhoneNumberForSms"></span>).</p>
                                      <button class="btn btn-primary" id="sendSmsCodeBtn">Send Code</button>
                                      <div class="form-group" style="margin-top: 1rem; display: none;" id="smsCodeInputGroup">
-                                        <label for="smsCode">SMS Verification Code</label>
+                                        <label for="smsCode">SMS Code</label>
                                         <input type="text" id="smsCode" class="form-control" placeholder="123456" maxlength="6">
                                      </div>
                                      <button class="btn btn-primary" id="verifySmsCodeBtn" style="display: none;">Verify & Enable</button>
                                  </div>
                              </div>
                          </div>
-                         <div id="twoFaManagementSection" style="display: none;"> <!-- Visible when enabled -->
-                              <p>2FA is enabled. You can manage recovery codes or disable 2FA.</p>
+                         <div id="twoFaManagementSection" style="display: none;">
+                              <p>2FA is enabled.</p>
                               <div class="two-fa-actions">
-                                 <button class="btn btn-outline" disabled>View Recovery Codes</button> <!-- Keep disabled for demo -->
+                                 <button class="btn btn-outline" disabled>View Recovery Codes</button>
                                  <button class="btn btn-danger" id="disable2faBtn">Disable 2FA</button>
                              </div>
                          </div>
                      </div>
-
                      <div class="settings-subsection">
                         <h4>Session Management</h4>
                          <div class="data-form" style="grid-template-columns: 1fr 1fr;">
                             <div class="form-group">
-                                <label for="sessionDuration">Session Duration (minutes)</label>
+                                <label for="sessionDuration">Session Duration (min)</label>
                                 <input type="number" id="sessionDuration" class="form-control" value="60" min="15">
-                                <p class="setting-item-description">Set how long a login session remains active.</p>
                             </div>
                             <div class="form-group">
-                                <label for="idleTimeout">Idle Timeout (minutes)</label>
+                                <label for="idleTimeout">Idle Timeout (min)</label>
                                 <input type="number" id="idleTimeout" class="form-control" value="15" min="5">
-                                <p class="setting-item-description">Automatically logout after inactivity.</p>
                             </div>
                          </div>
                          <div class="form-actions" style="grid-column: span 1; justify-content: flex-end;">
-                             <button type="button" class="btn btn-primary" id="saveSessionSettingsBtn">Save Session Settings</button> <!-- Removed disabled -->
+                             <button type="button" class="btn btn-primary" id="saveSessionSettingsBtn">Save Session Settings</button>
                          </div>
                      </div>
-
-                 </div>
-
-                 <!-- Notifications Panel -->
-                 <div class="settings-panel" id="notificationsPanel">
-                     <div class="settings-subsection">
+             </div>
+             <div class="settings-panel" id="notificationsPanel">
+                 <!-- Notifications Content -->
+                  <div class="settings-subsection">
                          <h4>Notification Delivery</h4>
                          <div class="setting-item">
                              <div>
                                  <span class="setting-item-label">Enable Email Notifications</span>
-                                 <p class="setting-item-description">Receive summaries and important alerts via email.</p>
                              </div>
                              <div class="setting-item-control">
                                  <label class="switch">
@@ -2529,7 +1980,6 @@
                          <div class="setting-item">
                              <div>
                                  <span class="setting-item-label">Enable In-App Notifications</span>
-                                 <p class="setting-item-description">Show notifications within the TeamFlow interface (bell icon).</p>
                              </div>
                              <div class="setting-item-control">
                                  <label class="switch">
@@ -2538,11 +1988,9 @@
                                  </label>
                              </div>
                          </div>
-                         <!-- Placeholder for Push Notifications -->
                           <div class="setting-item">
                              <div>
-                                 <span class="setting-item-label">Enable Push Notifications (Mobile/Desktop)</span>
-                                 <p class="setting-item-description">Receive notifications even when the app isn't open (Requires browser/OS support & backend).</p>
+                                 <span class="setting-item-label">Enable Push Notifications</span>
                              </div>
                              <div class="setting-item-control">
                                  <label class="switch">
@@ -2552,132 +2000,112 @@
                              </div>
                          </div>
                      </div>
-
                      <div class="settings-subsection">
                         <h4>Notification Types</h4>
-                         <p class="setting-item-description">Choose which types of notifications you want to receive (Settings apply to In-App & Email if enabled). Backend needed to manage these.</p>
+                         <p class="setting-item-description">Choose which notifications to receive.</p>
                          <div class="checkbox-group">
                             <label><input type="checkbox" name="notificationType" value="task_assigned" checked> Task Assigned</label>
-                            <label><input type="checkbox" name="notificationType" value="task_comment" checked> Task Comment/Mention</label>
+                            <label><input type="checkbox" name="notificationType" value="task_comment" checked> Task Comment</label>
                             <label><input type="checkbox" name="notificationType" value="project_update" checked> Project Update</label>
                             <label><input type="checkbox" name="notificationType" value="deadline_reminder" checked> Deadline Reminder</label>
                             <label><input type="checkbox" name="notificationType" value="file_shared"> File Shared</label>
-                            <label><input type="checkbox" name="notificationType" value="system_announcement" checked> System Announcement</label>
+                            <label><input type="checkbox" name="notificationType" value="system_announcement" checked> Announcement</label>
                          </div>
                      </div>
                      <div class="settings-subsection">
-                        <h4>Sound & Priority (Linked to Preferences)</h4>
-                         <p class="setting-item-description">Sound settings are managed under the <a href="#settings-preferences" data-feature="settings" data-tab-target="preferences" class="settings-link">Preferences Tab</a>.</p>
-                         <!-- Placeholder for Priority Settings -->
+                        <h4>Sound & Priority</h4>
+                         <p class="setting-item-description">Sound settings managed in <a href="#settings-preferences" data-feature="settings" data-tab-target="preferences" class="settings-link">Preferences</a>.</p>
                          <div class="form-group">
-                            <label for="notificationPriority">Minimum Notification Priority</label>
+                            <label for="notificationPriority">Min Notification Priority</label>
                             <select id="notificationPriority" class="form-control" disabled>
                                 <option value="low">Low</option>
                                 <option value="medium">Medium</option>
                                 <option value="high">High</option>
                             </select>
-                            <p class="setting-item-description">Only show notifications above a certain priority level (Feature placeholder).</p>
                          </div>
                      </div>
                       <div class="form-actions" style="grid-column: span 1; justify-content: flex-end;">
-                         <button type="button" class="btn btn-primary" id="saveNotificationSettingsBtn">Save Notification Settings</button> <!-- Removed disabled -->
+                         <button type="button" class="btn btn-primary" id="saveNotificationSettingsBtn">Save Notifications</button>
                      </div>
-                 </div>
-
-
-                 <!-- Team Management Panel -->
-                 <div class="settings-panel" id="teamPanel">
-                     <div class="team-management">
-                         <div class="settings-subsection">
-                             <h4>Team Members</h4>
-                             <div class="team-list" id="teamList"> <!-- Team List populated by JS --> <p>Loading team members...</p> </div>
-                             <div class="add-member-form">
-                                 <h4>Invite New Member</h4>
-                                 <form id="inviteMemberForm" class="data-form" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end; gap: 1rem;">
-                                    <div class="form-group"> <label for="inviteEmail">Email</label> <input type="email" id="inviteEmail" class="form-control" required> </div>
-                                    <div class="form-group"> <label for="inviteRole">Role</label> <select id="inviteRole" class="form-control" required> <option value="member">Member</option> <option value="supervisor">Supervisor</option> <option value="senior">Senior</option> <option value="admin">Admin</option> </select> </div>
-                                    <button type="submit" class="btn btn-primary">Invite</button>
-                                 </form>
-                             </div>
-                         </div>
-                         <div class="settings-subsection">
-                             <h4>Custom Role Permissions</h4>
-                             <p class="setting-item-description">Define specific permissions for different roles within your team (Feature placeholder - requires backend).</p>
-                             <button class="btn btn-outline" disabled>Manage Permissions</button>
-                         </div>
-                     </div>
-                 </div>
-
-                 <!-- Collaboration Panel -->
-                 <div class="settings-panel" id="collaborationPanel">
+             </div>
+             <div class="settings-panel" id="teamPanel">
+                 <!-- Team Management Content -->
+                 <div class="team-management">
                      <div class="settings-subsection">
-                         <h4>External Integrations</h4>
-                         <p class="setting-item-description">Connect TeamFlow with other applications (Requires backend setup).</p>
-                         <div class="integration-list" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
-                            <button class="btn btn-outline" disabled><i class="fab fa-slack"></i> Connect Slack</button>
-                            <button class="btn btn-outline" disabled><i class="fab fa-google-drive"></i> Connect Google Drive</button>
-                            <button class="btn btn-outline" disabled><i class="fab fa-github"></i> Connect GitHub</button>
+                         <h4>Team Members</h4>
+                         <div class="team-list" id="teamList"> <p>Loading team members...</p> </div>
+                         <div class="add-member-form">
+                             <h4>Invite New Member</h4>
+                             <form id="inviteMemberForm" class="data-form" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end; gap: 1rem;">
+                                <div class="form-group"> <label for="inviteEmail">Email</label> <input type="email" id="inviteEmail" class="form-control" required> </div>
+                                <div class="form-group"> <label for="inviteRole">Role</label> <select id="inviteRole" class="form-control" required> <option value="member">Member</option> <option value="supervisor">Supervisor</option> <option value="senior">Senior</option> <option value="admin">Admin</option> </select> </div>
+                                <button type="submit" class="btn btn-primary">Invite</button>
+                             </form>
                          </div>
                      </div>
-                      <div class="settings-subsection">
-                         <h4>Sharing & Invitations</h4>
-                         <p class="setting-item-description">Manage how projects and tasks can be shared externally (Feature placeholder).</p>
-                         <div class="setting-item">
-                             <div>
-                                 <span class="setting-item-label">Allow External Sharing Links</span>
-                             </div>
-                             <div class="setting-item-control">
-                                 <label class="switch">
-                                     <input type="checkbox" id="externalSharingToggle" disabled>
-                                     <span class="slider round"></span>
-                                 </label>
-                             </div>
-                         </div>
-                         <button class="btn btn-outline" disabled>Manage Pending Invites</button>
-                      </div>
-                      <div class="settings-subsection">
-                         <h4>Collaboration Permissions</h4>
-                         <p class="setting-item-description">Set default permissions for collaboration features like comments and file sharing (Feature placeholder).</p>
-                         <button class="btn btn-outline" disabled>Set Default Permissions</button>
-                     </div>
-                 </div>
-
-
-                 <!-- Danger Zone Panel -->
-                 <div class="settings-panel" id="dangerPanel">
-                     <h3 class="section-title" style="color: var(--danger);">Danger Zone</h3>
-                     <p>These actions are permanent and cannot be undone. Proceed with caution.</p>
-
-                     <div class="danger-zone-item">
-                         <div>
-                            <h5>Logout From All Devices</h5>
-                            <p>This will log you out of all active sessions on other computers and mobile devices.</p>
-                         </div>
-                         <button class="btn btn-warning" id="logoutAllDevicesBtn">Logout Everywhere</button>
-                     </div>
-
-                     <div class="danger-zone-item">
-                         <div>
-                            <h5>Delete Account</h5>
-                            <p>Permanently delete your account and all associated data. This action cannot be reversed.</p>
-                         </div>
-                         <button class="btn btn-danger" id="deleteAccountBtn">Delete My Account</button>
+                     <div class="settings-subsection">
+                         <h4>Custom Role Permissions</h4>
+                         <p class="setting-item-description">Define permissions for roles (Placeholder).</p>
+                         <button class="btn btn-outline" disabled>Manage Permissions</button>
                      </div>
                  </div>
              </div>
-
-             <!-- Container for other feature sections (like Task Management, Scheduling etc) -->
-             <!-- THIS IS THE TARGET CONTAINER FOR FEATURES -->
-             <div id="featureSectionsContainer" class="content-section">
-                 <!-- Content loaded dynamically here -->
-                 <div class="placeholder-content" id="featurePlaceholder">
-                     <h2 id="featureTitle">Feature Content Area</h2>
-                     <p id="featureDescription">Select a feature from the sidebar.</p>
-                     <div class="loading-indicator" style="display: none;"> <i class="fas fa-spinner fa-spin"></i> Loading... </div>
-                     <div class="error-message" style="display: none;"> Failed to load content. </div>
+             <div class="settings-panel" id="collaborationPanel">
+                 <!-- Collaboration Content -->
+                 <div class="settings-subsection">
+                     <h4>External Integrations</h4>
+                     <p class="setting-item-description">Connect TeamFlow with other apps (Placeholder).</p>
+                     <div class="integration-list" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+                        <button class="btn btn-outline" disabled><i class="fab fa-slack"></i> Connect Slack</button>
+                        <button class="btn btn-outline" disabled><i class="fab fa-google-drive"></i> Connect Drive</button>
+                        <button class="btn btn-outline" disabled><i class="fab fa-github"></i> Connect GitHub</button>
+                     </div>
+                 </div>
+                  <div class="settings-subsection">
+                     <h4>Sharing & Invitations</h4>
+                     <p class="setting-item-description">Manage external sharing (Placeholder).</p>
+                     <div class="setting-item">
+                         <div> <span class="setting-item-label">Allow External Links</span> </div>
+                         <div class="setting-item-control">
+                             <label class="switch"> <input type="checkbox" id="externalSharingToggle" disabled> <span class="slider round"></span> </label>
+                         </div>
+                     </div>
+                     <button class="btn btn-outline" disabled>Manage Invites</button>
+                  </div>
+             </div>
+             <div class="settings-panel" id="dangerPanel">
+                 <!-- Danger Zone Content -->
+                  <h3 class="section-title" style="color: var(--danger);">Danger Zone</h3>
+                 <p>These actions are permanent. Proceed with caution.</p>
+                 <div class="danger-zone-item">
+                     <div>
+                        <h5>Logout From All Devices</h5>
+                        <p>End all other active sessions.</p>
+                     </div>
+                     <button class="btn btn-warning" id="logoutAllDevicesBtn">Logout Everywhere</button>
+                 </div>
+                 <div class="danger-zone-item">
+                     <div>
+                        <h5>Delete Account</h5>
+                        <p>Permanently delete your account and data.</p>
+                     </div>
+                     <button class="btn btn-danger" id="deleteAccountBtn">Delete My Account</button>
                  </div>
              </div>
          </div>
+
+         <!-- Container for other feature sections -->
+         <!-- REMOVED content-area class FROM HERE -->
+         <div id="featureSectionsContainer" class="content-section">
+             <!-- Content loaded dynamically here -->
+             <div class="placeholder-content content-area" id="featurePlaceholder"> <!-- Added content-area class back -->
+                 <h2 id="featureTitle">Feature Content Area</h2>
+                 <p id="featureDescription">Select a feature from the sidebar.</p>
+                 <div class="loading-indicator" style="display: none;"> <i class="fas fa-spinner fa-spin"></i> Loading... </div>
+                 <div class="error-message" style="display: none;"> Failed to load content. </div>
+             </div>
+         </div>
+
     </main>
 
     <!-- Notification Modal -->
@@ -2894,7 +2322,6 @@
             #featureSectionsContainer.task-management-feature .modal-content #modal-title { margin-bottom: 25px; font-weight: 600; color: #333; text-align: left; }
             #featureSectionsContainer.task-management-feature .modal-content #task-form { margin-top: 20px; }
             #featureSectionsContainer.task-management-feature .modal-content .form-group { margin-bottom: 18px; }
-```html
             #featureSectionsContainer.task-management-feature .modal-content .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #555; font-size: 0.9em; }
             #featureSectionsContainer.task-management-feature .modal-content #task-form input[type="text"],
             #featureSectionsContainer.task-management-feature .modal-content #task-form input[type="date"],
@@ -2984,16 +2411,23 @@
             const closeSidebar = document.getElementById('closeSidebar');
             const mainContent = document.getElementById('mainContent');
             const menuItems = document.querySelectorAll('.menu-item');
-            const contentSections = document.querySelectorAll('.content-area > .content-section'); // Direct children
+            // MODIFIED: Select direct children of mainContent for sections
+            const contentSections = document.querySelectorAll('#mainContent > .content-section');
             const dashboardContent = document.getElementById('dashboardContent');
             const profileContent = document.getElementById('profileContent');
             const settingsContent = document.getElementById('settingsContent');
             const featureSectionsContainer = document.getElementById('featureSectionsContainer');
-            const featurePlaceholder = document.getElementById('featurePlaceholder');
-            const featureTitleEl = document.getElementById('featureTitle');
-            const featureDescEl = document.getElementById('featureDescription');
-            const featureLoadingEl = featurePlaceholder.querySelector('.loading-indicator');
-            const featureErrorEl = featurePlaceholder.querySelector('.error-message');
+            // MODIFIED: Get placeholder elements within featureSectionsContainer
+            let featurePlaceholder, featureTitleEl, featureDescEl, featureLoadingEl, featureErrorEl;
+            function getPlaceholderElements() {
+                 featurePlaceholder = featureSectionsContainer.querySelector('#featurePlaceholder');
+                 if(featurePlaceholder){
+                    featureTitleEl = featurePlaceholder.querySelector('#featureTitle');
+                    featureDescEl = featurePlaceholder.querySelector('#featureDescription');
+                    featureLoadingEl = featurePlaceholder.querySelector('.loading-indicator');
+                    featureErrorEl = featurePlaceholder.querySelector('.error-message');
+                 }
+            }
 
             const backButton = document.getElementById('backButton');
             const backButtonText = document.getElementById('backButtonText');
@@ -3232,7 +2666,9 @@
 
                 // Update 2FA UI based on current user status
                 update2FA_UI();
-                userPhoneNumberForSms.textContent = currentUser.phone || 'Not Available';
+                if (userPhoneNumberForSms) { // Check if element exists
+                     userPhoneNumberForSms.textContent = currentUser.phone || 'Not Available';
+                }
             }
 
             function updateProfileForm() {
@@ -3331,7 +2767,6 @@
                      if (document.querySelector('[data-feature="projects"] span')) document.querySelector('[data-feature="projects"] span').textContent = "المشاريع";
                      if (document.querySelector('[data-feature="team-members-view"] span')) document.querySelector('[data-feature="team-members-view"] span').textContent = "أعضاء الفريق";
                      if (document.querySelector('[data-feature="settings"] span')) document.querySelector('[data-feature="settings"] span').textContent = "الإعدادات";
-                      // Example: Translate File Sharing link
                      if (document.querySelector('[data-feature="file-sharing"] span')) document.querySelector('[data-feature="file-sharing"] span').textContent = "مشاركة الملفات";
                  } else {
                      document.body.dir = 'ltr';
@@ -3340,7 +2775,6 @@
                      if (document.querySelector('[data-feature="projects"] span')) document.querySelector('[data-feature="projects"] span').textContent = "Projects";
                      if (document.querySelector('[data-feature="team-members-view"] span')) document.querySelector('[data-feature="team-members-view"] span').textContent = "Team Members";
                      if (document.querySelector('[data-feature="settings"] span')) document.querySelector('[data-feature="settings"] span').textContent = "Settings";
-                     // Example: English File Sharing link
                      if (document.querySelector('[data-feature="file-sharing"] span')) document.querySelector('[data-feature="file-sharing"] span').textContent = "File Sharing";
                  }
                  localStorage.setItem('language', lang);
@@ -3380,13 +2814,15 @@
 
 
             // --- Navigation & Content Loading ---
+            // REVISED FUNCTION
             function setActiveFeature(featureId, settingsTab = null, skipHistory = false) {
-                console.log(`Navigating to: ${featureId}` + (settingsTab ? ` / Tab: ${settingsTab}` : ''));
+                 console.log(`Navigating to: ${featureId}` + (settingsTab ? ` / Tab: ${settingsTab}` : ''));
 
                  // --- Cleanup previous feature ---
-                 removeTaskManagementStyles(); // Remove specific styles if they exist
-                 removeTeamMembersStyles(); // NEW: Cleanup team members styles
-                 removeProjectsStyles(); // NEW: Cleanup projects styles
+                 document.body.classList.remove('file-sharing-active'); // REMOVE class on any navigation
+                 removeTaskManagementStyles();
+                 removeTeamMembersStyles();
+                 removeProjectsStyles();
                  if (typeof currentFeatureCleanup === 'function') {
                      currentFeatureCleanup(); // Call the cleanup function for the previous feature
                      currentFeatureCleanup = null; // Reset cleanup function
@@ -3394,169 +2830,181 @@
                  // --- End Cleanup ---
 
 
-                currentFeature = featureId;
+                 currentFeature = featureId;
 
-                // Update Menu Items
-                menuItems.forEach(item => {
-                    item.classList.toggle('active', item.getAttribute('data-feature') === featureId);
-                });
+                 // Update Menu Items
+                 menuItems.forEach(item => {
+                     item.classList.toggle('active', item.getAttribute('data-feature') === featureId);
+                 });
 
-                // Hide all top-level content sections first
-                contentSections.forEach(section => section.classList.remove('active'));
-
-                // Reset feature container styles and content
-                 featureSectionsContainer.className = 'content-section'; // Reset classes
-                 featureSectionsContainer.innerHTML = ''; // Clear dynamic content
-                 featurePlaceholder.style.display = 'flex'; // Show placeholder by default
-                 featureLoadingEl.style.display = 'none';
-                 featureErrorEl.style.display = 'none';
-                 featureSectionsContainer.appendChild(featurePlaceholder);
+                 // Hide all direct content sections
+                 contentSections.forEach(section => {
+                     section.classList.remove('active');
+                     section.style.display = 'none'; // Explicitly hide
+                 });
+                 // Also hide the feature container initially
+                 featureSectionsContainer.classList.remove('active');
+                 featureSectionsContainer.style.display = 'none';
 
 
-                // Show the correct section
-                let targetSection = null;
-                let isFeatureSection = false;
+                 // Show the correct section
+                 let targetSection = null;
+                 let isFeatureSection = false;
 
-                if (featureId === 'dashboard') {
-                    targetSection = dashboardContent;
-                    backButton.style.display = 'none';
-                } else if (featureId === 'profile') {
-                    targetSection = profileContent;
-                    backButton.style.display = 'flex';
-                    backButtonText.textContent = 'Back to Dashboard';
+                 if (featureId === 'dashboard') {
+                     targetSection = dashboardContent;
+                     backButton.style.display = 'none';
+                 } else if (featureId === 'profile') {
+                     targetSection = profileContent;
+                     backButton.style.display = 'flex';
+                     backButtonText.textContent = 'Back to Dashboard';
                      updateProfileForm();
-                } else if (featureId === 'settings') {
-                    targetSection = settingsContent;
-                    backButton.style.display = 'flex';
-                    backButtonText.textContent = 'Back to Dashboard';
-                    currentSettingsTab = settingsTab || (currentUser.role === 'admin' ? 'preferences' : 'preferences');
+                 } else if (featureId === 'settings') {
+                     targetSection = settingsContent;
+                     backButton.style.display = 'flex';
+                     backButtonText.textContent = 'Back to Dashboard';
+                     currentSettingsTab = settingsTab || (currentUser.role === 'admin' ? 'preferences' : 'preferences');
                      if (currentUser.role !== 'admin' && (currentSettingsTab === 'team' || currentSettingsTab === 'danger')) {
                          currentSettingsTab = 'preferences';
                      }
-                    activateSettingsTab(currentSettingsTab);
+                     activateSettingsTab(currentSettingsTab);
                      update2FA_UI();
-                } else {
-                    // Handle other features - load into feature container
-                    isFeatureSection = true;
-                    targetSection = featureSectionsContainer;
-                    backButton.style.display = 'flex';
-                    backButtonText.textContent = 'Back to Dashboard';
-                    loadFeatureContent(featureId); // <-- THIS FUNCTION IS MODIFIED
-                }
-
-                // Activate the target section
-                if (targetSection) {
-                    targetSection.classList.add('active');
-                }
-                // Hide placeholder only if content was loaded or iframe was added
-                 if (isFeatureSection && featureId !== 'file-sharing' && !featureSectionsContainer.querySelector('.placeholder-content')) {
-                     featurePlaceholder.style.display = 'none';
-                 } else if (featureId === 'file-sharing') {
-                     featurePlaceholder.style.display = 'none';
+                 } else {
+                     // Handle other features - load into feature container
+                     isFeatureSection = true;
+                     targetSection = featureSectionsContainer;
+                     backButton.style.display = 'flex';
+                     backButtonText.textContent = 'Back to Dashboard';
+                     loadFeatureContent(featureId); // Will handle content/iframe loading
                  }
 
-                // Close sidebar on mobile after navigation
-                if (window.innerWidth <= 992 && sidebar.classList.contains('active')) {
-                    sidebar.classList.remove('active');
-                    mainContent.classList.remove('sidebar-active');
-                    if(closeSidebar) closeSidebar.style.display = 'none';
-                }
-                // Close user dropdown if open
-                userDropdown.classList.remove('active');
-                userDropdownOpen = false;
+                 // Activate the target section
+                 if (targetSection) {
+                     targetSection.classList.add('active');
+                      targetSection.style.display = 'block'; // Explicitly show
+                 }
 
-                if (!skipHistory) {
-                    updateBrowserHistory(featureId, featureId === 'settings' ? currentSettingsTab : null);
-                }
-            }
+                  // Add body class if file sharing is active (AFTER showing the container)
+                 if (featureId === 'file-sharing') {
+                     document.body.classList.add('file-sharing-active');
+                 }
+
+
+                 // Close sidebar on mobile after navigation
+                 if (window.innerWidth <= 992 && sidebar.classList.contains('active')) {
+                     sidebar.classList.remove('active');
+                     mainContent.classList.remove('sidebar-active');
+                     if(closeSidebar) closeSidebar.style.display = 'none';
+                 }
+                 // Close user dropdown if open
+                 userDropdown.classList.remove('active');
+                 userDropdownOpen = false;
+
+                 if (!skipHistory) {
+                     updateBrowserHistory(featureId, featureId === 'settings' ? currentSettingsTab : null);
+                 }
+             }
 
             function activateSettingsTab(tabId) {
                 console.log(`Activating settings tab: ${tabId}`);
                 currentSettingsTab = tabId; // Update state
-                document.querySelectorAll('.settings-tab').forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-tab') === tabId));
-                document.querySelectorAll('.settings-panel').forEach(panel => panel.classList.toggle('active', panel.id === `${tabId}Panel`));
-                if (tabId === 'team' && currentUser.role === 'admin') { loadTeamMembers(); } // Load team members if applicable
-                 if (tabId === 'security') { update2FA_UI(); }
-                 if (tabId === 'account' && accountEmailDisplay) { accountEmailDisplay.value = currentUser.email; }
+                if (settingsContent) { // Check if settingsContent exists
+                    settingsContent.querySelectorAll('.settings-tab').forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-tab') === tabId));
+                    settingsContent.querySelectorAll('.settings-panel').forEach(panel => panel.classList.toggle('active', panel.id === `${tabId}Panel`));
+                    if (tabId === '```html
+                    team' && currentUser.role === 'admin') { loadTeamMembers(); } // Load team members if applicable
+                     if (tabId === 'security') { update2FA_UI(); }
+                     if (tabId === 'account' && accountEmailDisplay) { accountEmailDisplay.value = currentUser.email; }
+                }
             }
 
-             // MODIFIED FUNCTION
+             // REVISED FUNCTION to handle iframe and placeholder visibility correctly
              function loadFeatureContent(featureId) {
                  const menuItem = Array.from(menuItems).find(item => item.getAttribute('data-feature') === featureId);
                  const featureName = menuItem ? menuItem.querySelector('span').textContent : 'Feature';
 
-                 featurePlaceholder.style.display = 'none'; // Ensure placeholder is hidden
-                 featureLoadingEl.style.display = 'block'; // Show loading
-                 featureErrorEl.style.display = 'none';
-                 featureSectionsContainer.innerHTML = ''; // Clear previous content
-                 featureSectionsContainer.className = 'content-section active'; // Reset to base + active
-                 featureSectionsContainer.appendChild(featurePlaceholder);
-                 featurePlaceholder.style.display = 'flex';
-                 featureTitleEl.textContent = '';
-                 featureDescEl.textContent = '';
+                 // Clear previous content FIRST, then add placeholder structure
+                 featureSectionsContainer.innerHTML = `
+                    <div class="placeholder-content content-area" id="featurePlaceholder" style="display: flex;"> <!-- Add content-area back to placeholder -->
+                         <h2 id="featureTitle"></h2>
+                         <p id="featureDescription"></p>
+                         <div class="loading-indicator" style="display: none;"> <i class="fas fa-spinner fa-spin"></i> Loading... </div>
+                         <div class="error-message" style="display: none;"> Failed to load content. </div>
+                    </div>`;
+                 getPlaceholderElements(); // Re-select placeholder elements
+
+                 // Show loading state in the placeholder
+                 if (featureTitleEl) featureTitleEl.textContent = '';
+                 if (featureDescEl) featureDescEl.textContent = '';
+                 if (featureLoadingEl) featureLoadingEl.style.display = 'block';
+                 if (featureErrorEl) featureErrorEl.style.display = 'none';
 
                  console.log(`Loading content for: ${featureName} (${featureId})`);
 
+                 // Apply feature-specific class to the container
+                 featureSectionsContainer.className = `content-section active ${featureId}-feature`;
+
                  setTimeout(() => {
                      try {
-                         featureLoadingEl.style.display = 'none';
-                         featurePlaceholder.style.display = 'none';
-                         featureSectionsContainer.innerHTML = ''; // Clear loading indicator
-
                          // --- Feature Loading Logic ---
 
-                         // --- START: Added File Sharing Logic ---
+                         // --- START: File Sharing Logic ---
                          if (featureId === 'file-sharing') {
-                            console.log("Loading file-sharing via iframe...");
-                            featureSectionsContainer.classList.add('file-sharing-feature'); // Add class for scoping iframe container
+                             console.log("Loading file-sharing via iframe...");
+                             // Remove placeholder content
+                             if(featurePlaceholder) featurePlaceholder.remove();
 
-                            const iframe = document.createElement('iframe');
-                            iframe.id = 'fileShareIframe';
-                            iframe.src = 'filesharing.html'; // <<< ASSUMES IT'S IN THE SAME FOLDER
-                            // Apply styles via CSS using the container class and iframe ID
-                            featureSectionsContainer.appendChild(iframe);
+                             const iframe = document.createElement('iframe');
+                             iframe.id = 'fileShareIframe';
+                             iframe.src = 'filesharing.html'; // <<< ASSUMES IT'S IN THE SAME FOLDER
+                             // Styles are applied via CSS rules added earlier
+                             featureSectionsContainer.appendChild(iframe);
 
-                            // No JS cleanup needed for the iframe itself, it manages its own context
-                            currentFeatureCleanup = null;
+                             // No specific JS cleanup needed for the iframe itself
+                             currentFeatureCleanup = null;
 
-                            console.log("Iframe added for file sharing.");
+                             console.log("Iframe added for file sharing.");
                          }
-                         // --- END: Added File Sharing Logic ---
+                         // --- END: File Sharing Logic ---
 
                          else if (featureId === 'team-members-view') {
-                             featureSectionsContainer.classList.add('team-members-feature'); // Add class for scoping
-                             featureSectionsContainer.innerHTML = getTeamMembersHTML(); // Get HTML structure
-                             const initResult = initializeTeamMembersFeature(featureSectionsContainer); // Attach JS logic
-                             currentFeatureCleanup = initResult?.cleanup; // Store cleanup function
+                             if(featurePlaceholder) featurePlaceholder.remove(); // Remove placeholder
+                             featureSectionsContainer.innerHTML = getTeamMembersHTML();
+                             const initResult = initializeTeamMembersFeature(featureSectionsContainer);
+                             currentFeatureCleanup = initResult?.cleanup;
                          } else if (featureId === 'projects') {
-                             featureSectionsContainer.classList.add('projects-feature'); // Add class for scoping
-                             featureSectionsContainer.innerHTML = getProjectsHTML(); // Get HTML structure
-                             const initResult = initializeProjectsFeature(featureSectionsContainer); // Attach JS logic
-                             currentFeatureCleanup = initResult?.cleanup; // Store cleanup function
+                            if(featurePlaceholder) featurePlaceholder.remove(); // Remove placeholder
+                            featureSectionsContainer.innerHTML = getProjectsHTML();
+                             const initResult = initializeProjectsFeature(featureSectionsContainer);
+                             currentFeatureCleanup = initResult?.cleanup;
                          } else if (featureId === 'employee-scheduling') {
-                             featureSectionsContainer.classList.add('employee-scheduling');
+                             if(featurePlaceholder) featurePlaceholder.remove(); // Remove placeholder
                              featureSectionsContainer.innerHTML = getEmployeeScheduleHTML();
-                             initializeEmployeeScheduleLogic(); // No cleanup function needed for this simple version yet
+                             initializeEmployeeScheduleLogic();
+                             currentFeatureCleanup = null;
                          } else if (featureId === 'task-management') {
-                             featureSectionsContainer.classList.add('task-management-feature');
-                             loadTaskManagementFeature(); // Uses template, sets cleanup internally
+                             if(featurePlaceholder) featurePlaceholder.remove(); // Remove placeholder
+                             loadTaskManagementFeature(); // Manages its own content/cleanup
                          } else {
-                             // Default placeholder for unimplemented features
-                             featurePlaceholder.style.display = 'flex';
-                             featureTitleEl.textContent = featureName;
-                             featureDescEl.textContent = `Content for ${featureName} would be loaded here.`;
-                             featureSectionsContainer.appendChild(featurePlaceholder); // Re-add placeholder
+                             // Default placeholder for unimplemented features - keep placeholder visible
+                             if (featureLoadingEl) featureLoadingEl.style.display = 'none';
+                             if (featureTitleEl) featureTitleEl.textContent = featureName;
+                             if (featureDescEl) featureDescEl.textContent = `Content for ${featureName} would be loaded here.`;
                          }
 
                      } catch (error) {
                          console.error(`Error loading feature ${featureId}:`, error);
-                         featureLoadingEl.style.display = 'none';
-                         featurePlaceholder.style.display = 'flex'; // Show placeholder again on error
-                         featureErrorEl.textContent = `Failed to load ${featureName}. Error: ${error.message}`;
-                         featureErrorEl.style.display = 'block';
-                         featureSectionsContainer.appendChild(featurePlaceholder); // Show placeholder with error
+                         if (featureLoadingEl) featureLoadingEl.style.display = 'none';
+                         if (featurePlaceholder) featurePlaceholder.style.display = 'flex';
+                         if (featureErrorEl) {
+                            featureErrorEl.textContent = `Failed to load ${featureName}. Error: ${error.message}`;
+                            featureErrorEl.style.display = 'block';
+                         }
+                          // Ensure the placeholder is the only content on error
+                         featureSectionsContainer.innerHTML = '';
+                         if(featurePlaceholder) featureSectionsContainer.appendChild(featurePlaceholder);
                      }
-                 }, 300);
+                 }, 300); // Simulate loading delay
              }
 
 
@@ -3654,10 +3102,13 @@
                 }
                 showingAllActivities = showAll;
                 const activitiesToDisplay = showAll ? activities : activities.slice(0, maxActivitiesToShow);
+                if (!activityList) return; // Guard against null element
                 activityList.innerHTML = '';
                 if (activitiesToDisplay.length === 0) {
                     activityList.innerHTML = '<li style="text-align: center; padding: 2rem; color: var(--gray);">No recent activity.</li>';
-                    deleteAllActivity.style.display = 'none'; viewAllActivity.style.display = 'none'; return;
+                    if(deleteAllActivity) deleteAllActivity.style.display = 'none';
+                    if(viewAllActivity) viewAllActivity.style.display = 'none';
+                    return;
                 }
                 activitiesToDisplay.forEach((activity, index) => {
                     const li = document.createElement('li'); li.classList.add('activity-item'); li.dataset.id = activity.id;
@@ -3668,9 +3119,11 @@
                         <div class="activity-actions"> <i class="fas fa-trash-alt delete-activity" title="Delete Activity"></i> </div>`;
                     activityList.appendChild(li);
                 });
-                 deleteAllActivity.style.display = activities.length > 0 ? 'inline-block' : 'none';
-                 viewAllActivity.textContent = showAll ? 'Show Less' : 'Show All';
-                 viewAllActivity.style.display = activities.length > maxActivitiesToShow ? 'inline-block' : 'none';
+                 if(deleteAllActivity) deleteAllActivity.style.display = activities.length > 0 ? 'inline-block' : 'none';
+                 if(viewAllActivity) {
+                     viewAllActivity.textContent = showAll ? 'Show Less' : 'Show All';
+                     viewAllActivity.style.display = activities.length > maxActivitiesToShow ? 'inline-block' : 'none';
+                 }
             }
 
             function loadNotifications() {
@@ -3680,9 +3133,25 @@
             }
 
             function renderNotifications() {
+                 if (!notificationsBody) return; // Guard clause
                  notificationsBody.innerHTML = ''; const unreadCount = notifications.filter(n => n.unread).length;
-                 if (notifications.length === 0) { noNotificationsMessage.textContent = 'You have no notifications.'; noNotificationsMessage.style.display = 'block'; notificationBadge.style.display = 'none'; notificationBadge.textContent = '0'; markAllReadBtn.disabled = true; deleteAllNotificationsBtn.disabled = true; return; }
-                 noNotificationsMessage.style.display = 'none'; markAllReadBtn.disabled = unreadCount === 0; deleteAllNotificationsBtn.disabled = false;
+                 if (notifications.length === 0) {
+                     if (noNotificationsMessage) {
+                         noNotificationsMessage.textContent = 'You have no notifications.';
+                         noNotificationsMessage.style.display = 'block';
+                     }
+                     if (notificationBadge) {
+                         notificationBadge.style.display = 'none';
+                         notificationBadge.textContent = '0';
+                     }
+                     if(markAllReadBtn) markAllReadBtn.disabled = true;
+                     if(deleteAllNotificationsBtn) deleteAllNotificationsBtn.disabled = true;
+                     return;
+                 }
+                 if(noNotificationsMessage) noNotificationsMessage.style.display = 'none';
+                 if(markAllReadBtn) markAllReadBtn.disabled = unreadCount === 0;
+                 if(deleteAllNotificationsBtn) deleteAllNotificationsBtn.disabled = false;
+
                  notifications.forEach(notification => {
                      const div = document.createElement('div'); div.classList.add('notification-list-item'); div.dataset.id = notification.id; if (notification.unread) { div.classList.add('unread'); }
                      div.innerHTML = `
@@ -3691,7 +3160,10 @@
                         <i class="fas fa-times delete-notification" title="Delete Notification"></i>`;
                     notificationsBody.appendChild(div);
                  });
-                 notificationBadge.textContent = unreadCount; notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
+                 if (notificationBadge) {
+                     notificationBadge.textContent = unreadCount;
+                     notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
+                 }
             }
 
              function loadTeamMembers(container) {
@@ -3709,7 +3181,10 @@
                      }
                      MOCK_USERS.forEach(member => {
                          const card = document.createElement('div');
-                         card.classList.add(container ? 'team-member-card' : 'team-member-card'); // Use feature class for grid view
+                         // Use correct class based on context
+                         const isFeatureView = container && container.closest('#featureSectionsContainer');
+                         card.classList.add(isFeatureView ? 'team-member-card' : 'team-member-card'); // Check if this needs adjustment
+
                          card.dataset.id = member.id;
                          card.dataset.name = member.name;
                          card.dataset.role = member.role;
@@ -3718,7 +3193,7 @@
                          const avatarStyle = member.avatar ? `background-image: url('${member.avatar}')` : '';
                          const avatarContent = member.avatar ? '' : member.initials;
 
-                         if (container) { // Feature view (grid card) - uses feature CSS
+                         if (isFeatureView) { // Feature view (grid card)
                              card.innerHTML = `
                                 <div class="member-info">
                                     <h4 class="member-name">${member.name}</h4>
@@ -3726,7 +3201,7 @@
                                     <span class="member-role role-${member.role}">${formatRole(member.role)}</span>
                                 </div>
                              `;
-                         } else { // Settings view (list item) - uses settings CSS
+                         } else { // Settings view (list item)
                              card.innerHTML = `
                                 <div class="member-avatar" style="${avatarStyle}">${avatarContent}</div>
                                 <div class="member-details">
@@ -3739,7 +3214,7 @@
                                     <button class="btn btn-outline btn-sm edit-member" title="Edit Member"><i class="fas fa-pencil-alt"></i></button>
                                     <button class="btn btn-danger btn-sm remove-member" title="Remove Member"><i class="fas fa-trash-alt"></i></button>
                                 </div>
-                                ` : '<div class="member-actions" style="width: 70px;"> </div>'}
+                                ` : '<div class="member-actions" style="width: 70px;">&nbsp;</div>'}
                              `;
                          }
                          teamListContainer.appendChild(card);
@@ -3788,28 +3263,28 @@
                  document.addEventListener('click', (event) => { if (window.innerWidth <= 992 && sidebar.classList.contains('active')) { const isClickInsideSidebar = sidebar.contains(event.target); const isClickOnToggler = sidebarToggle && sidebarToggle.contains(event.target); if (!isClickInsideSidebar && !isClickOnToggler) { sidebar.classList.remove('active'); mainContent.classList.remove('sidebar-active'); if(closeSidebar) closeSidebar.style.display = 'none'; } } });
                 menuItems.forEach(item => item.addEventListener('click', function(e) { e.preventDefault(); const featureId = this.getAttribute('data-feature'); setActiveFeature(featureId); }));
                 document.body.addEventListener('click', function(e) { const target = e.target; if (target.closest('.settings-tab') && !target.closest('.settings-tab.active')) { const tabId = target.closest('.settings-tab').getAttribute('data-tab'); activateSettingsTab(tabId); updateBrowserHistory('settings', tabId); } else if (target.closest('.settings-link') && target.closest('.settings-link').dataset.tabTarget) { e.preventDefault(); const tabId = target.closest('.settings-link').dataset.tabTarget; setActiveFeature('settings', tabId); } });
-                backButton.addEventListener('click', function() { setActiveFeature('dashboard'); });
-                userProfileContainer.addEventListener('click', function(e) { if (e.target.closest('.dropdown-item')) { const feature = e.target.closest('.dropdown-item').getAttribute('data-feature'); if (feature) { setActiveFeature(feature); } return; } userDropdownOpen = !userDropdownOpen; userDropdown.classList.toggle('active', userDropdownOpen); });
-                 document.addEventListener('click', function(event) { if (!userProfileContainer.contains(event.target) && userDropdownOpen) { userDropdown.classList.remove('active'); userDropdownOpen = false; } });
-                searchInput.addEventListener('input', handleSearch); searchInput.addEventListener('focus', handleSearch);
-                 document.addEventListener('click', (event) => { if (!searchInput.contains(event.target) && !searchResultsContainer.contains(event.target)) { searchResultsContainer.classList.remove('active'); } });
-                 searchResultsContainer.addEventListener('click', (event) => { const targetItem = event.target.closest('.search-result-item'); if (targetItem && targetItem.dataset.feature) { const featureId = targetItem.dataset.feature; const itemId = targetItem.dataset.id; console.log(`Search result: Feature=${featureId}, ID=${itemId}`); setActiveFeature(featureId); searchResultsContainer.classList.remove('active'); searchInput.value = ''; } });
-                notificationIcon.addEventListener('click', () => { notificationsModal.classList.add('active'); });
-                closeNotifications.addEventListener('click', () => { notificationsModal.classList.remove('active'); });
-                 notificationsModal.addEventListener('click', (event) => { if (event.target === notificationsModal) { notificationsModal.classList.remove('active'); } });
-                 notificationsBody.addEventListener('click', (event) => { const target = event.target; const notificationItem = target.closest('.notification-list-item'); const notificationId = notificationItem ? parseInt(notificationItem.dataset.id) : null; if (target.classList.contains('delete-notification') && notificationId) { showConfirmModal('Delete Notification', 'Are you sure?', () => { notifications = notifications.filter(n => n.id !== notificationId); renderNotifications(); showToast('Notification deleted.', 'success'); }); } else if (notificationItem && notificationId) { const notification = notifications.find(n => n.id === notificationId); if (notification && notification.unread) { notification.unread = false; renderNotifications(); } console.log(`Clicked notification ${notificationId}`); } });
-                 markAllReadBtn.addEventListener('click', markAllNotificationsAsRead);
-                 deleteAllNotificationsBtn.addEventListener('click', () => { if (notifications.length === 0) return; showConfirmModal('Delete All Notifications', 'Are you sure?', () => { notifications = []; renderNotifications(); showToast('All notifications deleted.', 'success'); }); });
-                 activityList.addEventListener('click', (event) => { const target = event.target; if (target.classList.contains('delete-activity')) { const activityItem = target.closest('.activity-item'); const activityId = activityItem ? parseInt(activityItem.dataset.id) : null; if (activityId) { activities = activities.filter(a => a.id !== activityId); loadRecentActivities(showingAllActivities); showToast('Activity deleted.'); } } });
-                viewAllActivity.addEventListener('click', () => { loadRecentActivities(!showingAllActivities); });
-                deleteAllActivity.addEventListener('click', () => { if (activities.length === 0) return; showConfirmModal('Delete All Activities', 'Are you sure?', () => { activities = []; loadRecentActivities(false); showToast('All activities deleted.'); }); });
-                profileAvatarLarge.addEventListener('click', () => { profileAvatarInput.click(); });
-                 profileAvatarInput.addEventListener('change', handleAvatarUpload);
-                 profileForm.addEventListener('submit', handleProfileSave);
-                 cancelProfileBtn.addEventListener('click', handleProfileCancel);
-                 firstNameInput.addEventListener('input', updateFullNameDisplay);
-                 lastNameInput.addEventListener('input', updateFullNameDisplay);
-                 logoutLink.addEventListener('click', handleLogout);
+                if (backButton) { backButton.addEventListener('click', function() { setActiveFeature('dashboard'); }); }
+                if (userProfileContainer) { userProfileContainer.addEventListener('click', function(e) { if (e.target.closest('.dropdown-item')) { const feature = e.target.closest('.dropdown-item').getAttribute('data-feature'); if (feature) { setActiveFeature(feature); } return; } userDropdownOpen = !userDropdownOpen; if(userDropdown) userDropdown.classList.toggle('active', userDropdownOpen); }); }
+                 document.addEventListener('click', function(event) { if (userProfileContainer && !userProfileContainer.contains(event.target) && userDropdownOpen) { if(userDropdown) userDropdown.classList.remove('active'); userDropdownOpen = false; } });
+                 if (searchInput) { searchInput.addEventListener('input', handleSearch); searchInput.addEventListener('focus', handleSearch); }
+                 document.addEventListener('click', (event) => { if (searchInput && searchResultsContainer && !searchInput.contains(event.target) && !searchResultsContainer.contains(event.target)) { searchResultsContainer.classList.remove('active'); } });
+                 if (searchResultsContainer) { searchResultsContainer.addEventListener('click', (event) => { const targetItem = event.target.closest('.search-result-item'); if (targetItem && targetItem.dataset.feature) { const featureId = targetItem.dataset.feature; const itemId = targetItem.dataset.id; console.log(`Search result: Feature=${featureId}, ID=${itemId}`); setActiveFeature(featureId); searchResultsContainer.classList.remove('active'); if(searchInput) searchInput.value = ''; } }); }
+                 if (notificationIcon) { notificationIcon.addEventListener('click', () => { if(notificationsModal) notificationsModal.classList.add('active'); }); }
+                 if (closeNotifications) { closeNotifications.addEventListener('click', () => { if(notificationsModal) notificationsModal.classList.remove('active'); }); }
+                 if (notificationsModal) { notificationsModal.addEventListener('click', (event) => { if (event.target === notificationsModal) { notificationsModal.classList.remove('active'); } }); }
+                 if (notificationsBody) { notificationsBody.addEventListener('click', (event) => { const target = event.target; const notificationItem = target.closest('.notification-list-item'); const notificationId = notificationItem ? parseInt(notificationItem.dataset.id) : null; if (target.classList.contains('delete-notification') && notificationId) { showConfirmModal('Delete Notification', 'Are you sure?', () => { notifications = notifications.filter(n => n.id !== notificationId); renderNotifications(); showToast('Notification deleted.', 'success'); }); } else if (notificationItem && notificationId) { const notification = notifications.find(n => n.id === notificationId); if (notification && notification.unread) { notification.unread = false; renderNotifications(); } console.log(`Clicked notification ${notificationId}`); } }); }
+                 if (markAllReadBtn) { markAllReadBtn.addEventListener('click', markAllNotificationsAsRead); }
+                 if (deleteAllNotificationsBtn) { deleteAllNotificationsBtn.addEventListener('click', () => { if (notifications.length === 0) return; showConfirmModal('Delete All Notifications', 'Are you sure?', () => { notifications = []; renderNotifications(); showToast('All notifications deleted.', 'success'); }); }); }
+                 if (activityList) { activityList.addEventListener('click', (event) => { const target = event.target; if (target.classList.contains('delete-activity')) { const activityItem = target.closest('.activity-item'); const activityId = activityItem ? parseInt(activityItem.dataset.id) : null; if (activityId) { activities = activities.filter(a => a.id !== activityId); loadRecentActivities(showingAllActivities); showToast('Activity deleted.'); } } }); }
+                 if (viewAllActivity) { viewAllActivity.addEventListener('click', () => { loadRecentActivities(!showingAllActivities); }); }
+                 if (deleteAllActivity) { deleteAllActivity.addEventListener('click', () => { if (activities.length === 0) return; showConfirmModal('Delete All Activities', 'Are you sure?', () => { activities = []; loadRecentActivities(false); showToast('All activities deleted.'); }); }); }
+                 if (profileAvatarLarge) { profileAvatarLarge.addEventListener('click', () => { if(profileAvatarInput) profileAvatarInput.click(); }); }
+                 if (profileAvatarInput) { profileAvatarInput.addEventListener('change', handleAvatarUpload); }
+                 if (profileForm) { profileForm.addEventListener('submit', handleProfileSave); }
+                 if (cancelProfileBtn) { cancelProfileBtn.addEventListener('click', handleProfileCancel); }
+                 if (firstNameInput) { firstNameInput.addEventListener('input', updateFullNameDisplay); }
+                 if (lastNameInput) { lastNameInput.addEventListener('input', updateFullNameDisplay); }
+                 if (logoutLink) { logoutLink.addEventListener('click', handleLogout); }
 
                  // Team Management Actions (Settings Panel)
                  const teamListContainer = document.getElementById('teamList');
@@ -3866,8 +3341,8 @@
                  if (disable2faBtn) disable2faBtn.addEventListener('click', handleDisable2FA);
                  if(logoutAllDevicesBtn) logoutAllDevicesBtn.addEventListener('click', handleLogoutAllDevices);
                  if(deleteAccountBtn) deleteAccountBtn.addEventListener('click', handleDeleteAccount);
-                cancelConfirmBtn.addEventListener('click', hideConfirmModal);
-                confirmBtn.addEventListener('click', () => { if (confirmCallback) { confirmCallback(); } hideConfirmModal(); });
+                 if (cancelConfirmBtn) cancelConfirmBtn.addEventListener('click', hideConfirmModal);
+                 if (confirmBtn) confirmBtn.addEventListener('click', () => { if (confirmCallback) { confirmCallback(); } hideConfirmModal(); });
             }
 
             // --- Specific Feature Logic ---
@@ -3875,7 +3350,9 @@
 
             // --- Search Logic ---
             function handleSearch() {
-                const searchTerm = searchInput.value.trim().toLowerCase(); searchResultsContainer.innerHTML = '';
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                if (!searchResultsContainer) return; // Guard clause
+                searchResultsContainer.innerHTML = '';
                 if (searchTerm.length < 2) { searchResultsContainer.classList.remove('active'); return; }
                 console.log(`Searching for: ${searchTerm}`); const results = [];
                 MOCK_USERS.forEach(user => { if (user.name.toLowerCase().includes(searchTerm) || user.email.toLowerCase().includes(searchTerm)) { results.push({ type: 'User', id: user.id, name: user.name, description: user.email, icon: 'fa-user', feature: 'team-members-view' }); } });
@@ -3889,7 +3366,7 @@
             // --- Profile Logic ---
             function handleAvatarUpload(event) { const file = event.target.files[0]; if (file && file.type.startsWith('image/')) { const reader = new FileReader(); reader.onload = (e) => { const imageUrl = e.target.result; profileAvatarLarge.style.backgroundImage = `url(${imageUrl})`; profileAvatarLarge.textContent = ''; document.getElementById('userAvatar').style.backgroundImage = `url(${imageUrl})`; document.getElementById('userAvatar').textContent = ''; document.getElementById('profileAvatar').style.backgroundImage = `url(${imageUrl})`; document.getElementById('profileAvatar').textContent = ''; currentUser.avatar = imageUrl; showToast('Avatar preview updated. Save changes to persist.'); }; reader.readAsDataURL(file); } else if (file) { showToast('Please select a valid image file.', 'error'); } }
             function updateFullNameDisplay() { fullNameDisplay.value = `${firstNameInput.value.trim()} ${lastNameInput.value.trim()}`.trim(); }
-             function handleProfileSave(event) { event.preventDefault(); console.log("Saving profile..."); showConfirmModal( 'Save Profile Changes', 'Are you sure?', () => { console.log("Profile save confirmed."); const saveButtonText = saveProfileBtn.querySelector('.btn-text'); const spinner = saveProfileBtn.querySelector('.spinner'); saveProfileBtn.disabled = true; if (saveButtonText) saveButtonText.textContent = 'Saving...'; if (spinner) spinner.style.display = 'inline-block'; setTimeout(() => { currentUser.name = fullNameDisplay.value; currentUser.title = jobTitleInput.value; currentUser.phone = phoneInput.value; currentUser.department = departmentInput.value; if (!currentUser.avatar) { const nameParts = currentUser.name.split(' '); currentUser.initials = (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || ''); } userPhoneNumberForSms.textContent = currentUser.phone || 'Not Available'; updateUserUI(); saveProfileBtn.disabled = false; if (saveButtonText) saveButtonText.textContent = 'Save Changes'; if (spinner) spinner.style.display = 'none'; showSuccessMessage('Profile updated successfully!'); }, 1000); }, 'btn-primary' ); }
+             function handleProfileSave(event) { event.preventDefault(); console.log("Saving profile..."); showConfirmModal( 'Save Profile Changes', 'Are you sure?', () => { console.log("Profile save confirmed."); const saveButtonText = saveProfileBtn.querySelector('.btn-text'); const spinner = saveProfileBtn.querySelector('.spinner'); saveProfileBtn.disabled = true; if (saveButtonText) saveButtonText.textContent = 'Saving...'; if (spinner) spinner.style.display = 'inline-block'; setTimeout(() => { currentUser.name = fullNameDisplay.value; currentUser.title = jobTitleInput.value; currentUser.phone = phoneInput.value; currentUser.department = departmentInput.value; if (!currentUser.avatar) { const nameParts = currentUser.name.split(' '); currentUser.initials = (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || ''); } if (userPhoneNumberForSms) userPhoneNumberForSms.textContent = currentUser.phone || 'Not Available'; updateUserUI(); saveProfileBtn.disabled = false; if (saveButtonText) saveButtonText.textContent = 'Save Changes'; if (spinner) spinner.style.display = 'none'; showSuccessMessage('Profile updated successfully!'); }, 1000); }, 'btn-primary' ); }
              function handleProfileCancel() { showConfirmModal( 'Cancel Changes', 'Discard changes?', () => { updateProfileForm(); showToast('Changes discarded.'); }, 'btn-warning' ); }
 
              // --- Settings Save Logic ---
@@ -3937,7 +3414,8 @@
              function playNotificationSound() { if (!playSounds) return; try { if (notificationSound && notificationSound.paused) { notificationSound.play().catch(e => console.warn("Audio play failed:", e)); } } catch(e) { console.warn("Audio error:", e); } }
 
              // --- Logout Logic ---
-             function handleLogout(event) { event.preventDefault(); showConfirmModal( 'Confirm Logout', 'Are you sure?', () => { console.log("Logging out..."); clearInterval(activityIntervalId); clearInterval(notificationIntervalId); clearInterval(statsIntervalId); clearInterval(welcomeBgIntervalId); showSuccessMessage('Logout successful! Redirecting...'); setTimeout(() => { window.location.href = 'login.html'; }, 1500); }, 'btn-danger' ); }
+             function handleLogout(event) { event.preventDefault(); showConfirmModal( 'Confirm Logout', 'Are you sure?', () => { console.log("Logging out..."); clearInterval(activityIntervalId); clearInterval(notificationIntervalId); clearInterval(statsIntervalId); clearInterval(welcomeBgIntervalId); showSuccessMessage('Logout successful! Redirecting...'); setTimeout(() => { window.location.href = 'login.html'; // Redirect to login page (adjust if needed)
+                 }, 1500); }, 'btn-danger' ); }
 
             // --- Team Management Logic ---
              function handleInviteMember(event) {
@@ -3986,6 +3464,7 @@
                      showToast("Error: Member not found.", "error");
                      return;
                  }
+                 if (!memberForm) return; // Guard clause
 
                  memberForm.reset(); // Clear previous data
                  document.getElementById('memberId').value = isEditing ? member.id : '';
@@ -4008,7 +3487,7 @@
                      document.getElementById('memberEmail').readOnly = false; // Allow email input for new member
                  }
 
-                 memberModal.classList.add('active');
+                 if(memberModal) memberModal.classList.add('active');
              }
 
              function handleSaveMember(event) {
@@ -4077,7 +3556,7 @@
                      if(currentFeature === 'team-members-view') { loadTeamMembers(featureSectionsContainer); } // Refresh feature view if active
                     loadDashboardStats(); // Update team count
                     showToast(`Member ${isEditing ? 'updated' : 'added'} successfully!`, 'success');
-                    memberModal.classList.remove('active');
+                    if(memberModal) memberModal.classList.remove('active');
                  }, 1000);
              }
 
@@ -4099,30 +3578,25 @@
             // --- Employee Scheduling (Existing + Refinements) ---
              function getEmployeeScheduleHTML() {
                  return `
-                    <div class="schedule-page-header section-main-header">
+                    <div class="schedule-page-header section-main-header content-area"> <!-- Added content-area -->
                         <h2 class="schedule-page-title section-main-title">Employee Scheduling</h2>
                          ${currentUser.role === 'admin' ? `
-                         <div class="admin-actions"> <!-- Group admin buttons -->
-                            <button class="btn btn-primary" id="saveScheduleBtn">
-                                <i class="fas fa-save"></i> Save Schedule
-                            </button>
-                             <button class="btn btn-success" id="sendRemindersBtn">
-                                 <i class="fas fa-envelope"></i> Send Reminders
-                             </button>
+                         <div class="admin-actions">
+                            <button class="btn btn-primary" id="saveScheduleBtn"><i class="fas fa-save"></i> Save Schedule</button>
+                             <button class="btn btn-success" id="sendRemindersBtn"><i class="fas fa-envelope"></i> Send Reminders</button>
                          </div>
                          ` : ''}
                     </div>
-                    <div class="schedule-controls">
-                        <div class="week-nav"> <!-- Group nav buttons -->
+                    <div class="schedule-controls content-area"> <!-- Added content-area -->
+                        <div class="week-nav">
                             <button class="btn btn-outline" id="prevWeekBtn"><i class="fas fa-chevron-left"></i> Prev</button>
                             <span id="weekDisplay" style="margin: 0 1rem; font-weight: 500;">Loading...</span>
                             <button class="btn btn-outline" id="nextWeekBtn">Next <i class="fas fa-chevron-right"></i></button>
                         </div>
-                        <!-- Admin actions moved to header for better layout -->
                     </div>
-                    <div class="schedule-container">
+                    <div class="schedule-container content-area"> <!-- Added content-area -->
                         <table class="schedule-table">
-                            <thead> <tr> <th>Employee</th> <!-- Days headers populated by JS --> </tr> </thead>
+                            <thead> <tr> <th>Employee</th> </tr> </thead>
                             <tbody id="scheduleTableBody"> <tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">Loading schedule...</td></tr> </tbody>
                         </table>
                     </div>
@@ -4217,17 +3691,17 @@
              function loadTaskManagementFeature() {
                  console.log("Loading Task Management feature...");
                  const template = document.getElementById('taskManagementAssets');
-                 if (!template) { console.error("Task Management template not found!"); featureSectionsContainer.innerHTML = '<p class="error-message">Error: Task assets missing.</p>'; return; }
+                 if (!template) { console.error("Task Management template not found!"); featureSectionsContainer.innerHTML = '<p class="error-message content-area">Error: Task assets missing.</p>'; return; } // Added content-area
                  // Inject Styles
                  const styleContent = template.content.querySelector('#task-management-styles');
                  if (styleContent) { const styleTag = document.createElement('style'); styleTag.id = 'injected-task-management-styles'; styleTag.textContent = styleContent.textContent; document.head.appendChild(styleTag); console.log("Task styles injected."); }
                  else { console.warn("Task styles not found in template."); }
-                 // Inject HTML
-                 const taskHTML = ` <div class="task-page-header"> <h2 class="task-page-title">Task Management</h2> </div> <div class="task-management-content"> <!-- Controls --> <div class="controls"> <button id="add-task-btn" class="btn btn-primary"><i class="fas fa-plus"></i> New Task</button> <div class="search-container"> <input type="text" id="search-input" placeholder="Search tasks..."> <i class="fas fa-search search-icon"></i> </div> <div class="filters"> <select id="filter-status"> <option value="all">Status: All</option> <option value="Pending">Pending</option> <option value="In Progress">In Progress</option> <option value="Completed">Completed</option> </select> <select id="filter-priority"> <option value="all">Priority: All</option> <option value="High">High</option> <option value="Medium">Medium</option> <option value="Low">Low</option> </select> <select id="filter-assigned-to"> <option value="all">Assigned To: All</option> <option value="Mohamed Elmenisy">Mohamed Elmenisy</option> <option value="Yousef">Yousef</option> <option value="Esraa Lashin">Esraa Lashin</option> <option value="Bassant Badr">Bassant Badr</option> </select> </div> </div> <!-- Task List --> <div id="task-list" class="task-list"> <p class="no-tasks">Loading tasks...</p> </div> <!-- Modal --> <div id="task-modal" class="modal"> <div class="modal-content"> <span class="close-btn">×</span> <h2 id="modal-title">Add New Task</h2> <form id="task-form"> <input type="hidden" id="task-id"> <div class="form-group"> <label for="task-name">Task Name:</label> <input type="text" id="task-name" required> </div> <div class="form-group"> <label for="task-description">Description:</label> <textarea id="task-description" rows="3"></textarea> </div> <div class="form-group"> <label for="task-links">Links:</label> <input type="text" id="task-links" placeholder="e.g., https://example.com, jira-123"> </div> <div class="form-group form-row"> <div> <label for="task-assigned-by">Assigned By:</label> <select id="task-assigned-by" required> <option value="Nada">Nada</option> <option value="Yousef">Yousef</option> <option value="Self Assigned">Self Assigned</option> </select> </div> <div> <label for="task-assigned-to">Assigned To:</label> <select id="task-assigned-to" required> <option value="Mohamed Elmenisy">Mohamed Elmenisy</option> <option value="Yousef">Yousef</option> <option value="Esraa Lashin">Esraa Lashin</option> <option value="Bassant Badr">Bassant Badr</option> </select> </div> </div> <div class="form-group form-row"> <div> <label for="task-start-date">Start Date:</label> <input type="date" id="task-start-date"> </div> <div> <label for="task-due-date">Due Date:</label> <input type="date" id="task-due-date"> </div> </div> <div class="form-group form-row"> <div> <label for="task-priority">Priority:</label> <select id="task-priority" required> <option value="Low">Low</option> <option value="Medium">Medium</option> <option value="High">High</option> </select> </div> <div> <label for="task-status">Status:</label> <select id="task-status" required> <option value="Pending">Pending</option> <option value="In Progress">In Progress</option> <option value="Completed">Completed</option> </select> </div> </div> <div class="form-actions"> <button type="submit" id="save-task-btn" class="btn btn-primary">Save Task</button> <button type="button" id="cancel-btn" class="btn btn-secondary">Cancel</button> </div> </form> </div> </div> </div> `;
+                 // Inject HTML (Add content-area wrapper)
+                 const taskHTML = ` <div class="task-page-header content-area"> <h2 class="task-page-title">Task Management</h2> </div> <div class="task-management-content content-area"> <!-- Controls --> <div class="controls"> <button id="add-task-btn" class="btn btn-primary"><i class="fas fa-plus"></i> New Task</button> <div class="search-container"> <input type="text" id="search-input" placeholder="Search tasks..."> <i class="fas fa-search search-icon"></i> </div> <div class="filters"> <select id="filter-status"> <option value="all">Status: All</option> <option value="Pending">Pending</option> <option value="In Progress">In Progress</option> <option value="Completed">Completed</option> </select> <select id="filter-priority"> <option value="all">Priority: All</option> <option value="High">High</option> <option value="Medium">Medium</option> <option value="Low">Low</option> </select> <select id="filter-assigned-to"> <option value="all">Assigned To: All</option> <option value="Mohamed Elmenisy">Mohamed Elmenisy</option> <option value="Yousef">Yousef</option> <option value="Esraa Lashin">Esraa Lashin</option> <option value="Bassant Badr">Bassant Badr</option> </select> </div> </div> <!-- Task List --> <div id="task-list" class="task-list"> <p class="no-tasks">Loading tasks...</p> </div> <!-- Modal --> <div id="task-modal" class="modal"> <div class="modal-content"> <span class="close-btn">×</span> <h2 id="modal-title">Add New Task</h2> <form id="task-form"> <input type="hidden" id="task-id"> <div class="form-group"> <label for="task-name">Task Name:</label> <input type="text" id="task-name" required> </div> <div class="form-group"> <label for="task-description">Description:</label> <textarea id="task-description" rows="3"></textarea> </div> <div class="form-group"> <label for="task-links">Links:</label> <input type="text" id="task-links" placeholder="e.g., https://example.com, jira-123"> </div> <div class="form-group form-row"> <div> <label for="task-assigned-by">Assigned By:</label> <select id="task-assigned-by" required> <option value="Nada">Nada</option> <option value="Yousef">Yousef</option> <option value="Self Assigned">Self Assigned</option> </select> </div> <div> <label for="task-assigned-to">Assigned To:</label> <select id="task-assigned-to" required> <option value="Mohamed Elmenisy">Mohamed Elmenisy</option> <option value="Yousef">Yousef</option> <option value="Esraa Lashin">Esraa Lashin</option> <option value="Bassant Badr">Bassant Badr</option> </select> </div> </div> <div class="form-group form-row"> <div> <label for="task-start-date">Start Date:</label> <input type="date" id="task-start-date"> </div> <div> <label for="task-due-date">Due Date:</label> <input type="date" id="task-due-date"> </div> </div> <div class="form-group form-row"> <div> <label for="task-priority">Priority:</label> <select id="task-priority" required> <option value="Low">Low</option> <option value="Medium">Medium</option> <option value="High">High</option> </select> </div> <div> <label for="task-status">Status:</label> <select id="task-status" required> <option value="Pending">Pending</option> <option value="In Progress">In Progress</option> <option value="Completed">Completed</option> </select> </div> </div> <div class="form-actions"> <button type="submit" id="save-task-btn" class="btn btn-primary">Save Task</button> <button type="button" id="cancel-btn" class="btn btn-secondary">Cancel</button> </div> </form> </div> </div> </div> `;
                  featureSectionsContainer.innerHTML = taskHTML;
                  // Initialize JS
                  const scriptContent = template.content.querySelector('script');
-                 if (scriptContent) { try { const initFunction = new Function(`${scriptContent.textContent}\n return initializeTaskManagementFeature;`)(); if (typeof initFunction === 'function') { const result = initFunction(featureSectionsContainer); currentFeatureCleanup = result?.cleanup; console.log("Task Management JS initialized."); } else { console.error("Task init function not found."); } } catch (e) { console.error("Error initializing Task script:", e); featureSectionsContainer.innerHTML = '<p class="error-message">Error initializing Task Management.</p>'; } }
+                 if (scriptContent) { try { const initFunction = new Function(`${scriptContent.textContent}\n return initializeTaskManagementFeature;`)(); if (typeof initFunction === 'function') { const result = initFunction(featureSectionsContainer); currentFeatureCleanup = result?.cleanup; console.log("Task Management JS initialized."); } else { console.error("Task init function not found."); } } catch (e) { console.error("Error initializing Task script:", e); featureSectionsContainer.innerHTML = '<p class="error-message content-area">Error initializing Task Management.</p>'; } } // Added content-area
                  else { console.warn("Task script not found in template."); }
              }
              function removeTaskManagementStyles() { const injectedStyle = document.getElementById('injected-task-management-styles'); if (injectedStyle) { injectedStyle.remove(); console.log("Task styles removed."); } }
@@ -4240,16 +3714,16 @@
             function formatFullDateTime(date) { if (!(date instanceof Date)) { const parsedDate = new Date(date); if (isNaN(parsedDate.getTime())) return ''; date = parsedDate; } const formattedDate = formatDateForDisplay(date); const timeFormat = localStorage.getItem('timeFormat') || '12h'; const options = { hour: 'numeric', minute: 'numeric', hour12: timeFormat === '12h' }; try { const formattedTime = date.toLocaleTimeString(undefined, options); return `${formattedDate}, ${formattedTime}`; } catch (e) { console.error("Error formatting time:", e); return formattedDate; } }
             function generateMockActivities(count, baseTimestampMillis) { const nowMillis = baseTimestampMillis || Date.now(); const newActivities = []; let users = MOCK_USERS.map(u => u.name.split(' ')[0]); if (users.length === 0) users.push('System'); const actions = ['updated profile', 'completed task', 'added project', 'commented on task', 'uploaded file', 'joined team']; const icons = ['fa-user-edit', 'fa-check-circle', 'fa-plus-circle', 'fa-comment', 'fa-upload', 'fa-user-plus']; const tasks = MOCK_TASKS.map(t => `'${t.name.substring(0, 20)}...'`); const projects = MOCK_PROJECTS_DATA.map(p => `'${p.name}'`); const files = ['doc.pdf', 'img.png', 'sheet.xlsx', 'pres.pptx']; for (let i = 0; i < count; i++) { const user = users[Math.floor(Math.random() * users.length)]; const actionIndex = Math.floor(Math.random() * actions.length); let message = `${user} ${actions[actionIndex]}`; if (actions[actionIndex].includes('task') && tasks.length > 0) { message += ` ${tasks[Math.floor(Math.random() * tasks.length)]}`; } else if (actions[actionIndex].includes('project') && projects.length > 0) { message += ` ${projects[Math.floor(Math.random() * projects.length)]}`; } else if (actions[actionIndex].includes('file') && files.length > 0) { message += ` ${files[Math.floor(Math.random() * files.length)]}`; } let timestampMillis; if (count === 1) { timestampMillis = nowMillis - Math.random() * 1000 * 10; } else { timestampMillis = nowMillis - (Math.random() * 1000 * 3600 * (i + 1) * 1.5 + 300000); } timestampMillis = Math.min(timestampMillis, nowMillis); newActivities.push({ id: nowMillis + i + Math.floor(Math.random()*1000), icon: icons[actionIndex], message: message, timestamp: new Date(timestampMillis), isNew: false }); } return count > 1 ? newActivities.sort((a, b) => b.timestamp - a.timestamp) : newActivities; }
             function generateMockNotifications(count, baseTimestampMillis) { const nowMillis = baseTimestampMillis || Date.now(); const newNotifications = []; const types = [ { msg: 'New task assigned:', icon: 'fa-tasks', type: 'task' }, { msg: 'Project deadline approaching:', icon: 'fa-clock', type: 'project' }, { msg: 'Mentioned you:', icon: 'fa-comment-dots', type: 'comment' }, { msg: 'System update:', icon: 'fa-info-circle', type: 'system' }, { msg: 'File shared:', icon: 'fa-file-alt', type: 'file' }, ]; const tasks = MOCK_TASKS.map(t => `'${t.name.substring(0, 20)}...'`); const projects = MOCK_PROJECTS_DATA.map(p => `'${p.name}'`); let users = MOCK_USERS.map(u => u.name.split(' ')[0]); if (users.length === 0) users.push('System'); const files = ['report.docx', 'logo.svg', 'data.csv']; for (let i = 0; i < count; i++) { const typeInfo = types[Math.floor(Math.random() * types.length)]; let message = typeInfo.msg; if (typeInfo.type === 'task' && tasks.length > 0) message += ` ${tasks[Math.floor(Math.random() * tasks.length)]}`; else if (typeInfo.type === 'project' && projects.length > 0) message += ` ${projects[Math.floor(Math.random() * projects.length)]}`; else if (typeInfo.type === 'comment' && users.length > 0) message += ` by ${users[Math.floor(Math.random() * users.length)]}`; else if (typeInfo.type === 'file' && files.length > 0 && users.length > 0) message += ` ${files[Math.floor(Math.random() * files.length)]} by ${users[Math.floor(Math.random() * users.length)]}`; let timestampMillis; if (count === 1) { timestampMillis = nowMillis - Math.random() * 1000 * 15; } else { timestampMillis = nowMillis - (Math.random() * 1000 * 3600 * (i + 1) * 1.8 + 180000); } timestampMillis = Math.min(timestampMillis, nowMillis); newNotifications.push({ id: nowMillis + i + 10000 + Math.floor(Math.random()*1000), icon: typeInfo.icon, message: message, timestamp: new Date(timestampMillis), unread: count === 1 ? true : Math.random() > 0.3 }); } return count > 1 ? newNotifications.sort((a, b) => b.timestamp - a.timestamp) : newNotifications; }
-            function showConfirmModal(title, message, onConfirm, buttonClass = 'btn-danger') { confirmTitle.textContent = title; confirmMessage.innerHTML = message; confirmCallback = onConfirm; confirmBtn.className = 'btn'; confirmBtn.classList.add(buttonClass); confirmModal.classList.add('active'); }
-            function hideConfirmModal() { confirmModal.classList.remove('active'); confirmCallback = null; }
-            function showSuccessMessage(message) { successMessageText.textContent = message; successMessage.classList.add('show'); setTimeout(() => { successMessage.classList.remove('show'); }, 3000); }
-            function showToast(message, type = 'info') { if (!showToasts && type !== 'error') { console.log("Toast suppressed:", message); return; } toastMessage.textContent = message; toastMessage.className = 'toast'; if (type === 'success') { toastMessage.classList.add('success'); } else if (type === 'error') { toastMessage.classList.add('error'); } toastMessage.classList.add('show'); setTimeout(() => { toastMessage.classList.remove('show'); }, 3000); }
+            function showConfirmModal(title, message, onConfirm, buttonClass = 'btn-danger') { confirmTitle.textContent = title; confirmMessage.innerHTML = message; confirmCallback = onConfirm; confirmBtn.className = 'btn'; confirmBtn.classList.add(buttonClass); if(confirmModal) confirmModal.classList.add('active'); }
+            function hideConfirmModal() { if(confirmModal) confirmModal.classList.remove('active'); confirmCallback = null; }
+            function showSuccessMessage(message) { if (successMessageText) successMessageText.textContent = message; if(successMessage) successMessage.classList.add('show'); setTimeout(() => { if(successMessage) successMessage.classList.remove('show'); }, 3000); }
+            function showToast(message, type = 'info') { if (!showToasts && type !== 'error') { console.log("Toast suppressed:", message); return; } if (!toastMessage) return; toastMessage.textContent = message; toastMessage.className = 'toast'; if (type === 'success') { toastMessage.classList.add('success'); } else if (type === 'error') { toastMessage.classList.add('error'); } toastMessage.classList.add('show'); setTimeout(() => { toastMessage.classList.remove('show'); }, 3000); }
 
             // --- START: Team Members Feature ---
              function getTeamMembersHTML() {
                  const addMemberBtnHTML = currentUser.role === 'admin' ? `<button class="btn btn-primary add-team-member-btn"><i class="fas fa-user-plus"></i> Add Member</button>` : '';
                  return `
-                 <div class="team-members-section">
+                 <div class="team-members-section content-area"> <!-- Added content-area -->
                      <div class="team-members-section-header">
                         <h2>Team Members</h2>
                         ${addMemberBtnHTML}
@@ -4276,6 +3750,7 @@
                  let boundAddMemberHandler = null;
 
                  function filterTeamMembers() {
+                     if (!searchInput || !teamListContainer) return;
                      const filterText = searchInput.value.toLowerCase().trim();
                      const memberCards = teamListContainer.querySelectorAll('.team-member-card');
 
@@ -4318,7 +3793,7 @@
                     : '';
 
                  return `
-                 <section id="projects-section">
+                 <section id="projects-section" class="content-area"> <!-- Added content-area -->
                      <div class="projects-header">
                          <div class="projects-title-wrapper"><h2>Projects</h2></div>
                          <div class="project-controls">
@@ -4440,6 +3915,7 @@
                      showToast("Error: Project not found.", "error");
                      return;
                  }
+                  if (!projectForm || !projectModal || !projectModalTitle || !saveProjectBtn) return; // Guard clause
 
                  projectForm.reset(); // Clear form
                  document.getElementById('projectId').value = isEditing ? project.id : '';
@@ -4514,7 +3990,7 @@
                      }
                      loadDashboardStats(); // Update dashboard stats
                      showToast(`Project ${isEditing ? 'updated' : 'added'} successfully!`, 'success');
-                     projectModal.classList.remove('active');
+                     if(projectModal) projectModal.classList.remove('active');
                  }, 500);
              }
 
