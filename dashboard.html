@@ -1,3 +1,41 @@
+Okay, thank you for the clear and detailed feedback. I understand the frustration when things don't appear as expected, especially after previous fixes. Let's address these issues methodically using the last provided code (`dash22-4 last.txt`) as our reliable base.
+
+**Analysis of Issues:**
+
+1.  **Persistent Loading States & Feature Loading Failure:** This is the most critical issue. It strongly suggests that the JavaScript responsible for:
+    *   Fetching/simulating data (like team members, tasks, schedule data).
+    *   Rendering the HTML for those features (cloning templates, populating data).
+    *   Replacing the initial "Loading..." placeholders.
+    ...is either encountering an error *before* it completes, or the mechanism to load and initialize specific feature JS isn't working reliably. The "Failed to load content" message confirms an error is happening during the `loadFeatureContent` process.
+
+2.  **Dark Mode Inconsistencies:** While variables were set up, specific elements within tables or charts might not be inheriting them correctly or require more specific overrides. We need to ensure text colors (`--text-color`), background colors (`--card-bg-color`, `--table-header-bg`, etc.), and border colors (`--input-border-color`) are consistently applied, especially for:
+    *   File Sharing: File Name column text.
+    *   Reports: Chart text/labels/axes and Employee Name in the table.
+    *   General Tables: Employee names.
+
+3.  **Placeholder Features:** Acknowledged. These are correctly marked and are functioning as intended (i.e., not fully functional without a backend).
+
+4.  **"Calculating..." Status:** This is the initial state before the `timeAgo` function's interval updates the display. It should resolve after a short delay, but we can ensure the initial rendering is less jarring.
+
+5.  **New Section (Data Management):** This needs to be added to the sidebar HTML.
+
+**Plan & Fixes:**
+
+1.  **Restore Menu Items:** Add "Deadline Tracking" and "Data Management" back into the sidebar HTML structure with appropriate icons.
+2.  **Robust Feature Loading:**
+    *   Thoroughly review the `loadFeatureContent` function, adding more detailed error logging to catch exactly where it might fail (template cloning, style injection, JS execution).
+    *   Ensure the `featureInitializers` map correctly points to the *global* functions defined within the `<script>` tags inside the templates *before* those `<script>` tags are removed during injection. We'll ensure the functions are defined globally first.
+    *   Explicitly clear loading indicators (`innerHTML = ''`) within each feature's initialization function *before* attempting to render content.
+3.  **Dark Mode Consistency Review:**
+    *   Re-examine CSS variables and their application, particularly `--text-color`, `--card-bg-color`, `--table-header-text`, `--input-border-color`.
+    *   Add specific dark mode rules for `.file-name`, `.employee-name`, `.project-name` within tables to ensure they use `var(--text-color)`.
+    *   Add dark mode rules for Chart.js elements (ticks, labels, grid lines) using the theme variables.
+4.  **Task Management Table:** Refactor the Task Management HTML structure slightly to use the standard `.card > .card-header + .card-body` pattern for better CSS consistency with other features like File Sharing and Reports.
+5.  **Admin Self-Delete Confirmation:** Refine the `handleDeleteAccount` function to add the extra warning step *only* when the admin is deleting their own account.
+6.  **Initial "Calculating...":** Update the `timeAgo` function or initial rendering logic slightly to show a less ambiguous placeholder if the timestamp isn't immediately valid.
+
+Let's implement these changes in the provided code.
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -55,8 +93,6 @@
             --welcome-bg-3: linear-gradient(135deg, #4a044e, #6b21a8);
             --welcome-bg-current: var(--welcome-bg-1); /* Default welcome bg */
             --dashboard-header-bg: linear-gradient(90deg, hsla(217, 91%, 60%, 1) 0%, hsla(245, 100%, 70%, 1) 100%); /* Fancy Header Gradient */
-            --page-header-bg: var(--dashboard-header-bg); /* Standard page header background */
-            --page-header-text: var(--white); /* Standard page header text */
 
             /* High Contrast Variables */
             --hc-text: #000000;
@@ -68,8 +104,8 @@
 
             /* Themeable Variables */
             --text-color: var(--dark);
-            --body-bg-color: var(--primary-light);
-            --card-bg-color: var(--white);
+            --body-bg-color: var(--primary-light); /* Main page background */
+            --card-bg-color: var(--white); /* Default background for cards, tables, etc. */
             --input-bg-color: var(--white);
             --input-border-color: var(--light-gray);
             --table-header-bg: var(--light);
@@ -106,7 +142,7 @@
             --feature-filesharing-light: var(--light);
             --feature-filesharing-dark: var(--dark);
             --feature-filesharing-hover-bg: var(--table-hover-bg);
-            --feature-filesharing-header-bg: var(--page-header-bg); /* Use standard header */
+            --feature-filesharing-header-bg: var(--dashboard-header-bg);
 
             /* --- Project Tracking Variables --- */
             --feature-tracking-primary: var(--primary);
@@ -121,7 +157,7 @@
             --feature-tracking-light: var(--light);
             --feature-tracking-dark: var(--dark);
             --feature-tracking-hover-bg: var(--table-hover-bg);
-            --feature-tracking-header-bg: var(--page-header-bg); /* Use standard header */
+            --feature-tracking-header-bg: var(--dashboard-header-bg);
             --feature-tracking-chart-background: #F5F7FA; /* Specific chart background */
             --chart-green: #4CAF50; --chart-blue: #2196F3; --chart-orange: #FFC107; --chart-red: #F44336; --chart-gray: #9E9E9E; --chart-purple: #9C27B0; --chart-cyan: #00BCD4;
             --status-completed-bg: rgba(76, 175, 80, 0.15); --status-completed-text: #388E3C;
@@ -145,7 +181,7 @@
             --feature-reports-light: var(--light);
             --feature-reports-dark: var(--dark);
             --feature-reports-hover-bg: var(--table-hover-bg);
-            --feature-reports-header-bg: var(--page-header-bg); /* Use standard header */
+            --feature-reports-header-bg: var(--dashboard-header-bg);
             --feature-reports-chart-background: #F5F7FA; /* Specific chart background */
             --feature-reports-chart-fill-opacity: 0.7;
             --feature-reports-chart-radar-fill-opacity: 0.15;
@@ -293,20 +329,7 @@
          body.high-contrast #featureSectionsContainer .fancy-header-title,
          body.high-contrast #featureSectionsContainer .pt-fancy-title,
          body.high-contrast #featureSectionsContainer .ra-fancy-title,
-         body.high-contrast #featureSectionsContainer .task-page-title,
-         body.high-contrast #featureSectionsContainer .page-feature-title /* Added */ {
-             background: var(--hc-primary) !important; color: var(--hc-background) !important; padding: 8px 15px !important; border-radius: 0 !important; box-shadow: none !important;
-         }
-        body.high-contrast #featureSectionsContainer .card-header, /* Target generic card headers */
-        body.high-contrast #featureSectionsContainer .section-main-header /* Target settings/profile headers */ {
-             background: var(--hc-background) !important;
-             border-bottom: 1px solid var(--hc-border) !important;
-        }
-        body.high-contrast #featureSectionsContainer .page-header { /* Target new general header */
-             background: var(--hc-background) !important;
-             border-bottom: 1px solid var(--hc-border) !important;
-         }
-
+         body.high-contrast #featureSectionsContainer .task-page-title { background: var(--hc-primary) !important; color: var(--hc-background) !important; }
          body.high-contrast #featureSectionsContainer .table thead th,
          body.high-contrast #featureSectionsContainer .pt-table thead,
          body.high-contrast #featureSectionsContainer .ra-table thead { background: var(--table-header-bg) !important; color: var(--text-color) !important; border-bottom-color: var(--hc-border) !important; }
@@ -340,7 +363,7 @@
         .menu-item i { margin-right: 0.75rem; font-size: 1.1rem; width: 24px; text-align: center; }
         .menu-divider { height: 1px; background-color: var(--sidebar-divider); margin: 1rem 1.5rem; }
         .connection-status { padding: 0.75rem 1.5rem; margin-top: auto; border-top: 1px solid var(--sidebar-divider); display: flex; align-items: center; gap: 0.5rem; color: rgba(16, 185, 129, 0.9); font-size: 0.85rem; flex-shrink: 0; }
-        .connection-status span { font-weight: 600; }
+        .connection-status span { font-weight: 600; } /* Added bold */
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); animation: pulseStatus 2s infinite; }
         @keyframes pulseStatus { 0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 50% { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); } }
 
@@ -622,9 +645,9 @@
             --table-header-text: var(--gray);
             --table-hover-bg: var(--primary-light);
             --table-stripe-bg: var(--light);
-            --chart-grid-color: var(--light-gray);
-            --chart-tick-color: var(--gray);
-            --chart-point-label-color: var(--text-color);
+             --chart-grid-color: var(--light-gray);
+             --chart-tick-color: var(--gray);
+             --chart-point-label-color: var(--text-color);
         }
         body.dark-theme {
              --text-color: #e2e8f0; /* Light text */
@@ -673,6 +696,7 @@
         body.dark-theme .top-nav { background-color: var(--card-bg-color); border-bottom-color: var(--input-border-color); }
         body.dark-theme .stat-card, body.dark-theme .activity-section, body.dark-theme .content-section, body.dark-theme #settingsContent .team-member-card-settings, body.dark-theme .add-member-form { background-color: var(--card-bg-color); border-color: var(--input-border-color); }
         body.dark-theme .search-bar input, body.dark-theme .form-control, body.dark-theme .form-select { background-color: var(--input-bg-color); border-color: var(--input-border-color); color: var(--text-color); }
+        body.dark-theme .form-control[readonly] { background-color: var(--light); opacity: 0.6; } /* Dark readonly */
         body.dark-theme .search-results { background-color: var(--card-bg-color); border-color: var(--input-border-color); }
         body.dark-theme .search-result-item:hover { background-color: var(--table-hover-bg); }
         body.dark-theme .user-dropdown { background-color: var(--card-bg-color); border-color: var(--input-border-color); }
@@ -718,7 +742,6 @@
         body.dark-theme .placeholder-content .error-message { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--text-color); }
         body.dark-theme .settings-label, body.dark-theme .form-group label { color: var(--text-color); }
         body.dark-theme .settings-subsection { border-top-color: var(--input-border-color); }
-        body.dark-theme .settings-subsection h4 { color: #93c5fd; } /* Dark h4 */
         body.dark-theme .setting-item-label { color: var(--text-color); }
         body.dark-theme .setting-item-description { color: var(--gray); }
         body.dark-theme .qr-code-placeholder { border-color: var(--input-border-color); color: var(--gray); }
@@ -730,6 +753,7 @@
         body.dark-theme .checkbox-group label { color: var(--text-color); }
         body.dark-theme .confirm-title { color: var(--text-color); }
         body.dark-theme .confirm-message { color: var(--gray); }
+        body.dark-theme .modal-title { color: #93c5fd; }
         body.dark-theme #settingsContent .team-member-card-settings .member-name { color: var(--text-color); }
         body.dark-theme #settingsContent .team-member-card-settings .member-email { color: var(--gray); }
         body.dark-theme .search-result-item strong { color: var(--text-color); }
@@ -754,7 +778,11 @@
         body.dark-theme #featureSectionsContainer.employee-scheduling .shift-off { background-color: var(--shift-off-bg); color: var(--shift-off-text); border-color: var(--shift-off-border);}
         body.dark-theme #featureSectionsContainer.employee-scheduling .shift-sick { background-color: var(--shift-sick-bg); color: var(--shift-sick-text); border-color: var(--shift-sick-border);}
         body.dark-theme #featureSectionsContainer.employee-scheduling .shift-vacation { background-color: var(--shift-vacation-bg); color: var(--shift-vacation-text); border-color: var(--shift-vacation-border);}
-        body.dark-theme #featureSectionsContainer.task-management-feature .task-page-title { color: white; } /* Within gradient header */
+        /* Dark Theme: Task Management Refactor */
+        body.dark-theme #featureSectionsContainer.task-management-feature .card { background-color: var(--card-bg-color); } /* Main card */
+        body.dark-theme #featureSectionsContainer.task-management-feature .card-header { background-color: var(--card-bg-color); border-bottom-color: var(--input-border-color); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .card-body { background-color: var(--card-bg-color); }
+        body.dark-theme #featureSectionsContainer.task-management-feature .task-page-title { color: white; } /* Title within gradient header */
         body.dark-theme #featureSectionsContainer.task-management-feature .controls { background-color: var(--card-bg-color); border-bottom-color: var(--input-border-color); }
         body.dark-theme #featureSectionsContainer.task-management-feature .controls #search-input, body.dark-theme #featureSectionsContainer.task-management-feature .controls .filters select { background-color: var(--input-bg-color); border-color: var(--input-border-color); color: var(--text-color); }
         body.dark-theme #featureSectionsContainer.task-management-feature .controls .search-icon { color: var(--gray); }
@@ -1067,60 +1095,40 @@
 
 
         /* --- Generic Feature Header --- */
-        .page-header {
-            background: var(--page-header-bg);
-            color: var(--page-header-text);
-            padding: 1.25rem 2rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        .feature-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
+            padding: 1rem; /* Reduced padding */
+            margin-bottom: 1.5rem; /* Space below header */
+            border-bottom: 1px solid var(--input-border-color);
+            background-color: var(--card-bg-color); /* Use card background */
+            border-radius: 8px 8px 0 0; /* Round top corners */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        .page-feature-title {
-            font-size: 1.5rem;
+        .feature-title {
+            font-size: 1.5rem; /* Match section title */
             font-weight: 600;
+            color: var(--primary-dark);
             margin: 0;
+        }
+        body.dark-theme .feature-title {
+            color: #93c5fd; /* Lighter title for dark mode */
+        }
+        .feature-actions {
             display: flex;
-            align-items: center;
             gap: 0.75rem;
+            align-items: center;
         }
-        .page-header .feature-actions {
-             margin-left: auto; /* Push actions to the right */
+        /* Apply Bootstrap styles directly in HTML for standard features */
+        .feature-content {
+            background-color: var(--card-bg-color); /* Use card background */
+            padding: 1.5rem;
+            border-radius: 0 0 8px 8px; /* Round bottom corners */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
-        body.dark-theme .page-header {
-             background: var(--card-bg-color); /* Use card bg for header in dark */
-             color: var(--text-color);
-             border-bottom: 1px solid var(--input-border-color);
-             box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-         }
-        body.dark-theme .page-feature-title {
-             color: #a5b4fc; /* Lighter title */
-         }
-
-        /* Ensure features *don't* have their own padding/background if using .page-header */
-        #featureSectionsContainer > *:first-child:not(.page-header) {
-             margin-top: 0; /* Remove top margin if no page header */
-        }
-
-        /* Feature Content Area - Make background transparent if header is used */
-        #featureSectionsContainer.has-page-header {
-            background-color: transparent;
-            box-shadow: none;
-            padding: 0; /* Remove padding */
-        }
-        #featureSectionsContainer.has-page-header > *:not(.page-header) {
-             /* Add styling for content below header (e.g., wrap in card) */
-             background-color: var(--card-bg-color);
-             padding: 1.5rem;
-             border-radius: 8px;
-             box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-             margin-top: 0; /* No margin between header and content */
-        }
-
 
         /* --- Feature Specific Table Adjustments --- */
         #featureSectionsContainer .table-responsive {
@@ -1166,28 +1174,60 @@
         #featureSectionsContainer .table-responsive > .table { margin-right: 0; }
 
         /* --- Specific Feature Container Styles --- */
-        /* Remove redundant rules, handled by general theme vars */
+        #featureSectionsContainer.file-sharing-feature,
+        #featureSectionsContainer.project-tracking-feature,
+        #featureSectionsContainer.reports-analytics-feature,
+        #featureSectionsContainer.task-management-feature,
+        #featureSectionsContainer.employee-scheduling, /* Add schedule */
+        #featureSectionsContainer.team-members-view /* Add team members */
+        {
+            padding: 0;
+            background-color: transparent;
+            box-shadow: none;
+            border-radius: 0;
+        }
+        /* Style for the main card inside these features */
+        #featureSectionsContainer.file-sharing-feature .card,
+        #featureSectionsContainer.project-tracking-feature .card,
+        #featureSectionsContainer.reports-analytics-feature .card,
+        #featureSectionsContainer.task-management-feature .card,
+        #featureSectionsContainer.employee-scheduling .card, /* Style schedule container */
+        #featureSectionsContainer.team-members-feature .team-members-section /* Style team container */
+         {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            background-color: var(--card-bg-color); /* Use variable */
+            margin-bottom: 0;
+        }
+        body.dark-theme #featureSectionsContainer.file-sharing-feature .card,
+        body.dark-theme #featureSectionsContainer.project-tracking-feature .card,
+        body.dark-theme #featureSectionsContainer.reports-analytics-feature .card,
+        body.dark-theme #featureSectionsContainer.task-management-feature .card,
+        body.dark-theme #featureSectionsContainer.employee-scheduling .card, /* Dark schedule container */
+        body.dark-theme #featureSectionsContainer.team-members-feature .team-members-section /* Dark team container */
+         {
+             background-color: var(--card-bg-color); /* Use variable */
+             border: 1px solid var(--input-border-color); /* Use variable */
+        }
 
-        /* Ensure Employee Names in tables have correct color */
+        /* Ensure Employee Names & File Names in tables have correct color */
         body.dark-theme #featureSectionsContainer .employee-name,
-        body.dark-theme #featureSectionsContainer .ra-table .employee-name {
+        body.dark-theme #featureSectionsContainer .ra-table .employee-name,
+        body.dark-theme #featureSectionsContainer .file-name {
              color: var(--text-color) !important;
         }
-         /* File Sharing Name Dark Mode */
-        body.dark-theme #featureSectionsContainer.file-sharing-feature .file-name {
-             color: var(--text-color) !important;
+         /* Dark mode chart text */
+        body.dark-theme #featureSectionsContainer .chart-container .chart-title {
+             color: var(--text-color);
         }
-         /* Reports Chart Dark Mode Labels */
-         body.dark-theme #featureSectionsContainer.reports-analytics-feature .chart-container {
-             color: var(--text-color); /* Ensure text inside container is visible */
-         }
-         body.dark-theme #featureSectionsContainer.reports-analytics-feature .chart-title {
-             color: var(--gray); /* Use secondary text color for title */
-         }
-         body.dark-theme #featureSectionsContainer.reports-analytics-feature .chartjs-render-monitor {
-            /* Chart.js canvas itself */
-             color: var(--text-color); /* Set default canvas text color */
-         }
+        body.dark-theme #featureSectionsContainer .chartjs-render-monitor {
+            color: var(--text-color); /* Ensure chart labels use theme text color */
+        }
+         /* Ensure Chart.js text elements inherit the correct color */
+        .chartjs-legend li span { color: var(--text-color) !important; }
+        .chartjs-tooltip { color: var(--text-color) !important; background-color: var(--card-bg-color) !important; border: 1px solid var(--input-border-color) !important; }
+        .chartjs-tooltip-key { background-color: var(--text-color) !important; } /* Adjust tooltip key color */
 
     </style>
 </head>
@@ -1760,12 +1800,17 @@
                  </div>
              </div>
         </div>
+        <script>
+            // JS moved to main block
+        </script>
     </template>
 
     <!-- Template for File Sharing -->
     <template id="fileSharingAssets">
-        <!-- Styles moved to main CSS -->
-        <div class="card shadow-sm">
+        <style id="file-sharing-styles">
+            /* Styles moved to main CSS block */
+        </style>
+        <div class="card shadow-sm"> <!-- Use card structure -->
             <div class="card-header">
                  <h5 class="fancy-header-title mb-0"><i class="fas fa-folder-open me-2"></i>File Management</h5>
                 <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
@@ -1807,11 +1852,11 @@
                  <div class="mb-4 p-3" id="recentUploadsSection">
                      <h6><i class="fas fa-history me-1"></i> Recent Uploads</h6>
                      <ul class="list-group list-group-flush">
-                         <li class="list-group-item d-flex justify-content-between align-items-center" data-timestamp="${new Date(Date.now() - 5 * 60 * 1000).toISOString()}"> <div><i class="fas fa-file-pdf file-icon text-danger"></i> Quarterly_Report_Q1.pdf</div> <small class="text-muted time-ago">calculating...</small> </li>
-                         <li class="list-group-item d-flex justify-content-between align-items-center" data-timestamp="${new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()}"> <div><i class="fas fa-file-image file-icon text-success"></i> New_Company_Logo.png</div> <small class="text-muted time-ago">calculating...</small> </li>
+                         <li class="list-group-item d-flex justify-content-between align-items-center" data-timestamp="${new Date(Date.now() - 5 * 60 * 1000).toISOString()}"> <div><i class="fas fa-file-pdf file-icon text-danger"></i> Quarterly_Report_Q1.pdf</div> <small class="text-muted time-ago">...</small> </li>
+                         <li class="list-group-item d-flex justify-content-between align-items-center" data-timestamp="${new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()}"> <div><i class="fas fa-file-image file-icon text-success"></i> New_Company_Logo.png</div> <small class="text-muted time-ago">...</small> </li>
                          <li class="list-group-item d-flex justify-content-between align-items-center" data-timestamp="${new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}">
                            <div><i class="fas fa-file-zipper file-icon text-warning"></i> Final_Project_Assets.zip</div>
-                           <small class="text-muted time-ago">calculating...</small>
+                           <small class="text-muted time-ago">...</small>
                          </li>
                     </ul>
                 </div>
@@ -1957,21 +2002,22 @@
          <div class="modal fade" id="filePreviewModal" tabindex="-1" aria-labelledby="filePreviewModalLabel" aria-hidden="true"> <div class="modal-dialog modal-xl modal-dialog-centered"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title" id="filePreviewModalLabel">File Preview</h5> <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> </div> <div class="modal-body text-center" style="min-height: 400px; max-height: 80vh; overflow-y: auto;"> <div id="previewContent"> <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;"> <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div> </div> </div> </div> <div class="modal-footer justify-content-start py-2"> <small class="text-muted me-3" id="previewFileName">File Name: </small> <small class="text-muted" id="previewFileType">Type: </small> </div> </div> </div> </div>
 
         <script>
-             // JS moved to main block
+           // JS moved to main block
         </script>
     </template>
 
     <!-- Template for Project Tracking -->
     <template id="projectTrackingAssets">
          <style id="project-tracking-styles">
-            /* Styles moved to main CSS */
+            /* Styles moved to main CSS block */
          </style>
-        <div id="project-tracking-section" class="card shadow-sm">
+        <div id="project-tracking-section" class="card shadow-sm"> <!-- Use card structure -->
              <!-- Section Header -->
              <div class="card-header">
                  <h2 class="pt-fancy-title"><i class="fas fa-tasks me-2"></i> Project Tracking</h2>
+                 <!-- Add Actions Button if needed -->
              </div>
-             <div class="card-body">
+            <div class="card-body">
                  <!-- Filters -->
                  <div class="pt-filters-section">
                      <div class="row gy-2 align-items-end">
@@ -2020,14 +2066,14 @@
              </div> <!-- End card-body -->
         </div>
         <script>
-             // JS moved to main block
+            // JS moved to main block
         </script>
     </template>
 
     <!-- Template for Reports & Analytics -->
     <template id="reportsAnalyticsAssets">
         <style id="reports-analytics-styles">
-           /* Styles moved to main CSS */
+           /* Styles moved to main CSS block */
         </style>
         <div id="reports-analytics-section" class="card shadow-sm"> <!-- Use card structure -->
              <!-- Section Header with Export Buttons -->
@@ -2075,109 +2121,119 @@
              </div> <!-- End card-body -->
         </div>
          <script>
-             // JS moved to main block
+            // JS moved to main block
          </script>
     </template>
 
     <!-- Template for Employee Scheduling -->
     <template id="employeeSchedulingAssets">
-        <!-- Styles are in main CSS -->
+        <style id="employee-scheduling-styles">
+            /* Styles moved to main CSS block */
+        </style>
         <!-- HTML structure for Employee Scheduling -->
-        <div class="card shadow-sm">
-            <div class="card-body">
-                 <div class="page-header"> <!-- Changed class for consistency -->
-                     <h2 class="page-feature-title"><i class="fas fa-user-clock me-2"></i> Employee Scheduling</h2>
-                      <div class="feature-actions admin-actions"> <!-- Changed class, moved here -->
-                         <button class="btn btn-primary" id="saveScheduleBtn" style="display: none;">
-                             <i class="fas fa-save"></i> Save Schedule
-                         </button>
-                          <button class="btn btn-success" id="sendRemindersBtn" style="display: none;">
-                              <i class="fas fa-envelope"></i> Send Reminders
+         <div class="card shadow-sm">
+             <div class="card-body">
+                  <div class="schedule-page-header section-main-header">
+                      <h2 class="schedule-page-title section-main-title">Employee Scheduling</h2>
+                       <div class="admin-actions"> <!-- Group admin buttons -->
+                          <button class="btn btn-primary" id="saveScheduleBtn" style="display: none;"> <!-- Hidden initially -->
+                              <i class="fas fa-save"></i> Save Schedule
                           </button>
+                           <button class="btn btn-success" id="sendRemindersBtn" style="display: none;"> <!-- Hidden initially -->
+                               <i class="fas fa-envelope"></i> Send Reminders
+                           </button>
+                       </div>
+                  </div>
+                  <div class="schedule-controls">
+                      <div class="week-nav"> <!-- Group nav buttons -->
+                          <button class="btn btn-outline" id="prevWeekBtn"><i class="fas fa-chevron-left"></i> Prev</button>
+                          <span id="weekDisplay" style="margin: 0 1rem; font-weight: 500;">Loading...</span>
+                          <button class="btn btn-outline" id="nextWeekBtn">Next <i class="fas fa-chevron-right"></i></button>
                       </div>
-                 </div>
-                 <div class="schedule-controls">
-                     <div class="week-nav">
-                         <button class="btn btn-outline" id="prevWeekBtn"><i class="fas fa-chevron-left"></i> Prev</button>
-                         <span id="weekDisplay" style="margin: 0 1rem; font-weight: 500;">Loading...</span>
-                         <button class="btn btn-outline" id="nextWeekBtn">Next <i class="fas fa-chevron-right"></i></button>
-                     </div>
-                 </div>
-                 <div class="schedule-container">
-                     <table class="schedule-table">
-                         <thead> <tr> <th>Employee</th> <!-- Days headers populated by JS --> </tr> </thead>
-                         <tbody id="scheduleTableBody"> <tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">Loading schedule...</td></tr> </tbody>
-                     </table>
-                 </div>
-                 <div class="modal" id="editShiftModal"> <!-- Keep modal outside card -->
-                     <div class="modal-content">
-                         <div class="modal-header"> <h3 class="modal-title" id="editShiftModalTitle">Edit Shift</h3> <button class="close-modal" data-close-modal>×</button> </div>
-                         <form id="editShiftForm">
-                             <input type="hidden" id="editShiftEmployeeId"> <input type="hidden" id="editShiftDayIndex"> <input type="hidden" id="editShiftWeekOffset">
-                             <div class="form-group">
-                                 <label for="shiftType">Shift Type</label>
-                                 <select id="shiftType" class="form-control"> <option value="morning">Morning (9AM-5PM)</option> <option value="afternoon">Afternoon (12PM-8PM)</option> <option value="night">Night (8PM-4AM)</option> <option value="off">Day Off</option> <option value="sick">Sick Leave</option> <option value="vacation">Vacation</option> </select>
-                             </div>
-                             <div class="form-actions" style="grid-column: span 1;"> <button type="button" class="btn btn-outline" data-close-modal>Cancel</button> <button type="submit" class="btn btn-primary">Save Shift</button> </div>
-                         </form>
-                     </div>
-                 </div>
-             </div> <!-- End card-body -->
-         </div>
+                  </div>
+                  <div class="schedule-container">
+                      <table class="schedule-table">
+                          <thead> <tr> <th>Employee</th> <!-- Days headers populated by JS --> </tr> </thead>
+                          <tbody id="scheduleTableBody"> <tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">Loading schedule...</td></tr> </tbody>
+                      </table>
+                  </div>
+                  <div class="modal" id="editShiftModal">
+                      <div class="modal-content">
+                          <div class="modal-header"> <h3 class="modal-title" id="editShiftModalTitle">Edit Shift</h3> <button class="close-modal" data-close-modal>×</button> </div>
+                          <form id="editShiftForm">
+                              <input type="hidden" id="editShiftEmployeeId"> <input type="hidden" id="editShiftDayIndex"> <input type="hidden" id="editShiftWeekOffset">
+                              <div class="form-group">
+                                  <label for="shiftType">Shift Type</label>
+                                  <select id="shiftType" class="form-control"> <option value="morning">Morning (9AM-5PM)</option> <option value="afternoon">Afternoon (12PM-8PM)</option> <option value="night">Night (8PM-4AM)</option> <option value="off">Day Off</option> <option value="sick">Sick Leave</option> <option value="vacation">Vacation</option> </select>
+                              </div>
+                              <div class="form-actions" style="grid-column: span 1;"> <button type="button" class="btn btn-outline" data-close-modal>Cancel</button> <button type="submit" class="btn btn-primary">Save Shift</button> </div>
+                          </form>
+                      </div>
+                  </div>
+              </div>
+          </div>
+         <script>
+            // JS moved to main block
+        </script>
     </template>
 
     <!-- Template for Team Members View -->
     <template id="teamMembersAssets">
-        <!-- Styles moved to main CSS -->
+        <style id="team-members-view-styles">
+            /* Styles moved to main CSS block */
+        </style>
         <!-- HTML structure for Team Members View -->
-         <div class="team-members-section"> <!-- Using specific class for potential overrides -->
-            <div class="page-header"> <!-- Use standard page header -->
-                 <h2 class="page-feature-title"><i class="fas fa-users me-2"></i>Team Members</h2>
-                 <div class="feature-actions">
-                      <button class="btn btn-primary add-team-member-btn" id="addTeamMemberBtnFeature" style="display:none;"><i class="fas fa-user-plus"></i> Add Member</button>
-                 </div>
-            </div>
-             <div class="team-content-area"> <!-- Content area below header -->
+         <div class="team-members-section">
+             <div class="team-members-section-header">
+                <h2>Team Members</h2>
+                 <button class="btn btn-primary add-team-member-btn" id="addTeamMemberBtnFeature" style="display:none;"><i class="fas fa-user-plus"></i> Add Member</button>
+             </div>
+             <div class="team-content-area">
                  <div class="team-filter">
-                     <input type="text" id="teamSearchInputFeature" class="form-control" placeholder="Search team by name, email, or role..." aria-label="Search team members">
+                     <input type="text" id="teamSearchInputFeature" placeholder="Search team by name, email, or role..." aria-label="Search team members">
                  </div>
                  <div class="team-members-list team-list-display" id="teamListContainerFeature">
                      <p style="color: var(--gray);">Loading team members...</p>
                  </div>
              </div>
          </div>
+        <script>
+             // JS moved to main block
+        </script>
     </template>
 
      <!-- Template for Projects View -->
     <template id="projectsAssets">
-         <!-- Styles moved to main CSS -->
+         <style id="projects-view-styles">
+             /* Styles moved to main CSS block */
+         </style>
           <!-- HTML structure for Projects View -->
           <section id="projects-section">
-             <div class="page-header"> <!-- Use standard page header -->
-                  <h2 class="page-feature-title"><i class="fas fa-briefcase me-2"></i>Projects</h2>
-                  <div class="feature-actions project-controls"> <!-- Combine actions here -->
-                      <input type="search" placeholder="Search Projects..." class="project-search-input form-control form-control-sm" id="projectSearchInputFeature">
-                      <select class="project-filter-select form-select form-select-sm" id="projectFilterSelectFeature">
-                          <option value="all">All Statuses</option>
-                          <option value="active">Active</option>
-                          <option value="in-progress">In Progress</option>
-                          <option value="completed">Completed</option>
-                          <option value="pending">Pending</option>
-                      </select>
-                      <button class="btn btn-primary btn-sm add-project-btn" id="addProjectBtnFeature" style="display:none;"> <i class="fas fa-plus-circle"></i> Add Project </button>
-                  </div>
+             <div class="projects-header">
+                 <div class="projects-title-wrapper"><h2>Projects</h2></div>
+                 <div class="project-controls">
+                     <input type="search" placeholder="Search Projects..." class="project-search-input" id="projectSearchInputFeature">
+                     <select class="project-filter-select" id="projectFilterSelectFeature">
+                         <option value="all">All Statuses</option>
+                         <option value="active">Active</option>
+                         <option value="in-progress">In Progress</option>
+                         <option value="completed">Completed</option>
+                         <option value="pending">Pending</option>
+                     </select>
+                     <button class="btn add-project-btn" id="addProjectBtnFeature" style="display:none;"> <i class="fas fa-plus-circle"></i> Add Project </button>
+                 </div>
              </div>
              <div class="projects-list" id="projectsListContainerFeature">
                  <p style="color: var(--gray); grid-column: 1 / -1; text-align: center; padding: 2rem;">Loading projects...</p>
              </div>
          </section>
+         <script>
+              // JS moved to main block
+         </script>
     </template>
 
      <!-- Placeholder Template -->
     <template id="placeholderAssets">
-        <div class="page-header">
-            <h2 class="page-feature-title"><i class="fas fa-question-circle me-2"></i>Feature Placeholder</h2>
-        </div>
         <div class="placeholder-content">
             <h2>Feature Placeholder</h2>
             <p>Content for this feature will be loaded here.</p>
@@ -2345,15 +2401,6 @@
             let mockScheduleData = {}; // Store schedule data { 'employeeId-weekOffset-dayIndex': 'shiftType' }
             let currentFeatureCleanup = null; // Stores the cleanup function for the loaded feature
             let MOCK_PROJECTS_DATA = []; // To store projects data
-            // Store chart instances globally so theme/contrast updates can access them
-            window.statusPieChartInstance = null;
-            window.progressLineChartInstance = null;
-            window.taskCompletionChartInstance = null;
-            window.overdueTasksChartInstance = null;
-            window.filesUploadedChartInstance = null;
-            window.performanceComparisonChartInstance = null;
-            window.projectTrackingInstance = null; // For project tracking table/data access
-            window.fileSharingInstance = null; // For file sharing table/data access
 
 
             // --- Mock Data ---
@@ -2544,141 +2591,13 @@
                  });
 
                  localStorage.setItem('theme', theme); // Save preference
-                  // Update charts after theme change (timeout to allow styles to apply)
-                 setTimeout(updateChartColors, 50);
             }
 
             function setContrast(enabled) {
                  console.log("Setting high contrast:", enabled);
                  document.body.classList.toggle('high-contrast', enabled);
                  localStorage.setItem('highContrast', enabled);
-                 // Update charts after contrast change (timeout to allow styles to apply)
-                 setTimeout(updateChartColors, 50);
             }
-
-             // Update chart colors based on current theme/contrast
-             function updateChartColors() {
-                 const chartsToUpdate = [
-                     window.statusPieChartInstance, // Project Tracking
-                     window.progressLineChartInstance, // Project Tracking
-                     window.taskCompletionChartInstance, // Reports
-                     window.overdueTasksChartInstance, // Reports
-                     window.filesUploadedChartInstance, // Reports
-                     window.performanceComparisonChartInstance // Reports
-                 ];
-                 const isDark = document.body.classList.contains('dark-theme');
-                 const isHc = document.body.classList.contains('high-contrast');
-
-                 // Fetch current theme/contrast colors
-                 const textColor = getCssVar('--text-color');
-                 const gridColor = getCssVar('--input-border-color');
-                 const cardBg = getCssVar('--card-bg-color');
-                 const primaryColor = getCssVar('--primary');
-                 const greenColor = getCssVar('--chart-green');
-                 const orangeColor = getCssVar('--chart-orange');
-                 const redColor = getCssVar('--chart-red');
-                 const grayColor = getCssVar('--chart-gray');
-                 const blueColor = getCssVar('--chart-blue');
-                 const purpleColor = getCssVar('--chart-purple');
-                 const cyanColor = getCssVar('--chart-cyan');
-
-
-                 chartsToUpdate.forEach(chartInstance => {
-                     if (chartInstance && chartInstance.options) {
-                         // General Options
-                         if (chartInstance.options.plugins && chartInstance.options.plugins.legend) {
-                             chartInstance.options.plugins.legend.labels.color = textColor;
-                         }
-                         if (chartInstance.options.plugins && chartInstance.options.plugins.title) {
-                              chartInstance.options.plugins.title.color = textColor;
-                         }
-
-                         // Axis Options (for bar, line, radar)
-                         if (chartInstance.options.scales) {
-                             Object.values(chartInstance.options.scales).forEach(axis => {
-                                 if (axis.ticks) axis.ticks.color = textColor;
-                                 if (axis.grid) axis.grid.color = gridColor;
-                                 if (axis.angleLines) axis.angleLines.color = gridColor; // Radar specific
-                                 if (axis.pointLabels) axis.pointLabels.color = textColor; // Radar specific
-                             });
-                         }
-
-                         // Radar specific backdrop
-                         if (chartInstance.config.type === 'radar' && chartInstance.options.scales?.r?.ticks) {
-                              chartInstance.options.scales.r.ticks.backdropColor = cardBg;
-                         }
-
-                         // Dataset color updates (more complex, might need per-chart logic)
-                         // Example: Update radar point label colors more reliably
-                         if (chartInstance.config.type === 'radar' && chartInstance.options.scales?.r?.pointLabels) {
-                            chartInstance.options.scales.r.pointLabels.color = getCssVar('--chart-point-label-color');
-                         }
-
-                         // Example: Updating dataset colors based on theme (might need adjustments)
-                         if (chartInstance.data && chartInstance.data.datasets) {
-                             chartInstance.data.datasets.forEach((dataset, index) => {
-                                 // This is basic, might need specific logic per chart type/dataset
-                                 if (dataset.borderColor) dataset.borderColor = getCssVar('--primary'); // Example
-                                 if (dataset.backgroundColor && typeof dataset.backgroundColor !== 'string') {
-                                      // Handle array backgrounds (like pie/doughnut) - needs specific logic
- 
-                                     // Example for pie chart status colors
-                                     if (chartInstance.config.type === 'pie' || chartInstance.config.type === 'doughnut') {
-                                         const statusLabels = chartInstance.data.labels;
-                                         dataset.backgroundColor = statusLabels.map(label => {
-                                             switch (label.toLowerCase()) {
-                                                 case 'completed': return getCssVar('--chart-green');
-                                                 case 'in progress': return getCssVar('--chart-blue');
-                                                 case 'delayed': return getCssVar('--chart-orange');
-                                                 case 'pending': return getCssVar('--chart-gray');
-                                                 default: return getCssVar('--secondary'); // Fallback
-                                             }
-                                         });
-                                         if (isHc) {
-                                            dataset.borderColor = getCssVar('--hc-border');
-                                            dataset.borderWidth = 2;
-                                         } else {
-                                            dataset.borderColor = isDark ? getCssVar('--card-bg-color') : getCssVar('--white'); // Separator color
-                                            dataset.borderWidth = 2;
-                                         }
-                                     }
-                                 } else if (dataset.backgroundColor) {
-                                     // Simple background update (e.g., for bars)
-                                     if (dataset.label?.toLowerCase().includes('overdue')) {
-                                         dataset.backgroundColor = getCssVar('--chart-red');
-                                     } else if (dataset.label?.toLowerCase().includes('files')) {
-                                         dataset.backgroundColor = getCssVar('--chart-blue');
-                                     } else if (dataset.label?.toLowerCase().includes('progress')) {
-                                          dataset.borderColor = getCssVar('--chart-blue');
-                                          dataset.backgroundColor = rgbaColor(getCssVar('--chart-blue'), 0.1);
-                                     }
-                                     // Radar needs specific handling
-                                     if (chartInstance.config.type === 'radar' && dataset.label){
-                                        const colors = [blueColor, greenColor, purpleColor, orangeColor, cyanColor, redColor];
-                                        const colorIndex = index % colors.length;
-                                        const color = colors[colorIndex];
-                                        dataset.borderColor = color;
-                                        dataset.pointBackgroundColor = color;
-                                        dataset.backgroundColor = rgbaColor(color, getCssVar('--chart-radar-fill-opacity'));
-                                         if (isHc){
-                                              dataset.backgroundColor = 'transparent';
-                                              dataset.borderColor = getCssVar('--hc-text');
-                                              dataset.pointBackgroundColor = getCssVar('--hc-text');
-                                         }
-                                     }
-                                      if(isHc && (chartInstance.config.type === 'bar' || chartInstance.config.type === 'line')) {
-                                          dataset.backgroundColor = 'transparent';
-                                          dataset.borderColor = getCssVar('--hc-text');
-                                      }
-                                 }
-                             });
-                         }
-
-                         chartInstance.update('none'); // Update without animation
-                     }
-                 });
-                 console.log("Chart colors updated for theme/contrast.");
-             }
 
              function applyLanguage(lang) {
                  console.log("Applying language:", lang);
@@ -2693,10 +2612,10 @@
                      if (document.querySelector('[data-feature="reports-analytics"] span')) document.querySelector('[data-feature="reports-analytics"] span').textContent = "التقارير والتحليلات";
                      if (document.querySelector('[data-feature="team-members-view"] span')) document.querySelector('[data-feature="team-members-view"] span').textContent = "أعضاء الفريق";
                      if (document.querySelector('[data-feature="file-sharing"] span')) document.querySelector('[data-feature="file-sharing"] span').textContent = "مشاركة الملفات";
-                     if (document.querySelector('[data-feature="project-tracking"] span')) document.querySelector('[data-feature="project-tracking"] span').textContent = "تتبع المشاريع";
+                     if (document.querySelector('[data-feature="project-tracking"] span')) document.querySelector'[data-feature="project-tracking"] span').textContent = "تتبع المشاريع";
                      if (document.querySelector('[data-feature="task-management"] span')) document.querySelector('[data-feature="task-management"] span').textContent = "إدارة المهام";
                      if (document.querySelector('[data-feature="deadline-tracking"] span')) document.querySelector('[data-feature="deadline-tracking"] span').textContent = "تتبع المواعيد النهائية";
-                     if (document.querySelector('[data-feature="data-management"] span')) document.querySelector('[data-feature="data-management"] span').textContent = "إدارة البيانات"; // Translate added
+                     if (document.querySelector('[data-feature="data-management"] span')) document.querySelector('[data-feature="data-management"] span').textContent = "إدارة البيانات";
                      if (document.querySelector('[data-feature="employee-scheduling"] span')) document.querySelector('[data-feature="employee-scheduling"] span').textContent = "جدولة الموظفين";
                      if (document.querySelector('[data-feature="team-calendar"] span')) document.querySelector('[data-feature="team-calendar"] span').textContent = "تقويم الفريق";
                      if (document.querySelector('[data-feature="innovation-hub"] span')) document.querySelector('[data-feature="innovation-hub"] span').textContent = "مركز الابتكار";
@@ -2713,7 +2632,7 @@
                      if (document.querySelector('[data-feature="project-tracking"] span')) document.querySelector('[data-feature="project-tracking"] span').textContent = "Project Tracking";
                      if (document.querySelector('[data-feature="task-management"] span')) document.querySelector('[data-feature="task-management"] span').textContent = "Task Management";
                      if (document.querySelector('[data-feature="deadline-tracking"] span')) document.querySelector('[data-feature="deadline-tracking"] span').textContent = "Deadline Tracking";
-                     if (document.querySelector('[data-feature="data-management"] span')) document.querySelector('[data-feature="data-management"] span').textContent = "Data Management"; // Translate added
+                     if (document.querySelector('[data-feature="data-management"] span')) document.querySelector('[data-feature="data-management"] span').textContent = "Data Management";
                      if (document.querySelector('[data-feature="employee-scheduling"] span')) document.querySelector('[data-feature="employee-scheduling"] span').textContent = "Employee Scheduling";
                      if (document.querySelector('[data-feature="team-calendar"] span')) document.querySelector('[data-feature="team-calendar"] span').textContent = "Team Calendar";
                      if (document.querySelector('[data-feature="innovation-hub"] span')) document.querySelector('[data-feature="innovation-hub"] span').textContent = "Innovation Hub";
@@ -2915,8 +2834,8 @@
                  });
             }
 
-            // Map feature IDs to their JS initialization functions
-             const featureInitializers = {
+             // Map feature IDs to their JS initialization functions
+            const featureInitializers = {
                  'task-management': initializeTaskManagementFeature,
                  'file-sharing': initializeFileSharingFeature,
                  'project-tracking': initializeProjectTrackingFeature,
@@ -2961,6 +2880,9 @@
 
                  console.log(`Loading content for: ${featureName} (${featureId}) from template: ${templateId}`);
 
+                 // Ensure feature init functions are globally available (they are defined in the main script block now)
+                 Object.assign(window, featureInitializers); // Make initializers globally accessible
+
                  setTimeout(() => {
                      try {
                          featureLoadingEl.style.display = 'none';
@@ -2980,29 +2902,18 @@
                              featureSectionsContainer.appendChild(templateContent.firstChild);
                          }
 
-                         // Inject styles associated with the template (if any)
-                         const styleElement = template.querySelector('style'); // Get style *from* the template element itself
-                         if (styleElement) {
-                              injectStyles(styleElement.textContent, `injected-${featureId}-styles`);
-                         }
-
                          // Initialize JS if an initializer function exists
                          const initializerFunction = featureInitializers[featureId];
                          if (typeof initializerFunction === 'function') {
-                              const result = initializerFunction(featureSectionsContainer); // Pass container
-                              currentFeatureCleanup = result?.cleanup; // Store cleanup function
-                              console.log(`${featureName} JS initialized.`);
-                          } else if(templateId !== 'placeholderAssets'){
-                              console.warn(`No specific JS initializer found for ${featureId}.`);
-                              currentFeatureCleanup = () => { console.log(`Basic cleanup for ${featureId}`); }; // Basic cleanup if none defined
-                          } else {
+                             const result = initializerFunction(featureSectionsContainer); // Pass container
+                             currentFeatureCleanup = result?.cleanup; // Store cleanup function
+                             console.log(`${featureName} JS initialized.`);
+                         } else if(templateId !== 'placeholderAssets'){
+                             console.warn(`No specific JS initializer found for ${featureId}.`);
+                             currentFeatureCleanup = () => { console.log(`Basic cleanup for ${featureId}`); }; // Basic cleanup if none defined
+                         } else {
                               currentFeatureCleanup = () => { console.log(`Cleaning up placeholder for ${featureName}`); }; // Placeholder cleanup
-                          }
-                          // Add class if header is present in the loaded content
-                          if (featureSectionsContainer.querySelector('.page-header')) {
-                              featureSectionsContainer.classList.add('has-page-header');
-                          }
-
+                         }
 
                      } catch (error) {
                          console.error(`Error loading feature ${featureId}:`, error);
@@ -3635,8 +3546,7 @@
              }
 
             // --- Employee Scheduling (Existing + Refinements) ---
-            // Global function definition moved inside the main script scope
-             function initializeEmployeeScheduleLogic(container) { // Pass container
+            function initializeEmployeeScheduleLogic(container) { // Pass container
                  console.log("Initializing Employee Schedule Logic..."); // Debug log
                  const calculateOffsets = () => { /* ... (Offset calculation, starts Monday) ... */ const today=new Date();const mayFirst2025=new Date(2025,4,1);mayFirst2025.setHours(0,0,0,0);const currentDayOfWeek=today.getDay();const diffToMonday=today.getDate()-currentDayOfWeek+(currentDayOfWeek===0?-6:1);const startOfCurrentWeek=new Date(today);startOfCurrentWeek.setDate(diffToMonday);startOfCurrentWeek.setHours(0,0,0,0);const mayFirstDayOfWeek=mayFirst2025.getDay();const diffToMayFirstMonday=mayFirst2025.getDate()-mayFirstDayOfWeek+(mayFirstDayOfWeek===0?-6:1);const startOfMayFirstWeek=new Date(mayFirst2025);startOfMayFirstWeek.setDate(diffToMayFirstMonday);startOfMayFirstWeek.setHours(0,0,0,0);const msPerDay=24*60*60*1000;const weeksDifference=Math.round((startOfMayFirstWeek.getTime()-startOfCurrentWeek.getTime())/(7*msPerDay));console.log(`Current Week Start: ${startOfCurrentWeek.toDateString()}`);console.log(`Target Week Start: ${startOfMayFirstWeek.toDateString()}`);console.log(`Calculated offset: ${weeksDifference}`);currentScheduleWeekOffset=weeksDifference;scheduleMinWeekOffset=weeksDifference; };
                  calculateOffsets();
@@ -3658,7 +3568,7 @@
                  const editShiftModalTitle = document.getElementById('editShiftModalTitle');
 
                  // Check if elements were found
-                 if (!weekDisplay || !scheduleTableBody || !scheduleThead || !prevWeekBtn || !nextWeekBtn || !editShiftModal || !editShiftForm || !shiftTypeSelect) {
+                 if (!weekDisplay || !scheduleTableBody || !scheduleThead || !prevWeekBtn || !nextWeekBtn || !editShiftModal || !editShiftForm || !shiftTypeSelect || !editShiftEmployeeIdInput || !editShiftDayIndexInput || !editShiftWeekOffsetInput || !editShiftModalTitle) {
                     console.error("Employee Scheduling UI elements missing!");
                     if (scheduleTableBody) scheduleTableBody.innerHTML = '<tr><td colspan="8" class="text-danger">Error loading schedule interface.</td></tr>';
                     return { cleanup: () => {} };
@@ -3675,8 +3585,7 @@
 
                  function getWeekDates(weekOffset = 0) { /* ... (Get week dates, starting Monday) ... */ const baseDate=new Date();const startOfWeek=new Date(baseDate);const dayOfWeek=baseDate.getDay();const diff=baseDate.getDate()-dayOfWeek+(dayOfWeek===0?-6:1);startOfWeek.setDate(diff+(weekOffset*7));startOfWeek.setHours(0,0,0,0);const dates=[];for(let i=0;i<7;i++){const date=new Date(startOfWeek);date.setDate(startOfWeek.getDate()+i);dates.push(date);}return dates; }
 
-                 // Define renderSchedule within the initializer scope
-                 const renderSchedule = (weekOffset) => {
+                 window.renderSchedule = function(weekOffset) { // Make global for refresh (or pass instance)
                       console.log(`Rendering schedule offset: ${weekOffset}`);
                       if (isNaN(weekOffset)) { weekOffset = currentScheduleWeekOffset; }
                       const weekDates = getWeekDates(weekOffset); const start = weekDates[0]; const end = weekDates[6]; if(weekDisplay) weekDisplay.textContent = `${formatDateForDisplay(start)} - ${formatDateForDisplay(end)}`;
@@ -3705,7 +3614,6 @@
                           });
                      }
                   }
-                  window.renderSchedule = renderSchedule; // Expose globally if needed elsewhere (e.g., date format change)
 
                  function getShiftText(type) { switch (type) { case 'morning': return '9AM-5PM'; case 'afternoon': return '12PM-8PM'; case 'night': return '8PM-4AM'; case 'off': return 'OFF'; case 'sick': return 'Sick'; case 'vacation': return 'Vacation'; default: return 'N/A'; } }
                  function handleEditShiftClick(event) { /* ... (Edit shift click logic) ... */ const target=event.target;if(!target.classList.contains('editable'))return;const employeeId=target.dataset.employeeId;const dayIndex=target.dataset.dayIndex;const weekOffset=target.dataset.weekOffset;const employeeName=target.dataset.employeeName;const dateStr=target.dataset.date;const scheduleKey=`${employeeId}-${weekOffset}-${dayIndex}`;const currentShift=mockScheduleData[scheduleKey]||'morning';if(editShiftEmployeeIdInput)editShiftEmployeeIdInput.value=employeeId;if(editShiftDayIndexInput)editShiftDayIndexInput.value=dayIndex;if(editShiftWeekOffsetInput)editShiftWeekOffsetInput.value=weekOffset;if(shiftTypeSelect)shiftTypeSelect.value=currentShift;if(editShiftModalTitle)editShiftModalTitle.textContent=`Edit ${employeeName}'s Shift on ${days[dayIndex]||dateStr}`;if(editShiftModal)editShiftModal.classList.add('active'); }
@@ -3728,7 +3636,6 @@
                            element?.removeEventListener(event, handler, options);
                        });
                        listeners = [];
-                       window.renderSchedule = undefined; // Remove global reference
                        // Close modal if open
                        document.getElementById('editShiftModal')?.classList.remove('active');
                        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
@@ -3756,7 +3663,7 @@
 
             // --- Team Members Feature ---
               function getTeamMembersHTML() {
-                  // HTML moved to template
+                 // HTML moved to template
                  return '';
              }
 
@@ -3764,14 +3671,14 @@
                  console.log("Initializing Team Members Feature..."); // Debug log
                  const searchInput = container.querySelector('#teamSearchInputFeature');
                  const teamListContainer = container.querySelector('#teamListContainerFeature');
-                 const addMemberBtn = container.querySelector('.add-team-member-btn');
+                 const addMemberBtn = container.querySelector('#addTeamMemberBtnFeature'); // Use specific ID from template
 
                  if(!searchInput || !teamListContainer) {
                     console.error("Team Members feature elements missing!");
                     return { cleanup: () => {} };
                  }
-                  // Show add button only for admins
-                 if (addMemberBtn && currentUser.role === 'admin') {
+                 // Show add button only for admins
+                  if (addMemberBtn && currentUser.role === 'admin') {
                      addMemberBtn.style.display = 'inline-flex';
                  }
 
@@ -3812,7 +3719,7 @@
 
             // --- Projects Feature ---
              function getProjectsHTML() {
-                 // HTML moved to template
+                  // HTML moved to template
                  return '';
              }
 
@@ -4006,11 +3913,10 @@
                     console.error("Projects feature elements missing!");
                     return { cleanup: () => {} };
                  }
-
                   // Show Add button only for Admin/Supervisor
-                   if (addProjectBtn && (currentUser.role === 'admin' || currentUser.role === 'supervisor')) {
-                      addProjectBtn.style.display = 'inline-flex';
-                  }
+                  if (addProjectBtn && (currentUser.role === 'admin' || currentUser.role === 'supervisor')) {
+                     addProjectBtn.style.display = 'inline-flex';
+                 }
 
                  let listeners = [];
                  const addListener = (element, event, handler, options = {}) => { if (!element) return; element.addEventListener(event, handler, options); listeners.push({ element, event, handler, options }); };
@@ -4053,9 +3959,9 @@
 
             // --- Utility Functions ---
              // Make utilities globally accessible or pass them into feature initializers if needed
-            window.timeAgo = function(timestamp) { if (!(timestamp instanceof Date)) { const date = new Date(timestamp); if (isNaN(date.getTime())) return ''; timestamp = date; } const now = new Date(); const secondsPast = (now.getTime() - timestamp.getTime()) / 1000; if (secondsPast < 10) { return 'Just now'; } if (secondsPast < 60) { return parseInt(secondsPast) + 's ago'; } if (secondsPast < 3600) { return parseInt(secondsPast / 60) + 'm ago'; } if (secondsPast < 3600 * 24) { return parseInt(secondsPast / 3600) + 'h ago'; } return formatDateForDisplay(timestamp); }
-            window.formatDateForDisplay = function(date) { if (!(date instanceof Date)) { const parsedDate = new Date(date); if (isNaN(parsedDate.getTime())) return ''; date = parsedDate; } const dateFormat = localStorage.getItem('dateFormat') || 'MM/DD/YYYY'; const year = date.getFullYear(); const month = date.getMonth() + 1; const day = date.getDate(); const monthPadded = String(month).padStart(2, '0'); const dayPadded = String(day).padStart(2, '0'); const monthName = date.toLocaleDateString(undefined, { month: 'short' }); try { switch (dateFormat) { case 'DD/MM/YYYY': return `${dayPadded}/${monthPadded}/${year}`; case 'YYYY-MM-DD': return `${year}-${monthPadded}-${dayPadded}`; case 'Month D, YYYY': return `${monthName} ${day}, ${year}`; case 'MM/DD/YYYY': default: return `${monthPadded}/${dayPadded}/${year}`; } } catch (e) { console.error("Error formatting date:", e); return `${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}/${year}`; } }
-            window.formatFullDateTime = function(date) { if (!(date instanceof Date)) { const parsedDate = new Date(date); if (isNaN(parsedDate.getTime())) return ''; date = parsedDate; } const formattedDate = formatDateForDisplay(date); const timeFormat = localStorage.getItem('timeFormat') || '12h'; const options = { hour: 'numeric', minute: 'numeric', hour12: timeFormat === '12h' }; try { const formattedTime = date.toLocaleTimeString(undefined, options); return `${formattedDate}, ${formattedTime}`; } catch (e) { console.error("Error formatting time:", e); return formattedDate; } }
+            window.timeAgo = function(timestamp) { if (!timestamp) return '...'; if (!(timestamp instanceof Date)) { const date = new Date(timestamp); if (isNaN(date.getTime())) return '...'; timestamp = date; } const now = new Date(); const secondsPast = (now.getTime() - timestamp.getTime()) / 1000; if (secondsPast < 10) { return 'Just now'; } if (secondsPast < 60) { return parseInt(secondsPast) + 's ago'; } if (secondsPast < 3600) { return parseInt(secondsPast / 60) + 'm ago'; } if (secondsPast < 3600 * 24) { return parseInt(secondsPast / 3600) + 'h ago'; } return formatDateForDisplay(timestamp); }
+            window.formatDateForDisplay = function(date) { if (!date) return 'N/A'; if (!(date instanceof Date)) { const parsedDate = new Date(date); if (isNaN(parsedDate.getTime())) return 'N/A'; date = parsedDate; } const dateFormat = localStorage.getItem('dateFormat') || 'MM/DD/YYYY'; const year = date.getFullYear(); const month = date.getMonth() + 1; const day = date.getDate(); const monthPadded = String(month).padStart(2, '0'); const dayPadded = String(day).padStart(2, '0'); const monthName = date.toLocaleDateString(undefined, { month: 'short' }); try { switch (dateFormat) { case 'DD/MM/YYYY': return `${dayPadded}/${monthPadded}/${year}`; case 'YYYY-MM-DD': return `${year}-${monthPadded}-${dayPadded}`; case 'Month D, YYYY': return `${monthName} ${day}, ${year}`; case 'MM/DD/YYYY': default: return `${monthPadded}/${dayPadded}/${year}`; } } catch (e) { console.error("Error formatting date:", e); return `${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}/${year}`; } }
+            window.formatFullDateTime = function(date) { if (!date) return 'N/A'; if (!(date instanceof Date)) { const parsedDate = new Date(date); if (isNaN(parsedDate.getTime())) return 'N/A'; date = parsedDate; } const formattedDate = formatDateForDisplay(date); const timeFormat = localStorage.getItem('timeFormat') || '12h'; const options = { hour: 'numeric', minute: 'numeric', hour12: timeFormat === '12h' }; try { const formattedTime = date.toLocaleTimeString(undefined, options); return `${formattedDate}, ${formattedTime}`; } catch (e) { console.error("Error formatting time:", e); return formattedDate; } }
             window.getCurrentDate = function() { const today = new Date(); const yyyy = today.getFullYear(); let mm = today.getMonth() + 1; let dd = today.getDate(); if (dd < 10) dd = '0' + dd; if (mm < 10) mm = '0' + mm; return `${yyyy}-${mm}-${dd}`; } // YYYY-MM-DD format
             window.generateMockActivities = function(count, baseTimestampMillis) { /* ... (mock generation) ... */ const nowMillis=baseTimestampMillis||Date.now();const newActivities=[];let users=MOCK_USERS.map(u=>u.name.split(' ')[0]);if(users.length===0)users.push('System');const actions=['updated profile','completed task','added project','commented on task','uploaded file','joined team'];const icons=['fa-user-edit','fa-check-circle','fa-plus-circle','fa-comment','fa-upload','fa-user-plus'];const tasks=MOCK_TASKS.map(t=>`'${t.name.substring(0,20)}...'`);const projects=MOCK_PROJECTS_DATA.map(p=>`'${p.name}'`);const files=['doc.pdf','img.png','sheet.xlsx','pres.pptx'];for(let i=0;i<count;i++){const user=users[Math.floor(Math.random()*users.length)];const actionIndex=Math.floor(Math.random()*actions.length);let message=`${user} ${actions[actionIndex]}`;if(actions[actionIndex].includes('task')&&tasks.length>0){message+=` ${tasks[Math.floor(Math.random()*tasks.length)]}`;}else if(actions[actionIndex].includes('project')&&projects.length>0){message+=` ${projects[Math.floor(Math.random()*projects.length)]}`;}else if(actions[actionIndex].includes('file')&&files.length>0){message+=` ${files[Math.floor(Math.random()*files.length)]}`;}let timestampMillis;if(count===1){timestampMillis=nowMillis-Math.random()*1000*10;}else{timestampMillis=nowMillis-(Math.random()*1000*3600*(i+1)*1.5+300000);}timestampMillis=Math.min(timestampMillis,nowMillis);newActivities.push({id:nowMillis+i+Math.floor(Math.random()*1000),icon:icons[actionIndex],message:message,timestamp:new Date(timestampMillis),isNew:false});}return count>1?newActivities.sort((a,b)=>b.timestamp-a.timestamp):newActivities; }
             window.generateMockNotifications = function(count, baseTimestampMillis) { /* ... (mock generation) ... */ const nowMillis=baseTimestampMillis||Date.now();const newNotifications=[];const types=[{msg:'New task assigned:',icon:'fa-tasks',type:'task'},{msg:'Project deadline approaching:',icon:'fa-clock',type:'project'},{msg:'Mentioned you:',icon:'fa-comment-dots',type:'comment'},{msg:'System update:',icon:'fa-info-circle',type:'system'},{msg:'File shared:',icon:'fa-file-alt',type:'file'},];const tasks=MOCK_TASKS.map(t=>`'${t.name.substring(0,20)}...'`);const projects=MOCK_PROJECTS_DATA.map(p=>`'${p.name}'`);let users=MOCK_USERS.map(u=>u.name.split(' ')[0]);if(users.length===0)users.push('System');const files=['report.docx','logo.svg','data.csv'];for(let i=0;i<count;i++){const typeInfo=types[Math.floor(Math.random()*types.length)];let message=typeInfo.msg;if(typeInfo.type==='task'&&tasks.length>0)message+=` ${tasks[Math.floor(Math.random()*tasks.length)]}`;else if(typeInfo.type==='project'&&projects.length>0)message+=` ${projects[Math.floor(Math.random()*projects.length)]}`;else if(typeInfo.type==='comment'&&users.length>0)message+=` by ${users[Math.floor(Math.random()*users.length)]}`;else if(typeInfo.type==='file'&&files.length>0&&users.length>0)message+=` ${files[Math.floor(Math.random()*files.length)]} by ${users[Math.floor(Math.random()*users.length)]}`;let timestampMillis;if(count===1){timestampMillis=nowMillis-Math.random()*1000*15;}else{timestampMillis=nowMillis-(Math.random()*1000*3600*(i+1)*1.8+180000);}timestampMillis=Math.min(timestampMillis,nowMillis);newNotifications.push({id:nowMillis+i+10000+Math.floor(Math.random()*1000),icon:typeInfo.icon,message:message,timestamp:new Date(timestampMillis),unread:count===1?true:Math.random()>0.3});}return count>1?newNotifications.sort((a,b)=>b.timestamp-a.timestamp):newNotifications; }
