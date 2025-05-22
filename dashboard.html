@@ -1,3 +1,18 @@
+Okay, I've reviewed the code. The issue you're describing ("not appearing") for `projects`, `reports-analytics`, `team-members-view`, and `innovation-hub` likely means that when you click these links in the sidebar, the main content area either remains blank or doesn't show a clear indication for that selected feature, especially if the corresponding HTML files (`sections/featureId.html`) are missing or empty.
+
+The links themselves are correctly defined in your HTML sidebar. The JavaScript `setActiveFeature` function is responsible for handling what happens when these links are clicked. For features not named 'dashboard', 'profile', or 'settings', it tries to dynamically fetch content from an HTML file.
+
+I've adjusted the part of the `setActiveFeature` function that handles these dynamic features to be more robust in displaying a placeholder. Now, it will:
+1.  Immediately show a "Loading [Feature Name]..." message in the content area.
+2.  If the `sections/featureName.html` file cannot be fetched, it will display an "Error Loading [Feature Name]..." message.
+3.  If the file is fetched successfully but is empty (or an initialization script for it is missing/fails silently), it will display a message like "Content for [Feature Name] is under development..."
+4.  If the file is fetched and contains content (or its initialization script populates it), that content will be shown.
+
+This ensures that clicking on these new menu items will always result in a clear visual feedback in the content area, making them "appear" correctly.
+
+Here's the complete HTML file with the necessary modifications in the JavaScript's `setActiveFeature` function:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1826,10 +1841,7 @@
             }
 
             // --- Feature/Section Loading ---
-                       // --- Feature/Section Loading ---
-           function setActiveFeature(featureId, settingsTab = null) {
-               // ... (الكود السابق للتحقق من الصلاحيات وتحديث القائمة الجانبية وإلخ يبقى كما هو) ...
-
+            function setActiveFeature(featureId, settingsTab = null) {
                // Update URL without reload only if it changed
                let hash = `#${featureId}`;
                if (featureId === 'settings' && currentSettingsTab) {
@@ -1848,7 +1860,6 @@
                contentSections.forEach(section => section.classList.remove('active'));
                featureSectionsContainer.style.display = 'none'; // Hide dynamic container by default
 
-               // --- Dynamic Loading Logic ---
                if (featureId === 'dashboard') {
                    dashboardContent.classList.add('active');
                    updateStats();
@@ -1861,89 +1872,105 @@
                    applyRBAC();
                    activateSettingsTab(currentSettingsTab || 'preferences');
                } else {
-                   // Handle other features dynamically
-                   featureSectionsContainer.style.display = 'block';
-                   featureSections.innerHTML = ''; // Clear previous dynamic content
-                   featureSections.appendChild(featurePlaceholder); // Add placeholder back
-                   featureTitle.textContent = `Loading ${featureId.replace(/-/g, ' ')}...`;
-                   featureDescription.textContent = '';
-                   featureLoadingIndicator.style.display = 'block';
-                   featureErrorMessage.style.display = 'none';
-                   featurePlaceholder.style.display = 'flex';
+                    // Handle other features dynamically
+                    featureSectionsContainer.style.display = 'block';
+                    featureSections.innerHTML = ''; // Clear previous dynamic content
 
-                   const filePath = `sections/${featureId}.html`; // Assuming featureId matches file name
+                    const featureNameDisplay = featureId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
-                   fetch(filePath)
-                       .then(response => {
-                           if (!response.ok) {
-                               throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
-                           }
-                           return response.text();
-                       })
-                       .then(html => {
-                           // Inject the HTML content first
-                           featureSections.innerHTML = html;
-                           featureSections.classList.add('active'); // Show the section
+                    // Setup the placeholder, it will be shown while loading
+                    featureSections.appendChild(featurePlaceholder);
+                    featureTitle.textContent = `Loading ${featureNameDisplay}...`;
+                    featureDescription.textContent = ''; // No description while loading
+                    featureLoadingIndicator.style.display = 'block';
+                    featureErrorMessage.style.display = 'none';
+                    featurePlaceholder.style.display = 'flex'; // Make sure placeholder is visible
 
-                           // !!!!! --- START OF MODIFIED SECTION --- !!!!!
-                           // Check if the loaded feature needs initialization
-                           if (featureId === 'employee-scheduling') {
-                               // Check if the initialization function exists (loaded via the injected HTML's script)
-                               if (typeof initializeEmployeeSchedule === 'function') {
-                                   try {
-                                       // Pass deep copies of necessary data from dashboard scope
-                                       console.log("Dashboard passing currentUser:", currentUser); // Debug
-                                       console.log("Dashboard passing teamMembers:", teamMembers); // Debug
-                                       initializeEmployeeSchedule(
-                                           JSON.parse(JSON.stringify(currentUser || DEFAULT_USER)), // Pass current user or default
-                                           JSON.parse(JSON.stringify(teamMembers || [])) // Pass current team members or empty array
-                                       );
-                                   } catch (err) {
-                                       console.error(`Error executing initializeEmployeeSchedule:`, err);
-                                       // Update placeholder to show initialization error
-                                       featureTitle.textContent = `Error Initializing ${featureId.replace(/-/g, ' ')}`;
-                                       featureDescription.textContent = `Content loaded, but failed during initialization. Check console. Error: ${err.message}`;
-                                       featureLoadingIndicator.style.display = 'none';
-                                       featureErrorMessage.style.display = 'block';
-                                       featurePlaceholder.style.display = 'flex';
-                                   }
-                               } else {
-                                   console.warn(`Initialization function 'initializeEmployeeSchedule' not found for ${featureId}. Dynamic content might not be interactive.`);
-                                   // Update placeholder to show warning
-                                   featureTitle.textContent = `${featureId.replace(/-/g, ' ')} Loaded (Initialization Script Not Found)`;
-                                   featureDescription.textContent = `Content loaded, but its specific setup script (initializeEmployeeSchedule) was not found or failed to load. Interaction might be limited.`;
-                                   featureLoadingIndicator.style.display = 'none';
-                                   featureErrorMessage.style.display = 'none'; // No error, just warning
-                                   featurePlaceholder.style.display = 'flex';
-                               }
-                           }
-                           // Add similar `else if` blocks here for other features
-                           // requiring specific initialization after loading, e.g.:
-                           // else if (featureId === 'projects') {
-                           //     if (typeof initializeProjectsView === 'function') {
-                           //         initializeProjectsView(pass_necessary_data);
-                           //     } else { console.warn(...) }
-                           // }
+                    const filePath = `sections/${featureId}.html`;
 
-                           // Hide placeholder elements *after* initialization attempt
-                           // Only hide the placeholder if no error message was shown during initialization
-                           featureLoadingIndicator.style.display = 'none'; // Always hide spinner
-                           if (featureErrorMessage.style.display !== 'block') {
-                                featurePlaceholder.style.display = 'none'; // Hide placeholder if init successful/not needed
-                           }
-                           // !!!!! --- END OF MODIFIED SECTION --- !!!!!
-                       })
-                       .catch(error => {
-                           console.error(`Error loading feature '${featureId}' from '${filePath}':`, error);
-                           // Update placeholder to show loading error
-                           featureTitle.textContent = `Error Loading ${featureId.replace(/-/g, ' ')}`;
-                           featureDescription.textContent = `Could not load content. Please check the file path ('${filePath}') and ensure the file exists and the server is configured correctly. Error: ${error.message}`;
-                           featureLoadingIndicator.style.display = 'none';
-                           featureErrorMessage.style.display = 'block';
-                           featurePlaceholder.style.display = 'flex';
-                           featureSections.classList.add('active');
-                       });
-               }
+                    fetch(filePath)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status} (${response.statusText}) for ${filePath}`);
+                            }
+                            return response.text();
+                        })
+                        .then(html => {
+                            featureSections.innerHTML = html; // Inject fetched HTML, removing the "Loading..." placeholder
+                            featureSections.classList.add('active'); // Ensure section itself is active
+
+                            let initializationAttempted = false;
+                            let initializationSucceeded = false;
+
+                            // --- Feature-specific initialization ---
+                            if (featureId === 'employee-scheduling') {
+                                initializationAttempted = true;
+                                if (typeof initializeEmployeeSchedule === 'function') {
+                                    try {
+                                        initializeEmployeeSchedule(
+                                            JSON.parse(JSON.stringify(currentUser || DEFAULT_USER)),
+                                            JSON.parse(JSON.stringify(teamMembers || []))
+                                        );
+                                        initializationSucceeded = true; // Assume init populates content
+                                    } catch (err) {
+                                        console.error(`Error executing initializeEmployeeSchedule:`, err);
+                                        featureSections.innerHTML = ''; // Clear potentially broken HTML
+                                        featureSections.appendChild(featurePlaceholder);
+                                        featureTitle.textContent = `Error Initializing ${featureNameDisplay}`;
+                                        featureDescription.textContent = `Content loaded, but failed during initialization. Error: ${err.message}`;
+                                        featureLoadingIndicator.style.display = 'none';
+                                        featureErrorMessage.style.display = 'block';
+                                        featurePlaceholder.style.display = 'flex';
+                                        return; // Stop further processing for this feature
+                                    }
+                                } else {
+                                    console.warn(`Initialization function 'initializeEmployeeSchedule' not found for ${featureId}. Fetched HTML will be shown as is.`);
+                                }
+                            }
+                            // Add other 'else if (featureId === '...'){ initializationAttempted = true; ... }' blocks here
+                            // for features like 'projects', 'reports-analytics', 'team-members-view', 'innovation-hub'
+                            // if they have specific initialization scripts.
+
+                            // --- Post-load/init content check ---
+                            const mainContentAreaIsEmpty = () => {
+                                if (featureSections.contains(featurePlaceholder) && featureSections.children.length === 1 && featurePlaceholder.style.display !== 'none') {
+                                     // If placeholder is the only child and visible, consider it empty for this check
+                                     return true;
+                                }
+                                return featureSections.innerHTML.trim() === '';
+                            };
+
+                            if (!initializationSucceeded && mainContentAreaIsEmpty()) {
+                                // If fetched HTML was empty, or init didn't populate, show a default message
+                                featureSections.innerHTML = ''; // Clear again to be sure
+                                featureSections.appendChild(featurePlaceholder);
+                                featureTitle.textContent = featureNameDisplay;
+                                featureDescription.textContent = (initializationAttempted && !initializationSucceeded && typeof window[`initialize${featureNameDisplay.replace(/\s/g, '')}`] !== 'undefined') ?
+                                    `Content for ${featureNameDisplay} loaded, but its setup script might be missing or failed to complete.` :
+                                    `Content for ${featureNameDisplay} is under development or not yet available.`;
+                                featureLoadingIndicator.style.display = 'none';
+                                featureErrorMessage.style.display = 'none'; // No fetch error, just no content/failed init
+                                featurePlaceholder.style.display = 'flex';
+                            } else if (initializationSucceeded || featureSections.innerHTML.trim() !== '') {
+                                // Content is present (from HTML or successful init)
+                                // The "Loading..." placeholder was already removed by `featureSections.innerHTML = html;`
+                                // If an init function put up its own error/content, that's fine.
+                                featureLoadingIndicator.style.display = 'none'; // From the generic placeholder
+                            }
+                        })
+                        .catch(error => {
+                            console.error(`Error loading feature '${featureId}' from '${filePath}':`, error);
+                            featureSections.innerHTML = ''; // Clear any partial content
+                            featureSections.appendChild(featurePlaceholder); // Add placeholder for error message
+                            featureTitle.textContent = `Error Loading ${featureNameDisplay}`;
+                            featureDescription.textContent = `Could not load content for ${featureNameDisplay}. Please check if the file '${filePath}' exists and is accessible. Error: ${error.message}`;
+                            featureLoadingIndicator.style.display = 'none';
+                            featureErrorMessage.style.display = 'block'; // Show the error icon/area in placeholder
+                            featurePlaceholder.style.display = 'flex';
+                            featureSections.classList.add('active');
+                        });
+                }
+
 
                // Show/Hide Back Button
                backButton.style.display = featureId !== 'dashboard' ? 'inline-flex' : 'none';
@@ -3048,3 +3075,4 @@
     </script>
 </body>
 </html>
+```
